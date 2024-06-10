@@ -1,4 +1,4 @@
-// misc.cpp
+// Misc.cpp
 //
 
 
@@ -9,42 +9,32 @@
 #include "def.h"
 
 
-// Variables globales
+// Global Variables
 
-HINSTANCE		g_hInstance;
-int				g_lastSprite = 0;
-extern BOOL		g_bFullScreen;	// FALSE si mode de test
-extern int		g_mouseType;
-extern char		g_CDPath[MAX_PATH];
+HINSTANCE      g_hInstance;
+int            g_lastSprite = 0;
+extern BOOL    g_bFullScreen;
+extern int     g_mouseType;
+extern char    g_CDPath[MAX_PATH];
 
-
-
-// Initialise HInstance.
+//Initalize HInstance.
 
 void InitHInstance(HINSTANCE hInstance)
 {
-	g_hInstance = hInstance;
+    g_hInstance = hInstance;
 }
-
-
-// Affiche un message de debug.
 
 void OutputDebug(char *pMessage)
 {
 #ifdef _DEBUG
-	OutputDebugString(pMessage);
+    OutputDebugString(pMessage);
 #endif
 }
 
-
-// Charge un texte dans une ressource.
-
 void LoadString(UINT nID, char *pBuffer, int lgBuffer)
 {
-	LoadString(g_hInstance, nID, pBuffer, lgBuffer);
+    LoadString(g_hInstance, nID, pBuffer, lgBuffer);
 }
-
-// Change le lutin de la souris.
 
 void ChangeSprite(int sprite)
 {
@@ -72,47 +62,30 @@ void ChangeSprite(int sprite)
 	g_lastSprite = sprite;
 }
 
-
-// Conversion de la position de la souris.
-
 POINT ConvLongToPos(LPARAM lParam)
 {
-	POINT	pos;
+    POINT   pos;
 
-	pos.x = LOWORD(lParam);  // horizontal position of cursor 
-	pos.y = HIWORD(lParam);  // vertical position of cursor
+    pos.x = LOWORD(lParam);
+    pos.y = HIWORD(lParam);
 
-//	if ( !g_bFullScreen )
-//	{
-//		pos.y -= GetSystemMetrics(SM_CYCAPTION);
-//	}
-
-	return pos;
+    return;
 }
-
-
-// Réinitialise le générateur aléatoire.
 
 void InitRandom()
 {
-	srand(1);
+    srand(1);
 }
-
-// Retourne un nombre aléatoire compris entre
-// deux bornes (inclues).
 
 int Random(int min, int max)
 {
-	long	n;
-	
-	n = rand();
-	n = min+(n%(max-min+1));
+    long    n;
 
-	return (int)n;
+    n = rand();
+    n = min+(n%(max-min+1));
+
+    return (int)n;
 }
-
-
-// Retourne le nom de dossier en cours.
 
 void GetCurrentDir(char *pName, int lg)
 {
@@ -145,10 +118,6 @@ void GetCurrentDir(char *pName, int lg)
 	}
 }
 
-
-// Ajoute le chemin permettant de lire un fichier
-// sur le CD-Rom.
-
 void AddCDPath(char *pFilename)
 {
 	char	temp[MAX_PATH];
@@ -168,8 +137,10 @@ void AddCDPath(char *pFilename)
 	strcat(temp, pFilename);
 #else
 	if ( !bDaniel &&
-		 (strstr(pFilename, "image\\") == pFilename ||
-		  strstr(pFilename, "movie\\") == pFilename) )
+		 (strstr(pFilename, "image08\\") == pFilename ||
+          strstr(pFilename, "data\\") == pFilename    ||
+		  strstr(pFilename, "image16\\") == pFilename ||
+          strstr(pFilename, "sound\\")) )
 	{
 		strcpy(temp, g_CDPath);
 		strcat(temp, "..\\");
@@ -185,9 +156,6 @@ void AddCDPath(char *pFilename)
 	strcpy(pFilename, temp);
 }
 
-// Ajoute le chemin permettant de lire un fichier
-// utilisateur.
-
 void AddUserPath(char *pFilename)
 {
 	char					temp[MAX_PATH];
@@ -198,17 +166,9 @@ void AddUserPath(char *pFilename)
 
 	if ( g_CDPath[0] != 0 )  return;
 
-#if _EGAMES
-	strcpy(temp, "c:\\Planet Blupi Full\\");
-#if _DEMO
-	strcpy(temp, "c:\\Planet Blupi Demo\\");
-#endif
-#if _SE
-	strcpy(temp, "c:\\Planet Blupi SE\\");
-#endif
-#else
-	strcpy(temp, "c:\\Planète Blupi\\");
-#endif
+
+
+	strcpy(temp, "c:\\Speedy_Blupi\\");
 
 	att.nLength = sizeof(SECURITY_ATTRIBUTES);
 	att.lpSecurityDescriptor = NULL;
@@ -232,16 +192,6 @@ void AddUserPath(char *pFilename)
 
 	strcpy(pFilename, temp);
 }
-
-
-
-//----------------------------------------------------------------------
-// 
-// Function     : TraceErrorDD()
-//
-// Purpose      : Traces an error (DirectDraw)
-//
-//----------------------------------------------------------------------
 
 void TraceErrorDD(HRESULT hErr, char *sFile, int nLine)
 {       

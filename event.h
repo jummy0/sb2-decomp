@@ -52,8 +52,10 @@ public:
 	CEvent();
 	~CEvent();
 
+
+	void	OutputNetDebug(char* str);
 	POINT	GetMousePos();
-	void	Create(HWND hWnd, CPixmap *pPixmap, CDecor *pDecor, CSound *pSound, CMovie *pMovie);
+	void	Create(HINSTANCE hInstance, HWND hWnd, CPixmap *pPixmap, CDecor *pDecor, CSound *pSound, CMovie *pMovie, CNetwork *pNetwork);
 	void	SetFullScreen(BOOL bFullScreen);
 	void	SetMouseType(int mouseType);
 	int		GetWorld();
@@ -64,23 +66,31 @@ public:
 	void	MovieToStart();
 	UINT	GetPhase();
 	void	TryInsert();
+	void	SomethingUserMissions(LPCSTR lpFileName, LPCSTR thing);
 	void	RestoreGame();
+	int		MissionBack();
+	void	TableSomething();
 
 	int		GetButtonIndex(int button);
 	int		GetState(int button);
 	void	SetState(int button, int state);
 	BOOL	GetEnable(int button);
 	void	SetEnable(int button, BOOL bEnable);
+	void	SetSomething(int button, int bSomething);
 	BOOL	GetHide(int button);
 	void	SetHide(int button, BOOL bHide);
 	int		GetMenu(int button);
 	void	SetMenu(int button, int menu);
+	void	SomethingDecor();
+	void	PauseStatus(UINT pause, int multiplayer);
 
 	BOOL	DrawButtons();
+	BOOL	TextSomething();
 	int		MousePosToSprite(POINT pos);
 	void	MouseSprite(POINT pos);
 	void	WaitMouse(BOOL bWait);
 	void	HideMouse(BOOL bHide);
+	void	FillMouse(int bFill);
 	POINT	GetLastMousePos();
 	BOOL	TreatEvent(UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL	TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam);
@@ -129,12 +139,19 @@ protected:
 	BOOL	ReadLibelle(int world, BOOL bSchool, BOOL bHelp);
 	BOOL	WriteInfo();
 	BOOL	ReadInfo();
+	BOOL    IsMulti();
+	BOOL	IsPrivate();	
+	void	TryPhase();
+	void	UnTryPhase();
+	int		GetTryPhase();
+	BOOL	ReadPlayer();
+	void	SetLives(int lives);
 
 	void	DemoRecStart();
 	void	DemoRecStop();
 	BOOL	DemoPlayStart();
 	void	DemoPlayStop();
-	void	DemoRecEvent(UINT message, WPARAM wParam, LPARAM lParam);
+	void	DemoRecEvent(UINT message, UINT input, WPARAM wParam, LPARAM lParam);
 
 protected:
     int         m_speed;
@@ -142,11 +159,13 @@ protected:
     int         m_mission;
     int         m_private;
     int         m_maxMission;
-    int         m_phase;
+    WMessage    m_phase;
     int         m_index;
+	int			m_playerIndex;
     BOOL        m_bSchool;
     BOOL        m_bPrivate;
-    BOOL        m_bAccesBuild;
+	BOOL 		m_bMulti;
+    BOOL        m_bAccessBuild;
     BOOL        m_bFullScreen;
     int         m_mouseType;
     HWND        m_hWnd;
@@ -154,6 +173,7 @@ protected:
     CDecor*     m_pDecor;
     CSound*     m_pSound;
     CMovie*		m_pMovie;
+	CNetwork* 	m_pNetwork;
 	char		m_movieToStart[MAX_PATH];
 	int			m_phaseAfterMovie;
 	CButton		m_buttons[MAXBUTTON];
@@ -214,7 +234,21 @@ protected:
 	int			m_demoIndex;
 	int			m_demoEnd;
 	int			m_demoNumber;
+	int			m_tryPhase;
 	BOOL		m_bCtrlDown;
 	POINT		m_debugPos;
 	int			m_introTime;
+	int 		m_joyID;
+	BOOL 		m_gamer;
+	int 		m_textHiliStart;
+	int 		m_textHiliEnd;
+	int 		m_textCursorIndex;
+	char 		m_textInput[100];
+	char 		m_pPlayerName[100];
+	int 		m_lives;
+	int 		m_mission;
+	int 		m_multi;
+	HINSTANCE	m_hInstance;
+	char 		m_chatZone[100][5];
+	char 		m_text[100];
 };

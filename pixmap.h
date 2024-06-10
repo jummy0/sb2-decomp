@@ -17,7 +17,7 @@ public:
 
     void    SetDebug(BOOL bDebug);
 
-    BOOL    Create(HWND hwnd, POINT dim, BOOL bFullScreen, int mouseType);
+    BOOL    Create(HWND hwnd, POINT dim, BOOL bFullScreen, int mouseType, BOOL bTrueColor, BOOL bTrueColorDecor);
     BOOL    Flush();
     BOOL    Restore();
     BOOL    InitSysPalette();
@@ -28,13 +28,14 @@ public:
     BOOL    RestorePalette();
     int     SearchColor(int red, int green, int blue);
     BOOL    Cache(int channel, char *pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette);
-    BOOL    Cache(int channel, char *pFilename, POINT totalDim, BOOL bUsePalette);
+    BOOL    Cache2(int channel, char *pFilename, POINT totalDim, BOOL bUsePalette);
     BOOL    Cache(int channel, HBITMAP hbm, POINT totalDim);
     void    Flush(int channel);
     void    SetTransparent(int channel, COLORREF color);
     void    SetTransparent2(int channel, COLORREF color1, COLORREF color2);
     void    SetClipping(RECT clip);
     RECT    GetClipping();
+    void    HudIcon(int channel, int rank, POINT pos);
 
     BOOL    IsIconPixel(int channel, int rank, POINT pos);
 
@@ -70,6 +71,11 @@ protected:
 	void	MouseBackDebug();
 	RECT	MouseRectSprite();
 	void	MouseHotSpot();
+    BOOL    GetTrueColor();
+
+    void SetBenchmarkSuccess(BOOL bSuccess);
+    void SetTrueColor(BOOL bTrueColor);
+    void SetTrueColorDecor(BOOL bTrueColorDecor);
 
 protected:
     BOOL                   m_bFullScreen;
@@ -84,6 +90,8 @@ protected:
     HWND                   m_hWnd;
     POINT                  m_dim;
     RECT                   m_clipRect;
+    double                 originX;
+    double                 originY;
 
     POINT                  m_mousePos;
     int                    m_mouseSprite;
@@ -107,5 +115,5 @@ protected:
     char                   m_filename[MAXIMAGE][20];
     POINT                  m_totalDim[MAXIMAGE];
     POINT                  m_iconDim[MAXIMAGE];
-    DDBLTFX                m_DDbltfx
+    DDBLTFX m_DDbltfx
 }

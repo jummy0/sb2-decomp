@@ -19,6 +19,7 @@ public:
     CSound();
     ~CSound();
 
+    BOOL ErrorSomething();
     BOOL Create(HWND hWnd);
     void SetState(BOOL bState);
     BOOL GetEnable();
@@ -33,6 +34,7 @@ public:
     void Flush(int channel);
 
     BOOL Play (int channel, int volume=0, int pan=0);
+    BOOL StopSound(int channel, int volume, int pan);
     BOOL PlayImage(int channel, POINT pos, int rank=-1);
     BOOL PlayMusic(HWND hWnd, LPSTR lpszMIDIFilename);
     BOOL RestartMusic();
@@ -53,6 +55,7 @@ protected:
     HWND                    m_hWnd;
     BOOL                    m_bEnable;
     BOOL                    m_bState;
+    BOOL                    m_bCDAudio;
     LPDIRECTSOUND           m_lpDS;
     LPDIRECTSOUNDBUFFER     m_lpDSB[MAXSOUND];
     short                   m_channelBlupi[MAXBLUPI];

@@ -9,6 +9,7 @@
 #include "pixmap.h"
 #include "misc.h"
 #include "ddutil.h"
+#include "blupi.cpp"
 
 
 
@@ -22,6 +23,9 @@ CPixmap::CPixmap()
 	int		i;
 	
 	m_bFullScreen  = FALSE;
+	m_bBenchmarkSuccess = TRUE;
+	m_bTrueColor   = FALSE;
+	m_bTrueColorDecor = FALSE;
 	m_mouseType    = MOUSETYPEGRA;
 	m_bDebug       = TRUE;
 	m_bPalette     = TRUE;
@@ -116,7 +120,7 @@ void CPixmap::SetDebug(BOOL bDebug)
 // Retourne FALSE en cas d'erreur.
 
 BOOL CPixmap::Create(HWND hwnd, POINT dim,
-					 BOOL bFullScreen, int mouseType)
+					 BOOL bFullScreen, int mouseType, BOOL bTrueColorDecor, BOOL bTrueColor)
 {
 	DDSURFACEDESC		ddsd;
 	HRESULT				ddrval;
@@ -126,6 +130,8 @@ BOOL CPixmap::Create(HWND hwnd, POINT dim,
 	m_bFullScreen = bFullScreen;
 	m_mouseType   = mouseType;
 	m_dim         = dim;
+	m_bTrueColorDecor = bTrueColorDecor;
+	m_bTrueColor = bTrueColor;
 
 	if ( m_mouseType == MOUSETYPEGRA )
 	{
@@ -272,6 +278,11 @@ BOOL CPixmap::Restore()
 	return TRUE;
 }
 
+void HudIcon(int channel, int rank, POINT pos)
+{
+	pos.x = (int)((double)pos.x + CPixmap::originX)
+}
+
 // Initialise la palette syst�me.
 
 BOOL CPixmap::InitSysPalette()
@@ -292,6 +303,26 @@ BOOL CPixmap::InitSysPalette()
 	GetSystemPaletteEntries(hdc, 0, 256, m_sysPal);
     DeleteDC(hdc);
 	return TRUE;
+}
+
+BOOL CPixmap::GetTrueColor()
+{
+	return m_bTrueColor;
+}
+
+void CPixmap::SetBenchmarkSuccess(BOOL bSuccess)
+{
+	m_bBenchmarkSuccess = bSuccess;
+}
+
+void CPixmap::SetTrueColor(BOOL bTrueColor)
+{
+	m_bTrueColor = bTrueColor;
+}
+
+void CPixmap::SetTrueColorDecor(BOOL bTrueColorDecor)
+{
+	m_bTrueColorDecor = bTrueColorDecor;
 }
 
 // Indique si l'on utilise une palette.
@@ -612,19 +643,41 @@ BOOL CPixmap::Cache(int channel, char *pFilename, POINT totalDim, POINT iconDim,
 
 // Cache une image globale.
 
-BOOL CPixmap::Cache(int channel, char *pFilename, POINT totalDim, BOOL bUsePalette)
+BOOL CPixmap::Cache2(int channel, char *pFilename, POINT totalDim, BOOL bUsePalette)
 {
 	POINT		iconDim;
 
-	if ( channel < 0 || channel >= MAXIMAGE )  return FALSE;
+	if (strstr(pFilename, "blupi") == pFilename)
+	{
+		return FALSE;
+	}
+	else
+	{
+		if (strstr(pFilename, "element") == pFilename)
+		{
+			return FALSE;
+		}
+		if (strstr(pFilename, "explo") == pFilename)
+		{
+			return FALSE;
+		}
+		if (strstr(pFilename, "object") == pFilename)
+		{
+			return FALSE;
+		}
+		return TRUE;
+	}
 
-	iconDim.x = 0;
-	iconDim.y = 0;
+	if (bUsePalette != 0)
+	{
 
-	return Cache(channel, pFilename, totalDim, iconDim, bUsePalette);
+	}
 }
 
 // Cache une image provenant d'un bitmap.
+
+// Probably not needed?
+
 
 BOOL CPixmap::Cache(int channel, HBITMAP hbm, POINT totalDim)
 {
@@ -652,6 +705,7 @@ BOOL CPixmap::Cache(int channel, HBITMAP hbm, POINT totalDim)
 
 	return TRUE;
 }
+
 
 // Purge une image.
 
@@ -693,7 +747,10 @@ void CPixmap::SetTransparent2(int channel, COLORREF color1, COLORREF color2)
 
 void CPixmap::SetClipping(RECT clip)
 {
-	m_clipRect = clip;
+	m_clipRect.left   = clip.left;
+	m_clipRect.top    = clip.top;
+	m_clipRect.right  = clip.right;
+	m_clipRect.bottom = clip.bottom;
 }
 
 // Retourne la r�gion de clipping.
@@ -705,12 +762,51 @@ RECT CPixmap::GetClipping()
 
 
 // Teste si un point fait partie d'une ic�ne.
+//Rough rewritten code, might need improvement
 
 BOOL CPixmap::IsIconPixel(int channel, int rank, POINT pos)
 {
 	int			nbx, nby;
-    COLORREF	rgb;
-    HDC			hDC;
+	COLORREF	rgb;
+	HDC			hDC;
+
+	if (channel == 1)
+	{
+		if (g_objectMax <= rank)
+		{
+			return;
+		}
+	}
+	else if (channel == 10)
+	{
+		if (g_elementMax <= rank)
+		{
+			return;
+		}
+	}
+	else if (channel == CHBLUPI000 || channel == CHBLUPI001 || channel == CHBLUPI002 || channel == CHBLUPI003)
+	{
+		if (g_blupiMax <= rank)
+		{
+			return;
+		}
+	}
+	else
+	{
+		if (channel != CHEXPLO)
+		{
+			if (rank < 0)
+				return;
+		}
+		if (rank < 0 || rank >= nbx * nby)
+		{
+			return;
+		}
+			if (g_exploMax <= rank)
+			{
+				return;
+		}
+	}
 
 	if ( channel < 0 || channel >= MAXIMAGE )  return FALSE;
 	if (  m_lpDDSurface[channel] == NULL )     return FALSE;
@@ -747,6 +843,42 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 	RECT		rect;
 	HRESULT		ddrval;
 	COLORREF	oldColor1, oldColor2;
+
+	if (channel == CHOBJECT)
+	{
+		if (g_objectMax <= rank)
+		{
+			return FALSE;
+		}
+	}
+	else if (channel == CHELEMENT)
+	{
+		if (g_elementMax <= rank) {
+			return FALSE;
+		}
+	}
+	else if (channel == CHBLUPI000 ||
+		channel == CHBLUPI001 ||
+		channel == CHBLUPI002 ||
+		channel == CHBLUPI003)
+	{
+		if (g_blupiMax <= rank)
+		{
+			return FALSE;
+		}
+	}
+	else
+	{
+		if (channel != CHEXPLO)
+		{
+			if (channel < 0 || channel >= MAXIMAGE) return FALSE;
+			if (m_lpDDSurface[channel] == NULL) return FALSE;
+			if (m_iconDim[channel].x == 0 ||
+				m_iconDim[channel].y == 0) return FALSE;
+			if (rank < 0 || rank >= nbx * nby) return FALSE;
+		}
+	}
+	if (g_exploMax <= rank) return FALSE;
 
 	if ( channel < 0 || channel >= MAXIMAGE )  return FALSE;
 	if (  m_lpDDSurface[channel] == NULL )     return FALSE;

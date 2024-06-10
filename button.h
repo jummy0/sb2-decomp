@@ -11,6 +11,7 @@ public:
 				   int *pMenu, int nbMenu,
 				   int *pTooltips, int nbToolTips,
 				   int region, UINT message);
+	void	SetSomethingMenu(int somethingMenu);
 	void	Draw();
 	void	Redraw();
 
@@ -22,6 +23,8 @@ public:
 
 	BOOL	GetEnable();
 	void	SetEnable(BOOL bEnable);
+
+	void	SetSomething(BOOL bSomething);
 
 	BOOL	GetHide();
 	void	SetHide(BOOL bHide);
@@ -54,7 +57,8 @@ protected:
 	int			m_toolTips[20];	// info-bulles
 	int			m_nbMenu;		// nb de case du sous-menu
 	int			m_nbToolTips;	// nb d'info-bulles
-	int			m_selMenu;		// sous-menu s�lectionn�
+	int			m_selMenu;	
+	int 		m_bSomething;	// sous-menu s�lectionn�
 	BOOL		m_bMouseDown;	// TRUE -> bouton souris press�
 	BOOL		m_bMinimizeRedraw;
 	BOOL		m_bRedraw;		// TRUE -> doit �tre redessin�
