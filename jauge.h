@@ -10,7 +10,7 @@ public:
     CJauge();
     ~CJauge();
 
-    BOOL    Create(HWND hWnd, CPixmap *pPixmap, CDecor *pDecor,
+    BOOL    Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
                    POINT pos, int type, BOOL bMinimizeRedraw);
     void    Draw();
     void    Redraw();
@@ -29,7 +29,6 @@ public:
 protected:
     HWND        m_hWnd;
     CPixmap*    m_pPixmap;
-    CDecor*     m_pDecor;
     CSound*     m_pSound;
     BOOL        m_bHide;
     POINT       m_pos;

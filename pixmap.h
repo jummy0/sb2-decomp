@@ -6,48 +6,52 @@
 
 /////////////////////////////////////////////////////////////
 
-#define MAXIMAGE    100
+#define MAXIMAGE	100
 
 
 class CPixmap
 {
 public:
-    CPixmap();
-    ~CPixmap();
+	CPixmap();
+	~CPixmap();
 
-    void    SetDebug(BOOL bDebug);
+	BOOL	CacheAll(BOOL _foo, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor,
+			         BOOL bTrueColorDecor, int mouseType, char *_str, int _baz);
+	int		Benchmark();
+	void	SetDebug(BOOL bDebug);
+	BOOL	Create(HWND hwnd, POINT dim, BOOL bFullScreen, BOOL bTrueColor,
+			       BOOL bTrueColorDecor, int mouseType);
+	BOOL	Flush();
+	BOOL	Restore();
+	BOOL	InitSysPalette();
+	BOOL	GetTrueColor();
+	void	SetBenchmarkSuccess(BOOL bSuccess);
+	void	SetTrueColor(BOOL bTrueColor);
+	void	SetTrueColorDecor(BOOL bTrueColorDecor);
+	BOOL	FUN_28f60(int channel);
 
-    BOOL    Create(HWND hwnd, POINT dim, BOOL bFullScreen, int mouseType, BOOL bTrueColor, BOOL bTrueColorDecor);
-    BOOL    Flush();
-    BOOL    Restore();
-    BOOL    InitSysPalette();
-    BOOL    IsPalette();
-    void    Fill(RECT rect, COLORREF color);
+	BOOL	IsPalette();
+	void	Fill(RECT rect, COLORREF color);
 
-    BOOL    SavePalette();
-    BOOL    RestorePalette();
-    int     SearchColor(int red, int green, int blue);
-    BOOL    Cache(int channel, char *pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette);
-    BOOL    Cache2(int channel, char *pFilename, POINT totalDim, BOOL bUsePalette);
-    BOOL    Cache(int channel, HBITMAP hbm, POINT totalDim);
-    void    Flush(int channel);
-    void    SetTransparent(int channel, COLORREF color);
-    void    SetTransparent2(int channel, COLORREF color1, COLORREF color2);
-    void    SetClipping(RECT clip);
-    RECT    GetClipping();
-    void    HudIcon(int channel, int rank, POINT pos);
 
-    BOOL    IsIconPixel(int channel, int rank, POINT pos);
+	BOOL	SavePalette();
+	BOOL	RestorePalette();
+	int		SearchColor(int red, int green, int blue);
+	BOOL	Cache1(int channel, char *pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette);
+	BOOL	Cache2(int channel, char *pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette);
+	void	Flush(int channel);
+	void	SetTransparent(int channel, COLORREF color);
+	void	SetTransparent2(int channel, COLORREF color1, COLORREF color2);
+	void	SetClipping(RECT clip);
+	RECT	GetClipping();
+	void	QuickIcon(int channel, int rank, POINT pos);
 
-    BOOL    DrawIcon(int chDst, int channel, int rank, POINT pos, int mode=0, BOOL bMask=FALSE);
-    BOOL	DrawIconDemi(int chDst, int channel, int rank, POINT pos, int mode=0, BOOL bMask=FALSE);
-	BOOL	DrawIconPart(int chDst, int channel, int rank, POINT pos, int startY, int endY, int mode=0, BOOL bMask=FALSE);
-	BOOL	DrawPart(int chDst, int channel, POINT dest, RECT rect, int mode=0, BOOL bMask=FALSE);
-	BOOL	DrawImage(int chDst, int channel, RECT rect, int mode=0);
+	BOOL	IsIconPixel(int channel, int rank, POINT pos);
 
-	BOOL	BuildIconMask(int channelMask, int rankMask,
-						  int channel, int rankSrc, int rankDst);
-	
+	BOOL	DrawIcon(int chDst, int channel, int rank, POINT pos, int mode = 0, BOOL bMask = FALSE);
+	BOOL	DrawPart(int chDst, int channel, POINT dest, RECT rect, int mode = 0, BOOL bMask = FALSE);
+	BOOL	DrawImage(int chDst, int channel, RECT rect, int mode = 0);
+
 	BOOL	Display();
 
 	void	SetMousePosSprite(POINT pos, int sprite, BOOL bDemoPlay);
@@ -62,7 +66,7 @@ protected:
 	HRESULT	RestoreAll();
 	HRESULT	BltFast(int chDst, int channel, POINT dst, RECT rcRect, int mode);
 	HRESULT	BltFast(LPDIRECTDRAWSURFACE lpDD,
-					int channel, POINT dst, RECT rcRect, int mode);
+	        int channel, POINT dst, RECT rcRect, int mode);
 
 	void	MouseUpdate();
 	BOOL	MouseQuickDraw(RECT rect);
@@ -71,49 +75,45 @@ protected:
 	void	MouseBackDebug();
 	RECT	MouseRectSprite();
 	void	MouseHotSpot();
-    BOOL    GetTrueColor();
-
-    void SetBenchmarkSuccess(BOOL bSuccess);
-    void SetTrueColor(BOOL bTrueColor);
-    void SetTrueColorDecor(BOOL bTrueColorDecor);
+	BOOL	GetTrueColor();
 
 protected:
-    BOOL                   m_bFullScreen;
-    BOOL                   m_bBenchmarkSuccess;
-    BOOL                   m_bTrueColor;
-    BOOL                   m_bTrueColorDecor;
-    BOOL                   m_field5_0x14; //Need to figure out
-    BOOL                   m_field5_0x18; //Need to figure out
-    int                    m_mouseType;
-    BOOL                   m_bDebug;
-    BOOL                   m_bPalette;
-    HWND                   m_hWnd;
-    POINT                  m_dim;
-    RECT                   m_clipRect;
-    double                 originX;
-    double                 originY;
+	BOOL				   m_bFullScreen;
+	BOOL				   m_bBenchmarkSuccess;
+	BOOL				   m_bTrueColor;
+	BOOL				   m_bTrueColorDecor;
+	BOOL				   m_field5_0x14; //Need to figure out
+	BOOL				   m_field5_0x18; //Need to figure out
+	int					m_mouseType;
+	BOOL				   m_bDebug;
+	BOOL				   m_bPalette;
+	HWND				   m_hWnd;
+	POINT				  m_dim;
+	RECT				   m_clipRect;
+	double				 originX;
+	double				 originY;
 
-    POINT                  m_mousePos;
-    int                    m_mouseSprite;
-    POINT                  m_mouseHotSpot;
-    POINT                  m_mouseBackPos;
-    BOOL                   m_bMouseBack;
-    BOOL                   m_bMouseShow;
-    BOOL                   m_bBackDisplayed;
+	POINT				  m_mousePos;
+	int					m_mouseSprite;
+	POINT				  m_mouseHotSpot;
+	POINT				  m_mouseBackPos;
+	BOOL				   m_bMouseBack;
+	BOOL				   m_bMouseShow;
+	BOOL				   m_bBackDisplayed;
 
-    LPDIRECTDRAW           m_lpDD;
-    LPDIRECTDRAWSURFACE    m_lpDDSPrimary;
-    LPDIRECTDRAWSURFACE    m_lpDDSBack;
-    LPDIRECTDRAWSURFACE    m_lpDDSMouse;
-    LPDIRECTDRAWPALETTE    m_lpDDPal;
-    LPDIRECTDRAWSURFACE    m_lpDDSurface[MAXIMAGE];
-    LPDIRECTDRAWCLIPPER    m_lpClipper;
-    PALETTEENTRY           m_pal[256];
-    PALETTEENTRY           m_sysPal[256];
-    COLORREF               m_colorSurface[2*MAXIMAGE];
+	LPDIRECTDRAW		   m_lpDD;
+	LPDIRECTDRAWSURFACE	m_lpDDSPrimary;
+	LPDIRECTDRAWSURFACE	m_lpDDSBack;
+	LPDIRECTDRAWSURFACE	m_lpDDSMouse;
+	LPDIRECTDRAWPALETTE	m_lpDDPal;
+	LPDIRECTDRAWSURFACE	m_lpDDSurface[MAXIMAGE];
+	LPDIRECTDRAWCLIPPER	m_lpClipper;
+	PALETTEENTRY		   m_pal[256];
+	PALETTEENTRY		   m_sysPal[256];
+	COLORREF			   m_colorSurface[2 * MAXIMAGE];
 
-    char                   m_filename[MAXIMAGE][20];
-    POINT                  m_totalDim[MAXIMAGE];
-    POINT                  m_iconDim[MAXIMAGE];
-    DDBLTFX m_DDbltfx
+	char				   m_filename[MAXIMAGE][20];
+	POINT				  m_totalDim[MAXIMAGE];
+	POINT				  m_iconDim[MAXIMAGE];
+	DDBLTFX m_DDbltfx
 }

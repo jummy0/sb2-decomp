@@ -25,19 +25,22 @@
 // Define Globals
 
 #define NAME        "Blupi"
-#define TITLE       "Eggbert"
-
+#ifdef _EGAMES
+	#define TITLE       "Eggbert"
+#else
+	#define TITLE		"Blupi"
+#endif
 
 // Variables Globals
 
-HWND		g_hWnd;					// handle � la fen�tre
+HWND		g_hWnd;					// handle à la fenêtre
 CEvent*		g_pEvent  = NULL;
 CPixmap*	g_pPixmap = NULL;		// pixmap principal
 CSound*		g_pSound  = NULL;		// sound principal
 CMovie*		g_pMovie  = NULL;		// movie principal
 CDecor*		g_pDecor  = NULL;
 CNetwork*   g_pNetwork;
-char		g_CDPath[MAX_PATH];		// chemin d'acc�s au CD-Rom
+char		g_CDPath[MAX_PATH];		// chemin d'accès au CD-Rom
 BOOL		g_bFullScreen = FALSE;	// FALSE si mode de test
 int			g_speedRate = 1;
 int			g_timerInterval = 50;	// inverval = 50ms
@@ -47,7 +50,7 @@ BOOL 		g_bBenchmarkSuccess;
 BOOL 		g_bTrueColor;
 BOOL 		g_bTrueColorBack;
 BOOL 		g_bTrueColorDecor;
-MMRESULT    g_updateTimer;			// timer g�n�ral
+MMRESULT    g_updateTimer;			// timer général
 BOOL		g_bActive = TRUE;		// is application active ?
 BOOL		g_bTermInit = FALSE;	// initialisation en cours
 int			g_objectMax;
@@ -56,6 +59,9 @@ int			g_blupiMax;
 int			g_exploMax;
 
 UINT		g_lastPhase = 999;
+
+
+// Lit un numéro décimal.
 
 int GetNum(char *p)
 {
@@ -70,6 +76,8 @@ int GetNum(char *p)
     return n;
 }
 
+// Lit le fichier de configuration.
+
 BOOL ReadConfig (LPSTR lpCmdLine)
 {
     FILE*       file    = NULL;
@@ -80,7 +88,7 @@ BOOL ReadConfig (LPSTR lpCmdLine)
 
     file = fopen("data\\config.def", "rb");
     if ( file == NULL )   return FALSE;
-    nb = fread(buffer, sizeof(char), 200-1 file);
+    nb = fread(buffer, sizeof(char), 200-1, file);
     buffer[nb] = 0;
     fclose(file);
 
@@ -202,7 +210,7 @@ BOOL ReadConfig (LPSTR lpCmdLine)
 	return TRUE;
 }
 
-// Rewrite Variables
+// Mise à jour principale. [Rewrite Variables]
 
 void UpdateFrame(void)
 {
@@ -211,7 +219,7 @@ void UpdateFrame(void)
 	POINT			posMouse;
 	int				i, term, speed;
 
-	g_pPixmap->MouseBackClear();  // enl�ve la souris dans "back"
+	g_pPixmap->MouseBackClear();  // enlève la souris dans "back"
 	posMouse = g_pEvent->GetLastMousePos();
 
 	phase = g_pEvent->GetPhase();
@@ -234,9 +242,16 @@ void UpdateFrame(void)
 		g_pPixmap->DrawImage(-1, CHBACK, rcRect, 1);  // dessine le fond
 	}
 
+	//[this block remains dormant, yet functional in SB]
+	if (phase == WM_PHASE_INTRO1 ||
+		phase == WM_PHASE_INTRO2)
+	{
+		g_pEvent->IntroStep();
+	}
+
 	if (phase == WM_PHASE_INIT)
 	{
-		g_pEvent->DemoStep();  // d�marre �v. d�mo automatique
+		g_pEvent->DemoStep();  // démarre év. démo automatique
 	}
 
 	if (phase == WM_PHASE_PLAYMOVIE || phase == WM_PHASE_WINMOVIE || WM_PHASE_WINMOVIEDESIGN || WM_PHASE_WINMOVIEMULTI)
@@ -259,7 +274,7 @@ void UpdateFrame(void)
 		if ( g_pEvent->IsShift() )  // shift en cours ?
 		{
 			g_pEvent->DecorAutoShift(posMouse);
-			g_pDecor->Build(clip, posMouse);  // construit juste le d�cor
+			g_pDecor->Build(clip, posMouse);  // construit juste le décor
 		}
 		else
 		{
@@ -269,13 +284,13 @@ void UpdateFrame(void)
 				for ( i=0 ; i<speed ; i++ )
 				{
 					g_pDecor->BlupiStep(i==0);  // avance tous les blupi
-					g_pDecor->MoveStep(i==0);   // avance tous les d�cors
+					g_pDecor->MoveStep(i==0);   // avance tous les décors
 					g_pEvent->DemoStep();       // avance enregistrement/reproduction
 				}
 			}
 
 			g_pEvent->DecorAutoShift(posMouse);
-			g_pDecor->Build(clip, posMouse);  // construit le d�cor
+			g_pDecor->Build(clip, posMouse);  // construit le décor
 			g_pDecor->NextPhase(1);  // refait la carte de temps en temps
 		}
 	}
@@ -284,15 +299,16 @@ void UpdateFrame(void)
 	{
 		term = g_pDecor->IsTerminated();
 		if ( term == 1 )  g_pEvent->ChangePhase(WM_PHASE_LOST);  // perdu
-		if ( term == 2 )  g_pEvent->ChangePhase(WM_PHASE_WINMOVIE);   // gagn�
+		if ( term == 2 )  g_pEvent->ChangePhase(WM_PHASE_WINMOVIE);   // gagné
 	}
 
 	g_pPixmap->MouseBackDraw();  // remet la souris dans "back"
 }
 
+//[excluded from SB release builds]
 void Benchmark()
 {
-	int	i;
+	int		i;
 	POINT	pos = { 0, 0 };
 
 	g_pPixmap->DrawIcon(-1, 2, 10, pos, 0);
@@ -317,14 +333,34 @@ void SetDecor()
 	POINT posMouse;
 
 	g_pPixmap->MouseBackClear();
-	g_pEvent->GetLastMousePos(&posMouse);
-	phase = g_pEvent->GetPhase;
+	posMouse = g_pEvent->GetLastMousePos();
+
+	phase = g_pEvent->GetPhase();
 
 	if (phase == WM_PHASE_PLAY || phase == WM_PHASE_PLAYTEST || phase == WM_PHASE_BUILD)
 	{
-
+		rect.bottom = LYIMAGE;
+		rect.right = LXIMAGE;
+		rect.top = 0;
+		rect.left = 0;
+		g_pDecor->Build(rect);
 	}
+	else {
+		rect.bottom = LYIMAGE;
+		rect.right = LXIMAGE;
+		rect.top = 0;
+		rect.left = 0;
+		g_pPixmap->DrawImage(-1, 0, rect, 1);
+	}
+
+	g_pEvent->FUN_1d7d0();
+	g_lastPhase = phase;
+	g_pPixmap->MouseBackDraw();
 }
+
+
+// Restitue le jeu après une activation en mode fullScreen.
+
 BOOL RestoreGame()
 {
 	if ( g_pPixmap == NULL ) return FALSE;
@@ -333,12 +369,17 @@ BOOL RestoreGame()
 	return g_pPixmap->Restore();
 }
 
+// Libère le jeu avant une désactivation en mode fullScreen.
+
 BOOL FlushGame()
 {
 	if ( g_pPixmap == NULL ) return FALSE;
 
 	return g_pPixmap->Flush();
 }
+
+
+// Finished with all objects we use; release them.
 
 static void FinishObjects(void)
 {
@@ -364,7 +405,7 @@ static void FinishObjects(void)
 
 	if (g_pSound != NULL )
 	{
-		g_pSound->StopMusic();
+		g_pSound->StopMusic(); // stoppe la musique Midi
 
 		delete g_pSound;
 		g_pSound = NULL;
@@ -397,6 +438,9 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 	}
 #endif
 
+	// La touche F10 envoie un autre message pour activer
+	// le menu dans les applications Windows standard !
+	//[The F10 key sends another message to activate the menu in standard Windows apps!]
 	if ( message == WM_SYSKEYDOWN && wParam == VK_F10 )
 	{
 		message = WM_KEYDOWN;
@@ -412,6 +456,16 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 	switch( message )
 	{
 		case WM_TIMER:
+		case WM_UPDATE:
+			if (!g_pEvent->IsMovie())  // pas de film en cours ?
+			{
+				if (g_bActive)
+				{
+					UpdateFrame();
+				}
+				g_pPixmap->Display();
+			}
+			break;
 		case WM_SYSCOLORCHANGE:
 		    OutputDebug("Event WM_SYSCOLORCHANGE\n");
 			break;
@@ -422,9 +476,9 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 
         case WM_ACTIVATEAPP:
 		    g_bActive = (wParam != 0);
-			if (g_pEvent != NULL)
+			if ( g_pEvent != NULL )
 			{
-				g_pEvent->SomethingDecor;
+				g_pEvent->SomethingDecor();
 			}
 			if ( g_bActive )
 			{
@@ -440,7 +494,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 					iconDim.x = 64;
 					iconDim.y = 66/2;
 					g_pPixmap->Cache(CHLITTLE, "image16\\little.blp", totalDim, iconDim, TRUE);
-					g_pPixmap->SetTransparent(CHLITTLE, RGB(0,0,255));
+					g_pPixmap->SetTransparent(CHLITTLE, RGB(0,0,255)); // bleu
 
 					g_pPixmap->SavePalette();
 					g_pPixmap->InitSysPalette();
@@ -448,7 +502,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 				SetWindowText(hWnd, "Blupi");
 				if ( g_pSound != NULL ) g_pSound->RestartMusic();
 			}
-			else
+			else // désactive ?
 			{
 				if ( g_bFullScreen )
 				{
@@ -459,62 +513,80 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 			}
 			return 0;
 
-			case WM_KEYDOWN:
-				switch( wParam )
-				{
-					case VK_F5:
-						g_pEvent->SetSpeed(1);
-						break;
-					case VK_F6:
-						g_pEvent->SetSpeed(2);
-						break;
-					case VK_F7:
-						g_pEvent->SetSpeed(4);
-						break;
-					case VK_F8:
-						g_pEvent->SetSpeed(8);
-						break;
-				}
+		case WM_DISPLAYCHANGE:
+			OutputDebug("Event WM_DISPLAYCHANGE\n");
 			break;
 
-			case WM_DISPLAYCHANGE:
-				OutputDebug("Event WM_DISPLAYCHANGE\n");
-				break;
-			case WM_QUERYNEWPALETTE:
-				OutputDebug("Event WM_QUERYNEWPALETTE\n");
-				break;
-			case WM_PALETTECHANGED:
-				OutputDebug("Event WM_PALLETECHANGED\n");
-				break;
-			case MM_MCINOTIFY:
-				OutputDebug("Event MM_MCINOTIFY\n");
-				if ( g_pEvent->IsMovie() )
+		case WM_QUERYNEWPALETTE:
+			OutputDebug("Event WM_QUERYNEWPALETTE\n");
+			break;
+
+		case WM_PALETTECHANGED:
+			OutputDebug("Event WM_PALLETECHANGED\n");
+			break;
+
+		case MM_MCINOTIFY:
+			OutputDebug("Event MM_MCINOTIFY\n");
+			if ( g_pEvent->IsMovie() ) // film en cours ?
+			{
+				if ( wParam == MCI_NOTIFY_SUCCESSFUL )
 				{
-					if ( wParam == MCI_NOTIFY_SUCCESSFUL )
-					{
-						g_pEvent->StopMovie();
-					}
+					g_pEvent->StopMovie();
+				}
+			}
+			else
+			{
+				// music over, play it again
+				g_pSound->SuspendMusic();
+				// if music finished, play it again. Otherwise assume that
+				// it was aborted by the user or otherwise
+				if ( wParam == MCI_NOTIFY_SUCCESSFUL )
+				{
+					OutputDebug("Event MCI_NOTIFY_SUCCESSFUL\n");
+					g_pSound->RestartMusic();
 				}
 				else
 				{
-					g_pSound->SuspendMusic();
-					if ( wParam == MCI_NOTIFY_SUCCESSFUL )
-					{
-						OutputDebug("Event MCI_NOTIFY_SUCCESSFUL\n");
-						g_pSound->RestartMusic();
-					}
-					else
-					{
-						char s[50];
-						sprintf(s, "wParam=%d\n", wParam);
-						OutputDebug(s);
-					}
+					char s[50];
+					sprintf(s, "wParam=%d\n", wParam);
+					OutputDebug(s);
 				}
-				break;
+			}
+			break;
+
+		case WM_SETCURSOR:
+//			ChangeSprite();
+//			SetCursor(NULL); // pas de souris visible !
+			return TRUE;
 
 		case WM_LBUTTONDOWN:
+//?			Benchmark();
 			GetCursorPos(&mousePos);
 			ScreenToClient(hWnd, &mousePos);
+			break;
+
+		case WM_RBUTTONDOWN:
+			break;
+
+		case WM_MOUSEMOVE:
+			break;
+
+		case WM_KEYDOWN:
+			switch (wParam)
+			{
+			case VK_F5:
+				g_pEvent->SetSpeed(1);
+				break;
+			case VK_F6:
+				g_pEvent->SetSpeed(2);
+				break;
+			case VK_F7:
+				g_pEvent->SetSpeed(4);
+				break;
+			case VK_F8:
+				g_pEvent->SetSpeed(8);
+				break;
+			}
 			break;
 
 		case WM_DESTROY:
@@ -522,25 +594,15 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 			FinishObjects();
 			PostQuitMessage(0);
 			break;
-		case WM_SETCURSOR:
-//			ChangeSprite();
-//			SetCursor(NULL);
-			return TRUE;
-		case WM_UPDATE:
-			if ( !g_pEvent->IsMovie() )
-			{
-				if ( g_bActive )
-				{
-					UpdateFrame();
-				}
-				g_pPixmap->Display();
-			}
-			break;
+		
 	}
 
 	return DefWindowProc(hWnd, message, wParam, lParam);
 
 }
+
+
+// Erreur dans DoInit.
 
 BOOL InitFail(char *msg, BOOL bDirectX)
 {
@@ -557,8 +619,9 @@ BOOL InitFail(char *msg, BOOL bDirectX)
 	return FALSE;
 }
 
-//Space for SetTimer
+//[Space for SetTimer]
 
+// Initialisation de l'application.
 
 static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -567,15 +630,17 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	RECT		   rcRect;
 	BOOL 		   bOK;
 
-	bOK = ReadConfig(lpCmdLine);
+	bOK = ReadConfig(lpCmdLine);  // lit le fichier config.def
 
 	InitHInstance(hInstance);
 
+	// Set up and register window class.
 	wc.style = CS_HREDRAW | CS_VREDRAW;
 	wc.lpfnWndProc = WindowProc;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = hInstance;
+//?	wc.hIcon         = LoadIcon(hInstance, IDI_APPLICATION);
 	wc.hIcon = LoadIcon(hInstance, "IDR_MAINFRAME");
 	wc.hCursor = LoadCursor(hInstance, "IDC_POINTER");
 	wc.hbrBackground = GetStockBrush(BLACK_BRUSH);
@@ -583,6 +648,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	wc.lpszClassName = NAME;
 	RegisterClass(&wc);
 
+	// Create a window.
 	if (g_bFullScreen)
 	{
 		g_hWnd = CreateWindowEx
@@ -633,13 +699,14 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	UpdateWindow(g_hWnd);
 	SetFocus(g_hWnd);
 
-	ChangeSprite(SPRITE_WAIT);
+	ChangeSprite(SPRITE_WAIT);  // met le sablier maison
 
-	if (!bOk)
+	if (!bOk)  // config.def pas correct ?
 	{
 		return InitFail("Game not correctly installed", FALSE);
 	}
 
+	// Crée le pixmap principal.
 	g_pPixmap = new CPixmap;
 	if (g_pPixmap == NULL) return InitFail("New pixmap", TRUE);
 
@@ -674,7 +741,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 
 	g_pSound->Create(g_hWnd);
 	g_pSound->CacheAll();
-	g_pSoundSetState(TRUE);
+	g_pSound->SetState(TRUE);
 
 	g_pMovie = new CMovie;
 	if (g_pMovie == NULL) return InitFail("New movie", FALSE);
@@ -703,6 +770,9 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	return TRUE;
 }
 
+
+// Programme principal.
+
 int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 					LPSTR lpCmdLine, int nCmdShow)
 {
@@ -728,6 +798,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		}
 		else
 		{
+			// make sure we go to sleep if we have nothing else to do
 			if ( !g_bActive ) WaitMessage();
 		}
 	}

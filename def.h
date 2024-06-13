@@ -11,31 +11,20 @@
 #define _SE				FALSE	// TRUE eGames Special Edition
 
 
-#define LXIMAGE			640		// dimensions de la fen�tre de jeu
+#define LXIMAGE			640		// dimensions de la fenêtre de jeu
 #define LYIMAGE			480
-
-#define POSDRAWX		144		// surface de dessin
-#define POSDRAWY		15
-#define DIMDRAWX		480
-#define DIMDRAWY		450
-
-#define POSMAPX			8		// surface pour la carte
-#define POSMAPY			15
-#define DIMMAPX			128
-#define DIMMAPY			128
 
 #define MAXCELX			200		// nb max de cellules d'un monde
 #define MAXCELY			200
 
-#define DIMCELX			60		// dimensions d'une cellule (d�cor)
-#define DIMCELY			30
+#define DIMOBJX			64		// dimensions d'un objet
+#define DIMOBJY			64
 
-#define DIMOBJX			120		// dimensions d'un objet
-#define DIMOBJY			120
+#define DIMEXPLOX		128
+#define DIMEXPLOY		128
 
 #define DIMBLUPIX		60		// dimensions de blupi
 #define DIMBLUPIY		60
-#define SHIFTBLUPIY		5		// petit d�calage vers le haut
 
 #define DIMBUTTONX		40		// dimensions d'un button
 #define DIMBUTTONY		40
@@ -43,265 +32,329 @@
 #define DIMJAUGEX		124		// dimensions de la jauge
 #define DIMJAUGEY		22
 
-#define POSSTATX		12		// statistiques
+#define POSSTATX		12
 #define POSSTATY		220
+
 #define DIMSTATX		60
 #define DIMSTATY		30
 
-#define DIMTEXTX		16		// dimensions max d'un caract�re
+#define DIMTEXTX		16		// dimensions max d'un caractère
 #define DIMTEXTY		16
 
-#define DIMLITTLEX		16		// dimensions max d'un petit caract�re
+#define DIMLITTLEX		16		// dimensions max d'un petit caractère
 #define DIMLITTLEY		12
 
-#define CHBACK			0
-#define CHBLUPI000		
-#define CHBLUPI001
-#define CHBLUPI002	
-#define CHBLUPI003
-#define CHFLOOR			1
-#define CHOBJECT		2
-#define CHOBJECTo		3
-#define CHBLUPI			4
-#define CHHILI			5
-#define CHFOG			6
-#define CHMASK1			7
-#define CHLITTLE		8
-#define CHMAP			9
-#define CHBUTTON		10
-#define CHGROUND		11
-#define CHJAUGE			12
-#define CHTEXT			13
-#define CHBIGNUM		14
-#define CHEXPLO
-#define CHELEMENT
-
-#define FOGHIDE			4
+#define CHDECOR			0
+#define CHOBJECT		1
+#define CHBLUPI			2
+#define CHBACK			3
+#define CHBUTTON		4
+#define CHJAUGE			5
+#define CHTEXT			6
+#define CHLITTLE		7
+#define CHMAP			8
+#define CHEXPLO			9
+#define CHELEMENT		10
+#define CHBLUPI1		11
+#define CHBLUPI2		12
+#define CHBLUPI3		13
+#define CHTEMP			14
 
 
 // Directions :
 
-#define DIRECT_E		(0*16)		// est
-#define DIRECT_SE		(1*16)		// sud-est
-#define DIRECT_S		(2*16)		// sud
-#define DIRECT_SO		(3*16)		// sud-ouest
-#define DIRECT_O		(4*16)		// ouest
-#define DIRECT_NO		(5*16)		// nord-ouest
-#define DIRECT_N		(6*16)		// nord
-#define DIRECT_NE		(7*16)		// nord-est
-
-//                  NO
-//            O     |     N
-//             \    |    / 
-//               \  |  / 
-//                 \|/
-//        SO -------o------- NE
-//                 /|\
-//               /  |  \
-//             /    |    \
-//            S     |     E
-//          (y)     SE    (x)
+#define DIR_LEFT	1
+#define DIR_RIGHT	2
 
 
 // Actions :
 
-#define ACTION_STOP			0		// arr�t
-#define ACTION_STOPf		1		// arr�t fatigu�
-#define ACTION_MARCHE		2		// marche
-#define ACTION_MARCHEf		3		// marche fatigu�
-#define ACTION_BUILD		4		// construit
-#define ACTION_PIOCHE		5		// pioche
-#define ACTION_ENERGY		6		// prend de l'�nergie
-#define ACTION_TAKE			8		// fait sauter un objet sur la t�te (est)
-#define ACTION_DEPOSE		9		// repose l'objet sur la t�te (est)
-#define ACTION_SCIE			10		// scie du bois
-#define ACTION_BRULE		11		// blupi crame !
-#define ACTION_TCHAO		12		// blupi disparait !
-#define ACTION_MANGE		13		// blupi mange
-#define ACTION_NAISSANCE	14		// naissance
-#define ACTION_SAUTE2		15		// saute par-dessus un obstacle
-#define ACTION_SAUTE3		16		// saute par-dessus un obstacle
-#define ACTION_SAUTE4		17		// saute par-dessus un obstacle
-#define ACTION_SAUTE5		18		// saute par-dessus un obstacle
-#define ACTION_PONT			19		// pousse un pont
-#define ACTION_MISC1		20		// divers 1 (hausse les �paules)
-#define ACTION_MISC2		21		// divers 2 (grat-grat)
-#define ACTION_MISC3		22		// divers 3 (yoyo)
-#define ACTION_MISC1f		23		// divers 1 fatigu� (bof-bof)
-#define ACTION_GLISSE		24		// glisse en marchant
-#define ACTION_BOIT			25		// blupi boit
-#define ACTION_LABO			26		// blupi travaille dans son laboratoire
-#define ACTION_DYNAMITE		27		// blupi fait p�ter la dynamite
-#define ACTION_DELAY		28		// blupi attend un frame
-#define ACTION_CUEILLE1		29		// blupi cueille des fleurs
-#define ACTION_CUEILLE2		30		// blupi cueille des fleurs
-#define ACTION_MECHE		31		// blupi se bouche les oreilles
-#define ACTION_STOPb		32		// arr�t en bateau
-#define ACTION_MARCHEb		33		// avance en bateau
-#define ACTION_STOPj		34		// arr�t en jeep
-#define ACTION_MARCHEj		35		// avance en jeep
-#define ACTION_ELECTRO		36		// blupi �lectrocut�
-#define ACTION_GRILLE1		37		// blupi grille (phase 1)
-#define ACTION_GRILLE2		38		// blupi grille (phase 2)
-#define ACTION_GRILLE3		39		// blupi grille (phase 3)
-#define ACTION_MISC4		40		// divers 4 (ferme les yeux)
-#define ACTION_CONTENT		41		// blupi est content
-#define ACTION_ARROSE		42		// blupi arrose
-#define ACTION_BECHE		43		// blupi b�che
-#define ACTION_CUEILLE3		44		// blupi cueille des fleurs
-#define ACTION_BUILDBREF	45		// construit
-#define ACTION_BUILDSEC		46		// construit
-#define ACTION_BUILDSOURD	47		// construit
-#define ACTION_BUILDPIERRE	48		// construit
-#define ACTION_PIOCHEPIERRE	49		// pioche
-#define ACTION_PIOCHESOURD	50		// pioche
-#define ACTION_MISC5		51		// divers 5 (oh�)
-#define ACTION_TELEPORTE1	52		// t�l�porte
-#define ACTION_TELEPORTE2	53		// t�l�porte
-#define ACTION_TELEPORTE3	54		// t�l�porte
-#define ACTION_STOPa		55		// arr�t armure
-#define ACTION_MARCHEa		56		// marche armure
-#define ACTION_ARMUREOPEN	57		// ouvre armure
-#define ACTION_ARMURECLOSE	58		// ferme armure
-#define ACTION_SAUTE1		59		// saute dans la jeep
-#define ACTION_MISC6		60		// divers 6 (diabolo)
+#define ACTION_STOP 1
+#define ACTION_MARCH 2
+#define ACTION_TURN 3
+#define ACTION_JUMP 4
+#define ACTION_AIR 5
+#define ACTION_DOWN 6
+#define ACTION_UP 7
+#define ACTION_VERTIGO 8
+#define ACTION_RECEDE 9
+#define ACTION_ADVANCE 10
+#define ACTION_CLEAR1 11
+#define ACTION_SET 12
+#define ACTION_WIN 13
+#define ACTION_PUSH 14
+#define ACTION_STOPHELICO 15
+#define ACTION_MARCHHELICO 16
+#define ACTION_TURNHELICO 17
+#define ACTION_STOPNAGE 18
+#define ACTION_MARCHNAGE 19
+#define ACTION_TURNNAGE 20
+#define ACTION_STOPSURF 21
+#define ACTION_MARCHSURF 22
+#define ACTION_TURNSURF 23
+#define ACTION_DROWN 24
+#define ACTION_STOPJEEP 25
+#define ACTION_MARCHJEEP 26
+#define ACTION_TURNJEEP 27
+#define ACTION_STOPPOP 28
+#define ACTION_POP 29
+#define ACTION_BYE 30
+#define ACTION_STOPSUSPEND 31
+#define ACTION_MARCHSUSPEND 32
+#define ACTION_TURNSUSPEND 33
+#define ACTION_JUMPSUSPEND 34
+#define ACTION_HIDE 35
+#define ACTION_JUMPAIE 36
+#define ACTION_STOPSKATE 37
+#define ACTION_MARCHSKATE 38
+#define ACTION_TURNSKATE 39
+#define ACTION_JUMPSKATE 40
+#define ACTION_AIRSKATE 41
+#define ACTION_TAKESKATE 42
+#define ACTION_DEPOSESKATE 43
+#define ACTION_OUF1a 44
+#define ACTION_OUF1b 45
+#define ACTION_OUF2 46
+#define ACTION_OUF3 47
+#define ACTION_OUF4 48
+#define ACTION_SUCETTE 49
+#define ACTION_STOPTANK 50
+#define ACTION_MARCHTANK 51
+#define ACTION_TURNTANK 52
+#define ACTION_FIRETANK 53
+#define ACTION_GLU 54
+#define ACTION_DRINK 55
+#define ACTION_CHARGE 56
+#define ACTION_ELECTRO 57
+#define ACTION_HELICOGLU 58
+#define ACTION_TURNAIR 59
+#define ACTION_STOPMARCH 60
+#define ACTION_STOPJUMP 61
+#define ACTION_STOPJUMPh 62
+#define ACTION_MOCKERY 63
+#define ACTION_MOCKERYi 64
+#define ACTION_OUF5 65
+#define ACTION_BALLOON 66
+#define ACTION_STOPOVER 67
+#define ACTION_MARCHOVER 68
+#define ACTION_TURNOVER 69
+#define ACTION_RECEDEq 70
+#define ACTION_ADVANCEq 71
+#define ACTION_STOPECRASE 72
+#define ACTION_MARCHECRASE 73
+#define ACTION_TELEPORTE 74
+#define ACTION_CLEAR2 75
+#define ACTION_CLEAR3 76
+#define ACTION_CLEAR4 77
+#define ACTION_CLEAR5 78
+#define ACTION_CLEAR6 79
+#define ACTION_CLEAR7 80
+#define ACTION_CLEAR8 81
+#define ACTION_SWITCH 82
+#define ACTION_MOCKERYp 83
+#define ACTION_NON 84
+#define ACTION_SLOWDOWNSKATE 85
+#define ACTION_TAKEDYNAMITE 86
+#define ACTION_PUTDYNAMITE 87
 
-#define ACTION_A_STOP		100		// araign�e: arr�t
-#define ACTION_A_MARCHE		101		// araign�e: marche
-#define ACTION_A_SAUT		102		// araign�e: saute
-#define ACTION_A_GRILLE		103		// araign�e: grille dans rayon
-#define ACTION_A_POISON		105		// araign�e: empoison�e
-#define ACTION_A_MORT1		106		// araign�e: meurt
-#define ACTION_A_MORT2		107		// araign�e: meurt
-#define ACTION_A_MORT3		108		// araign�e: meurt
 
-#define ACTION_V_STOP		200		// virus: arr�t
-#define ACTION_V_MARCHE		201		// virus: marche
-#define ACTION_V_GRILLE		202		// virus: grille dans rayon
+// Sécurités :
 
-#define ACTION_T_STOP		300		// tracks: arr�t
-#define ACTION_T_MARCHE		301		// tracks: marche
-#define ACTION_T_ECRASE		302		// tracks: �crase un objet
+#define SEC_SHIELD 1
+#define SEC_POWER 2
+#define SEC_CLOUD 3
+#define SEC_HIDE 4
 
-#define ACTION_R_STOP		400		// robot: arr�t
-#define ACTION_R_MARCHE		401		// robot: marche
-#define ACTION_R_APLAT		402		// robot: applatit
-#define ACTION_R_BUILD		403		// robot: construit
-#define ACTION_R_DELAY		404		// robot: construit
-#define ACTION_R_CHARGE		405		// robot: recharge
-#define ACTION_R_ECRASE		406		// robot: �crase un objet
 
-#define ACTION_B_STOP		500		// bombe: arr�t
-#define ACTION_B_MARCHE		501		// bombe: marche
+// Types :
 
-#define ACTION_D_DELAY		600		// d�tonnateur: attend
+#define TYPE_ASCENSEUR 1
+#define TYPE_BOMBEDOWN 2
+#define TYPE_BOMBEUP 3
+#define TYPE_BULLDOZER 4
+#define TYPE_TRESOR 5
+#define TYPE_EGG 6
+#define TYPE_GOAL 7
+#define TYPE_EXPLO1 8
+#define TYPE_EXPLO2 9
+#define TYPE_EXPLO3 10
+#define TYPE_EXPLO4 11
+#define TYPE_CAISSE 12
+#define TYPE_HELICO 13
+#define TYPE_PLOUF 14
+#define TYPE_BLUP 15
+#define TYPE_BOMBEMOVE 16
+#define TYPE_POISSON 17
+#define TYPE_TOMATES 18
+#define TYPE_JEEP 19
+#define TYPE_OISEAU 20
+#define TYPE_CLE 21
+#define TYPE_DOOR 22
+#define TYPE_BALLE 23
+#define TYPE_SKATE 24
+#define TYPE_SHIELD 25
+#define TYPE_POWER 26
+#define TYPE_MAGICTRACK 27
+#define TYPE_TANK 28
+#define TYPE_BULLET 29
+#define TYPE_DRINK 30
+#define TYPE_CHARGE 31
+#define TYPE_BLUPIHELICO 32
+#define TYPE_BLUPITANK 33
+#define TYPE_GLU 34
+#define TYPE_TIPLOUF 35
+#define TYPE_POLLUTION 36
+#define TYPE_CLEAR 37
+#define TYPE_ELECTRO 38
+#define TYPE_TRESORTRACK 39
+#define TYPE_INVERT 40
+#define TYPE_INVERTSTART 41
+#define TYPE_INVERTSTOP 42
+#define TYPE_GUEPE 44
+#define TYPE_OVER 46
+#define TYPE_ASCENSEURs 47
+#define TYPE_ASCENSEURsi 48
+#define TYPE_CLE1 49
+#define TYPE_CLE2 50
+#define TYPE_CLE3 51
+#define TYPE_BRIDGE 52
+#define TYPE_TENTACULE 53
+#define TYPE_CREATURE 54
+#define TYPE_DYNAMITE 55
+#define TYPE_DYNAMITEf 56
+#define TYPE_SHIELDTRACK 57
+#define TYPE_HIDETRACK 58
+#define TYPE_EXPLO5 90
+#define TYPE_EXPLO6 91
+#define TYPE_EXPLO7 92
+#define TYPE_EXPLO8 93
+#define TYPE_EXPLO9 94
+#define TYPE_EXPLO10 95
+#define TYPE_BOMBEFOLLOW1 96
+#define TYPE_BOMBEFOLLOW2 97
+#define TYPE_SPLOUTCH1 98
+#define TYPE_SPLOUTCH2 99
+#define TYPE_SPLOUTCH3 100
+#define TYPE_BOMBEPERSO1 200
+#define TYPE_BOMBEPERSO2 201
+#define TYPE_BOMBEPERSO3 202
+#define TYPE_BOMBEPERSO4 203
 
-#define ACTION_E_STOP		700		// �lectro: arr�t
-#define ACTION_E_MARCHE		701		// �lectro: marche
-#define ACTION_E_DEBUT		702		// �lectro: d�bute
-#define ACTION_E_RAYON		703		// �lectro: rayonne
 
-#define ACTION_D_STOP		800		// disciple: arr�t
-#define ACTION_D_MARCHE		801		// disciple: marche
-#define ACTION_D_BUILD		802		// disciple: construit
-#define ACTION_D_PIOCHE		803		// disciple: pioche
-#define ACTION_D_SCIE		804		// disciple: scie du bois
-#define ACTION_D_TCHAO		805		// disciple: disparait !
-#define ACTION_D_CUEILLE1	806		// disciple: cueille des fleurs
-#define ACTION_D_CUEILLE2	807		// disciple: cueille des fleurs
-#define ACTION_D_MECHE		808		// disciple: se bouche les oreilles
-#define ACTION_D_ARROSE		809		// disciple: arrose
-#define ACTION_D_BECHE		810		// disciple: b�che
+// Steps :
+
+#define STEP_STOPSTART 1
+#define STEP_ADVANCE 2
+#define STEP_STOPEND 3
+#define STEP_RECEDE 4
 
 
 // Sons :
 
-#define SOUND_CLICK			0
-#define SOUND_BOING			1
-#define SOUND_OK1			2
-#define SOUND_OK2			3
-#define SOUND_OK3			4
-#define SOUND_GO1			5
-#define SOUND_GO2			6
-#define SOUND_GO3			7
-#define SOUND_TERM1			8
-#define SOUND_TERM2			9
-#define SOUND_TERM3			10
-#define SOUND_COUPTERRE		11
-#define SOUND_COUPTOC		12
-#define SOUND_SAUT			13
-#define SOUND_HOP			14
-#define SOUND_SCIE			15
-#define SOUND_FEU			16
-#define SOUND_BRULE			17
-#define SOUND_TCHAO			18
-#define SOUND_MANGE			19
-#define SOUND_NAISSANCE		20
-#define SOUND_A_SAUT		21
-#define SOUND_A_HIHI		22
-#define SOUND_PLOUF			23
-#define SOUND_BUT			24
-#define SOUND_RAYON1		25
-#define SOUND_RAYON2		26
-#define SOUND_VIRUS			27
-#define SOUND_GLISSE		28
-#define SOUND_BOIT			29
-#define SOUND_LABO			30
-#define SOUND_DYNAMITE		31
-#define SOUND_PORTE			32
-#define SOUND_FLEUR			33
-#define SOUND_T_MOTEUR		34
-#define SOUND_T_ECRASE		35
-#define SOUND_PIEGE			36
-#define SOUND_AIE			37
-#define SOUND_A_POISON		38
-#define SOUND_R_MOTEUR		39
-#define SOUND_R_APLAT		40
-#define SOUND_R_ROTATE		41
-#define SOUND_R_CHARGE		42
-#define SOUND_B_SAUT		43
-#define SOUND_BATEAU		44
-#define SOUND_JEEP			45
-#define SOUND_MINE			46
-#define SOUND_USINE			47
-#define SOUND_E_RAYON		48
-#define SOUND_E_TOURNE		49
-#define SOUND_ARROSE		50
-#define SOUND_BECHE			51
-#define SOUND_D_BOING		52
-#define SOUND_D_OK			53
-#define SOUND_D_GO			54
-#define SOUND_D_TERM		55
-#define SOUND_BOING1		56
-#define SOUND_BOING2		57
-#define SOUND_BOING3		58
-#define SOUND_OK4			59
-#define SOUND_OK5			60
-#define SOUND_OK6			61
-#define SOUND_OK1f			62
-#define SOUND_OK2f			63
-#define SOUND_OK3f			64
-#define SOUND_OK1e			65
-#define SOUND_OK2e			66
-#define SOUND_OK3e			67
-#define SOUND_GO4			68
-#define SOUND_GO5			69
-#define SOUND_GO6			70
-#define SOUND_TERM4			71
-#define SOUND_TERM5			72
-#define SOUND_TERM6			73
-#define SOUND_COUPSEC		74
-#define SOUND_COUPPIERRE	75
-#define SOUND_COUPSOURD		76
-#define SOUND_COUPBREF		77
-#define SOUND_OPEN			78
-#define SOUND_CLOSE			79
-#define SOUND_TELEPORTE		80
-#define SOUND_ARMUREOPEN	81
-#define SOUND_ARMURECLOSE	82
-#define SOUND_WIN			83
-#define SOUND_LOST			84
-#define SOUND_MOVIE			99
+#define SOUND_CLICK 0
+#define SOUND_JUMP1 1
+#define SOUND_JUMP2 2
+#define SOUND_JUMPEND 3
+#define SOUND_JUMPTOC 4
+#define SOUND_TURN 5
+#define SOUND_VERTIGO 6
+#define SOUND_DOWN 7
+#define SOUND_FALL 8
+#define SOUND_NEW 9
+#define SOUND_BOUM 10
+#define SOUND_TRESOR 11
+#define SOUND_EGG 12
+#define SOUND_ENDKO 13
+#define SOUND_ENDOK 14
+#define SOUND_HELICOSTART 15
+#define SOUND_HELICOHIGH 16
+#define SOUND_HELICOSTOP 17
+#define SOUND_HELICOLOW 18
+#define SOUND_LASTTRESOR 19
+#define SOUND_UP 20
+#define SOUND_LOOKUP 21
+#define SOUND_JUMP0 22
+#define SOUND_PLOUF 23
+#define SOUND_BLUP 24
+#define SOUND_SURF 25
+#define SOUND_DROWN 26
+#define SOUND_ERROR 27
+#define SOUND_JEEPSTART 28
+#define SOUND_JEEPHIGH 29
+#define SOUND_JEEPSTOP 30
+#define SOUND_JEEPLOW 31
+#define SOUND_BYE 32
+#define SOUND_DOOR 33
+#define SOUND_SUSPENDTOC 34
+#define SOUND_SUSPENDJUMP 35
+#define SOUND_SINGE 36
+#define SOUND_PATIENT 37
+#define SOUND_PUSH 38
+#define SOUND_POP 39
+#define SOUND_JUMPAIE 40
+#define SOUND_RESSORT 41
+#define SOUND_STARTSHIELD 42
+#define SOUND_STOPSHIELD 43
+#define SOUND_STARTPOWER 44
+#define SOUND_STOPPOWER 45
+#define SOUND_OUF1 46
+#define SOUND_OUF2 47
+#define SOUND_OUF3 48
+#define SOUND_OUF4 49
+#define SOUND_SUCETTE 50
+#define SOUND_GLU 51
+#define SOUND_FIREOK 52
+#define SOUND_FIREKO 53
+#define SOUND_TAKEGLU 54
+#define SOUND_STARTCLOUD 55
+#define SOUND_STOPCLOUD 56
+#define SOUND_DRINK 57
+#define SOUND_CHARGE 58
+#define SOUND_ELECTRO 59
+#define SOUND_PERSOTAKE 60
+#define SOUND_PERSOPOSE 61
+#define SOUND_STARTHIDE 62
+#define SOUND_STOPHIDE 63
+#define SOUND_TIPLOUF 64
+#define SOUND_MOCKERY 65
+#define SOUND_INVERTSTART 66
+#define SOUND_INVERTSTOP 67
+#define SOUND_OVERSTOP 68
+#define SOUND_BLITZ 69
+#define SOUND_ECRASE 70
+#define SOUND_TELEPORTE 71
+#define SOUND_BRIDGE1 72
+#define SOUND_BRIDGE2 73
+#define SOUND_ANGEL 74
+#define SOUND_SCIE 75
+#define SOUND_SWITCHOFF 76
+#define SOUND_SWITCHON 77
+#define SOUND_JUMPENDb 78
+#define SOUND_JUMPTOCb 79
+#define SOUND_JUMPENDm 80
+#define SOUND_JUMPTOCm 81
+#define SOUND_JUMPENDg 82
+#define SOUND_JUMPTOCg 83
+#define SOUND_JUMPENDo 84
+#define SOUND_JUMPTOCo 85
+#define SOUND_JUMPENDk 86
+#define SOUND_JUMPTOCk 87
+#define SOUND_JUMPENDf 88
+#define SOUND_JUMPTOCf 89
+#define SOUND_JUMPENDh 90
+#define SOUND_JUMPTOCh 91
+#define SOUND_FOLLOW 92
+
+
+// 
+
+#define KEY_LEFT	(1 << 0)
+#define KEY_RIGHT	(1 << 1)
+#define KEY_UP		(1 << 2)
+#define KEY_DOWN	(1 << 3)
+#define KEY_JUMP	(1 << 4)
+#define KEY_FIRE	(1 << 5)
+
 
 
 // Boutons (play) :
@@ -345,18 +398,6 @@
 #define BUTTON_FABARMURE	34
 
 
-// Erreurs :
-
-#define ERROR_MISC			1
-#define ERROR_GROUND		2
-#define ERROR_FREE			3
-#define ERROR_PONTOP		4
-#define ERROR_PONTTERM		5
-#define ERROR_TOURISOL		6
-#define ERROR_TOUREAU		7
-#define ERROR_TELE2			8
-
-
 // Lutins pour la souris
 
 #define SPRITE_ARROW		1
@@ -374,15 +415,6 @@
 #define SPRITE_EMPTY		13
 #define SPRITE_FILL			14
 
-
-#define TYPE_BALLE
-#define	TYPE_CAISSE
-#define TYPE_GOAL
-#define TYPE_CLE
-#define TYPE_BLUPIHELICO
-#define TYPE_BLUPITANK
-#define TYPE_empty
-#define MAXMOVEOBJECT = 200;
 
 // User define message
 
@@ -620,24 +652,4 @@
 #define MOUSETYPEGRA			1
 #define MOUSETYPEWIN			2
 #define MOUSETYPEWINPOS			3
-
-
-
-// Conditions pour gagner.
-
-typedef struct
-{
-	short	bHachBlupi;		// blupi sur dalle hachur�e
-	short	bHachPlanche;	// planches sur dalle hachur�e
-	short	bStopFire;		// feu �teint
-	short	nbMinBlupi;		// nb de blupi n�cessaires
-	short	nbMaxBlupi;		// nb de blupi n�cessaires
-	short	bHomeBlupi;		// blupi � la maison
-	short	bKillRobots;	// plus d'ennemis
-	short	bHachTomate;	// tomates sur dalle hachur�e
-	short	bHachMetal;		// m�tal sur dalle hachur�e
-	short	bHachRobot;		// robot sur dalle hachur�e
-	short	reserve[14];
-}
-Term;
 

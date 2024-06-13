@@ -1,4 +1,4 @@
-// Button.cpp
+﻿// Button.cpp
 //
 
 #include <windows.h>
@@ -23,7 +23,7 @@ CButton::CButton()
     m_type              = 0;
     m_bEnable           = TRUE;
     m_bHide             = FALSE;
-	m_bSomething 		= 0;
+	m_bSomething 		= FALSE;
     m_state             = 0;
     m_mouseState        = 0;
     m_nbMenu            = 0;
@@ -45,9 +45,9 @@ CButton::~CButton()
 
 BOOL CButton::Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
                      POINT pos, int type, BOOL bMinimizeRedraw,
-                     int *pMenu, int nbMenu,
+                     /*int *pMenu, int nbMenu,
                      int *pToolTips, int nbToolTips,
-                     int region, UINT message)
+                     int region,*/ UINT message)
 {
     POINT iconDim;
     int i, icon;
@@ -69,14 +69,14 @@ BOOL CButton::Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
 	m_bMinimizeRedraw	= bMinimizeRedraw;
 	m_bEnable			= TRUE;
 	m_bHide				= FALSE;
-	m_bSomething 		= 0;
+	m_bSomething 		= FALSE;
 	m_message			= message;
 	m_pos.x				= pos.x;
 	m_pos.y 			= pos.y;
 	m_dim.x				= iconDim.x;
 	m_dim.y 			= iconDim.y;
-	m_nbMenu			= nbMenu;
-	m_nbToolTips		= nbToolTips;
+	m_nbMenu			= 0;
+	m_nbToolTips		= 0;
 	m_selMenu			= 0;
 	m_state				= 0;
 	m_mouseState		= 0;
@@ -84,6 +84,7 @@ BOOL CButton::Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
 	m_bRedraw			= TRUE;
 
 /* Do we need this yet?
+	// No. 👍
 ///////////////////////////////////////////////////
 	for ( i=0 ; i<nbMenu ; i++ )
 	{
@@ -122,9 +123,10 @@ BOOL CButton::Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
 		m_toolTips[i] = pToolTips[i];
 	}
 
-	return TRUE;
+	
 /////////////////////////////////////////////////////
 */
+	return TRUE;
 }
 
 // Space for unknown menu function.
@@ -135,11 +137,11 @@ void CButton::SetSomethingMenu(int somethingMenu)
 
 	while (0 < i)
 	{
-
+		//TODO
 	}
 }
 
-// Draw a button in its state
+// Draw a button according to its state
 
 void CButton::Draw()
 {
@@ -150,15 +152,15 @@ void CButton::Draw()
 	if ( m_bMinimizeRedraw && !m_bRedraw ) return;
 	m_bRedraw = FALSE, m_bSomething = FALSE;
 
-	if ( m_bHide ) // Hidden button
+	if ( m_bHide ) // is button hidden ?
 	{
 		pos.y 	   = m_pos.y;
 		pos.x	   = m_pos.x;
-		m_pPixmap->DrawPart(-1, CHBACK, m_pos, rect, 1); // Draw the background
+		m_pPixmap->DrawPart(-1, CHBACK, m_pos, rect, 1); // draw the background
 		return;
 	}
 
-	if( m_bEnable )
+	if( m_bEnable ) // is button active ?
 	{
 		m_pPixmap->DrawIcon(-1, CHBUTTON+m_type, m_mouseState, m_pos);
 	}
@@ -251,15 +253,10 @@ void CButton::SetSomething(BOOL bSomething)
 }
 
 
-/*
-// Needed Yet?
-/////////////////////////////////////////
 BOOL CButton::GetHide()
 {
 	return m_bHide;
 }
-/////////////////////////////////////////
-*/
 
 
 void CButton::SetHide(BOOL bHide)
@@ -271,6 +268,9 @@ void CButton::SetHide(BOOL bHide)
 
 	m_bHide = bHide;
 }
+
+
+// Event handling.
 
 BOOL CButton::TreatEvent(UINT message, WPARAM wParam, LPARAM lParam)
 {
@@ -293,14 +293,15 @@ BOOL CButton::TreatEvent(UINT message, WPARAM wParam, LPARAM lParam)
 		
 		case WM_LBUTTONUP:
 		case WM_RBUTTONUP:
-	    	if ( MouseUp(pos) )	  return FALSE;
+	    	if ( MouseUp(pos) )	  return FALSE; // (*)
 			break;
 	}
 
 	return FALSE;
 }
 
-// All buttons must receive the BUTTONUP event!
+// (*) All buttons must receive the BUTTONUP event!
+
 
 // Indicates whether the mouse is over this button.
 
@@ -319,7 +320,7 @@ int CButton::GetToolTips(POINT pos)
 
 	if ( m_bHide || !m_bEnable ) return -1;
 
-	if ( m_nbMenu > 1 && m_bMouseDown ) // Drop-down submenu?
+	if ( m_nbMenu > 1 && m_bMouseDown ) // submenu is open?
 	{
 		width += 2+(m_dim.x-1)*m_nbMenu;
 	}
@@ -348,13 +349,16 @@ int CButton::GetToolTips(POINT pos)
 	return m_toolTips[rank];
 }
 
+
+// Detect whether the mouse is on a button.
+
 BOOL CButton::Detect(POINT pos)
 {
 	int		 width = m_dim.x;
 
 	if ( m_bHide || !m_bEnable ) 	return FALSE;
 
-	if ( m_nbMenu > 1 && m_bMouseDown )
+	if ( m_nbMenu > 1 && m_bMouseDown ) // sub-menu is open?
 	{
 		width += 2+(m_dim.x-1)*m_nbMenu;
 	}
@@ -366,6 +370,8 @@ BOOL CButton::Detect(POINT pos)
 	
 	return TRUE;
 }
+
+// Mouse button pressed.
 
 BOOL CButton::MouseDown(POINT pos)
 {
@@ -380,6 +386,8 @@ BOOL CButton::MouseDown(POINT pos)
 	return TRUE;
 }
 
+// Mouse moved.
+
 BOOL CButton::MouseMove(POINT pos)
 {
 	BOOL 	  bDetect;
@@ -392,18 +400,18 @@ BOOL CButton::MouseMove(POINT pos)
 
 	if ( m_bMouseDown )
 	{
-		if ( bDetect ) m_mouseState = 1;
+		if ( bDetect ) m_mouseState = 1; // pressed
 		else 		   m_mouseState = m_state;
 	}
 	else
 	{
-		if ( bDetect ) m_mouseState = m_state+2;
+		if ( bDetect ) m_mouseState = m_state+2; // hover
 		else		   m_mouseState = m_state;
 	}
 
 	if ( m_nbMenu > 1 &&
 		 m_bMouseDown &&
-		 pos.x > m_pos.x+m_dim.x+2 )
+		 pos.x > m_pos.x+m_dim.x+2 ) // is on sub-menu?
 	{
 		m_selMenu = (pos.x-(m_pos.x+m_dim.x+2))/(m_dim.x-1);
 		if ( m_selMenu >= m_nbMenu )
@@ -421,6 +429,8 @@ BOOL CButton::MouseMove(POINT pos)
 
 	return m_bMouseDown;
 }
+
+// Mouse button released.
 
 BOOL CButton::MouseUp(POINT pos)
 {

@@ -583,67 +583,7 @@ int CPixmap::SearchColor(int red, int green, int blue)
 
 // Cache une image contenant des ic�nes.
 
-BOOL CPixmap::Cache(int channel, char *pFilename, POINT totalDim, POINT iconDim,
-					BOOL bUsePalette)
-{
-    HRESULT     ddrval;
-
-	if ( channel < 0 || channel >= MAXIMAGE )  return FALSE;
-
-	if ( m_lpDDSurface[channel] != NULL )
-	{
-		Flush(channel);
-	}
-
-    // Create and set the palette.
-	if ( bUsePalette )
-	{
-		if ( m_bDebug )  OutputDebug("Use palette\n");
-		if ( m_lpDDPal != NULL )
-		{
-			if ( m_bDebug )  OutputDebug("Release palette\n");
-			m_lpDDPal->Release();
-			m_lpDDPal = NULL;
-		}
-
-		m_lpDDPal = DDLoadPalette(m_lpDD, pFilename);
-
-		if ( m_lpDDPal )
-		{
-			if ( m_bDebug )  OutputDebug("Set palette\n");
-			m_lpDDSPrimary->SetPalette(NULL);  // indispensable !
-			ddrval = m_lpDDSPrimary->SetPalette(m_lpDDPal);
-			if ( ddrval != DD_OK )
-			{
-				TraceErrorDD(ddrval, pFilename, 1);
-			}
-		}
-	}
-
-    // Create the offscreen surface, by loading our bitmap.
-    m_lpDDSurface[channel] = DDLoadBitmap(m_lpDD, pFilename, 0, 0);
-
-    if ( m_lpDDSurface[channel] == NULL )
-    {
-		OutputDebug("Fatal error: DDLoadBitmap\n");
-        return FALSE;
-    }
-
-    // Set the color key to white
-	if ( m_bDebug )  OutputDebug("DDSetColorKey\n");
-    DDSetColorKey(m_lpDDSurface[channel], RGB(255,255,255));  // blanc
-	
-	strcpy(m_filename[channel], pFilename);
-
-	m_totalDim[channel] = totalDim;
-	m_iconDim[channel]  = iconDim;
-
-	return TRUE;
-}
-
-// Cache une image globale.
-
-BOOL CPixmap::Cache2(int channel, char *pFilename, POINT totalDim, BOOL bUsePalette)
+BOOL CPixmap::Cache1(int channel, char *pFilename, POINT totalDim, BOOL bUsePalette)
 {
 	POINT		iconDim;
 
@@ -670,42 +610,70 @@ BOOL CPixmap::Cache2(int channel, char *pFilename, POINT totalDim, BOOL bUsePale
 
 	if (bUsePalette != 0)
 	{
-
+		//TODO: more
 	}
 }
 
-// Cache une image provenant d'un bitmap.
 
-// Probably not needed?
+// Cache une image globale.
 
-
-BOOL CPixmap::Cache(int channel, HBITMAP hbm, POINT totalDim)
+BOOL CPixmap::Cache2(int channel, char *pFilename, POINT totalDim, POINT iconDim,
+	BOOL bUsePalette)
 {
-	if ( channel < 0 || channel >= MAXIMAGE )  return FALSE;
+	HRESULT     ddrval;
 
-	if ( m_lpDDSurface[channel] != NULL )
+	if (channel < 0 || channel >= MAXIMAGE)  return FALSE;
+
+	if (m_lpDDSurface[channel] != NULL)
 	{
 		Flush(channel);
 	}
 
-    // Create the offscreen surface, by loading our bitmap.
-    m_lpDDSurface[channel] = DDConnectBitmap(m_lpDD, hbm);
+	// Create and set the palette.
+	if (bUsePalette)
+	{
+		if (m_bDebug)  OutputDebug("Use palette\n");
+		if (m_lpDDPal != NULL)
+		{
+			if (m_bDebug)  OutputDebug("Release palette\n");
+			m_lpDDPal->Release();
+			m_lpDDPal = NULL;
+		}
 
-    if ( m_lpDDSurface[channel] == NULL )
-    {
+		m_lpDDPal = DDLoadPalette(m_lpDD, pFilename);
+
+		if (m_lpDDPal)
+		{
+			if (m_bDebug)  OutputDebug("Set palette\n");
+			m_lpDDSPrimary->SetPalette(NULL);  // indispensable !
+			ddrval = m_lpDDSPrimary->SetPalette(m_lpDDPal);
+			if (ddrval != DD_OK)
+			{
+				TraceErrorDD(ddrval, pFilename, 1);
+			}
+		}
+	}
+
+	// Create the offscreen surface, by loading our bitmap.
+	m_lpDDSurface[channel] = DDLoadBitmap(m_lpDD, pFilename, 0, 0);
+
+	if (m_lpDDSurface[channel] == NULL)
+	{
 		OutputDebug("Fatal error: DDLoadBitmap\n");
-        return FALSE;
-    }
+		return FALSE;
+	}
 
-    // Set the color key to white
-    DDSetColorKey(m_lpDDSurface[channel], RGB(255,255,255));  // blanc
-	
+	// Set the color key to white
+	if (m_bDebug)  OutputDebug("DDSetColorKey\n");
+	DDSetColorKey(m_lpDDSurface[channel], RGB(255, 255, 255));  // blanc
+
+	strcpy(m_filename[channel], pFilename);
+
 	m_totalDim[channel] = totalDim;
-	m_iconDim[channel]  = totalDim;
+	m_iconDim[channel] = iconDim;
 
 	return TRUE;
 }
-
 
 // Purge une image.
 
