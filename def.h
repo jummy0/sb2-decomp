@@ -26,6 +26,9 @@
 #define DIMBLUPIX		60		// dimensions de blupi
 #define DIMBLUPIY		60
 
+#define DIMEXPLOX		128
+#define DIMEXPLOY		128
+
 #define DIMBUTTONX		40		// dimensions d'un button
 #define DIMBUTTONY		40
 
@@ -68,6 +71,7 @@
 
 
 // Actions :
+
 
 #define ACTION_STOP 1
 #define ACTION_MARCH 2
