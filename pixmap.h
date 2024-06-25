@@ -37,7 +37,7 @@ public:
 	BOOL	SavePalette();
 	BOOL	RestorePalette();
 	int		SearchColor(int red, int green, int blue);
-	BOOL	Cache1(int channel, char *pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette);
+	BOOL	BackgroundCache(int channel, char *pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette);
 	BOOL	Cache2(int channel, char *pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette);
 	void	Flush(int channel);
 	void	SetTransparent(int channel, COLORREF color);
