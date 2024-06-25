@@ -14,7 +14,7 @@
 
 
 
-#define ICON_BUTTON_PERSONALBOMBICON
+#define MAXNETMESSAGE 20
 
 // Descripteur d'une cellule du décor.
 typedef struct
@@ -351,7 +351,7 @@ protected:
 
 	int			unknown[55];
 
-	SoundEvent	m_soundEvents[20];
+	NetMessage	m_netMessages[MAXNETMESSAGE];
 	int			m_soundEventIndex1;
 	int			m_soundEventIndex2;
 
