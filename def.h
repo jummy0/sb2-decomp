@@ -84,6 +84,11 @@ namespace Ch {
 	};
 };
 
+#define MESS_LOBBY		4
+#define NETEVENTMAX		20
+
+#define PK_PLAYSOUND	40
+
 
 // Directions :
 
@@ -753,6 +758,7 @@ namespace Key {
 #define WM_DECOR4				(WM_USER+23)
 #define WM_DECOR5				(WM_USER+24)
 
+
 #define WM_ACTION_GO			(WM_USER+30)
 #define WM_ACTION_ABAT1			(WM_USER+31)
 #define WM_ACTION_ABAT2			(WM_USER+32)
@@ -963,14 +969,20 @@ namespace Key {
 #define WM_PREV					(WM_USER+600)
 #define WM_NEXT					(WM_USER+601)
 #define WM_MOVIE				(WM_USER+602)
-#define WM_PHASE_CREATE
-#define WM_PHASE_608
-#define WM_PHASE_634
-#define WM_PHASE_GREAD
-#define WM_PHASE_GREADp
-#define WM_PHASE_GWRITE
-#define WM_PHASE_DOQUIT
-#define WM_PHASE_GAMER
+#define WM_PHASE_CREATE 1579
+#define WM_PHASE_608	1544
+
+#define WM_PHASE_WINd   1546
+#define	WM_PHASE_LOSTd  1547
+#define WM_PHASE_WINm   1549
+#define WM_PHASE_LOSTm	1550
+#define WM_PHASE_READd  1560
+#define WM_PHASE_634	1588
+#define WM_PHASE_GREAD  1586
+#define WM_PHASE_GREADp 1585
+#define WM_PHASE_GWRITE 1584
+#define WM_PHASE_DOQUIT 1587
+#define WM_PHASE_GAMER  1545
 
 // Types de gestion de la souris.
 

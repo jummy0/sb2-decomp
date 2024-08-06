@@ -3,6 +3,9 @@
 #pragma once
 
 //////////////////////////////////////////////////////////////////////////
+#include <minwindef.h>
+#include <Windows.h>
+#include "decor.h"
 
 class CJauge
 {

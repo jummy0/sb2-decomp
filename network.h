@@ -38,8 +38,8 @@ NamedGUIDList;
 class CNetwork
 {
 public:
-    CNetwork();
-    ~CNetwork();
+	CNetwork();
+	~CNetwork();
 
 	BOOL EnumProviders();
 	BOOL GetNbProviders();

@@ -3,12 +3,15 @@
 #pragma once
 
 #include <Windows.h>
+#include <minwindef.h>
 
 #include "DEF.H"
 #include "JAUGE.H"
 #include "SOUND.H"
 #include "PIXMAP.H"
 #include "network.h"
+#include "jauge.h"
+#include "event.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -67,11 +70,17 @@ public:
 	~CDecor();
 
 	// Decor.cpp
-	void	Create(HWND hWnd, CSound *pSound, CPixmap *pPixmap,
-		           CNetwork *pNetwork);
+	void	SetShiftOffset(POINT offset);
+	POINT	ConvCelToPos(POINT cel);
+	POINT	ConvPosToCel(POINT pos, BOOL bMap=FALSE);
+	POINT	ConvPosToCel2(POINT pos);
+
+	void	Create(HWND hWnd, CSound *pSound, CPixmap *pPixmap, CNetwork *pNetwork);
 	BOOL	LoadImages();
 	void	InitGamer();
-	void	InitDecor();
+	BOOL	AddLinkCaisse(int rank);
+	void	InitDecor(int channel, int icon);
+	void	InitAfterBuild();
 	void	SetTime(int time);
 	int	    GetTime();
 	void	PlayPrepare(BOOL bTest);
@@ -85,56 +94,106 @@ public:
 	void	Build(RECT rect);
 	void	DrawInfo();
 	POINT	DecorNextAction();
-	void	TreatKeys(int keys);
-	void	SetJoystickEnable(BOOL bJoystick);
-	void	SetFieldD814(BOOL param_1);
-	void	GetBlupiInfo(BOOL &pbHelico, BOOL &pbJeep, BOOL &pbSkate,
-		                 BOOL &pbNage);
+	void	TreatInput(UINT input);
+	void	SetSpeedX(double speed);
+	void	SetSpeedY(double speed);
 	int		SoundEnviron(int sound, int obstacle);
-	void	PlaySound(int sound, POINT pos, BOOL bLocal);
-	void	StopSound(int sound);
-	void	AdaptMotorVehicleSound(POINT pos);
-	void	VehicleSoundsPhase(int phase);
-	POINT	ScreenPosToCelPos(POINT pos);
-	void	SetCelPosFromScreenPos(POINT pos);
-	void	SetFieldCC38AndStuff(int _foo, int _bar);
-	void	DeleteCel(POINT cel);
-	void	PlaceMenuItem(short *pCel, int *pTable, int lastIndex, BYTE flags, int currentIcon, BOOL bRand);
-	void	PlaceItemFromMenu1(POINT cel, int index, BYTE flags, int currentIcon);
-	void	PlaceItemFromMenu2(POINT cel, int index, BYTE flags, int currentIcon);
-	void	PlaceItemFromMenu3(POINT cel, int index, BYTE flags, int currentIcon);
-	void	PlaceItemFromMenu4(POINT cel, int index, BYTE flags, int currentIcon);
-	void	PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIcon);
-	void	PlaceItemFromMenu6(POINT cel, int index, BYTE flags, int currentIcon);
-	void	PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIcon);
-	void	PlaceItemFromMenu8(POINT cel, int index, BYTE flags, int currentIcon);
-	void	PlaceItemFromMenu9(POINT cel, int index, BYTE flags, int currentIcon);
-	void	PlaceItemFromMenu10(POINT cel, int index, BYTE flags, int currentIcon);
-	char*	GetMissionTitle();
-	void	SetMissionTitle(char *str);
+	void	StopSound(CSound sound);
+	void	AdaptMotorVehicleSound();
+	BOOL	TestPushCaisse(int i, POINT pos, BOOL bPop);
+	void	SearchLinkCaisse(int rank, BOOL bPop);
+	void	ResetHili();
+	BOOL	LoadImages();
+	BOOL	LoadBackgroundImages();
+	BOOL	TestPushOneCaisse(int i, POINT move, int b);
+	void	ClearFog();
+	void	ClearFire();
+	void	SetBuild(BOOL bBuild);
+	void	EnableFog(BOOL bEnable);
+	BOOL	GetInvincible();
+	void	SetInvincible(BOOL bInvincible);
+	BOOL	GetSuper();
+	void	SetSuper(BOOL bSuper);
+	void	FlipOutline();
+	BOOL	PutFloor(POINT cel, int channel, int icon);
+	BOOL	PutObject(POINT cel, int channel, int icon);
+	BOOL	GetFloor(POINT cel, int &channel, int &icon);
+	BOOL	GetObject(POINT cel, int &channel, int &icon);
+	BOOL	SetFire(POINT cel, BOOL bFire);
+
+	void	SetCoin(POINT coin, BOOL bCenter=FALSE);
+	POINT	GetCoin();
+	POINT	GetHome();
+	void	MemoPos(int rank, BOOL bRecord);
+
+	void	SetTime(int time);
+	int		GetTime();
+
+	void	SetMusic(int music);
+	int		GetMusic();
+
+	void	SetSkill(int skill);
+	int		GetSkill();
+
+	void	SetRegion(int region);
 	int		GetRegion();
+
+	void	SetInfoMode(BOOL bInfo);
+	BOOL	GetInfoMode();
+	void	SetInfoHeight(int height);
+	int		GetInfoHeight();
+
+	int 	GetTargetLevel();
+	void	GetBlupiInfo(BOOL bHelico, BOOL bJeep, BOOL bSkate, BOOL bNage);
+
+	char*	GetButtonExist();
+
+	void	BuildPutBlupi();
+	void	BuildMoveFloor(int x, int y, POINT pos, int rank);
+	void	BuildMoveObject(int x, int y, POINT pos, int rank);
+	void	BuildGround(RECT clip);
+	void	Build(RECT clip, POINT posMouse);
+	void	NextPhase(int mode);
+
+	int		CountFloor(int channel, int icon);
+	int		CelOkForAction(POINT cel, int action, int rank,
+						   int   icons[4][4],
+						   POINT &celOutline1,
+						   POINT &celOutline2);
+	int		CelOkForAction(POINT cel, int action, int rank);
+	int		GetHiliRankBlupi(int nb);
+	void	CelHili(POINT pos, int action);
+	void	CelHiliButton(POINT cel, int button);
+	void	CelHiliRepeat(int list);
+	int		GetResHili(POINT posMouse);
+	void	HideTooltips(BOOL bHide);
+
+	void	UndoOpen();
+	void	UndoClose();
+	void	UndoCopy();
+	void	UndoBack();
+	BOOL	IsUndo();
+	BOOL	GetShowSecret();
+	BOOL	GetNetPacked();
+	BOOL	GetNetMovePredict();
+	UINT	GetPhase();
+	char	GetMissionTitle();
 	void	SetRegion(int region);
 	int		GetMusic();
 	void	SetMusic(int music);
-	POINT	GetDim();
-	void	SetDim(POINT dim);
+	void	GetDims(POINT* ptr);
+	void	SetDims(POINT dims);
 	int		GetNbVies();
 	void	SetNbVies(int nbVies);
 	BOOL	GetPause();
 	void	SetPause(BOOL bPause);
-	void	InitializeDoors(GameData *gameData);
-	void	MemorizeDoors();
-	void	SetAllMissions(BOOL bAllMissions);
-	void	CheatAction(int cheat);
-	BOOL	GetSuperBlupi();
-	void	SetSuperBlupi(BOOL bSuperBlupi);
-	BOOL	GetDrawSecret();
-	void	SetDrawSecret(BOOL bDrawSecret);
-	void	SetBuildOfficialMissions(BOOL bBuildOfficialMissions);
-	BOOL	GetNetPacked();
-	void	SetNetPacked(BOOL bNetPacked);
-	BOOL	GetNetMovePredict();
-	void	SetNetMovePredict(BOOL bNetMovePredict);
+	void	GetDoors(int doors);
+	void	InitalizeDoors();
+	void	SetAllMissions(BOOL CheatDoors);
+	void	CheatAction(int cheat, MoveObject moveObject);
+	void	SetAccessBuild(BOOL build);
+	void	SetNetPacked(BOOL net);
+	void	SetNetMovePredict(BOOL netmove);
 	BOOL	GetNetDebug();
 	void	SetNetDebug(BOOL bNetDebug);
 	void	UpdateNetDebug(char *str);
@@ -154,11 +213,9 @@ public:
 	void	MoveObjectPollution();
 	void	MoveObjectPlouf(POINT pos);
 	void	MoveObjectTiplouf(POINT pos);
+	int		GetBlupiChannelStandard();
 	void	MoveObjectBlup(POINT pos);
-
-	int		IsWorld(POINT pos);
 	void	ActiveSwitch(BOOL bState, POINT cel);
-	char	GetTypeBarre(POINT pos);
 	BOOL	IsLave(POINT pos);
 	BOOL	IsPiege(POINT pos);
 	BOOL	IsGoutte(POINT pos, BOOL bAlways);
@@ -267,6 +324,27 @@ public:
 	// ?
 	void	GetMissionsCleared();
 	void	SetDemoState(BOOL demoState);
+	BOOL	CurrentWrite(int gamer, int mission, BOOL bUser);
+	BOOL	CurrentRead(int gamer, int mission, BOOL bUser);
+	void	SetJoystickEnable(BOOL bJoystick);
+	BOOL	GetShowSecret();
+
+	void	MemorizeDoors(BYTE* doors);
+
+
+	// Network Related Functions
+	void	NetMessageIndexFlush();
+	void	NotifFlush();
+	void	NetDataFlush();
+	void	NetPlaySound(short channel, POINT pos);
+	void	NetStopCloud(int rank);
+	BOOL	NetMessagePush(NetMessage* message);
+	BOOL	DrawMap(BOOL bPlay, int player);
+	void	NetSendData(BYTE bufferSize, UCHAR send);
+	void	NetPlayerCollide(POINT pos, int* out);
+	void	TreatNetData();
+	void	OutputNetDebug(char* text);
+
 
 protected:
 	HWND		m_hWnd;
@@ -314,14 +392,15 @@ protected:
 	int			m_blupiTransport;
 	BOOL		m_blupiFocus;
     BOOL        m_blupiAir;
-    BOOL        m_blupiHelico;
+    BOOL*       m_blupiHelico;
     BOOL        m_blupiOver;
     BOOL        m_blupiJeep;
     BOOL        m_blupiTank;
     BOOL        m_blupiSkate;
     BOOL        m_blupiNage;
     BOOL        m_blupiSurf;
-    BOOL        m_blupiVent;
+    BOOL        m_bInWind;
+	BOOL		m_blupiVent;
     BOOL        m_blupiSuspend;
     BOOL        m_blupiJumpAie;
     BOOL        m_blupiShield;

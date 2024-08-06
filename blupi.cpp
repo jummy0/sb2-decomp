@@ -241,6 +241,8 @@ void UpdateFrame(void)
 
 	g_pEvent->ReadInput();
 
+
+	g_pEvent->ReadInput();
 	phase = g_pEvent->GetPhase();
 	if (phase == WM_PHASE_PLAY || phase == WM_PHASE_PLAYTEST || phase == WM_PHASE_BUILD)
 	{
@@ -507,7 +509,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 					g_pPixmap->SavePalette();
 					g_pPixmap->InitSysPalette();
 				}
-				SetWindowText(hWnd, "Blupi");
+				SetWindowTextA(hWnd, "Blupi");
 				if ( g_pSound != NULL ) g_pSound->RestartMusic();
 			}
 			else // désactive ?
@@ -516,7 +518,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 				{
 					FlushGame();
 				}
-				SetWindowText(hWnd, "Blupi -- stop");
+				SetWindowTextA(hWnd, "Blupi -- stop");
 				if ( g_pSound != NULL ) g_pSound->SuspendMusic();
 			}
 			return 0;
@@ -620,7 +622,7 @@ BOOL InitFail(char *msg, BOOL bDirectX)
 	else 			strcpy(buffer, "Error (");
 	strcat(buffer, msg);
 	strcat(buffer, ")");
-	MessageBox(g_hWnd, buffer, TITLE, MB_OK);
+	MessageBoxA(g_hWnd, buffer, TITLE, MB_OK);
 
 	FinishObjects();
 	DestroyWindow(g_hWnd);
@@ -633,7 +635,7 @@ BOOL InitFail(char *msg, BOOL bDirectX)
 
 static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 {
-	WNDCLASS 	   wc;
+	WNDCLASSA 	   wc;
 	POINT		   totalDim, iconDim;
 	RECT		   rcRect;
 	BOOL 		   bOK;
@@ -654,12 +656,12 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	wc.hbrBackground = GetStockBrush(BLACK_BRUSH);
 	wc.lpszMenuName = NAME;
 	wc.lpszClassName = NAME;
-	RegisterClass(&wc);
+	RegisterClassA(&wc);
 
 	// Create a window.
 	if (g_bFullScreen)
 	{
-		g_hWnd = CreateWindowEx
+		g_hWnd = CreateWindowExA
 		(
 			WS_EX_TOPMOST,
 			NAME,
@@ -687,7 +689,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 		AdjustWindowRect(&WindowRect, WS_POPUPWINDOW | WS_CAPTION, TRUE);
 		WindowRect.top += GetSystemMetrics(SM_CYCAPTION);
 
-		g_hWnd = CreateWindow
+		g_hWnd = CreateWindowA
 		(
 			NAME,
 			TITLE,

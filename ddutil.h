@@ -23,6 +23,7 @@ extern "C" {            /* Assume C declarations for C++ */
 	extern HRESULT              DDSetColorKey(IDirectDrawSurface *pdds, COLORREF rgb);
 	extern HRESULT              DDSetColorKey2(IDirectDrawSurface *pdds, COLORREF rgb1, COLORREF rgb2);
 
+/*
 #ifdef __cplusplus
 }
 #endif  /* __cplusplus */

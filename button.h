@@ -1,4 +1,23 @@
+#include <minwindef.h>
+#include <windef.h>
+#include "decor.h"
+#include "sound.h"
+#include "pixmap.h"
 
+#pragma once
+
+using namespace std;
+
+
+typedef struct
+{
+	int		message;
+	int		type;
+	int		iconMenu[20];
+	POINT	pos;
+	int		toolTips[20];
+}
+Button;
 
 class CButton
 {
@@ -51,8 +70,8 @@ protected:
 	UINT		m_message;		// message envoy� si bouton actionn�
 	POINT		m_pos;			// coin sup/gauche
 	POINT		m_dim;			// dimensions
-	int			m_state;		// 0=rel�ch�, 1=press�, +2=survoll�
-	int			m_mouseState;	// 0=rel�ch�, 1=press�, +2=survoll�
+	int			m_state;		
+	int			m_mouseState;	
 	int			m_iconMenu[20];	// ic�nes du sous-menu
 	int			m_toolTips[20];	// info-bulles
 	int			m_nbMenu;		// nb de case du sous-menu
@@ -61,5 +80,5 @@ protected:
 	int 		m_bSomething;	// sous-menu s�lectionn�
 	BOOL		m_bMouseDown;	// TRUE -> bouton souris press�
 	BOOL		m_bMinimizeRedraw;
-	BOOL		m_bRedraw;		// TRUE -> doit �tre redessin�
+	BOOL		m_bRedraw;		
 };

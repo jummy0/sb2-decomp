@@ -4,6 +4,11 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
+#include "movie.h"
+#include "menu.h"
+#include "button.h"
+#include "decor.h"
+
 typedef struct
 {
 	UINT	message;
@@ -17,12 +22,22 @@ Button;
 typedef struct
 {
 	UINT	phase;
-	char	backName[20];
+	char	backName[36];
 	BOOL	bCDrom;
 	Button	buttons[MAXBUTTON];
 }
 Phase;
 
+typedef struct
+{
+	int	HeaderLength[10];
+	int DoorsLength[200];
+	int GamerLength[10 + 200];
+	int MaxGamer[3];
+	int TotalLength[10 + (10 + 200) + 3];
+	BYTE data;
+}
+GameData;
 
 typedef struct
 {
@@ -39,12 +54,46 @@ DemoHeader;
 typedef struct
 {
 	int		time;
+	short	input;
 	UINT	message;
 	WPARAM	wParam;
 	LPARAM	lParam;
 }
 DemoEvent;
 
+typedef enum
+{
+	cheat_cleanall = 2,
+	cheat_funskate = 6,
+	cheat_givecopter = 7,
+	cheat_jeepdrive = 8,
+	cheat_alltreasure = 9,
+	cheat_endgoal = 10,
+	cheat_roundshield = 12,
+	cheat_quicklollipop = 13,
+	cheat_tenbombs = 14,
+	cheat_birdlime = 15,
+	cheat_drivetank = 16,
+	cheat_powercharge = 17,
+	cheat_hidedrink = 18,
+	cheat_iovercraft = 22,
+	cheat_udynamite = 23,
+	cheat_wellkeys = 24
+}
+cheat;
+
+typedef enum
+{
+	KEY_NONE,
+	KEY_LEFT,
+	KEY_RIGHT,
+	KEY_UP,
+	KEY_DOWN,
+	KEY_JUMP,
+	INPUT_DOWN,
+	INPUT_UP,
+	KEY_FIRE
+};
 
 class CEvent
 {
@@ -53,9 +102,9 @@ public:
 	~CEvent();
 
 
-	void	OutputNetDebug(char* str);
+	void	OutputNetDebug(const char* str);
 	POINT	GetMousePos();
-	void	Create(HINSTANCE hInstance, HWND hWnd, CPixmap *pPixmap, CDecor *pDecor, CSound *pSound, CMovie *pMovie, CNetwork *pNetwork);
+	void	Create(HWND hWnd, CPixmap *pPixmap, CDecor *pDecor, CSound *pSound, CMovie *pMovie, CNetwork *pNetwork);
 	void	SetFullScreen(BOOL bFullScreen);
 	void	SetMouseType(int mouseType);
 	int		GetWorld();
@@ -64,8 +113,11 @@ public:
 	int		GetImageWorld();
 	BOOL	IsHelpHide();
 	BOOL	ChangePhase(UINT phase);
+	WMessage GetPhase();
 	void	MovieToStart();
-	UINT	GetPhase();
+	BOOL	NetworkNuggets(int fuck);
+	void	HandleInputs();
+	void	ReadInput();
 	void	TryInsert();
 	void	SomethingUserMissions(LPCSTR lpFileName, LPCSTR thing);
 	void	RestoreGame();
@@ -87,6 +139,9 @@ public:
 	void	PauseStatus(UINT pause, int multiplayer);
 	BOOL	IsMouseRelease();
 
+	void	NetSetPause(BOOL bPause, int players);
+	void	NetSendLobby();
+
 	BOOL	DrawButtons();
 	BOOL	TextSomething();
 	int		MousePosToSprite(POINT pos);
@@ -94,7 +149,7 @@ public:
 	void	WaitMouse(BOOL bWait);
 	void	HideMouse(BOOL bHide);
 	void	FillMouse(int bFill);
-	POINT	GetLastMousePos();
+	POINT	GetLastMousePos(POINT out);
 	BOOL	TreatEvent(UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL	TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -104,6 +159,8 @@ public:
 	void	StopMovie();
 	BOOL	IsMovie();
 
+	void	FlushInput();
+
 	BOOL	FlipObject();
 
 	void	Read(int message);
@@ -112,7 +169,10 @@ public:
 	void	SetSpeed(int speed);
 	int		GetSpeed();
 	BOOL	GetPause();
+	void	GetDoors(int doors);
 	BOOL	IsShift();
+	BOOL    IsMulti();
+	BOOL	IsPrivate();
 
 	void	DemoStep();
 	void	DebugDisplay(char m);
@@ -143,9 +203,7 @@ public:
 	void	PrivateLibelle();
 	BOOL	ReadLibelle(int world, BOOL bSchool, BOOL bHelp);
 	BOOL	WriteInfo();
-	BOOL	ReadInfo();
-	BOOL    IsMulti();
-	BOOL	IsPrivate();	
+	BOOL	ReadInfo(int gamer);	
 	void	TryPhase();
 	void	UnTryPhase();
 	int		GetTryPhase();
@@ -158,10 +216,28 @@ public:
 	void	DemoPlayStop();
 	void	DemoRecEvent(UINT message, UINT input, WPARAM wParam, LPARAM lParam);
 
+	//		Network Functions
+	BOOL	NetCreate(int session);
+	BOOL	NetEnumSessions();
+	int		NetSearchPlayer(DPID dpid);
+	void	NetStartPlay();
+	void	NetSend(NetMessageType message, USHORT data);
+	void	NetDraw();
+	void	ChatSend();
+
+	void	MouseRelease();
+	void	MouseCapture();
+
+
 protected:
     int         m_speed;
     int         m_exercice;
     int         m_mission;
+	char		m_gamerName[100];
+	void*		m_somethingJoystick;
+	int			m_menuIndex;
+	int			m_menuDecor[10];
+	BOOL		m_bMouseRelease;
     int         m_private;
     int         m_maxMission;
     DWORD       m_phase;
@@ -180,7 +256,7 @@ protected:
     CMovie*		m_pMovie;
 	CNetwork* 	m_pNetwork;
 	char		m_movieToStart[MAX_PATH];
-	int			m_phaseAfterMovie;
+	WMessage	m_phaseAfterMovie;
 	CButton		m_buttons[MAXBUTTON];
 	int			m_lastFloor[MAXBUTTON];
 	int			m_lastObject[MAXBUTTON];
@@ -243,7 +319,7 @@ protected:
 	POINT		m_debugPos;
 	int			m_introTime;
 	int 		m_joyID;
-	BOOL 		m_gamer;
+	int 		m_gamer;
 	int 		m_textHiliStart;
 	int 		m_textHiliEnd;
 	int 		m_textCursorIndex;

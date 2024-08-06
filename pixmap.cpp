@@ -278,6 +278,7 @@ BOOL CPixmap::Restore()
 	return TRUE;
 }
 
+/*
 void HudIcon(int channel, int rank, POINT pos)
 {
 	pos.x = (int)((double)pos.x + CPixmap::originX)
@@ -294,6 +295,7 @@ void CPixmap::QuickIcon(int channel, int rank, POINT pos)
 	};
 	DrawIcon(channel, rank, rect, 1.0, TRUE);
 }
+*/
 
 // Initialise la palette syst�me.
 
@@ -336,20 +338,19 @@ void CPixmap::SetTrueColorDecor(BOOL bTrueColorDecor)
 {
 	m_bTrueColorDecor = bTrueColorDecor;
 }
-
+/*
 void CPixmap::DrawChar(int rank, POINT pos, double size)
 {
 	pos.x = (int)((double)pos.x + originX);
 	pos.y = (int)((double)pos.y + originY);
-	RECT rect = new RECT;
-	{
-		left = pos.x,
-			top = pos.y,
-			right = pos.x + (int)(32.0 * size),
-			bottom = pos.y + (int)(32.0 * size)
-	};
+	RECT rect;
+	rect.left = pos.x,
+		rect.top = pos.y,
+		rect.right = pos.x + (int)(32.0 * size),
+		rect.bottom = pos.y + (int)(32.0 * size);
 	DrawIcon(6, rank, rect, 1.0, FALSE);
 }
+*/
 
 // Indique si l'on utilise une palette.
 
@@ -699,6 +700,141 @@ BOOL CPixmap::Cache2(int channel, char *pFilename, POINT totalDim, POINT iconDim
 	m_iconDim[channel] = iconDim;
 
 	return TRUE;
+}
+
+BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor, BOOL bTrueColorDecor, int mouseType, char* pFilename, int region)
+{
+	char filename[100];
+
+	POINT totalDim;
+	POINT iconDim;
+	RECT rect;
+	POINT dim;
+
+	m_dim = dim;
+
+	if (cache == FALSE)
+	{
+		delete this;
+		hWnd = m_hWnd;
+		bFullScreen = m_bFullScreen;
+		bTrueColor = m_bTrueColor;
+		bTrueColorDecor = m_bTrueColorDecor;
+		mouseType = m_mouseType;
+	}
+
+	if (Create(hWnd, dim, bFullScreen, mouseType, bTrueColorDecor, bTrueColor) == FALSE)
+	{
+		return FALSE;
+	}
+
+	OutputDebug("Image:_init\n");
+	if (Cache2(0, "init.blp", totalDim, iconDim, TRUE) == FALSE)
+	{
+		return FALSE;
+	}
+
+	OutputDebug("SavePalette\n");
+	SavePalette();
+	OutputDebug("InitSysPalette\n");
+	InitSysPalette();
+	SetDebug(FALSE);
+
+	if (cache == FALSE)
+	{
+		if (Cache2(0, pFilename, totalDim, iconDim, FALSE) == NULL)
+		{
+			return NULL;
+		}
+	}
+	else
+	{
+		DrawImage(0, 0, rect, 1);
+		Display();
+	}
+	if (Cache2(CHOBJECT, "object.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHOBJECT, RGB(0, 0, 255));
+	if (Cache2(CHBLUPI, "blupi000.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHBLUPI, RGB(0, 0, 255));
+	if (Cache2(CHBLUPI1, "blupi001.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHBLUPI1, RGB(0, 0, 255));
+	if (Cache2(CHBLUPI2, "blupi002.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHBLUPI2, RGB(0, 0, 255));
+	if (Cache2(CHBLUPI3, "blupi003.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHBLUPI3, RGB(0, 0, 255));
+	if (Cache2(CHTEMP, "temp.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHTEMP, RGB(0, 0, 255));
+	if (Cache2(CHMAP, "map.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHMAP, RGB(0, 0, 255));
+	if (Cache2(CHELEMENT, "element.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHELEMENT, RGB(0, 0, 255));
+	if (Cache2(CHEXPLO, "explo.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHEXPLO, RGB(0, 0, 255));
+	sprintf(filename, "decor%.3d.blp", region);
+	if (Cache2(CHDECOR, filename, totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	if (Cache2(CHBUTTON, "button00.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHBUTTON, RGB(0, 0, 255));
+	if (Cache2(CHJAUGE, "jauge.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHJAUGE, RGB(0, 0, 255));
+	if (Cache2(CHTEXT, "text.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		return FALSE;
+	}
+	SetTransparent(CHTEXT, RGB(0, 0, 255));
+	if (Cache2(CHLITTLE, "little.blp", totalDim, iconDim, FALSE) == FALSE)
+	{
+		SetTransparent(CHLITTLE, RGB(0, 0, 255));
+		Benchmark();
+		return TRUE;
+	}
+	return FALSE;
+}
+
+int CPixmap::Benchmark()
+{
+
+}
+
+void CPixmap::SetDebug(BOOL bDebug)
+{
+	m_bDebug = bDebug;
+	DDSetDebug(bDebug);
 }
 
 // Purge une image.

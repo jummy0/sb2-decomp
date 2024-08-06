@@ -2,6 +2,7 @@
 //
 
 #include <stdio.h>
+#include <windows.h>
 #include "misc.h"
 #include "network.h"
 
