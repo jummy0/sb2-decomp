@@ -75,7 +75,6 @@ protected:
 	void	MouseBackDebug();
 	RECT	MouseRectSprite();
 	void	MouseHotSpot();
-	BOOL	GetTrueColor();
 
 protected:
 	BOOL				m_bFullScreen;

@@ -1,6 +1,6 @@
 // Event.h
 
-
+#pragma once
 
 /////////////////////////////////////////////////////////////////////////////
 
@@ -59,6 +59,7 @@ public:
 	void	SetFullScreen(BOOL bFullScreen);
 	void	SetMouseType(int mouseType);
 	int		GetWorld();
+	int		GetWorldGroup();
 	int		GetPhysicalWorld();
 	int		GetImageWorld();
 	BOOL	IsHelpHide();
@@ -70,6 +71,7 @@ public:
 	void	RestoreGame();
 	int		MissionBack();
 	void	TableSomething();
+	void	SetNbVies(int nbVies);
 
 	int		GetButtonIndex(int button);
 	int		GetState(int button);
@@ -81,8 +83,9 @@ public:
 	void	SetHide(int button, BOOL bHide);
 	int		GetMenu(int button);
 	void	SetMenu(int button, int menu);
-	void	SomethingDecor();
+	void	FlushInput();
 	void	PauseStatus(UINT pause, int multiplayer);
+	BOOL	IsMouseRelease();
 
 	BOOL	DrawButtons();
 	BOOL	TextSomething();
@@ -116,7 +119,9 @@ public:
 
 	void	IntroStep();
 
-protected:
+	void	AddPhaseText();
+	void	ReadInput();
+
 	void	DrawTextCenter(int res, int x, int y, int font=0);
 	BOOL	CreateButtons();
 	BOOL	EventButtons(UINT message, WPARAM wParam, LPARAM lParam);
@@ -159,7 +164,7 @@ protected:
     int         m_mission;
     int         m_private;
     int         m_maxMission;
-    WMessage    m_phase;
+    DWORD       m_phase;
     int         m_index;
 	int			m_playerIndex;
     BOOL        m_bSchool;
@@ -234,7 +239,6 @@ protected:
 	int			m_demoIndex;
 	int			m_demoEnd;
 	int			m_demoNumber;
-	int			m_tryPhase;
 	BOOL		m_bCtrlDown;
 	POINT		m_debugPos;
 	int			m_introTime;
@@ -246,7 +250,6 @@ protected:
 	char 		m_textInput[100];
 	char 		m_pPlayerName[100];
 	int 		m_lives;
-	int 		m_mission;
 	int 		m_multi;
 	HINSTANCE	m_hInstance;
 	char 		m_chatZone[100][5];

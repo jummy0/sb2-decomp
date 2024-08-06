@@ -34,12 +34,12 @@ CJauge::~CJauge()
 
 // Create a new Button.
 
-BOOL CJauge::Create(HWND hWnd, CPixmap *pPixmap, CDecor *pDecor,
+BOOL CJauge::Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
                     POINT pos, int type, BOOL bMinimizeRedraw)
 {
     m_hWnd             = hWnd;
     m_pPixmap          = pPixmap;
-    m_pDecor           = pDecor;
+    m_pSound           = pSound;
     m_type             = type;
     m_bMinimizeRedraw  = bMinimizeRedraw;
     m_bHide            = TRUE;
@@ -50,33 +50,43 @@ BOOL CJauge::Create(HWND hWnd, CPixmap *pPixmap, CDecor *pDecor,
     m_bRedraw          = TRUE;
 }
 
+// Dessine un bouton dans son état.
+
 void CJauge::Draw()
 {
-    int			part;
-    RECT		rect;
+	int			part;
+	RECT		rect;
 
-    if (m_bMinimizeRedraw && !m_bRedraw)  return;
-    m_bRedraw = FALSE;
+	if (m_bMinimizeRedraw && !m_bRedraw)  return;
+	m_bRedraw = FALSE;
 
-    if (m_bHide)  // bouton cach� ?
-    {
-        m_pPixmap->DrawPart(-1, 0, m_pos, rect);
-        return;
-    }
-    int num = m_level * 114 / 100;
+	if (m_bHide)  // bouton caché ?
+	{
+		rect = { m_pos.x, m_pos.y, m_pos.x + m_dim.x, m_pos.y + m_dim.y };
+		m_pPixmap->DrawPart(-1, CHBACK, m_pos, rect, 1);  // dessine le fond
+		return;
+	}
 
-    m_pPixmap->DrawPart(-1, 5, m_pos, rect);
-    if (num > 0)
-    {
-        m_pPixmap->DrawPart(-1, 5, m_pos, rect);
-    }
+	part = (m_level*(DIMJAUGEX - 6 - 4)) / 100;
 
+	rect = { 0, 0, DIMJAUGEX, DIMJAUGEY };
+	m_pPixmap->DrawPart(-1, CHJAUGE, m_pos, rect);  // partie noire
+
+	if (part > 0)
+	{
+		rect = { 0, DIMJAUGEY * m_type, 6 + part, DIMJAUGEY + (m_type + 1) };
+		m_pPixmap->DrawPart(-1, CHJAUGE, m_pos, rect);  // partie colorée
+	}
 }
+
+// Redessine une jauge.
 
 void CJauge::Redraw()
 {
-    m_bRedraw = TRUE;
+	m_bRedraw = TRUE;
 }
+
+// Modifie le niveau.
 
 void CJauge::SetLevel(int level)
 {
@@ -102,6 +112,7 @@ int CJauge::GetType()
     return m_type;
 }
 
+// Modifie le type.
 
 void CJauge::SetType(int type)
 {
@@ -128,3 +139,12 @@ void CJauge::SetHide(BOOL bHide)
     m_bHide = bHide;
 }
 
+POINT CJauge::GetPos()
+{
+	return m_pos;
+}
+
+void CJauge::SetRedraw()
+{
+	m_bRedraw = TRUE;
+}

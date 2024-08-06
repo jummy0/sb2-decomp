@@ -28,13 +28,14 @@ public:
     int  GetAudioVolume();
     void SetMidiVolume(int volume);
     int  GetMidiVolume();
+	void SetCDAudio(BOOL bCDAudio);
 
     void CacheAll();
     BOOL Cache(int channel, char *pFilename);
     void Flush(int channel);
 
     BOOL Play (int channel, int volume=0, int pan=0);
-    BOOL StopSound(int channel, int volume, int pan);
+    BOOL StopSound(int channel);
     BOOL PlayImage(int channel, POINT pos, int rank=-1);
     BOOL PlayMusic(HWND hWnd, LPSTR lpszMIDIFilename);
     BOOL RestartMusic();

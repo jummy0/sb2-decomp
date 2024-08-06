@@ -19,7 +19,7 @@
 
 // Le message :
 // First-chance exception in Blupi.exe (GDI32.DLL): 0xC0000005: Access Violation.
-// apparaît au endroits marqués par (@) ...
+// apparaît au endroits marqués par (@) ...
 
 BOOL g_bDebug = TRUE;
 

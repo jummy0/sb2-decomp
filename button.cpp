@@ -50,7 +50,7 @@ BOOL CButton::Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
                      int region,*/ UINT message)
 {
     POINT iconDim;
-    int i, icon;
+    //int i, icon;
 
     static int ttypes[] =
     {

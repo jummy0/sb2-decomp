@@ -3,7 +3,6 @@
 
 #include "DEF.H"
 #include "DECOR.H"
-#include "ACTION.H"
 #include "MISC.H"
 #include "RESOURCE.H"
 

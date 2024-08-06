@@ -12,11 +12,10 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-
-
 #define MAXNETMESSAGE 20
+#define MAXMOVEOBJECT	200
 
-// Descripteur d'une cellule du décor.
+// Descripteur d'une cellule du décor.
 typedef struct
 {
 	short icon;
@@ -46,6 +45,21 @@ typedef struct
 }
 MoveObject;
 
+typedef struct
+{
+}
+GameData;
+
+typedef struct
+{
+	char type;
+	char data1;
+	short x;
+	short y;
+	short channel;
+}
+NetMessage;
+
 class CDecor
 {
 public:
@@ -72,45 +86,44 @@ public:
 	void	DrawInfo();
 	POINT	DecorNextAction();
 	void	TreatKeys(int keys);
-	void	SetSpeedX(int speed);
-	void	SetSpeedY(int speed);
+	void	SetJoystickEnable(BOOL bJoystick);
+	void	SetFieldD814(BOOL param_1);
 	void	GetBlupiInfo(BOOL &pbHelico, BOOL &pbJeep, BOOL &pbSkate,
 		                 BOOL &pbNage);
 	int		SoundEnviron(int sound, int obstacle);
-	void	PlaySound(int sound, POINT pos, int _foo);
+	void	PlaySound(int sound, POINT pos, BOOL bLocal);
 	void	StopSound(int sound);
 	void	AdaptMotorVehicleSound(POINT pos);
-
-	void	FUN_05c80(int phase);
-	POINT*	ScreenPosToCelPos(POINT *cel, int _foo, int _bar);
-	void	SetCelPosFromScreenPos(POINT cel);
-	void	SetFieldCC38(int _foo, int _bar);
-	void	DeleteCel(int celX, int celY);
-	//void	PlaceSelectableItem();
-	//void	PlaceItemFromMenu1();
-	//void	PlaceItemFromMenu2();
-	//void	PlaceItemFromMenu3();
-	//void	PlaceItemFromMenu4();
-	//void	PlaceItemFromMenu5();
-	//void	PlaceItemFromMenu6();
-	//void	PlaceItemFromMenu7();
-	//void	PlaceItemFromMenu8();
-	//void	PlaceItemFromMenu9();
-	//void	PlaceItemFromMenu10();
+	void	VehicleSoundsPhase(int phase);
+	POINT	ScreenPosToCelPos(POINT pos);
+	void	SetCelPosFromScreenPos(POINT pos);
+	void	SetFieldCC38AndStuff(int _foo, int _bar);
+	void	DeleteCel(POINT cel);
+	void	PlaceMenuItem(short *pCel, int *pTable, int lastIndex, BYTE flags, int currentIcon, BOOL bRand);
+	void	PlaceItemFromMenu1(POINT cel, int index, BYTE flags, int currentIcon);
+	void	PlaceItemFromMenu2(POINT cel, int index, BYTE flags, int currentIcon);
+	void	PlaceItemFromMenu3(POINT cel, int index, BYTE flags, int currentIcon);
+	void	PlaceItemFromMenu4(POINT cel, int index, BYTE flags, int currentIcon);
+	void	PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIcon);
+	void	PlaceItemFromMenu6(POINT cel, int index, BYTE flags, int currentIcon);
+	void	PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIcon);
+	void	PlaceItemFromMenu8(POINT cel, int index, BYTE flags, int currentIcon);
+	void	PlaceItemFromMenu9(POINT cel, int index, BYTE flags, int currentIcon);
+	void	PlaceItemFromMenu10(POINT cel, int index, BYTE flags, int currentIcon);
 	char*	GetMissionTitle();
 	void	SetMissionTitle(char *str);
 	int		GetRegion();
 	void	SetRegion(int region);
 	int		GetMusic();
 	void	SetMusic(int music);
-	void	GetDim(POINT *out);
+	POINT	GetDim();
 	void	SetDim(POINT dim);
 	int		GetNbVies();
 	void	SetNbVies(int nbVies);
 	BOOL	GetPause();
 	void	SetPause(BOOL bPause);
-	//void	InitializeDoors();
-	//void	MemorizeDoors();
+	void	InitializeDoors(GameData *gameData);
+	void	MemorizeDoors();
 	void	SetAllMissions(BOOL bAllMissions);
 	void	CheatAction(int cheat);
 	BOOL	GetSuperBlupi();
@@ -129,12 +142,12 @@ public:
 	void	SetTeam(int team);
 	void	BlupiSearchIcon();
 	BOOL	BlupiIsGround();
-	void	BlupiRect(RECT *out, POINT pos);
+	RECT	BlupiRect(POINT pos);
 	void	BlupiAdjust();
-	void	BlupiBloque(POINT pos, int dir);
+	BOOL	BlupiBloque(POINT pos, int dir);
 	void	BlupiStep();
 	void	BlupiDead(int action, int action2);
-	void	GetPosDecor(POINT *out, POINT pos);
+	POINT	GetPosDecor(POINT pos);
 	void	BlupiAddFifo(POINT pos);
 	BOOL	DecorDetect(RECT rect, BOOL bCaisse);
 	BOOL	TestPath(RECT rect, POINT start, POINT *end);
@@ -183,7 +196,7 @@ public:
 	void	FUN_155e0(byte _foo, short _bar);
 	void	TreatNetData();
 	void	DoNetSmooth(int player);
-	void	FUN_15d50();
+	void	NetFUN_15d50();
 	void	FUN_15da0(int rank, short phase);
 	void	NetPlayerCollide(POINT pos, int &result);
 	void	NetMessageIndexFlush();
@@ -249,6 +262,8 @@ public:
 	void	OpenGoldsWin();
 	void	DoorsLost();
 
+	void	SetMission(int mission);
+
 	// ?
 	void	GetMissionsCleared();
 	void	SetDemoState(BOOL demoState);
@@ -267,11 +282,9 @@ protected:
     int         m_lastKeyPress;
     POINT       m_posDecor;
     POINT       m_dimDecor;
-    POINT       m_selectedCelPos;
-
-	int			m_CC18;
-	int			m_CC1C;
-	int			m_CC20;
+    POINT       m_posCelHili;
+	POINT		m_dimCelHili;
+	int			m_2ndPositionCalculationSlot;
 
     int		    m_phase;
     int         m_term;
@@ -279,7 +292,7 @@ protected:
 	int			m_region;
 	int			m_lastRegion;
 
-	int			m_CC38;
+	int			m_iconLift;
 
 	int			m_time;
 	char		m_missionTitle[100];
@@ -364,21 +377,21 @@ protected:
 	CJauge		m_jauges[2];
 	int			m_blupiLevel;
 	int			m_blupiEnergyUnused;
-	BOOL		m_bHelicopterFlying;
-	BOOL		m_bHelicopterStationary;
-	BOOL		m_bCarMoving;
-	BOOL		m_bCarStationary;
+	BOOL		m_bHelicoMarch;
+	BOOL		m_bHelicoStop;
+	BOOL		m_bJeepMarch;
+	BOOL		m_bJeepStop;
 	BOOL		m_bFoundCle;
 	BOOL		m_bPrivate;
-    BOOL        m_bCheatDoors;		// opendoors
-    BOOL        m_bSuperBlupi;		// megablupi
-    BOOL        m_bDrawSecret;  	// showsecret
-    BOOL        m_buildOfficialMissions; 	// xmission/xnjttjpo
+	BOOL		m_bCheatDoors;		// opendoors
+	BOOL		m_bSuperBlupi;		// megablupi
+	BOOL        m_bDrawSecret;  	// showsecret
+    BOOL        m_bBuildOfficialMissions; 	// xmission/xnjttjpo
     BOOL        m_bNetPacked;		// netpacked
     BOOL        m_bNetMovePredict;  // ynosmooth
     BOOL        m_bNetDebug;		// znetdebug
-	int			m_blupiSpeedX;
-	int			m_blupiSpeedY;
+	BOOL		m_bJoystick;
+	int			m_bD814;
     int         m_mission;
 	BYTE        m_doors[200];
     int         m_nbVies;
@@ -399,27 +412,14 @@ protected:
     POINT       m_voyageEnd;
 	int 		m_decorAction;
 	int 		m_decorPhase;
-	int 		m_lastDecorIcon[200];
+	int 		m_lastDecorIndexes[200];
 	
 	int			reserve[11];
 
 	BYTE 		dummy[100000];
 };
 
-
 POINT GetCel (int x, int y);
 POINT GetCel (POINT cel, int x, int y);
-BOOL IsValid (POINT cel);
+BOOL IsValidCel (POINT cel);
 POINT GetVector (int direct);
-extern int table_multi_goal[];
-extern short table_actions[];
-
-
-
-
-
-
-
-
-
-

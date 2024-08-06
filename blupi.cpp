@@ -47,10 +47,11 @@ int			g_timerInterval = 50;	// inverval = 50ms
 int			g_mouseType = MOUSETYPEGRA;
 int 		g_benchmark;
 BOOL 		g_bBenchmarkSuccess;
-BOOL 		g_bTrueColor;
 BOOL 		g_bTrueColorBack;
 BOOL 		g_bTrueColorDecor;
-MMRESULT    g_updateTimer;			// timer général
+BOOL		g_bCDAudio;
+int			g_something;
+MMRESULT    g_updateTimer;			// timer général
 BOOL		g_bActive = TRUE;		// is application active ?
 BOOL		g_bTermInit = FALSE;	// initialisation en cours
 int			g_objectMax;
@@ -85,6 +86,7 @@ BOOL ReadConfig (LPSTR lpCmdLine)
     char*       pText;
     int         nb;
 	int 		i;
+	MEMORYSTATUS mem;
 
     file = fopen("data\\config.def", "rb");
     if ( file == NULL )   return FALSE;
@@ -93,7 +95,7 @@ BOOL ReadConfig (LPSTR lpCmdLine)
     fclose(file);
 
 
-#if 0
+#if !_NOCD
     pText = strstr(buffer, "CD-Rom=");
     if ( pText == NULL )
     {
@@ -177,86 +179,89 @@ BOOL ReadConfig (LPSTR lpCmdLine)
 		g_benchmark = GetNum(pText+10);
 		if ( g_benchmark < 0 ) g_benchmark = 0;
 		if ( g_benchmark > 100000 ) g_benchmark = 100000;
-		if ( g_benchmark > 3099 ) g_bBenchmarkSuccess = 1, g_bTrueColor = 1, g_bTrueColorDecor;
+		if (g_benchmark > 3099)
+		{
+			g_bBenchmarkSuccess = TRUE;
+			g_bTrueColorBack = TRUE;
+			g_bTrueColorDecor = TRUE;
+		}
 	}
 
 	pText = strstr(buffer, "TrueColor=");
 	if ( pText != NULL )
 	{
 		i = GetNum(pText + 10);
-		if (i == 8) g_bTrueColor = 0;
-		if (i == 16) g_bTrueColor = 1;
-		g_bTrueColorDecor = g_bTrueColor;
+		if (i == 8) g_bTrueColorBack = FALSE;
+		if (i == 16) g_bTrueColorBack = TRUE;
+		g_bTrueColorDecor = g_bTrueColorBack;
 	}
 
 	pText = strstr(buffer, "TrueColorBack=");
 	if ( pText != NULL )
 	{
 		i = GetNum(pText+14);
-		if (i == 8) g_bTrueColor = 0;
-
-		if (i == 16) g_bTrueColor = 1;
+		if (i == 8) g_bTrueColorBack = FALSE;
+		if (i == 16) g_bTrueColorBack = TRUE;
 	}
 
 	pText = strstr(buffer, "TrueColorDecor=");
 	if ( pText != NULL )
 	{
 		i = GetNum(pText + 15);
-		if (i == 8) g_bTrueColorDecor = 0;
+		if (i == 8) g_bTrueColorDecor = FALSE;
+		if (i == 16) g_bTrueColorDecor = TRUE;
+	}
 
-		if (i == 16) g_bTrueColorDecor = 1;
+	pText = strstr(buffer, "CDAudio=");
+	if ( pText != NULL )
+	{
+		i = GetNum(pText + 8);
+		g_bCDAudio = (i == TRUE);
+	}
+
+	mem.dwLength = sizeof(MEMORYSTATUS);
+	GlobalMemoryStatus(&mem);
+	
+	if (mem.dwTotalPhys < 32000000) g_bBenchmarkSuccess = FALSE;
+
+	if (!g_bBenchmarkSuccess)
+	{
+		g_bTrueColorBack = FALSE;
+		g_bTrueColorDecor = FALSE;
 	}
 
 	return TRUE;
 }
 
-// Mise à jour principale. [Rewrite Variables]
+// Mise à jour principale. [TODO: Rewrite Variables]
 
 void UpdateFrame(void)
 {
-    RECT            clip, rcRect;
-	UINT			phase;
-	POINT			posMouse;
-	int				i, term, speed;
+	int phase, term;
 
-	g_pPixmap->MouseBackClear();  // enlève la souris dans "back"
-	posMouse = g_pEvent->GetLastMousePos();
+	g_pEvent->ReadInput();
 
 	phase = g_pEvent->GetPhase();
-
-	if ( phase == g_lastPhase &&
-		 phase == WM_PHASE_PLAY || phase == WM_PHASE_PLAYTEST || phase == WM_PHASE_BUILD )
+	if (phase == WM_PHASE_PLAY || phase == WM_PHASE_PLAYTEST || phase == WM_PHASE_BUILD)
 	{
-//?		rcRect.left   = POSDRAWX;
-//?		rcRect.top    = POSDRAWY;
-//?		rcRect.right  = POSDRAWX+DIMDRAWX;
-//?		rcRect.bottom = POSDRAWY+DIMDRAWY;
-//?		g_pPixmap->DrawImage(-1, CHBACK, rcRect, 1);  // dessine le fond
-	}
-	else
-	{
-		rcRect.left   = 0;
-		rcRect.top    = 0;
-		rcRect.right  = LXIMAGE;
-		rcRect.bottom = LYIMAGE;
-		g_pPixmap->DrawImage(-1, CHBACK, rcRect, 1);  // dessine le fond
-	}
-
-	//[this block remains dormant, yet functional in SB]
-	if (phase == WM_PHASE_INTRO1 ||
-		phase == WM_PHASE_INTRO2)
-	{
-		g_pEvent->IntroStep();
+		if (!g_pDecor->GetPause())
+		{
+			for (int i = 0; i < g_pEvent->GetSpeed() * g_speedRate; i++)
+			{
+				g_pDecor->MoveStep();
+				g_pEvent->DemoStep();
+			}
+		}
 	}
 
 	if (phase == WM_PHASE_INIT)
 	{
-		g_pEvent->DemoStep();  // démarre év. démo automatique
+		g_pEvent->DemoStep();
 	}
 
-	if (phase == WM_PHASE_PLAYMOVIE || phase == WM_PHASE_WINMOVIE || WM_PHASE_WINMOVIEDESIGN || WM_PHASE_WINMOVIEMULTI)
+	if (phase == WM_PHASE_PLAYMOVIE || phase == WM_PHASE_WINMOVIE || phase == WM_PHASE_WINMOVIEDESIGN || phase == WM_PHASE_WINMOVIEMULTI)
 	{
-		g_pEvent->MovieToStart;
+		g_pEvent->MovieToStart();
 	}
 
 	if (phase == WM_PHASE_INSERT)
@@ -264,64 +269,55 @@ void UpdateFrame(void)
 		g_pEvent->TryInsert();
 	}
 
-	if ( phase == WM_PHASE_PLAY )
+	if (phase == WM_PHASE_PLAY)
 	{
-		clip.left   = POSDRAWX;
-		clip.top    = POSDRAWY+g_pDecor->GetInfoHeight();
-		clip.right  = POSDRAWX+DIMDRAWX;
-		clip.bottom = POSDRAWY+DIMDRAWY;
-
-		if ( g_pEvent->IsShift() )  // shift en cours ?
+		term = g_pDecor->IsTerminated();
+		if (g_pEvent->IsPrivate())
 		{
-			g_pEvent->DecorAutoShift(posMouse);
-			g_pDecor->Build(clip, posMouse);  // construit juste le décor
+			if (term == -1)
+			{
+				g_pEvent->ChangePhase(WM_PHASE_HISTORY1);
+				return;
+			}
+			if (term != 0)
+			{
+				g_pEvent->ChangePhase(WM_PHASE_HELP);
+				return;
+			}
 		}
 		else
 		{
-			if ( !g_pEvent->GetPause() )
+			if (g_pEvent->IsMulti())
 			{
-				speed = g_pEvent->GetSpeed() * g_speedRate;
-				for ( i=0 ; i<speed ; i++ )
-				{
-					g_pDecor->BlupiStep(i==0);  // avance tous les blupi
-					g_pDecor->MoveStep(i==0);   // avance tous les décors
-					g_pEvent->DemoStep();       // avance enregistrement/reproduction
+				if (term == -1) {
+					g_pEvent->ChangePhase(WM_PHASE_H0MOVIE);
+					return;
+				}
+				if (term != 0) {
+					g_pEvent->ChangePhase(WM_PHASE_H2MOVIE);
+					return;
 				}
 			}
-
-			g_pEvent->DecorAutoShift(posMouse);
-			g_pDecor->Build(clip, posMouse);  // construit le décor
-			g_pDecor->NextPhase(1);  // refait la carte de temps en temps
+			else
+			{
+				if (term == -1) {
+					g_pEvent->GetWorldGroup(); // probably intended to be a variable assignment? wtf ghidra
+					g_pEvent->SetNbVies(g_pDecor->GetNbVies());
+					g_pEvent->ChangePhase(WM_PHASE_LOST);
+				}
+				if (term == -2) {
+					g_pEvent->SetNbVies(g_pDecor->GetNbVies());
+					g_pEvent->ChangePhase(WM_PHASE_PLAYMOVIE);
+				}
+				if (term > 0) {
+					g_pEvent->SetNbVies(g_pDecor->GetNbVies());
+					g_pDecor->SetMission(term);
+					g_pEvent->ChangePhase(WM_PHASE_PLAY);
+				}
+			}
+			
 		}
 	}
-
-	if ( phase == WM_PHASE_PLAY )
-	{
-		term = g_pDecor->IsTerminated();
-		if ( term == 1 )  g_pEvent->ChangePhase(WM_PHASE_LOST);  // perdu
-		if ( term == 2 )  g_pEvent->ChangePhase(WM_PHASE_WINMOVIE);   // gagné
-	}
-
-	g_pPixmap->MouseBackDraw();  // remet la souris dans "back"
-}
-
-//[excluded from SB release builds]
-void Benchmark()
-{
-	int		i;
-	POINT	pos = { 0, 0 };
-
-	g_pPixmap->DrawIcon(-1, 2, 10, pos, 0);
-
-	pos.x = 300;
-	pos.y = 350;
-	for (i = 0; i < 10000; i++)
-	{
-		g_pPixmap->DrawIcon(-1, 2, i % 4, pos, 0);
-	}
-
-	g_pPixmap->DrawIcon(-1, 2, 10, pos, 0);
-	g_pSound->Play(0);
 }
 
 // Incomplete
@@ -353,9 +349,22 @@ void SetDecor()
 		g_pPixmap->DrawImage(-1, 0, rect, 1);
 	}
 
-	g_pEvent->FUN_1d7d0();
+	g_pEvent->AddPhaseText();
 	g_lastPhase = phase;
 	g_pPixmap->MouseBackDraw();
+}
+
+int Benchmark()
+{
+	MEMORYSTATUS mem;
+
+	for (int i = 0; i < 10; i++)
+	{
+		UpdateFrame();
+		SetDecor();
+		g_pPixmap->Display();
+		// TODO
+	}
 }
 
 
@@ -457,14 +466,17 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 	{
 		case WM_TIMER:
 		case WM_UPDATE:
-			if (!g_pEvent->IsMovie())  // pas de film en cours ?
+			if (g_pEvent != NULL && !g_pEvent->IsMovie() && !g_pEvent->IsMouseRelease())  // pas de film en cours ?
 			{
+				g_pEvent->GetPhase(); // ?
 				if (g_bActive)
 				{
 					UpdateFrame();
+					SetDecor();
 				}
 				g_pPixmap->Display();
 			}
+			if (g_something > 0) g_something--;
 			break;
 		case WM_SYSCOLORCHANGE:
 		    OutputDebug("Event WM_SYSCOLORCHANGE\n");
@@ -478,7 +490,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 		    g_bActive = (wParam != 0);
 			if ( g_pEvent != NULL )
 			{
-				g_pEvent->SomethingDecor();
+				g_pEvent->FlushInput();
 			}
 			if ( g_bActive )
 			{
@@ -489,12 +501,8 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 				}
 				if ( !g_bFullScreen && g_bTermInit )
 				{
-					totalDim.x = 64;
-					totalDim.y = 66;
-					iconDim.x = 64;
-					iconDim.y = 66/2;
-					g_pPixmap->Cache(CHLITTLE, "image16\\little.blp", totalDim, iconDim, TRUE);
-					g_pPixmap->SetTransparent(CHLITTLE, RGB(0,0,255)); // bleu
+					g_pPixmap->BackgroundCache(CHLITTLE, "little.blp", { 256, 96 }, { DIMLITTLEX , DIMLITTLEY }, TRUE);
+					g_pPixmap->SetTransparent(CHLITTLE, RGB(0, 0, 255)); // bleu
 
 					g_pPixmap->SavePalette();
 					g_pPixmap->InitSysPalette();
@@ -502,7 +510,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 				SetWindowText(hWnd, "Blupi");
 				if ( g_pSound != NULL ) g_pSound->RestartMusic();
 			}
-			else // désactive ?
+			else // désactive ?
 			{
 				if ( g_bFullScreen )
 				{
@@ -590,7 +598,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 			break;
 
 		case WM_DESTROY:
-			KillTimer(g_hWnd, 1);
+			timeKillEvent((UINT)g_hWnd);
 			FinishObjects();
 			PostQuitMessage(0);
 			break;
@@ -644,7 +652,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	wc.hIcon = LoadIcon(hInstance, "IDR_MAINFRAME");
 	wc.hCursor = LoadCursor(hInstance, "IDC_POINTER");
 	wc.hbrBackground = GetStockBrush(BLACK_BRUSH);
-	wc.lpszMenuMane = NAME;
+	wc.lpszMenuName = NAME;
 	wc.lpszClassName = NAME;
 	RegisterClass(&wc);
 
@@ -701,7 +709,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 
 	ChangeSprite(SPRITE_WAIT);  // met le sablier maison
 
-	if (!bOk)  // config.def pas correct ?
+	if (!bOK)  // config.def pas correct ?
 	{
 		return InitFail("Game not correctly installed", FALSE);
 	}
@@ -710,31 +718,14 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	g_pPixmap = new CPixmap;
 	if (g_pPixmap == NULL) return InitFail("New pixmap", TRUE);
 
-	totalDim.x = LXIMAGE;
-	totalDim.y = LYIMAGE;
-	if (!g_pPixmap->Create(g_hWnd, totalDim, g_bFullScreen, g_mouseType))
-		return InitFail("Create pixmap", TRUE);
-
-	OutputDebug("Image: init\n");
-	totalDim.x = LXIMAGE;
-	totalDim.y = LYIMAGE;
-	iconDim.x = 0;
-	iconDim.y = 0;
-
-	if (!g_pPixmap->CacheAll(g_hWnd, g_bFullScreen, g_bTrueColor, g_bTrueColorDecor, g_mouseType, "image16\\init.blp", FALSE))
-		return InitFail("CacheAll", TRUE)
+	g_pPixmap->SetBenchmarkSuccess(g_bBenchmarkSuccess);
 
 #if _INTRO
-		if (!g_pPixmap->Cache(CHBACK, "image16\\init.blp", totalDim, iconDim, TRUE))
+	if (!g_pPixmap->CacheAll(TRUE, g_hWnd, g_bFullScreen, g_bTrueColor, g_bTrueColorDecor, g_mouseType, "intro1.blp", FALSE))
 #else
-		if (!g_pPixmap->Cache(CHBACK, "image16\\init.blp", totalDim, iconDim, TRUE))
+	if (!g_pPixmap->CacheAll(TRUE, g_hWnd, g_bFullScreen, g_bTrueColorBack, g_bTrueColorDecor, g_mouseType, "init.blp", FALSE))
 #endif
-			return FALSE;
-
-	OutputDebug("SavePalette\n");
-	g_pPixmap->SavePalette();
-	OutputDebug("InitSysPalette\n");
-	g_pPixmap->InitSysPalette();
+		return FALSE;
 
 	g_pSound = new CSound;
 	if (g_pSound == NULL) return InitFail("New sound", TRUE);
@@ -742,6 +733,10 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	g_pSound->Create(g_hWnd);
 	g_pSound->CacheAll();
 	g_pSound->SetState(TRUE);
+	g_pSound->SetCDAudio(g_bCDAudio);
+
+	g_pNetwork = new CNetwork;
+	if (g_pNetwork == NULL) return InitFail("New network", TRUE);
 
 	g_pMovie = new CMovie;
 	if (g_pMovie == NULL) return InitFail("New movie", FALSE);
@@ -751,25 +746,32 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	g_pDecor = new CDecor;
 	if (g_pDecor == NULL) return InitFail("New decor", FALSE);
 
-	g_pDecor->Create(g_hWnd, g_pSound, g_pPixmap);
-	g_pDecor->MapInitColors();
+	g_pDecor->Create(g_hWnd, g_pSound, g_pPixmap, g_pNetwork);
 
 	g_pEvent = new CEvent;
 	if (g_pEvent == NULL) return InitFail("New event", FALSE);
 
-	g_pEvent->Create(g_hWnd, g_pPixmap, g_pDecor, g_pSound, g_pMovie);
+	g_pEvent->Create(hInstance, g_hWnd, g_pPixmap, g_pDecor, g_pSound, g_pMovie, g_pNetwork);
 	g_pEvent->SetFullScreen(g_bFullScreen);
 	g_pEvent->SetMouseType(g_mouseType);
 #if _INTRO
 	g_pEvent->ChangePhase(WM_PHASE_INTRO1);
 #else
-	g_pEvent->ChangePhase(WM_PHASE_TESTCD);
+	g_pEvent->ChangePhase(WM_PHASE_INIT);
 #endif
 
 	g_bTermInit = TRUE;
 	return TRUE;
 }
 
+void TimerStep()
+{
+	if (g_bActive && !g_something)
+	{
+		g_something = TRUE;
+		PostMessage(g_hWnd, WM_UPDATE, 0, 0);
+	}
+}
 
 // Programme principal.
 
@@ -783,7 +785,8 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		return FALSE;
 	}
 
-	SetTimer(g_hWnd, 1, g_timerInterval, NULL);
+	Benchmark();
+	timeSetEvent(g_timerInterval, g_timerInterval >> 2, (LPTIMECALLBACK)TimerStep, 0, 1);
 
 	while ( TRUE )
 	{

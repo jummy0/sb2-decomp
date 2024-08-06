@@ -1,4 +1,4 @@
-// CDecor.cpp
+// Decor.cpp
 //
 
 #include <windows.h>
@@ -20,7 +20,7 @@
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#define MAXMOVEOBJECT	200
+
 #define MAXQUART		441
 #define SCROLL_SPEED	8
 #define SCROLL_MARGX	80
@@ -33,6 +33,11 @@
 #define OVERHEIGHT		80
 
 #define TEXTDELAY	   10 // tooltip popup delay
+
+BOOL IsValidCel(POINT cel)
+{
+	return cel.x >= 0 && cel.x < MAXCELX && cel.y >= 0 && cel.y < MAXCELY;
+}
 
 // Constructor
 
@@ -47,13 +52,15 @@ CDecor::CDecor()
 
 	for (i = 0; i < 200; i++)
 	{
-		m_lastDecorIcon[i] = 0;
+		m_lastDecorIndexes[i] = 0;
 	}
+	m_lastRegion = -1;
+	m_iconLift = 0;
 	m_time = 0;
 	m_bCheatDoors = FALSE;
 	m_bSuperBlupi = FALSE;
 	m_bDrawSecret = FALSE;
-	m_buildOfficialMissions = FALSE;
+	m_bBuildOfficialMissions = FALSE;
 	m_bNetPacked = FALSE;
 	m_bNetMovePredict = TRUE;
 	m_bNetDebug = FALSE;
@@ -80,11 +87,11 @@ void CDecor::Create(HWND hWnd, CSound* pSound, CPixmap* pPixmap, CNetwork* pNetw
 	m_pNetwork = pNetwork;
 	m_keyPress = 0;
 	m_lastKeyPress = 0;
-	m_blupiSpeedX = 0;
-	m_bHelicopterFlying = FALSE;
-	m_bHelicopterStationary = FALSE;
-	m_bCarMoving = FALSE;
-	m_bCarStationary = FALSE;
+	m_bJoystick = FALSE;
+	m_bHelicoMarch = FALSE;
+	m_bHelicoStop = FALSE;
+	m_bJeepMarch = FALSE;
+	m_bJeepStop = FALSE;
 	InitDecor();
 
 	m_jauges[0].Create(m_hWnd, m_pPixmap, m_pSound, { 169, 450 }, 1, FALSE);
@@ -94,8 +101,6 @@ void CDecor::Create(HWND hWnd, CSound* pSound, CPixmap* pPixmap, CNetwork* pNetw
 	NetMessageIndexFlush();
 	NotifFlush();
 }
-
-// The only seemingly sane function.
 
 BOOL CDecor::LoadImages()
 {
@@ -115,11 +120,7 @@ BOOL CDecor::LoadImages()
 void CDecor::InitGamer()
 {
 	m_nbVies = 3;
-	BYTE *ptr = m_doors;
-	for (int i = 50; i != 0; i--) {
-		*(int *)ptr = 0x01010101;
-		ptr += 4;
-	}
+	FillMemory(m_doors, sizeof(m_doors), 1);
 }
 
 void CDecor::InitDecor()
@@ -143,7 +144,7 @@ void CDecor::InitDecor()
 	m_decor[5][4].icon = 39;
 	for (int k = MAXMOVEOBJECT; k != 0; k--)
 	{
-		m_moveObject[k]->type = 0;
+		m_moveObject[k].type = 0;
 	}
 	FlushBalleTraj();
 	FlushMoveTraj();
@@ -203,7 +204,7 @@ void CDecor::InitDecor()
 	m_blupiTimeNoAsc = 0;
 	m_blupiTimeMockery = 0;
 	m_blupiVitesse = { 0, 0 };
-	m_blupiValidPos = m_blupiStartPos;
+	m_blupiValidPos = m_blupiStartPos[0];
 	m_blupiEnergyUnused = 100;
 	m_blupiFront = FALSE;
 	m_blupiBullet = 0;
@@ -213,11 +214,11 @@ void CDecor::InitDecor()
 	m_nbTresor = 0;
 	m_totalTresor = 1;
 	m_goalPhase = 0;
-	m_scrollPoint = m_blupiStartPos;
+	m_scrollPoint = m_blupiStartPos[0];
 	m_scrollAdd.x = 0;
 	m_scrollAdd.y = 0;
 	m_term = 0;
-	m_CC20 = -1;
+	m_2ndPositionCalculationSlot = -1;
 }
 
 void CDecor::SetTime(int time)
@@ -230,14 +231,9 @@ int CDecor::GetTime()
 	return m_time;
 }
 
-// Basically the same as the other fucking function
-
 void CDecor::PlayPrepare(BOOL bTest)
 {
-	if (bTest)
-	{
-		m_nbVies = 3;
-	}
+	if (bTest) m_nbVies = 3;
 	
 	if (m_bMulti)
 	{
@@ -327,7 +323,7 @@ void CDecor::PlayPrepare(BOOL bTest)
 			(m_moveObject[i].type == TYPE_BLUPIHELICO) ||
 			(m_moveObject[i].type == TYPE_BLUPITANK))
 		{
-			m_moveObject[i]->type = 0;
+			m_moveObject[i].type = 0;
 		}
 	}
 	m_goalPhase = 0;
@@ -337,10 +333,10 @@ void CDecor::PlayPrepare(BOOL bTest)
 	m_scrollAdd = { 0, 0 };
 	m_blupiPosHelico.x = -1;
 	m_nbLinkCaisse = 0;
-	m_bHelicopterFlying = FALSE;
-	m_bHelicopterStationary = FALSE;
-	m_bCarMoving = FALSE;
-	m_bCarStationary = FALSE;
+	m_bHelicoMarch = FALSE;
+	m_bHelicoStop = FALSE;
+	m_bJeepMarch = FALSE;
+	m_bJeepStop = FALSE;
 	m_blupiFront = FALSE;
 	m_blupiNoBarre = 0;
 	m_blupiValidPos = m_blupiPos;
@@ -357,8 +353,6 @@ void CDecor::PlayPrepare(BOOL bTest)
 	m_bPause = FALSE;
 }
 
-// Sort of makes sense.
-
 void CDecor::BuildPrepare()
 {
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
@@ -373,8 +367,8 @@ void CDecor::BuildPrepare()
 		}
 	}
 	m_voyageIcon = -1;
-	m_selectedCelPos.x = -1;
-	m_CC20 = -1;
+	m_posCelHili.x = -1;
+	m_2ndPositionCalculationSlot = -1;
 	m_time = 0;
 	m_bPause = FALSE;
 	NetDataFlush();
@@ -391,25 +385,25 @@ void CDecor::MoveStep()
 
 	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST) {
 		BlupiStep();
-		FUN_15d50();
+		NetFUN_15d50();
 		NotifStep();
 	}
 
 	if (m_phase == WM_PHASE_BUILD) {
 		if (m_keyPress & KEY_RIGHT) {
 			m_posDecor.x += 50;
-			int max = (m_dimDecor.x > 0) ? (m_dimDecor.x - LXIMAGE) : 0;
+			int max = (m_dimDecor.x != 0) ? (MAXCELX * DIMOBJX - LXIMAGE) : 0;
 			if (m_posDecor.x > max) {
 				m_posDecor.x = max;
 			}
-			m_selectedCelPos.x = -1;
+			m_posCelHili.x = -1;
 		}
 		if (m_keyPress & KEY_LEFT) {
 			m_posDecor.x -= 50;
 			if (m_posDecor.x < 0) {
 				m_posDecor.x = 0;
 			}
-			m_selectedCelPos.x = -1;
+			m_posCelHili.x = -1;
 		}
 		if (m_keyPress & KEY_DOWN) {
 			m_posDecor.y += 50;
@@ -417,14 +411,14 @@ void CDecor::MoveStep()
 			if (m_posDecor.y > max) {
 				m_posDecor.y = max;
 			}
-			m_selectedCelPos.x = -1;
+			m_posCelHili.x = -1;
 		}
 		if (m_keyPress & KEY_UP) {
 			m_posDecor.x -= 50;
 			if (m_posDecor.x < 0) {
 				m_posDecor.x = 0;
 			}
-			m_selectedCelPos.x = -1;
+			m_posCelHili.x = -1;
 		}
 	}
 }
@@ -434,7 +428,9 @@ int CDecor::GetBlupiChannelStandard()
 	if (m_bMulti && m_blupiChannel == CHBLUPI && m_team > 0) {
 		return m_team + CHBLUPI1 - 1;
 	}
-	return m_blupiChannel;
+	else {
+		return m_blupiChannel;
+	}
 }
 
 int CDecor::GetBlupiChannelActual()
@@ -450,7 +446,9 @@ int CDecor::GetIconPerso()
 	if (m_bMulti) {
 		return m_team + 108;
 	}
-	return 108;
+	else {
+		return 108;
+	}
 }
 
 BOOL CDecor::BlitzActif(int celx, int cely)
@@ -461,8 +459,7 @@ BOOL CDecor::BlitzActif(int celx, int cely)
 		return 1 - (((m_time ^ foo) - foo & 1 ^ foo) == foo);
 	}
 
-	POINT pos;
-	pos = { celx * DIMOBJX, cely * DIMOBJY };
+	POINT pos = { celx * DIMOBJX, cely * DIMOBJY };
 
 	int num = m_time % 100;
 
@@ -518,7 +515,7 @@ void CDecor::Build(RECT rect)
 		tinyPoint.y = - posDecor.y % 64 + 2 - 64;
 		for (int j = posDecor.y / 64 - 1; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
 		{
-			if (i >= 0 && i < 100 && j >= 0 && j < 100)
+			if (i >= 0 && i < MAXCELX && j >= 0 && j < MAXCELY)
 			{
 				int num2 = m_bigDecor[i][j].icon;
 				int channel = 9;
@@ -552,7 +549,7 @@ void CDecor::Build(RECT rect)
 		tinyPoint.y = - posDecor.y % 64;
 		for (int j = posDecor.y / 64; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
 		{
-			if (i >= 0 && i < 100 && j >= 0 && j < 100 && m_decor[i][j].icon != -1)
+			if (i >= 0 && i < MAXCELX && j >= 0 && j < MAXCELY && m_decor[i][j].icon != -1)
 			{
 				int num2 = m_decor[i][j].icon;
 				if (num2 == 384 || num2 == 385)
@@ -582,7 +579,7 @@ void CDecor::Build(RECT rect)
 		tinyPoint.y = m_blupiPos.y - posDecor.y;
 		if (m_blupiJeep)
 		{
-			tinyPoint.y += m_blupiOffsetY;
+			tinyPoint.y += BLUPIOFFY;
 		}
 		if (m_blupiShield)
 		{
@@ -638,7 +635,7 @@ void CDecor::Build(RECT rect)
 
 	for (int num3 = MAXMOVEOBJECT - 1; num3 >= 0; num3--)
 	{
-		if (m_moveObject[num3].type != 0 && m_moveObject[num3].posCurrent.x >= posDecor.x - 64 && m_moveObject[num3].posCurrent.y >= posDecor.y - 64 && m_moveObject[num3].posCurrent.X <= posDecor.X + m_drawBounds.Width && m_moveObject[num3].posCurrent.Y <= posDecor.Y + m_drawBounds.Height && (m_moveObject[num3].type < 8 || m_moveObject[num3].type > 11) && (m_moveObject[num3].type < 90 || m_moveObject[num3].type > 95) && (m_moveObject[num3].type < 98 || m_moveObject[num3].type > 100) && m_moveObject[num3].type != 53 && m_moveObject[num3].type != 1 && m_moveObject[num3].type != 47 && m_moveObject[num3].type != 48)
+		if (m_moveObject[num3].type != 0 && m_moveObject[num3].posCurrent.x >= posDecor.x - 64 && m_moveObject[num3].posCurrent.y >= posDecor.y - 64 && m_moveObject[num3].posCurrent.x <= posDecor.x + LXIMAGE && m_moveObject[num3].posCurrent.y <= posDecor.y + LYIMAGE && (m_moveObject[num3].type < 8 || m_moveObject[num3].type > 11) && (m_moveObject[num3].type < 90 || m_moveObject[num3].type > 95) && (m_moveObject[num3].type < 98 || m_moveObject[num3].type > 100) && m_moveObject[num3].type != 53 && m_moveObject[num3].type != 1 && m_moveObject[num3].type != 47 && m_moveObject[num3].type != 48)
 		{
 			tinyPoint.x = m_moveObject[num3].posCurrent.x - posDecor.x;
 			tinyPoint.y = m_moveObject[num3].posCurrent.y - posDecor.y;
@@ -651,22 +648,17 @@ void CDecor::Build(RECT rect)
 			{
 				tinyPoint.y += BLUPIOFFY;
 			}
-			double opacity = 1.0;
-			if (m_moveObject[num3].type == 58)
-			{
-				opacity = (double)(20 - m_moveObject[num3].phase) * 0.3 / 20.0;
-			}
-			m_pPixmap->QuickIcon(m_moveObject[num3].channel, m_moveObject[num3].icon, tinyPoint, opacity, 0.0);
+			// get the winphone opacity stuff out of here
+			m_pPixmap->QuickIcon(m_moveObject[num3].channel, m_moveObject[num3].icon, tinyPoint);
 			if (m_moveObject[num3].type == 30)
 			{
-				for (int l = 0; l < table_drinkoffset.Length; l++)
+				for (int l = 0; l < sizeof(table_drinkoffset)/sizeof(int); l++)
 				{
-					int num4 = (m_time + Tables.table_drinkoffset[l]) % 50;
-					int rank = Tables.table_drinkeffect[num4 % 5];
+					int num4 = (m_time + table_drinkoffset[l]) % 50;
+					int rank = table_drinkeffect[num4 % 5];
 					POINT tinyPoint2 = { tinyPoint.x + 2, tinyPoint.y - num4 * 3 };
 					POINT pos2 = tinyPoint2;
-					double opacity2 = (50.0 - (double)num4) / 50.0;
-					m_pPixmap->QuickIcon(10, rank, pos2, opacity2, 0.0);
+					m_pPixmap->QuickIcon(10, rank, pos2);
 				}
 			}
 			if (m_bDrawSecret && m_moveObject[num3].type == 12 && m_moveObject[num3].icon != 32 && m_moveObject[num3].icon != 33 && m_moveObject[num3].icon != 34)
@@ -675,24 +667,24 @@ void CDecor::Build(RECT rect)
 			}
 		}
 	}
-	tinyPoint.X = m_drawBounds.Left - posDecor.X % 64;
-	for (int i = posDecor.X / 64; i < posDecor.X / 64 + m_drawBounds.Width / 64 + 2; i++)
+	tinyPoint.x = - posDecor.x % 64;
+	for (int i = posDecor.x / 64; i < posDecor.x / 64 + LXIMAGE / 64 + 2; i++)
 	{
-		tinyPoint.Y = m_drawBounds.Top - posDecor.Y % 64;
-		for (int j = posDecor.Y / 64; j < posDecor.Y / 64 + m_drawBounds.Height / 64 + 2; j++)
+		tinyPoint.y = 0 - posDecor.y % 64;
+		for (int j = posDecor.y / 64; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
 		{
-			if (i >= 0 && i < 100 && j >= 0 && j < 100 && m_decor[i, j].icon != -1)
+			if (i >= 0 && i < 100 && j >= 0 && j < 100 && m_decor[i][j].icon != -1)
 			{
-				int num2 = m_decor[i, j].icon;
-				pos.X = tinyPoint.X;
-				pos.Y = tinyPoint.Y;
+				int num2 = m_decor[i][j].icon;
+				pos.x = tinyPoint.x;
+				pos.y = tinyPoint.y;
 				if ((num2 >= 107 && num2 <= 109) || num2 == 157)
 				{
-					pos.Y -= 7;
+					pos.y -= 7;
 				}
 				if (num2 == 211)
 				{
-					num2 = Tables.table_ressort[(m_time / 2 + i * 7) % 8];
+					num2 = table_ressort[(m_time / 2 + i * 7) % 8];
 				}
 				if (num2 == 214 && !m_bDrawSecret)
 				{
@@ -700,12 +692,12 @@ void CDecor::Build(RECT rect)
 				}
 				if (num2 == 364)
 				{
-					pos.Y -= 2;
+					pos.y -= 2;
 				}
 				switch (num2)
 				{
 				default:
-					m_pixmap.QuickIcon(1, num2, pos);
+					m_pPixmap->QuickIcon(1, num2, pos);
 					break;
 				case 68:
 				case 91:
@@ -750,810 +742,148 @@ void CDecor::Build(RECT rect)
 					break;
 				}
 			}
-			tinyPoint.Y += 64;
+			tinyPoint.y += 64;
 		}
-		tinyPoint.X += 64;
+		tinyPoint.x += 64;
 	}
 	for (int num3 = 0; num3 < MAXMOVEOBJECT; num3++)
 	{
-		if ((m_moveObject[num3].type == 1 || m_moveObject[num3].type == 47 || m_moveObject[num3].type == 48) && m_moveObject[num3].posCurrent.X >= posDecor.X - 64 && m_moveObject[num3].posCurrent.Y >= posDecor.Y - 64 && m_moveObject[num3].posCurrent.X <= posDecor.X + m_drawBounds.Width && m_moveObject[num3].posCurrent.Y <= posDecor.Y + m_drawBounds.Height)
+		if ((m_moveObject[num3].type == 1 || m_moveObject[num3].type == 47 || m_moveObject[num3].type == 48) && m_moveObject[num3].posCurrent.x >= posDecor.x - 64 && m_moveObject[num3].posCurrent.y >= posDecor.y - 64 && m_moveObject[num3].posCurrent.x <= posDecor.x + LXIMAGE && m_moveObject[num3].posCurrent.y <= posDecor.y + LYIMAGE)
 		{
-			tinyPoint.X = m_drawBounds.Left + m_moveObject[num3].posCurrent.X - posDecor.X;
-			tinyPoint.Y = m_drawBounds.Top + m_moveObject[num3].posCurrent.Y - posDecor.Y;
-			m_pixmap.QuickIcon(m_moveObject[num3].channel, m_moveObject[num3].icon, tinyPoint);
+			tinyPoint.x = 0 + m_moveObject[num3].posCurrent.x - posDecor.x;
+			tinyPoint.y = 0 + m_moveObject[num3].posCurrent.y - posDecor.y;
+			m_pPixmap->QuickIcon(m_moveObject[num3].channel, m_moveObject[num3].icon, tinyPoint);
 		}
 	}
-	tinyPoint.X = m_drawBounds.Left - posDecor.X % 64;
-	for (int i = posDecor.X / 64; i < posDecor.X / 64 + m_drawBounds.Width / 64 + 2; i++)
+	tinyPoint.x = 0 - posDecor.x % 64;
+	for (int i = posDecor.x / 64; i < posDecor.x / 64 + LXIMAGE / 64 + 2; i++)
 	{
-		tinyPoint.Y = m_drawBounds.Top - posDecor.Y % 64;
-		for (int j = posDecor.Y / 64; j < posDecor.Y / 64 + m_drawBounds.Height / 64 + 2; j++)
+		tinyPoint.y = 0 - posDecor.y % 64;
+		for (int j = posDecor.y / 64; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
 		{
-			if (i >= 0 && i < 100 && j >= 0 && j < 100 && m_decor[i, j].icon != -1)
+			if (i >= 0 && i < 100 && j >= 0 && j < 100 && m_decor[i][j].icon != -1)
 			{
-				int num2 = m_decor[i, j].icon;
+				int num2 = m_decor[i][j].icon;
 				pos = tinyPoint;
 				if (num2 == 68)
 				{
-					num2 = Tables.table_decor_lave[(i * 13 + j * 7 + m_time / 2) % 8];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_lave[(i * 13 + j * 7 + m_time / 2) % 8];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 373)
 				{
-					num2 = ((!m_blupiFocus) ? Tables.table_decor_piege2[(i * 13 + j * 7 + m_time / 2) % 4] : Tables.table_decor_piege1[(i * 13 + j * 7 + m_time / 4) % 16]);
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = ((!m_blupiFocus) ? table_decor_piege2[(i * 13 + j * 7 + m_time / 2) % 4] : table_decor_piege1[(i * 13 + j * 7 + m_time / 4) % 16]);
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 404 || num2 == 410)
 				{
-					num2 = Tables.table_decor_goutte[(i * 13 + j * 7 + m_time / 2) % 48];
-					pos.Y -= 9;
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_goutte[(i * 13 + j * 7 + m_time / 2) % 48];
+					pos.y -= 9;
+					m_pPixmap->QuickIcon(1, num2, pos);
 					if (num2 >= 404 && num2 <= 407)
 					{
-						m_decor[i, j].icon = 404;
+						m_decor[i][j].icon = 404;
 					}
 					else
 					{
-						m_decor[i, j].icon = 410;
+						m_decor[i][j].icon = 410;
 					}
 				}
 				if (num2 == 317)
 				{
-					num2 = Tables.table_decor_ecraseur[m_time / 3 % 10];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_ecraseur[m_time / 3 % 10];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 378)
 				{
-					num2 = Tables.table_decor_scie[(i * 13 + j * 7 + m_time / 1) % 6];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_scie[(i * 13 + j * 7 + m_time / 1) % 6];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 324)
 				{
-					num2 = Tables.table_decor_temp[m_time / 4 % 20];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_temp[m_time / 4 % 20];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 92)
 				{
-					num2 = Tables.table_decor_eau1[(i * 13 + j * 7 + m_time / 3) % 6];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_eau1[(i * 13 + j * 7 + m_time / 3) % 6];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 91)
 				{
 					int num5 = 3 + (i * 17 + j * 13) % 3;
-					num2 = Tables.table_decor_eau2[(i * 11 + j * 7 + m_time / num5) % 6];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_eau2[(i * 11 + j * 7 + m_time / num5) % 6];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 305 && BlitzActif(i, j))
 				{
-					num2 = m_random.Next(305, 308);
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = rand() % 4 + 305;
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 110)
 				{
-					num2 = Tables.table_decor_ventg[m_time / 1 % 4];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_ventg[m_time / 1 % 4];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 114)
 				{
-					num2 = Tables.table_decor_ventd[m_time / 1 % 4];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_ventd[m_time / 1 % 4];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 118)
 				{
-					num2 = Tables.table_decor_venth[m_time / 1 % 4];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_venth[m_time / 1 % 4];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 122)
 				{
-					num2 = Tables.table_decor_ventb[m_time / 1 % 4];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_ventb[m_time / 1 % 4];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 126)
 				{
-					num2 = Tables.table_decor_ventillog[m_time / 2 % 3];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_ventillog[m_time / 2 % 3];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 129)
 				{
-					num2 = Tables.table_decor_ventillod[m_time / 2 % 3];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_ventillod[m_time / 2 % 3];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 132)
 				{
-					num2 = Tables.table_decor_ventilloh[m_time / 2 % 3];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_ventilloh[m_time / 2 % 3];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 				if (num2 == 135)
 				{
-					num2 = Tables.table_decor_ventillob[m_time / 2 % 3];
-					m_pixmap.QuickIcon(1, num2, pos);
+					num2 = table_decor_ventillob[m_time / 2 % 3];
+					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 			}
-			tinyPoint.Y += 64;
+			tinyPoint.y += 64;
 		}
-		tinyPoint.X += 64;
+		tinyPoint.x += 64;
 	}
-	ByeByeDraw(posDecor);
 	for (int num3 = 0; num3 < MAXMOVEOBJECT; num3++)
 	{
-		if (m_moveObject[num3].type != 0 && m_moveObject[num3].posCurrent.X >= posDecor.X - 64 && m_moveObject[num3].posCurrent.Y >= posDecor.Y - 64 && m_moveObject[num3].posCurrent.X <= posDecor.X + m_drawBounds.Width && m_moveObject[num3].posCurrent.Y <= posDecor.Y + m_drawBounds.Height && ((m_moveObject[num3].type >= 8 && m_moveObject[num3].type <= 11) || (m_moveObject[num3].type >= 90 && m_moveObject[num3].type <= 95) || (m_moveObject[num3].type >= 98 && m_moveObject[num3].type <= 100) || m_moveObject[num3].type == 53))
+		if (m_moveObject[num3].type != 0 && m_moveObject[num3].posCurrent.x >= posDecor.x - 64 && m_moveObject[num3].posCurrent.y >= posDecor.y - 64 && m_moveObject[num3].posCurrent.x <= posDecor.x + LXIMAGE && m_moveObject[num3].posCurrent.y <= posDecor.y + LYIMAGE && ((m_moveObject[num3].type >= 8 && m_moveObject[num3].type <= 11) || (m_moveObject[num3].type >= 90 && m_moveObject[num3].type <= 95) || (m_moveObject[num3].type >= 98 && m_moveObject[num3].type <= 100) || m_moveObject[num3].type == 53))
 		{
-			tinyPoint.X = m_drawBounds.Left + m_moveObject[num3].posCurrent.X - posDecor.X;
-			tinyPoint.Y = m_drawBounds.Top + m_moveObject[num3].posCurrent.Y - posDecor.Y;
-			m_pixmap.QuickIcon(m_moveObject[num3].channel, m_moveObject[num3].icon, tinyPoint);
+			tinyPoint.x = 0 + m_moveObject[num3].posCurrent.x - posDecor.x;
+			tinyPoint.y = 0 + m_moveObject[num3].posCurrent.y - posDecor.y;
+			m_pPixmap->QuickIcon(m_moveObject[num3].channel, m_moveObject[num3].icon, tinyPoint);
 		}
 	}
 	if (m_blupiFront)
 	{
-		tinyPoint.X = m_drawBounds.Left + m_blupiPos.X - posDecor.X;
-		tinyPoint.Y = m_drawBounds.Top + m_blupiPos.Y - posDecor.Y;
-		m_pixmap.QuickIcon(m_blupiChannel, m_blupiIcon, tinyPoint);
+		tinyPoint.x = 0 + m_blupiPos.x - posDecor.x;
+		tinyPoint.y = 0 + m_blupiPos.y - posDecor.y;
+		m_pPixmap->QuickIcon(m_blupiChannel, m_blupiIcon, tinyPoint);
 	}
 	DrawInfo();
 	VoyageDraw();
 	m_time++;
 }
-
-// i have gone completely insane
-
-void CDecor::Build(RECT rect)
-{
-	short *pShort1;
-	short short2;
-	int mobType;
-	POINT dest;
-	RECT rect_00;
-	POINT pos;
-	RECT clip;
-	RECT clip_00;
-	RECT *pRV4;
-	int int5;
-	int int6;
-	int int7;
-	int *pint8;
-	int uint9;
-	BOOL BV10;
-	int int11;
-	int int12;
-	int uint13;
-	int int14;
-	int uint15;
-	int uint16;
-	int int17;
-	int int18;
-	int int19;
-	int int20;
-	MoveObject *pMob;
-	int int22;
-	LONG LV23;
-	LONG LV24;
-	int int25;
-	int L_48;
-	int L_40;
-	int L_3c;
-	int *L_38;
-	int L_34;
-	RECT rect_3;
-	RECT rect_2;
-	RECT rect_1;
-
-	rect_2 = m_pPixmap->GetClipping();
-	rect_1 = rect_2;
-	clip.top = rect.top;
-	clip.left = rect.left;
-	clip.right = rect.right;
-	clip.bottom = rect.bottom;
-	m_pPixmap->SetClipping(clip);
-	pRV4 = &rect;
-	DecorNextAction((POINT *)pRV4);
-	rect_3.right = 0;
-	rect_3.left = 2;
-	rect_2.left = pRV4->left;
-	rect_2.top = pRV4->top;
-	int20 = rect_2.top * 2;
-	int12 = rect_2.left * 2 / 3 % LXIMAGE;
-	do {
-		int17 = 0;
-		rect.left = 2;
-		int22 = int20 / 3 % LYIMAGE;
-		do {
-			dest.y = int17;
-			dest.x = rect_3.right;
-			rect_00.top = int22;
-			rect_00.left = int12;
-			rect_00.right = LXIMAGE;
-			rect_00.bottom = LYIMAGE;
-			m_pPixmap->DrawPart(-1, 3, dest, rect_00, 1, 0);
-			int11 = LYIMAGE - int22;
-			int22 = 0;
-			int17 += int11;
-			rect.left--;
-		} while (rect.left != 0);
-		int22 = LXIMAGE - int12;
-		int12 = 0;
-		rect_3.right += int22;
-		rect_3.left--;
-	} while (rect_3.left != 0);
-	int22 = rect_2.left % DIMOBJX;
-	rect_3.right = -DIMOBJX - int22;
-	int12 = (int)(rect_2.left + (uint13 & 0x3f)) >> 6;
-	int20 = int12 - 1;
-	rect.left = 0;
-	if (int20 < int12 + 13) {
-		// int3 = -(_posDecor.y % 64 + 64 - 2);
-		uint13 = rect_2.top >> 0x1f;
-		int5 = -(rect_2.top % DIMOBJY + DIMOBJY - 2);
-		int6 = (int)(rect_2.top + (uint13 & 0x3f)) >> 6;
-		rect.left = (int12 + 13) - int20;
-		int17 = int6 + -1;
-		int20 = int20 * 100 + 10008;
-		int11 = int5;
-		int19 = int17;
-		do {
-			for (; int19 < int6 + 9; int19 = int19 + 1) {
-				if (10007 < int20 && int20 < 20008 && -1 < int19 && int19 < 100) {
-					int7 = 9;
-					int14 = (int)*(short *)((int)(m_decor + -1) + (int19 + int20) * 2 + 184);
-					if (int14 != -1) {
-						if (int14 == 203) {
-							int7 = 1;
-							int14 = table_marine[m_time / 3 % 11];
-						}
-						int18 = int11;
-						if ((65 < int14) && (int14 < 69)) {
-							int18 = int11 + -13;
-						}
-						if ((86 < int14) && (int14 < 90)) {
-							int18 += -2;
-						}
-						pos.y = int18;
-						pos.x = rect_3.right;
-						m_pPixmap->QuickIcon(int7, int14, pos);
-					}
-				}
-				int11 = int11 + 64;
-			}
-			rect_3.right += 64;
-			int20 += 100;
-			rect.left--;
-			int11 = int5;
-			int19 = int17;
-		} while (rect.left != 0);
-	}
-	int22 = -int22;
-	int20 = int12 + 12;
-	if (int12 < int20) {
-		uint13 = rect_2.top >> 0x1f;
-		int5 = -(((rect_2.top ^ uint13) - uint13 & 0x3f ^ uint13) - uint13);
-		int6 = (int)(rect_2.top + (uint13 & 0x3f)) >> 6;
-		rect.left = int20 - int12;
-		int17 = int12 * 100 + 8;
-		int11 = int5;
-		int19 = int6;
-		rect_3.right = int22;
-		do {
-			for (; int19 < int6 + 9; int19++) {
-				if ((((7 < int17) && (int17 < 10008)) && (-1 < int19)) &&
-					(((int19 < 100 &&
-					(short2 = *(short *)((int)(m_decor + -1) + (int19 + int17) * 2 + 184),
-						short2 != -1)) && ((int14 = (int)short2, int14 == 0x180 || (int14 == 0x181)))))) {
-					pos.y = int11;
-					pos.x = rect_3.right;
-					m_pPixmap->QuickIcon(CHOBJECT, int14, pos);
-				}
-				int11 = int11 + 0x40;
-			}
-			rect_3.right += 0x40;
-			int17 += 100;
-			rect.left += -1;
-			int11 = int5;
-			int19 = int6;
-		} while (rect.left != 0);
-	}
-	if (m_phase == WM_PHASE_BUILD) {
-		L_38 = &m_jaugeSomething4;
-		rect.left = 3;
-		pint8 = &m_D42C;
-		do {
-			int17 = 2;
-			if (0 < rect.left) {
-				int17 = rect.left + 10;
-			}
-			int11 = 4;
-			if (*L_38 == 2) {
-				int11 = 0;
-			}
-			int5 = pint8[-1] - rect_2.left;
-			int19 = *pint8 - rect_2.top;
-			pos.y = int19;
-			pos.x = int5;
-			m_pPixmap->QuickIcon(int17, int11, pos);
-			if (m_buildOfficialMissions != 0) {
-				pos.y = int19 + -0x14;
-				pos.x = (int)pint8 + int5 + (-54294 - (int)this);
-				m_pPixmap->QuickIcon(4, rect.left + 0x78, pos);
-			}
-			rect.left += -1;
-			L_38 = L_38 + -1;
-			pint8 = pint8 + -2;
-		} while (-1 < rect.left);
-	}
-	if (m_bMulti && m_phase != WM_PHASE_BUILD) {
-		rect.left = 0;
-		L_40 = 0;
-		pint8 = &m_D488;
-		L_38 = &m_D45C;
-		do {
-			int17 = pint8[-4];
-			if ((int17 != -1) && (((int17 < 0x114 || (0x11c < int17)) && (*pint8 != 4)))) {
-				int17 = L_38[-1] - rect_2.left;
-				int11 = *L_38 - rect_2.top;
-				if (*pint8 == 1) {
-					uint13 = m_time / 2;
-					uint15 = (int)uint13 >> 0x1f;
-					pos.y = int11 + -2;
-					pos.x = int17;
-					m_pPixmap->QuickIcon(CHELEMENT,
-						(&DAT_00435568)[((uint13 ^ uint15) - uint15 & 0xf ^ uint15) - uint15],
-						pos);
-					pos.y = int11;
-					pos.x = int17;
-					m_pPixmap->QuickIcon(CHELEMENT, (&DAT_004356a8)[(m_time / 2) % 5],
-						pos);
-				}
-				if (*pint8 == 2) {
-					pos.y = int11;
-					pos.x = int17;
-					m_pPixmap->QuickIcon(CHELEMENT, (&table_magicloop)[(m_time / 2) % 5],
-						pos);
-				}
-				if (*pint8 == 3) {
-					int19 = 0;
-					do {
-						pos.y = int11 + -0x22;
-						pos.x = int17 + -0x22;
-						m_pPixmap->QuickIcon(CHEXPLO,
-							(rect.left + int19 + m_time) % 6 + 0x30, pos);
-						int19 += 1;
-					} while (int19 < 3);
-				}
-				int19 = pint8[4];
-				int5 = (int)*(short *)(m_pNetwork->m_players[0].name + L_40 + -2);
-				if ((int19 == 2) && (0 < int5)) {
-					int19 = int5 + 10;
-				}
-				pos.y = int11;
-				pos.x = int17;
-				m_pPixmap->QuickIcon(int19, pint8[-4], pos);
-				pos.y = int11 + -0x14;
-				pos.x = int17 + 10;
-				m_pPixmap->QuickIcon(4, int5 + 0x78, pos);
-			}
-			rect.left += 1;
-			pint8 = pint8 + 1;
-			L_40 += 0x20;
-			L_38 = L_38 + 2;
-		} while (L_40 < 0x80);
-	}
-	if ((m_phase == WM_PHASE_BUILD) || (m_blupiSec = 0, m_blupiFront != 0))
-		goto LAB_00404781;
-	int11 = (m_blupiPos).x - rect_2.left;
-	int17 = (m_blupiPos).y - rect_2.top;
-	if (m_blupiShield == 0) {
-		if (m_blupiPower != 0) {
-			m_blupiSec = 2;
-			if ((m_blupiTimeShield < 26) &&
-				(uint13 = m_time >> 0x1f,
-					1 < (int)(((m_time ^ uint13) - uint13 & 3 ^ uint13) - uint13))) goto LAB_004052d0;
-			pos.y = int17;
-			pos.x = int11;
-			m_pPixmap->QuickIcon(CHELEMENT, (&table_magicloop)[(m_time / 2) % 5], pos
-			);
-			int25 = m_blupiIcon;
-			goto LAB_00404771;
-		}
-		if (m_blupiCloud) {
-			m_blupiSec = 3;
-			if ((25 < m_blupiTimeShield) ||
-				(uint13 = m_time >> 0x1f,
-				(int)(((m_time ^ uint13) - uint13 & 3 ^ uint13) - uint13) < 2)) {
-				int19 = 0;
-				do {
-					pos.y = int17 + -0x22;
-					pos.x = int11 + -0x22;
-					m_pPixmap->QuickIcon(CHEXPLO, (int19 + m_time) % 6 + 0x30, pos);
-					int19 += 1;
-				} while (int19 < 3);
-			}
-		LAB_00404768:
-			int25 = m_blupiIcon;
-			goto LAB_00404771;
-		}
-		if (m_blupiHide == 0) goto LAB_00404768;
-		m_blupiSec = 4;
-		if ((m_blupiTimeShield < 26) &&
-			(uint13 = m_time >> 0x1f,
-				1 < (int)(((m_time ^ uint13) - uint13 & 3 ^ uint13) - uint13))) goto LAB_004052d0;
-		m_pPixmap->DrawIcon(0xe, 1, 0xf5, (POINT)0x0, 0, 1);
-		int25 = m_blupiIcon;
-		BV10 = 0;
-		int5 = 1;
-		LV24 = 0;
-		LV23 = 0;
-		int19 = GetBlupiChannel_1();
-		pos.y = LV24;
-		pos.x = LV23;
-		m_pPixmap->DrawIcon(0xe, int19, (int)int25, pos, int5, BV10);
-		m_pPixmap->DrawIcon(0xe, 1, 0xed, (POINT)0x0, 0, 1);
-		int25 = (Icon4)0x0;
-		int19 = 0xe;
-	}
-	else {
-		m_blupiSec = 1;
-		if ((m_blupiTimeShield < 0x1a) &&
-			(uint13 = m_time >> 0x1f,
-				1 < (int)(((m_time ^ uint13) - uint13 & 3 ^ uint13) - uint13))) {
-		LAB_004052d0:
-			int25 = m_blupiIcon;
-		}
-		else {
-			uint13 = m_time / 2;
-			uint15 = (int)uint13 >> 0x1f;
-			pos.y = int17 + -2;
-			pos.x = int11;
-			m_pPixmap->QuickIcon(CHELEMENT,
-				(&DAT_00435568)[((uint13 ^ uint15) - uint15 & 0xf ^ uint15) - uint15],
-				pos);
-			pos.y = int17;
-			pos.x = int11;
-			m_pPixmap->QuickIcon(CHELEMENT, (&DAT_004356a8)[(m_time / 2) % 5], pos);
-			int25 = m_blupiIcon;
-		}
-	LAB_00404771:
-		int19 = GetBlupiChannel_1();
-	}
-	pos.y = int17;
-	pos.x = int11;
-	m_pPixmap->QuickIcon(int19, (int)int25, pos);
-LAB_00404781:
-	pMob = m_moveObject + 199;
-	rect.left = MAXMOVEOBJECT;
-	do {
-		mobType = pMob->type;
-		if (((((((mobType != TYPE_empty) &&
-			(int17 = (pMob->posCurrent).x, (int)(rect_2.left - 64U) <= int17)) &&
-			(int11 = (pMob->posCurrent).y, (int)(rect_2.top - 64U) <= int11)) &&
-			((int17 <= (int)(rect_2.left + LXIMAGE) && (int11 <= (int)(rect_2.top + LYIMAGE)))))
-			&& (((short)mobType < 8 || (11 < (short)mobType)))) &&
-			(((short)mobType < 90 || (95 < (short)mobType)))) &&
-			((((short)mobType < 98 || (100 < (short)mobType)) &&
-			((((mobType != TYPE_TENTACULE && (mobType != TYPE_ASCENSEUR)) && (mobType != TYPE_ASCENSUERs)) &&
-				(mobType != TYPE_ASCENSEURsi)))))) {
-			int17 -= rect_2.left;
-			int11 -= rect_2.top;
-			if (((mobType == TYPE_BULLDOZER) || (mobType == TYPE_BLUPIHELICO)) || (mobType == TYPE_BLUPITANK)) {
-				int17 += 2;
-				int11 += 6;
-			}
-			if (mobType == TYPE_CREATURE) {
-				int11 += 6;
-			}
-			pos.y = int11;
-			pos.x = int17;
-			m_pPixmap->QuickIcon((int)pMob->channel, (int)pMob->icon, pos);
-			if (((m_bDrawSecret != 0) || (m_phase != WM_PHASE_PLAY)) &&
-				((pMob->type == TYPE_CAISSE &&
-				(((short2 = pMob->icon, short2 != obj_woodencase0 && (short2 != obj_woodencase1)) &&
-					(short2 != obj_woodencase2)))))) {
-				pos.y = int11;
-				pos.x = int17;
-				m_pPixmap->QuickIcon(CHOBJECT, 0xd6, pos);
-			}
-		}
-		pMob = pMob + -1;
-		rect.left += -1;
-	} while (rect.left != 0);
-	if (int12 < int20) {
-		uint13 = rect_2.top >> 0x1f;
-		int5 = -(((rect_2.top ^ uint13) - uint13 & 0x3f ^ uint13) - uint13);
-		int6 = (int)(rect_2.top + (uint13 & 0x3f)) >> 6;
-		rect.left = int12 * 7;
-		L_34 = int20 - int12;
-		int17 = int12 * 100 + 8;
-		int11 = int5;
-		int19 = int6;
-		rect_3.right = int22;
-		do {
-			for (; int19 < int6 + 9; int19 = int19 + 1) {
-				if (((7 < int17) && (int17 < 10008)) &&
-					((-1 < int19 &&
-					((int19 < 100 &&
-						(short2 = *(short *)((int)(m_decor + -1) + (int19 + int17) * 2 + 0xb8),
-							short2 != -1)))))) {
-					int14 = (int)short2;
-					if (((106 < int14) && (int14 < 110)) || (int7 = int11, int14 == 0x9d)) {
-						int7 = int11 + -7;
-					}
-					if (int14 == 211) {
-						uint13 = m_time / 2 + rect.left;
-						uint15 = (int)uint13 >> 0x1f;
-						int14 = table_ressort[((uint13 ^ uint15) - uint15 & 7 ^ uint15) - uint15];
-					}
-					if (((int14 == 214) && (m_bDrawSecret == 0)) && (m_phase == WM_PHASE_PLAY)) {
-						int14 = -1;
-					}
-					if (int14 == 364) {
-						int7 += -2;
-					}
-					if ((((int14 != obj_lava) && (int14 != 0x5b)) &&
-						((int14 != obj_watersurface && ((int14 != obj_lightning && (int14 != obj_crusher)))
-							))) && ((int14 != obj_crusher6 &&
-							((((((int14 != 0x175 && (int14 != 0x194)) && (int14 != 0x19a)) &&
-								((int14 != 0x17a && (int14 != 0x180)))) && (int14 != 0x181)) &&
-								((int14 < obj_wind_left || (0x89 < int14)))))))) {
-						pos.y = int7;
-						pos.x = rect_3.right;
-						m_pPixmap->QuickIcon(CHOBJECT, int14, pos);
-					}
-				}
-				int11 = int11 + 64;
-			}
-			rect_3.right += 64;
-			int17 += 100;
-			rect.left += 7;
-			L_34 += -1;
-			int11 = int5;
-			int19 = int6;
-		} while (L_34 != 0);
-	}
-	pMob = m_moveObject;
-	rect.left = 200;
-	do {
-		mobType = pMob->type;
-		if ((((mobType == TYPE_ASCENSEUR) || (mobType == TYPE_ASCENSEURs)) || (mobType == TYPE_ASCENSEURsi))
-			&& (((int17 = (pMob->posCurrent).x, (int)(rect_2.left - 64U) <= int17 &&
-			(int11 = (pMob->posCurrent).y, (int)(rect_2.top - 0x40U) <= int11)) &&
-				((int17 <= (int)(rect_2.left + LXIMAGE) && (int11 <= (int)(rect_2.top + LYIMAGE))))
-				))) {
-			pos.y = int11 - rect_2.top;
-			pos.x = int17 - rect_2.left;
-			m_pPixmap->QuickIcon((int)pMob->channel, (int)pMob->icon, pos);
-		}
-		uint13 = rect_2.top;
-		if ((m_phase == WM_PHASE_BUILD) &&
-			((((mobType = pMob->type, mobType == TYPE_ASCENSEUR || (mobType == TYPE_ASCENSUERs)) ||
-			(((mobType == TYPE_ASCENSEURsi ||
-				(((mobType == TYPE_BOMBEMOVE || (mobType == TYPE_BULLDOZER)) || (mobType == TYPE_POISSON)))) ||
-				(((mobType == TYPE_OISEAU || (mobType == TYPE_GUEPE)) || (mobType == TYPE_CREATURE)))))) ||
-				((mobType == TYPE_BLUPIHELICO || (mobType == TYPE_BLUPITANK)))))) {
-			int11 = (pMob->posEnd).x;
-			int17 = rect_2.left - 64;
-			if ((int17 <= int11) &&
-				(((int19 = (pMob->posEnd).y, (int)(rect_2.top - 0x40U) <= int19 &&
-				(int11 <= (int)(rect_2.left + LXIMAGE))) && (int19 <= (int)(rect_2.top + LYIMAGE)))
-					)) {
-				pos.y = int19 - rect_2.top;
-				pos.x = int11 - rect_2.left;
-				m_pPixmap->QuickIcon(1, 0x1f, pos);
-			}
-			int11 = (pMob->posStart).x;
-			if (((int17 <= int11) && (int17 = (pMob->posStart).y, (int)(uint13 - 0x40) <= int17))
-				&& ((int11 <= (int)(rect_2.left + LXIMAGE) && (int17 <= (int)(uint13 + LYIMAGE))))) {
-				pos.y = int17 - uint13;
-				pos.x = int11 - rect_2.left;
-				m_pPixmap->QuickIcon(1, 0x1e, pos);
-			}
-		}
-		pMob = pMob + 1;
-		rect.left += -1;
-	} while (rect.left != 0);
-	if (int12 < int20) {
-		uint15 = rect_2.top >> 0x1f;
-		uint13 = rect_2.top ^ uint15;
-		int17 = (int)(rect_2.top + (uint15 & 0x3f)) >> 6;
-		L_48 = int12 * 0xd;
-		L_3c = int12 * 100 + 8;
-		rect_3.right = int22;
-		do {
-			if (int17 < int17 + 9) {
-				rect.left = int17 * 7;
-				L_38 = (int *)int17;
-				rect_3.bottom = -((uint13 - uint15 & 0x3f ^ uint15) - uint15);
-				do {
-					if (((7 < L_3c) && (L_3c < 10008)) && ((-1 < rect.left && (rect.left < 700)))) {
-						pShort1 = (short *)((int)(m_decor + -1) + ((int)L_38 + L_3c) * 2 + 0xb8);
-						if (*pShort1 != -1) {
-							int22 = (int)*pShort1;
-							if (int22 == obj_lava) {
-								uint9 = m_time / 3 + L_48 + rect.left;
-								uint16 = (int)uint9 >> 0x1f;
-								int22 = (&table_decor_lave)[((uint9 ^ uint16) - uint16 & 7 ^ uint16) - uint16];
-								pos.y = rect_3.bottom;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(CHOBJECT, int22, pos);
-							}
-							if (int22 == 0x175) {
-								int22 = m_time;
-								if (m_blupiFocus == 0) {
-									uint9 = int22 / 2 + L_48 + rect.left;
-									uint16 = (int)uint9 >> 0x1f;
-									int22 = (&table_decor_piege2)[((uint9 ^ uint16) - uint16 & 3 ^ uint16) - uint16];
-								}
-								else {
-									uint9 = ((int)(int22 + (int22 >> 0x1f & 3U)) >> 2) + L_48 + rect.left;
-									uint16 = (int)uint9 >> 0x1f;
-									int22 = (&table_decor_piege1)
-										[((uint9 ^ uint16) - uint16 & 0xf ^ uint16) - uint16];
-								}
-								pos.y = rect_3.bottom;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if ((int22 == 404) || (int11 = rect_3.bottom, int22 == 410)) {
-								int22 = *(int *)(&table_decor_goutte +
-									((m_time / 2 + L_48 + rect.left) % 0x30) * 4);
-								int11 = rect_3.bottom + -9;
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-								if ((int22 < 404) || (407 < int22)) {
-									*pShort1 = 410;
-								}
-								else {
-									*pShort1 = 404;
-								}
-							}
-							if (int22 == obj_crusher) {
-								int22 = table_decor_ecraseur[(m_time / 3) % 10];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == 0x17a) {
-								int22 = table_decor_scie[(m_time + L_48 + rect.left) % 6];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == obj_crusher6) {
-								int22 = m_time + (m_time >> 0x1f & 3U);
-								int22 = table_decor_temp[(int)(CONCAT44(int22 >> 0x1f, int22 >> 2) % 0x14)];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == obj_watersurface) {
-								uint9 = m_time / 3 + L_48 + rect.left;
-								uint16 = (int)uint9 >> 0x1f;
-								int22 = (&table_decor_eau1)[((uint9 ^ uint16) - uint16 & 3 ^ uint16) - uint16];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == 0x5b) {
-								uint9 = m_time / 3 + L_48 + rect.left;
-								uint16 = (int)uint9 >> 0x1f;
-								int22 = (&table_decor_eau2)[((uint9 ^ uint16) - uint16 & 3 ^ uint16) - uint16];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if ((int22 == obj_lightning) &&
-								(BV10 = BlitzActif(this, int12, (int)L_38), BV10 != 0)) {
-								int22 = *(int *)(&table_decor_lightning +
-									((m_time + L_48 + rect.left) % 0x32) * 4);
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == obj_wind_left) {
-								uint9 = m_time >> 0x1f;
-								int22 = (&table_decor_ventg)[((m_time ^ uint9) - uint9 & 3 ^ uint9) - uint9];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == obj_wind_right) {
-								uint9 = m_time >> 0x1f;
-								int22 = (&table_decor_ventd)[((m_time ^ uint9) - uint9 & 3 ^ uint9) - uint9];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == obj_wind_up) {
-								uint9 = m_time >> 0x1f;
-								int22 = (&table_decor_venth)[((m_time ^ uint9) - uint9 & 3 ^ uint9) - uint9];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == obj_wind_down) {
-								uint9 = m_time >> 0x1f;
-								int22 = (&table_decor_ventb)[((m_time ^ uint9) - uint9 & 3 ^ uint9) - uint9];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == obj_fan_left) {
-								int22 = (&table_decor_ventillog)[(m_time / 2) % 3];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == obj_fan_right) {
-								int22 = (&table_decor_ventillod)[(m_time / 2) % 3];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == obj_fan_up) {
-								int22 = (&table_decor_ventilloh)[(m_time / 2) % 3];
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1, int22, pos);
-							}
-							if (int22 == obj_fan_down) {
-								pos.y = int11;
-								pos.x = rect_3.right;
-								m_pPixmap->QuickIcon(1,
-									(&table_decor_ventillob)[(m_time / 2) % 3], pos);
-							}
-						}
-					}
-					rect_3.bottom += 64;
-					L_38 = (int *)((int)L_38 + 1);
-					rect.left += 7;
-				} while ((int)L_38 < int17 + 9);
-			}
-			rect_3.right += 64;
-			int12 += 1;
-			L_3c += 100;
-			L_48 += 13;
-		} while (int12 < int20);
-	}
-	uint13 = rect_2.left;
-	pMob = m_moveObject;
-	rect.left = 200;
-	do {
-		mobType = pMob->type;
-		if (((((mobType != TYPE_empty) && (int20 = (pMob->posCurrent).x, (int)(uint13 - 64) <= int20)
-			) && (int12 = (pMob->posCurrent).y, (int)(rect_2.top - 0x40U) <= int12)) &&
-			((int20 <= (int)(uint13 + LXIMAGE) && (int12 <= (int)(rect_2.top + LYIMAGE))))) &&
-			(((((7 < (short)mobType && ((short)mobType < 0xc)) ||
-			((0x59 < (short)mobType && ((short)mobType < 0x60)))) ||
-				((0x61 < (short)mobType && ((short)mobType < 0x65)))) || (mobType == TYPE_TENTACULE)))) {
-			pos.y = int12 - rect_2.top;
-			pos.x = int20 - uint13;
-			m_pPixmap->QuickIcon((int)pMob->channel, (int)pMob->icon, pos);
-		}
-		pMob = pMob + 1;
-		rect.left += -1;
-	} while (rect.left != 0);
-	if ((m_blupiFront != 0) && (m_phase != WM_PHASE_BUILD)) {
-		int22 = (m_blupiPos).y - rect_2.top;
-		int20 = (m_blupiPos).x - uint13;
-		int25 = m_blupiIcon;
-		int12 = GetBlupiChannel_1();
-		pos.y = int22;
-		pos.x = int20;
-		m_pPixmap->QuickIcon(int12, (int)int25, pos);
-	}
-	DrawInfo();
-	VoyageDraw();
-	clip_00.top = rect_1.top;
-	clip_00.left = rect_1.left;
-	clip_00.right = rect_1.right;
-	clip_00.bottom = rect_1.bottom;
-	CPixmap::SetClipping(m_pPixmap, clip_00);
-	int20 = m_time + 1;
-	m_time = int20;
-	if (32767 < int20) {
-		m_time = 0;
-	}
-	return;
-}
-
-
 
 void CDecor::DrawInfo()
 {
@@ -1566,7 +896,7 @@ void CDecor::DrawInfo()
 			if (m_messages[i] != '\0') {
 				pos.x = 10;
 				pos.y = 10;
-				DrawText(m_pPixmap, pos, *m_messages[i], 0);
+				DrawText(m_pPixmap, pos, m_messages[i], 0);
 			}
 		}
 
@@ -1574,7 +904,7 @@ void CDecor::DrawInfo()
 			pos.x = -15;
 			for (int i = 0; i < m_nbVies; i++) {
 				pos.y = 417;
-				m_pPixmap->QuickIcon(GetStandardBlupiChannel(), 48, pos);
+				m_pPixmap->QuickIcon(GetBlupiChannelStandard(), 48, pos);
 				pos.x += 16;
 			}
 		}
@@ -1600,117 +930,115 @@ POINT CDecor::DecorNextAction()
 		m_posDecor;
 	}
 	POINT posDecor = m_posDecor;
-	while (tables->table_decor_action[num] != 0)
+	while (table_decor_action[num] != 0)
 	{
-		if (m_decorAction == tables->table_decor_action[num])
+		if (m_decorAction == table_decor_action[num]) {
+			// more
+		}
 	}
 }
 
-void CDecor::TreatInput(UINT input)
+void CDecor::TreatKeys(int keys)
 {
-    m_keyPress = input;
-    if (m_blupiInvert != 0)
-    {
-        if ((input & INPUT_LEFT) != 0)
-        {
-            m_keyPress = input & ~INPUT_LEFT | INPUT_RIGHT;
-        }
-        if ((input & INPUT_RIGHT) != 0)
-        {
-            m_keyPress = m_keyPress & ~INPUT_RIGHT | INPUT_LEFT;
-        }
-    }
-}
-
-void CDecor::SetSpeedX(double speed)
-{
+    m_keyPress = keys;
     if (m_blupiInvert)
     {
-        speed = -speed;
+        if (keys & KEY_LEFT)
+        {
+            m_keyPress = keys & ~KEY_LEFT | KEY_RIGHT;
+        }
+        if (keys & KEY_RIGHT)
+        {
+            m_keyPress = m_keyPress & ~KEY_RIGHT | KEY_LEFT;
+        }
     }
-    m_blupiSpeedX = speed;
 }
 
-void CDecor::SetSpeedY(double speed)
+void CDecor::SetJoystickEnable(BOOL bJoystick)
 {
-    m_blupiSpeedY = speed;
+	m_bJoystick = bJoystick;
+}
+
+void CDecor::SetFieldD814(BOOL param)
+{
+	m_bD814 = param;
 }
 
 int CDecor::SoundEnviron(int sound, int obstacle)
 {
     if ((obstacle >= 32 && obstacle <= 34) || (obstacle >= 41 && obstacle <= 47) || (obstacle >= 139 && obstacle <= 143))
     {
-        if (sound == 4)
+        if (sound == SOUND_JUMPTOC)
         {
             return 79;
         }
-        if (sound == 3)
+        if (sound == SOUND_JUMPEND)
         {
             return 78;
         }
     }
     if ((obstacle >= 1 && obstacle <= 28) || (obstacle >= 78 && obstacle <= 90) || (obstacle >= 250 && obstacle <= 260) || (obstacle >= 311 && obstacle <= 316) || (obstacle >= 324 && obstacle <= 329))
     {
-        if (sound == 4)
+        if (sound == SOUND_JUMPTOC)
         {
             return 81;
         }
-        if (sound == 3)
+        if (sound == SOUND_JUMPEND)
         {
             return 80;
         }
     }
     if ((obstacle >= 284 && obstacle <= 303) || obstacle == 338)
     {
-        if (sound == 4)
+        if (sound == SOUND_JUMPTOC)
         {
             return 83;
         }
-        if (sound == 3)
+        if (sound == SOUND_JUMPEND)
         {
             return 82;
         }
     }
     if (obstacle >= 341 && obstacle <= 363)
     {
-        if (sound == 4)
+        if (sound == SOUND_JUMPTOC)
         {
             return 85;
         }
-        if (sound == 3)
+        if (sound == SOUND_JUMPEND)
         {
             return 84;
         }
     }
     if (obstacle >= 215 && obstacle <= 234)
     {
-        if (sound == 4)
+        if (sound == SOUND_JUMPTOC)
         {
             return 87;
         }
-        if (sound == 3)
+        if (sound == SOUND_JUMPEND)
         {
             return 86;
         }
     }
     if (obstacle >= 246 && obstacle <= 249)
     {
-        if (sound == 4)
+        if (sound == SOUND_JUMPTOC)
         {
             return 89;
         }
-        if (sound == 3)
+        if (sound == SOUND_JUMPEND)
         {
             return 88;
         }
     }
     if (obstacle >= 107 && obstacle <= 109)
     {
-        if (sound == 4)
+        if (sound == SOUND_JUMPTOC)
         {
             return 91;
         }
-        if (sound == 3)
+        if (sound == SOUND_JUMPEND)
         {
             return 90;
         }
@@ -1718,74 +1046,737 @@ int CDecor::SoundEnviron(int sound, int obstacle)
     return sound;
 }
 
-void CDecor::PlaySound(int sound, POINT pos)
+void CDecor::PlaySound(int sound, POINT pos, BOOL bLocal)
 {
-    {
-        if (m_blupiHide && (sound == 1 || sound == 2 || sound == 3 || sound == 4 || sound == 5 || sound == 6 || sound == 7 || sound == 20 || sound == 21 || sound == 22 || sound == 23 || sound == 24 || sound == 25 || sound == 27 || sound == 32 || sound == 34 || sound == 35 || sound == 36 || sound == 37 || sound == 38 || sound == 39 || sound == 40 || sound == 46 || sound == 47 || sound == 48 || sound == 49 || sound == 64 || sound == 65 || sound == 78 || sound == 79 || sound == 80 || sound == 81 || sound == 82 || sound == 83 || sound == 84 || sound == 85 || sound == 86 || sound == 87 || sound == 88 || sound == 89 || sound == 90 || sound == 91))
-        {
-            return;
-        }
-        pos.x -= m_posDecor.y;
-        pos.y -= m_posDecor.y;
-        m_pSound->PlayImage(sound, pos);
-    }
+	if (!bLocal) NetPlaySound(sound, pos);
+
+	m_pSound->PlayImage(sound, { pos.x - m_posDecor.x, pos.y - m_posDecor.y }, -1);
+
+	switch (sound) {
+	case SOUND_HELICOHIGH:
+		m_bHelicoMarch = TRUE;
+		break;
+	case SOUND_HELICOLOW:
+		m_bHelicoStop = TRUE;
+		break;
+	case SOUND_JEEPHIGH:
+		m_bJeepMarch = TRUE;
+		break;
+	case SOUND_JEEPLOW:
+		m_bJeepStop = TRUE;
+		break;
+	}
 }
 
-void CDecor::StopSound(CSound sound)
+void CDecor::StopSound(int sound)
 {
     m_pSound->StopSound(sound);
-    if (sound == SOUND_16_HELICOHIGH)
-    {
-        m_bHelicopterFlying = FALSE;
-    }
-    if (sound == SOUND_18_HELICOLOW)
-    {
-        m_bHelicopterStationary = FALSE;
-    }
-    if (sound == SOUND_29_JEEPHIGH)
-    {
-        m_bCarMoving = FALSE;
-    }
-    if (sound == SOUND_31_JEEPLOW)
-    {
-        m_bCarStationary = FALSE;
-    }
-    return;
+
+	switch (sound) {
+	case SOUND_HELICOHIGH:
+		m_bHelicoMarch = FALSE;
+		break;
+	case SOUND_HELICOLOW:
+		m_bHelicoStop = FALSE;
+		break;
+	case SOUND_JEEPHIGH:
+		m_bJeepMarch = FALSE;
+		break;
+	case SOUND_JEEPLOW:
+		m_bJeepStop = FALSE;
+		break;
+	}
 }
 
-void CDecor::AdaptMotorVehicleSound()
+void CDecor::AdaptMotorVehicleSound(POINT pos)
 {
-    POINT blupiPos = m_blupiPos;
+    POINT blupiPos = pos;
     blupiPos.x -= m_posDecor.x;
     blupiPos.y -= m_posDecor.y;
 
-    if (m_bHelicopterFlying != FALSE)
+    if (m_bHelicoMarch)
     {
-        m_pSound->PlayImage(16, blupiPos);
+        m_pSound->PlayImage(SOUND_HELICOHIGH, blupiPos);
     }
-    if (m_bHelicopterStationary != FALSE)
+    if (m_bHelicoStop)
     {
-        m_pSound->PlayImage(18, blupiPos);
+        m_pSound->PlayImage(SOUND_HELICOLOW, blupiPos);
     }
-    if (m_bCarMoving != FALSE)
+    if (m_bJeepMarch)
     {
-        m_pSound->PlayImage(29, blupiPos);
+        m_pSound->PlayImage(SOUND_JEEPHIGH, blupiPos);
     }
-    if (m_bCarStationary != FALSE)
+    if (m_bJeepStop)
     {
-        m_pSound->PlayImage(31, blupiPos);
+        m_pSound->PlayImage(SOUND_JEEPLOW, blupiPos);
     }
     return;
 }
 
-// TODO: Add VehicleSoundsPhase
+void CDecor::VehicleSoundsPhase(int phase)
+{
+	m_phase = phase;
+
+	if (phase == WM_PHASE_PLAY || phase == WM_PHASE_PLAYTEST) {
+		int channel = -1;
+		if (m_bHelicoMarch) channel = SOUND_HELICOHIGH;
+		if (m_bHelicoStop) channel = SOUND_HELICOLOW;
+		if (m_bJeepMarch) channel = SOUND_JEEPHIGH;
+		if (m_bJeepStop) channel = SOUND_JEEPLOW;
+		if (channel != -1) m_pSound->PlayImage(channel, { LXIMAGE / 2, LYIMAGE / 2 }, -1);
+	}
+	else {
+		if (m_bHelicoMarch) m_pSound->StopSound(SOUND_HELICOHIGH);
+		if (m_bHelicoStop) m_pSound->StopSound(SOUND_HELICOLOW);
+		if (m_bJeepMarch) m_pSound->StopSound(SOUND_JEEPHIGH);
+		if (m_bJeepStop) m_pSound->StopSound(SOUND_JEEPLOW);
+	}
+}
+
+POINT CDecor::ScreenPosToCelPos(POINT pos)
+{
+	if (pos.x >= 0 && pos.x < LXIMAGE && pos.y >= 0 && pos.y < LYIMAGE) {
+		return {
+			(m_posDecor.x + m_dimCelHili.x * -32 + 32 + pos.x) / 64,
+			(m_posDecor.y + m_dimCelHili.y * -32 + 32 + pos.y) / 64
+		};
+	}
+	else return { -1, -1 };
+}
+
+void CDecor::SetCelPosFromScreenPos(POINT pos)
+{
+	m_posCelHili = ScreenPosToCelPos(pos);
+}
+
+void CDecor::SetFieldCC38AndStuff(int _foo, int _bar)
+{
+	m_dimCelHili = { 1, 1 };
+	if (_foo == 2 && _bar != 3 && _bar != 9 && _bar != 10) m_dimCelHili = { 2, 2 };
+	if (_foo == 3) m_iconLift = _bar;
+	if (_foo == 4) m_iconLift = _bar + 20;
+	if (_foo == 5) m_iconLift = _bar + 40;
+	m_2ndPositionCalculationSlot = -1;
+}
+
+void CDecor::DeleteCel(POINT cel)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	if (!IsValidCel(cel)) return;
+
+	m_decor[cel.x][cel.y].icon = -1;
+	AdaptBorder(cel);
+	m_bigDecor[cel.x][cel.y].icon = -1;
+	MoveObjectDelete(cel);
+}
+
+void CDecor::PlaceMenuItem(short *pCel, int *pTable, int lastIndex, BYTE flags, int currentIcon, BOOL bRand)
+{
+	if (bRand) {
+		*pCel = pTable[rand() % (pTable[0] + 1)];
+	}
+	else if (!flags & 8) {
+		if (flags & 1) {
+			lastIndex++;
+			if (*pCel == pTable[lastIndex] && currentIcon != 0 && pTable[0] <= lastIndex) {
+				lastIndex = 0;
+			}
+			*pCel = pTable[lastIndex + 1];
+		}
+	}
+	else {
+		*pCel = pTable[lastIndex + 1];
+	}
+}
+
+void CDecor::PlaceItemFromMenu1(POINT cel, int index, BYTE flags, int currentIcon)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	short *pIcon = &m_decor[cel.x][cel.y].icon;
+	short *pIconBig = &m_bigDecor[cel.x][cel.y].icon;
+
+	if (!IsValidCel(cel)) return;
+
+	switch (index) {
+	case 0: // Tree
+		PlaceMenuItem(pIconBig, table_366b0, m_lastDecorIndexes[0], flags, *pIconBig, TRUE);
+		break;
+	case 1: // Palmtree
+		PlaceMenuItem(pIconBig, table_366c0, m_lastDecorIndexes[1], flags, *pIconBig, TRUE);
+		break;
+	case 2: // Decorative plant
+		PlaceMenuItem(pIconBig, table_366d8, m_lastDecorIndexes[2], flags, *pIconBig, TRUE);
+		break;
+	case 3: // Marine plant
+		*pIcon = Object::Marine_1;
+		break;
+	case 4: // House
+		PlaceMenuItem(pIconBig, table_366e8, m_lastDecorIndexes[3], flags, *pIconBig, TRUE);
+		break;
+	case 5: // Mechanical background
+		PlaceMenuItem(pIconBig, table_366f8, m_lastDecorIndexes[4], flags, *pIconBig, TRUE);
+		break;
+	case 6: // Kid's stuff background
+		PlaceMenuItem(pIconBig, table_36710, m_lastDecorIndexes[5], flags, *pIconBig, TRUE);
+		break;
+	case 7: // Green slime 2
+		PlaceMenuItem(pIconBig, table_36748, m_lastDecorIndexes[6], flags, *pIconBig, TRUE);
+		break;
+	case 8: // Element for Palace
+		PlaceMenuItem(pIconBig, table_36520, m_lastDecorIndexes[7], flags, *pIconBig, TRUE);
+		break;
+	case 9: // Support
+		PlaceMenuItem(pIcon, table_36670, m_lastDecorIndexes[8], flags, *pIcon, TRUE);
+		break;
+	case 10: // Spider's web
+		PlaceMenuItem(pIcon, table_366a0, m_lastDecorIndexes[9], flags, *pIcon, TRUE);
+		break;
+	}
+}
+
+void CDecor::PlaceItemFromMenu2(POINT cel, int index, BYTE flags, int currentIcon)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	short *pIcon = &m_decor[cel.x][cel.y].icon;
+
+	if (!IsValidCel(cel)) return;
+
+	m_iconLift = index;
+
+	switch (index) {
+	case 0: // Square tech-blocks
+		PlaceMenuItem(pIcon, table_36418, m_lastDecorIndexes[10], flags, *pIcon, TRUE);
+		break;
+	case 1: // Special tech-blocks
+		PlaceMenuItem(pIcon, table_36458, m_lastDecorIndexes[11], flags, *pIcon, TRUE);
+		break;
+	case 2: // Triangular tech-blocks
+		PlaceMenuItem(pIcon, table_36488, m_lastDecorIndexes[12], flags, *pIcon, FALSE);
+		break;
+	case 3: // Secret tech-block
+		PlaceMenuItem(pIcon, table_364a0, m_lastDecorIndexes[13], flags, *pIcon, FALSE);
+		break;
+	case 4: // Mechanical square
+		PlaceMenuItem(pIcon, table_364b0, m_lastDecorIndexes[14], flags, *pIcon, TRUE);
+		break;
+	case 5: // Special mechanical
+		PlaceMenuItem(pIcon, table_364d0, m_lastDecorIndexes[15], flags, *pIcon, FALSE);
+		break;
+	case 6: // Secret mechanical
+		PlaceMenuItem(pIcon, table_364e8, m_lastDecorIndexes[16], flags, *pIcon, FALSE);
+		break;
+	case 7: // Pipes
+		*pIcon = Object::Pipes_1;
+		break;
+	}
+	AdaptBorder(cel);
+}
+
+void CDecor::PlaceItemFromMenu3(POINT cel, int index, BYTE flags, int currentIcon)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	short *pIcon = &m_decor[cel.x][cel.y].icon;
+
+	if (!IsValidCel(cel)) return;
+
+	m_iconLift = index + 20;
+
+	switch (index) {
+	case 0: // Square rock
+		PlaceMenuItem(pIcon, table_36530, m_lastDecorIndexes[20], flags, *pIcon, FALSE);
+		break;
+	case 1: // Triangular rock
+		PlaceMenuItem(pIcon, table_36538, m_lastDecorIndexes[21], flags, *pIcon, FALSE);
+		break;
+	case 2: // Secret rock
+		PlaceMenuItem(pIcon, table_36548, m_lastDecorIndexes[22], flags, *pIcon, FALSE);
+		break;
+	case 3: // Cave
+		// todo
+		break;
+	case 4: // Secret cave
+		*pIcon = Object::CaveSecret;
+		break;
+	case 5: // Cheese
+		*pIcon = Random(Object::CheeseSquare_1, Object::CheeseSquare_4);
+		break;
+	case 6: // Secret cheese
+		*pIcon = Object::CheeseSecret;
+		break;
+	case 7: // Green slime 2
+		*pIcon = Object::Slime_1;
+		break;
+	case 8: // Grass
+		PlaceMenuItem(pIcon, table_365d0, m_lastDecorIndexes[23], flags, *pIcon, FALSE);
+		break;
+	case 9: // Water
+		PlaceMenuItem(pIcon, table_36630, m_lastDecorIndexes[24], flags, *pIcon, FALSE);
+		break;
+	}
+	AdaptBorder(cel);
+}
+
+void CDecor::PlaceItemFromMenu4(POINT cel, int index, BYTE flags, int currentIcon)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	short *pIcon = &m_decor[cel.x][cel.y].icon;
+
+	if (!IsValidCel(cel)) return;
+
+	m_iconLift = index + 40;
+
+	switch (index) {
+	case 0: // Palace
+		break;
+	case 1: // Element for Palace
+		break;
+	case 2: // Building facade
+		break;
+	case 3: // Roof
+		break;
+	case 4: // Bricks
+		break;
+	case 5: // Furniture
+		break;
+	case 6: // Wooden wall
+		break;
+	case 7: // Kid's stuff square
+		break;
+	case 8: // Special Kid's stuff
+		break;
+	case 9: // Invisible block
+		break;
+	}
+	AdaptBorder(cel);
+}
+
+void CDecor::PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIcon)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	int mobId;
+	MoveObject* pMob;
+
+	short *pIcon = &m_decor[cel.x][cel.y].icon;
+
+	if (!IsValidCel(cel)) return;
+
+	switch (index) {
+	case 0: // Bomb
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_BOMBEDOWN;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 4 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0x0c;
+		break;
+	case 1: // Hanging bomb
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_BOMBEUP;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0x30;
+		break;
+	case 2: // Homing bomb
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_BOMBEFOLLOW1;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64, cel.y * 64 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0x100;
+		break;
+	case 3: // Lava
+		PlaceMenuItem(pIcon, table_decor_lave, m_lastDecorIndexes[40], flags, *pIcon, FALSE);
+		break;
+	case 4: // Fan
+		PlaceMenuItem(pIcon, table_decor_ventillog, m_lastDecorIndexes[41], flags, *pIcon, FALSE);
+		break;
+	case 5: // Wind
+		PlaceMenuItem(pIcon, table_decor_ventg, m_lastDecorIndexes[42], flags, *pIcon, FALSE);
+		break;
+	case 6: // Slime trap (floor)
+		*pIcon = Object::SlimeTrapFloor_1;
+		break;
+	case 7: // Slime trap (ceiling)
+		*pIcon = Object::SlimeTrapCeiling_1;
+		break;
+	case 8: // Circular saw
+		PlaceMenuItem(pIcon, table_decor_scie, m_lastDecorIndexes[43], flags, *pIcon, FALSE);
+		break;
+	case 9: // Inverter
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_INVERT;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 8 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0xBB;
+		break;
+	case 10: // Lightning
+		*pIcon = Object::LightningMachine;
+		break;
+	case 11: // Crusher
+		*pIcon = Object::Crusher_1;
+		break;
+	}
+	AdaptBorder(cel);
+}
+
+void CDecor::PlaceItemFromMenu6(POINT cel, int index, BYTE flags, int currentIcon)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	short *pIcon = &m_decor[cel.x][cel.y].icon;
+
+	if (!IsValidCel(cel) || currentIcon == 0) return;
+
+	switch (m_iconLift) {
+
+	}
+
+	switch (index) {
+	case 0: // Slow lift
+	case 1: // Normal lift
+	case 2: // Fast lift
+	case 3: // Fast/Slow lift
+	case 4: // Lift with conveyor belt
+	case 5: // Bulldozer
+	case 6: // Fish
+	case 7: // Bird
+	case 8: // Wasp
+	case 9: // Slime creature
+	case 10: // Moving bomb
+	case 11: // Heliported ennemy
+	case 12: // Motorized ennemy
+	}
+}
+
+void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIcon)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	MoveObject* pMob;
+	int mobId;
+
+	short *pIcon = &m_decor[cel.x][cel.y].icon;
+
+	if (!IsValidCel(cel)) return;
+
+	switch (index) {
+	case 0: // Chest
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_TRESOR;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 4 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0x00;
+		break;
+	case 1: // Egg
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_EGG;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 8 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0x15;
+		break;
+	case 2: // Lollipop
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_POWER;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 8 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0x88;
+		break;
+	case 3: // Shield
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_SHIELD;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 8 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0x90;
+		break;
+	case 4: // Invisibility potion
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_DRINK;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 6 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0xB2;
+		break;
+	case 5: // Glue supply
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_BULLET;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 4 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0xB1;
+		break;
+	case 6: // Recharging device
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_CHARGE;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 4 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0xEE;
+		break;
+	case 7: // Personal bomb
+		int type;
+		mobId = MoveObjectSearch(cel, -1);
+		if (mobId != -1 && currentIcon != 0) {
+			if (mobId >= TYPE_BOMBEPERSO4) {
+				m_lastDecorIndexes[60] = 0;
+			}
+			else {
+				m_lastDecorIndexes[60] = m_moveObject[mobId].type - TYPE_BOMBEPERSO1;
+			}
+		}
+		type = m_lastDecorIndexes[60] + TYPE_BOMBEPERSO1;
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = type;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 6 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		switch (type) {
+		default:
+		case TYPE_BOMBEPERSO1:
+			pMob->channel = CHBLUPI;
+			break;
+		case TYPE_BOMBEPERSO2:
+			pMob->channel = CHBLUPI1;
+			break;
+		case TYPE_BOMBEPERSO3:
+			pMob->channel = CHBLUPI2;
+			break;
+		case TYPE_BOMBEPERSO4:
+			pMob->channel = CHBLUPI3;
+			break;
+		}
+		pMob->icon = 0x101;
+		break;
+	case 8: // Dynamite
+		MoveObjectDelete(cel);
+		mobId = MoveObjectFree();
+		if (mobId == -1) return;
+		pMob = &m_moveObject[mobId];
+		pMob->type = TYPE_DYNAMITE;
+		pMob->stepAdvance = 1;
+		pMob->stepRecede = 1;
+		pMob->timeStopStart = 0;
+		pMob->timeStopEnd = 0;
+		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 6 };
+		pMob->posEnd = pMob->posStart;
+		pMob->posCurrent = pMob->posStart;
+		pMob->step = STEP_STOPSTART;
+		pMob->time = 0;
+		pMob->phase = 0;
+		pMob->channel = CHELEMENT;
+		pMob->icon = 0xFC;
+		break;
+	}
+	AdaptBorder(cel);
+}
+
+void CDecor::PlaceItemFromMenu8(POINT cel, int index, BYTE flags, int currentIcon)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	short *pIcon = &m_decor[cel.x][cel.y].icon;
+
+	if (!IsValidCel(cel)) return;
+
+	switch (index) {
+	case 0: // Key
+	case 1: // Door
+	case 2: // Closed while not all chests have been found
+	case 3: // Teleporter
+	case 4: // Bar to hang from
+	case 5: // Spring
+	case 6: // Vanishing bloc
+	case 7: // Fragile bridge
+	case 8: // Wooden case
+	case 9: // Secret wooden case
+	}
+}
+
+void CDecor::PlaceItemFromMenu9(POINT cel, int index, BYTE flags, int currentIcon)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	short *pIcon = &m_decor[cel.x][cel.y].icon;
+
+	if (!IsValidCel(cel)) return;
+
+	switch (index) {
+	case 0: // Hovercraft
+	case 1: // Helicopter
+	case 2: // Skateboard
+	case 3: // Jeep
+	case 4: // Glue tank
+	}
+}
+
+void CDecor::PlaceItemFromMenu10(POINT cel, int index, BYTE flags, int currentIcon)
+{
+	m_2ndPositionCalculationSlot = -1;
+
+	short *pIcon = &m_decor[cel.x][cel.y].icon;
+
+	if (!IsValidCel(cel)) return;
+
+	switch (index) {
+	case 0: // Goal
+	case 1: // Yellow Blupi
+	case 2: // Orange Blupi
+	case 3: // Blue Blupi
+	case 4: // Green Blupi
+	case 5: // Door
+	case 6: // Level start
+	case 7: // Key
+	}
+}
 
 void CDecor::UpdateCaisse()
 {
 	m_nbRankCaisse = 0;
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
 	{
-		if (m_moveObject[i]->type == 12)
+		if (m_moveObject[i].type == TYPE_CAISSE)
 		{
 			m_rankCaisse[m_nbRankCaisse++] = i;
 		}
@@ -1796,10 +1787,10 @@ BOOL CDecor::TestPushCaisse(int i, POINT pos, BOOL bPop)
 {
 	POINT move;
 
-	move.x = pos.x - m_moveObject[i]->posCurrent.x;
+	move.x = pos.x - m_moveObject[i].posCurrent.x;
 	move.y = 0;
 	SearchLinkCaisse(i, bPop);
-	int y = m_moveObject[i]->posCurrent.y;
+	int y = m_moveObject[i].posCurrent.y;
 	for (int j = 0; j < m_nbLinkCaisse; j++)
 	{
 		i = m_linkCaisse[j];
@@ -1810,12 +1801,12 @@ BOOL CDecor::TestPushCaisse(int i, POINT pos, BOOL bPop)
 	}
 	for (int j = 0; j < m_nbLinkCaisse; j++)
 	{
-		i = m_linkCaisse;
+		i = m_linkCaisse[j];
 		int num = i;
-		m_moveObject[num]->posCurrent.x = m_moveObject[num]->posCurrent.x + move.x;
-		m_moveObject[num]->posStart.x = m_moveObject[num]->posStart.x + move.x;
+		m_moveObject[num].posCurrent.x = m_moveObject[num].posCurrent.x + move.x;
+		m_moveObject[num].posStart.x = m_moveObject[num].posStart.x + move.x;
 		int num2 = i;
-		m_moveObject[num]->posEnd.x = m_moveObject[num]->posEnd.x + move.x;
+		m_moveObject[num].posEnd.x = m_moveObject[num].posEnd.x + move.x;
 	}
 	return TRUE;
 }
@@ -1829,7 +1820,7 @@ void CDecor::SearchLinkCaisse(int rank, BOOL bPop)
 {
 	m_nbLinkCaisse = 0;
 	AddLinkCaisse(rank);
-	POINT posCurrent = m_moveObject;
+	POINT posCurrent = m_moveObject[0].posCurrent;
 
 	BOOL flag;
 	do
@@ -1838,10 +1829,10 @@ void CDecor::SearchLinkCaisse(int rank, BOOL bPop)
 		for (int i = 0; i < m_nbLinkCaisse; i++)
 		{
 			int num = m_linkCaisse[i];
-			if (m_moveObject[num]->posCurrent.y <=
+			if (m_moveObject[num].posCurrent.y <=
 				posCurrent.y && (!bPop || (m_moveObject
-					[num]->posCurrent.x >= posCurrent.x - 32 &&
-					m_moveObject[num]->posCurrent.x <=
+					[num].posCurrent.x >= posCurrent.x - 32 &&
+					m_moveObject[num].posCurrent.x <=
 					posCurrent.x + 32)))
 			{
 
@@ -1885,27 +1876,24 @@ void CDecor::SetMusic(int music)
 	m_music = music;
 }
 
-void CDecor::GetDims(POINT* ptr)
+POINT CDecor::GetDim()
 {
-	ptr->x = m_dimDecor.x;
-	ptr->y = m_dimDecor.y;
-	return;
+	return m_dimDecor;
 }
 
-void CDecor::SetDims(POINT dims)
+void CDecor::SetDim(POINT dim)
 {
-	m_dimDecor.x = dims.x;
-	m_dimDecor.y = dims.y;
+	m_dimDecor = dim;
 }
 
 int CDecor::GetNbVies()
 {
-    return m_nbVies;
+	return m_nbVies;
 }
 
-void CDecor::SetNbVies(int lives)
+void CDecor::SetNbVies(int nbVies)
 {
-    m_nbVies = lives;
+    m_nbVies = nbVies;
 }
 
 BOOL CDecor::GetPause()
@@ -1919,37 +1907,37 @@ void CDecor::SetPause(BOOL bPause)
 }
 
 
-void CDecor::GetDoors(int doors)
+void CDecor::InitializeDoors(GameData *gameData)
 {
-    for (int i = 0; i < m_doors; i++)
+    for (int i = 0; i < MAXMOVEOBJECT; i++)
     {
-        doors[i] = (int)
+		gameData[i] = m_doors[i];
     }
 }
 
 
-void CDecor::SetAllMissions(BOOL CheatDoors)
+void CDecor::SetAllMissions(BOOL bAllMissions)
 {
-    m_bCheatDoors = CheatDoors;
-    m_bPrivate, m_mission->AdaptDoors;
+    m_bCheatDoors = bAllMissions;
+    AdaptDoors(m_bPrivate, m_mission);
     return;
 }
 
-void CDecor::CheatAction(int cheat, MoveObject moveObject)
+void CDecor::CheatAction(int cheat)
 {
-    if (cheat == cheat_cleanall)
+    if (cheat == 2) // cleanall
     {
         for (int i = 0; i < MAXMOVEOBJECT; i++)
         {
-            if (m_moveObject[i]->type == 2 || m_moveObject[i]->type == 3 || m_moveObject[i]->type == 96 ||
-                m_moveObject[i]->type == 97 || m_moveObject[i]->type == 4 || m_moveObject[i]->type == 16 ||
-                m_moveObject[i]->type == 17 || m_moveObject[i]->type == 20 || m_moveObject[i]->type == 44 ||
-                m_moveObject[i]->type == 54 || m_moveObject[i]->type == 32 || m_moveObject[i]->type == 33)
+            if (m_moveObject[i].type == 2 || m_moveObject[i].type == 3 || m_moveObject[i].type == 96 ||
+                m_moveObject[i].type == 97 || m_moveObject[i].type == 4 || m_moveObject[i].type == 16 ||
+                m_moveObject[i].type == 17 || m_moveObject[i].type == 20 || m_moveObject[i].type == 44 ||
+                m_moveObject[i].type == 54 || m_moveObject[i].type == 32 || m_moveObject[i].type == 33)
             {
                 m_decorAction = 1;
                 m_decorPhase = 0;
-                m_moveObject[i]->type = 8;
-                m_moveObject[i]->phase = 0;
+                m_moveObject[i].type = 8;
+                m_moveObject[i].phase = 0;
 
                MoveObject[] moveObject = m_moveObject;
                int num = i;
@@ -1957,15 +1945,15 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
                MoveObject[] moveObject2 = m_moveObject;
                int num2 = i;
                moveObject2[num2]->posCurrent.y = moveObject2[num2].posCurrent.y - 34;
-               m_moveObject[i]->posStart = m_moveObject[i]->posCurrent;
-               m_moveObject[i]->posEnd = m_moveObject[i]->posCurrent;
+               m_moveObject[i].posStart = m_moveObject[i].posCurrent;
+               m_moveObject[i].posEnd = m_moveObject[i].posCurrent;
                MoveObjectStepIcon(i);
-               PlaySound(10, m_moveObject[i]->posCurrent);
+               PlaySound(10, m_moveObject[i].posCurrent);
 
             }
         }
     }
-    if (cheat == cheat_funskate)
+    if (cheat == 6) // funskate
     {
         m_blupiAir = FALSE;
         m_blupiHelico = FALSE;
@@ -1982,7 +1970,7 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
         StopSound(29);
         StopSound(31);
     }
-    if (cheat == cheat_givecopter)
+    if (cheat == 7) // givecopter
     {
         m_blupiAir = FALSE;
         m_blupiHelico = TRUE;
@@ -1995,7 +1983,7 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
         m_blupiVent = FALSE;
         m_blupiSuspend = FALSE;
     }
-    if (cheat == cheat_jeepdrive)
+    if (cheat == 8) // jeepdrive
     {
         m_blupiAir = FALSE;
         m_blupiHelico = FALSE;
@@ -2008,29 +1996,29 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
         m_blupiVent = FALSE;
         m_blupiSuspend = FALSE;
     }
-    if (cheat == cheat_alltreasure)
-    {
-        for (int i = 0; i < MOVEOBJECT; i++)
-        {
-            if (m_moveObject[i]->type == 5)
-            {
-                m_moveObject[i]->type == 0;
-                m_nbTresor++;
-                OpenDoorsTresor();
-                PlaySound(11, m_moveObject[i]->posCurrent);
-            }
-        }
-    }
-    if (cheat == cheat_endgoal)
+    if (cheat == 9) // alltreasure
     {
         for (int i = 0; i < MAXMOVEOBJECT; i++)
         {
-            if (m_moveObject[i]->type == 7 || m_moveObject[i]->type == 21)
+            if (m_moveObject[i].type == 5)
             {
-                m_blupiPos = m_moveObject[i]->posCurrent;
+                m_moveObject[i].type == 0;
+                m_nbTresor++;
+                OpenDoorsTresor();
+                PlaySound(11, m_moveObject[i].posCurrent);
+            }
+        }
+    }
+    if (cheat == 10) // endgoal
+    {
+        for (int i = 0; i < MAXMOVEOBJECT; i++)
+        {
+            if (m_moveObject[i].type == 7 || m_moveObject[i].type == 21)
+            {
+                m_blupiPos = m_moveObject[i].posCurrent;
                 if (m_nbTresor >= m_totalTresor)
                 {
-                    if (m_moveObject[i]->type == 21)
+                    if (m_moveObject[i].type == 21)
                     {
                         m_bFoundCle = TRUE;
                     }
@@ -2063,13 +2051,13 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
                 }
                 else
                 {
-                    (m_moveObject[i]->posCurrent)->PlaySound(13);
+                    PlaySound(13, m_moveObject[i].posCurrent);
                 }
                 m_goalPhase = 50;
             }
         }
     }
-    if (cheat == cheat_roundshield)
+    if (cheat == 12) // roundshield
     {
         PlaySound(42, m_blupiPos);
         m_blupiShield = TRUE;
@@ -2078,9 +2066,9 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
         m_blupiHide = FALSE;
         m_blupiTimeShield = 100;
         m_blupiPosMagic = m_blupiPos;
-        m_jauges[1]->SetHide(FALSE);
+        m_jauges[1].SetHide(FALSE);
     }
-    if (cheat == cheat_quicklollipop)
+    if (cheat == 13) // quicklollipop
     {
         m_blupiAction = 49;
         m_blupiPhase = 0;
@@ -2096,16 +2084,16 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
         m_blupiFocus = FALSE;
         PlaySound(50, m_blupiPos);
     }
-    if (cheat == cheat_tenbombs)
+    if (cheat == 14) // tenbombs
     {
         m_blupiPerso = 10;
         PlaySound(60, m_blupiPos);
     }
-    if (cheat == cheat_birdlime)
+    if (cheat == 15) // birdlime
     {
         m_blupiBullet = 10;
     }
-    if (cheat == cheat_drivetank)
+    if (cheat == 16) // drivetank
     {
         m_blupiAir = FALSE;
         m_blupiHelico = FALSE;
@@ -2120,7 +2108,7 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
         m_blupiCloud = FALSE;
         m_blupiHide = FALSE;
     }
-    if (cheat == cheat_powercharge)
+    if (cheat == 17) // powercharge
     {
         m_blupiAction = 56;
         m_blupiPhase = 0;
@@ -2137,7 +2125,7 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
         m_blupiFocus = FALSE;
         PlaySound(58, m_blupiPos);
     }
-    if (cheat == cheat_hidedrink)
+    if (cheat == 18) // hidedrink
     {
         m_blupiAction = 55;
         m_blupiPhase = 0;
@@ -2154,7 +2142,7 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
         m_blupiFocus = FALSE;
         PlaySound(57, m_blupiPos);
     }
-    if (cheat == cheat_iovercraft)
+    if (cheat == 22) // iovercraft
     {
         m_blupiAir = FALSE;
         m_blupiHelico = FALSE;
@@ -2167,18 +2155,18 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
         m_blupiVent = FALSE;
         m_blupiSuspend = FALSE;
     }
-    if (cheat == cheat_dynamite)
+    if (cheat == 23) // udynamite
     {
         m_blupiDynamite = 1;
         PlaySound(60, m_blupiPos);
     }
-    if (cheat == cheat_wellkeys)
+    if (cheat == 24) // wellkeys
     {
         m_blupiCle |= 7;
     }
     if (m_blupiShield && m_blupiHide && m_blupiCloud && m_blupiPower)
     {
-        m_jauges[1]->SetHide(TRUE);
+        m_jauges[1].SetHide(TRUE);
     }
     if (m_blupiHelico && m_blupiOver)
     {
@@ -2192,7 +2180,6 @@ void CDecor::CheatAction(int cheat, MoveObject moveObject)
     }
 }
 
-/*
 void CDecor::BlupiStep()
 {
     POINT tinyPoint;
@@ -2279,7 +2266,7 @@ void CDecor::BlupiStep()
 			m_blupiAction = 5;
 			m_blupiPhase = 0;
 		}
-		m_blupiVitesseY = 1.0;
+		m_blupiVitesse.y = 1.0;
 		m_blupiAir = true;
 		flag = true;
 	}
@@ -2289,8 +2276,8 @@ void CDecor::BlupiStep()
 		{
 			m_blupiHelico = false;
 			m_blupiOver = false;
-			tinyPoint.X = tinyPoint3.X - 34;
-			tinyPoint.Y = tinyPoint3.Y - 34;
+			tinyPoint.x = tinyPoint3.x - 34;
+			tinyPoint.y = tinyPoint3.y - 34;
 			ObjectStart(tinyPoint, 9, 0);
 			m_decorAction = 1;
 			m_decorPhase = 0;
@@ -2303,8 +2290,8 @@ void CDecor::BlupiStep()
 		if (m_blupiJeep && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi)
 		{
 			m_blupiJeep = false;
-			tinyPoint.X = tinyPoint3.X - 34;
-			tinyPoint.Y = tinyPoint3.Y - 34;
+			tinyPoint.x = tinyPoint3.x - 34;
+			tinyPoint.y = tinyPoint3.y - 34;
 			ObjectStart(tinyPoint, 9, 0);
 			m_decorAction = 1;
 			m_decorPhase = 0;
@@ -2317,8 +2304,8 @@ void CDecor::BlupiStep()
 		if (m_blupiTank && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi)
 		{
 			m_blupiTank = false;
-			tinyPoint.X = tinyPoint3.X - 34;
-			tinyPoint.Y = tinyPoint3.Y - 34;
+			tinyPoint.x = tinyPoint3.x - 34;
+			tinyPoint.y = tinyPoint3.y - 34;
 			ObjectStart(tinyPoint, 9, 0);
 			m_decorAction = 1;
 			m_decorPhase = 0;
@@ -2331,8 +2318,8 @@ void CDecor::BlupiStep()
 		if (m_blupiSkate && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi)
 		{
 			m_blupiSkate = false;
-			tinyPoint.X = tinyPoint3.X - 34;
-			tinyPoint.Y = tinyPoint3.Y - 34;
+			tinyPoint.x = tinyPoint3.x - 34;
+			tinyPoint.y = tinyPoint3.y - 34;
 			ObjectStart(tinyPoint, 9, 0);
 			m_decorAction = 1;
 			m_decorPhase = 0;
@@ -2349,11 +2336,11 @@ void CDecor::BlupiStep()
 		}
 		if ((m_keyPress & 1) != 0 && m_blupiFocus)
 		{
-			m_blupiVitesseY = (double)(m_blupiPower ? -25 : -19);
+			m_blupiVitesse.y = (m_blupiPower ? -25 : -19);
 		}
 		else
 		{
-			m_blupiVitesseY = (double)(m_blupiPower ? -16 : -10);
+			m_blupiVitesse.y = (m_blupiPower ? -16 : -10);
 		}
 		m_blupiAir = true;
 		flag = true;
@@ -2373,18 +2360,18 @@ void CDecor::BlupiStep()
 			if (m_blupiSkate)
 			{
 				PlaySound(1, tinyPoint3);
-				m_blupiVitesseY = (double)(m_blupiPower ? -17 : -13);
+				m_blupiVitesse.y = (m_blupiPower ? -17 : -13);
 			}
 			else
 			{
 				PlaySound(1, tinyPoint3);
 				if (IsNormalJump(tinyPoint3))
 				{
-					m_blupiVitesseY = (double)(m_blupiPower ? -26 : -16);
+					m_blupiVitesse.y = (m_blupiPower ? -26 : -16);
 				}
 				else
 				{
-					m_blupiVitesseY = (double)(m_blupiPower ? -16 : -12);
+					m_blupiVitesse.y = (m_blupiPower ? -16 : -12);
 				}
 			}
 			m_blupiAir = true;
@@ -2393,9 +2380,9 @@ void CDecor::BlupiStep()
 	}
 	if (m_blupiAir)
 	{
-		if (flag5 && m_blupiVitesseY < 0.0)
+		if (flag5 && m_blupiVitesse.y < 0)
 		{
-			if (m_blupiVitesseY < -14.0 && m_blupiAction != 11 && m_blupiAction != 75 && m_blupiAction != 76 && m_blupiAction != 77 && m_blupiAction != 78 && m_blupiAction != 79 && m_blupiAction != 80 && m_blupiAction != 81 && !m_blupiSkate)
+			if (m_blupiVitesse.y < -14.0 && m_blupiAction != 11 && m_blupiAction != 75 && m_blupiAction != 76 && m_blupiAction != 77 && m_blupiAction != 78 && m_blupiAction != 79 && m_blupiAction != 80 && m_blupiAction != 81 && !m_blupiSkate)
 			{
 				m_blupiJumpAie = true;
 				PlaySound(40, tinyPoint3);
@@ -2404,26 +2391,26 @@ void CDecor::BlupiStep()
 			{
 				PlaySound(SoundEnviron(4, detectIcon), tinyPoint3);
 			}
-			m_blupiVitesseY = 1.0;
+			m_blupiVitesse.y = 1.0;
 		}
-		tinyPoint3.Y += (int)(m_blupiVitesseY * 2.0);
-		if (m_blupiVitesseY < 20.0)
+		tinyPoint3.y += (int)(m_blupiVitesse.y * 2.0);
+		if (m_blupiVitesse.y < 20.0)
 		{
-			m_blupiVitesseY += 2.0;
+			m_blupiVitesse.y += 2.0;
 		}
 		rect = BlupiRect(tinyPoint3);
-		rect.Top = tinyPoint3.Y + 60 - 30;
-		rect.Bottom = tinyPoint3.Y + 60 - 1;
-		if (m_blupiVitesseY >= 0.0 && DecorDetect(rect))
+		rect.top = tinyPoint3.y + 60 - 30;
+		rect.bottom = tinyPoint3.y + 60 - 1;
+		if (m_blupiVitesse.y >= 0.0 && DecorDetect(rect))
 		{
-			tinyPoint3.Y = tinyPoint3.Y / 32 * 32 + Decor.BLUPIOFFY;
+			tinyPoint3.y = tinyPoint3.y / 32 * 32 + BLUPIOFFY;
 			if (!IsRessort(tinyPoint3))
 			{
 				PlaySound(SoundEnviron(3, m_detectIcon), tinyPoint3);
 			}
 			if (m_blupiFocus)
 			{
-				if (m_blupiVitesseY > 20.0)
+				if (m_blupiVitesse.y > 20.0)
 				{
 					m_blupiAction = 61;
 				}
@@ -2441,20 +2428,20 @@ void CDecor::BlupiStep()
 				m_blupiPhase = 0;
 			}
 		}
-		rect.Left = tinyPoint3.X + 20;
-		rect.Right = tinyPoint3.X + 60 - 20;
-		rect.Top = tinyPoint3.Y + 60 - 33;
-		rect.Bottom = tinyPoint3.Y + 60 - 1;
+		rect.left = tinyPoint3.x + 20;
+		rect.right = tinyPoint3.x + 60 - 20;
+		rect.top = tinyPoint3.y + 60 - 33;
+		rect.bottom = tinyPoint3.y + 60 - 1;
 		num = AscenseurDetect(rect, m_blupiPos, tinyPoint3);
-		if (m_blupiVitesseY >= 0.0 && num != -1)
+		if (m_blupiVitesse.y >= 0.0 && num != -1)
 		{
 			m_blupiTransport = num;
 			flag4 = false;
 			PlaySound(3, tinyPoint3);
-			tinyPoint3.Y = m_moveObject[num].posCurrent.Y - 64 + Decor.BLUPIOFFY;
+			tinyPoint3.y = m_moveObject[num].posCurrent.y - 64 + BLUPIOFFY;
 			if (m_blupiFocus)
 			{
-				if (m_blupiVitesseY > 20.0)
+				if (m_blupiVitesse.y > 20.0)
 				{
 					m_blupiAction = 61;
 				}
@@ -2493,13 +2480,13 @@ void CDecor::BlupiStep()
 	{
 		if (m_blupiPhase == 8)
 		{
-			tinyPoint.X = m_blupiPos.X;
-			tinyPoint.Y = m_blupiPos.Y + 40;
-			if (m_blupiVitesseY > 0.0)
+			tinyPoint.x = m_blupiPos.x;
+			tinyPoint.y = m_blupiPos.y + 40;
+			if (m_blupiVitesse.y > 0.0)
 			{
-				tinyPoint.Y += (int)(m_blupiVitesseY * 4.0);
+				tinyPoint.y += (int)(m_blupiVitesse.y * 4.0);
 			}
-			m_blupiVitesseY -= 10.0;
+			m_blupiVitesse.y -= 10.0;
 			if (ObjectStart(tinyPoint, 23, 55) != -1)
 			{
 				PlaySound(52, m_blupiPos);
@@ -2539,12 +2526,12 @@ void CDecor::BlupiStep()
 		m_blupiPhase = 0;
 		m_blupiFocus = true;
 		num = MoveObjectDetect(tinyPoint3, out flag6);
-		if (num != -1 && !flag6 && tinyPoint3.Y - Decor.BLUPIFLOOR == m_moveObject[num].posCurrent.Y)
+		if (num != -1 && !flag6 && tinyPoint3.y - BLUPIFLOOR == m_moveObject[num].posCurrent.y)
 		{
-			if (m_blupiDir == 2 && tinyPoint3.X < m_moveObject[num].posCurrent.X)
+			if (m_blupiDir == 2 && tinyPoint3.x < m_moveObject[num].posCurrent.x)
 			{
-				tinyPoint.X = tinyPoint3.X - 16;
-				tinyPoint.Y = tinyPoint3.Y;
+				tinyPoint.x = tinyPoint3.x - 16;
+				tinyPoint.y = tinyPoint3.y;
 				int num2 = MoveObjectDetect(tinyPoint, out flag6);
 				if (num2 == -1)
 				{
@@ -2552,10 +2539,10 @@ void CDecor::BlupiStep()
 					m_blupiPhase = 0;
 				}
 			}
-			if (m_blupiDir == 1 && tinyPoint3.X > m_moveObject[num].posCurrent.X)
+			if (m_blupiDir == 1 && tinyPoint3.x > m_moveObject[num].posCurrent.x)
 			{
-				tinyPoint.X = tinyPoint3.X + 16;
-				tinyPoint.Y = tinyPoint3.Y;
+				tinyPoint.x = tinyPoint3.x + 16;
+				tinyPoint.y = tinyPoint3.y;
 				int num2 = MoveObjectDetect(tinyPoint, out flag6);
 				if (num2 == -1)
 				{
@@ -2639,7 +2626,7 @@ void CDecor::BlupiStep()
 	{
 		m_blupiAction = 5;
 		m_blupiPhase = 0;
-		m_blupiVitesseY = -12.0;
+		m_blupiVitesse.y = -12.0;
 		m_blupiAir = true;
 		flag = true;
 	}
@@ -2694,44 +2681,44 @@ void CDecor::BlupiStep()
 	}
 	if (m_blupiAction == 7 && m_blupiPhase == 4)
 	{
-		m_scrollAdd.Y = -150;
+		m_scrollAdd.y = -150;
 		PlaySound(21, tinyPoint3);
 	}
 	if (m_blupiAction == 6 && m_blupiPhase == 4)
 	{
-		m_scrollAdd.Y = 150;
+		m_scrollAdd.y = 150;
 		PlaySound(7, tinyPoint3);
 	}
 	if (!m_blupiHelico && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiJeep && !m_blupiTank && !m_blupiSkate && !m_blupiNage && !m_blupiSurf && !m_blupiSuspend && m_blupiFocus)
 	{
 		if (m_blupiSpeedY > 0.0 && m_blupiSpeedX == 0.0 && (m_keyPress & 1) == 0 && m_blupiAction != 28 && m_blupiDir == 1 && (num = CaisseInFront()) != -1)
 		{
-			tinyPoint3.X = m_moveObject[num].posCurrent.X + 64 - 5;
+			tinyPoint3.x = m_moveObject[num].posCurrent.x + 64 - 5;
 			m_blupiAction = 28;
 			m_blupiPhase = 0;
-			m_scrollAdd.Y = 0;
+			m_scrollAdd.y = 0;
 			PlaySound(39, tinyPoint3);
 		}
 		if (m_blupiSpeedY > 0.0 && m_blupiSpeedX > 0.0 && (m_keyPress & 1) == 0 && m_blupiAction != 29 && m_blupiDir == 1 && CaisseInFront() != -1)
 		{
 			m_blupiAction = 29;
 			m_blupiPhase = 0;
-			m_scrollAdd.Y = 0;
+			m_scrollAdd.y = 0;
 			PlaySound(39, tinyPoint3);
 		}
 		if (m_blupiSpeedY > 0.0 && m_blupiSpeedX == 0.0 && (m_keyPress & 1) == 0 && m_blupiAction != 28 && m_blupiDir == 2 && (num = CaisseInFront()) != -1)
 		{
-			tinyPoint3.X = m_moveObject[num].posCurrent.X - 60 + 5;
+			tinyPoint3.x = m_moveObject[num].posCurrent.x - 60 + 5;
 			m_blupiAction = 28;
 			m_blupiPhase = 0;
-			m_scrollAdd.Y = 0;
+			m_scrollAdd.y = 0;
 			PlaySound(39, tinyPoint3);
 		}
 		if (m_blupiSpeedY > 0.0 && m_blupiSpeedX < 0.0 && (m_keyPress & 1) == 0 && m_blupiAction != 29 && m_blupiDir == 2 && CaisseInFront() != -1)
 		{
 			m_blupiAction = 29;
 			m_blupiPhase = 0;
-			m_scrollAdd.Y = 0;
+			m_scrollAdd.y = 0;
 			PlaySound(39, tinyPoint3);
 		}
 		if (m_blupiAction == 29 && m_blupiActionOuf != 47)
@@ -2767,7 +2754,7 @@ void CDecor::BlupiStep()
 	int num4;
 	if (m_blupiSpeedX < 0.0 && m_blupiFocus)
 	{
-		if (m_blupiDir == 2 && m_blupiAction != 3 && m_blupiAction != 59 && m_blupiAction != 7 && m_blupiAction != 6 && m_blupiAction != 29 && ((!m_blupiJeep && !m_blupiTank && !m_blupiSkate) || Math.Abs(m_blupiVitesseX) <= 8.0))
+		if (m_blupiDir == 2 && m_blupiAction != 3 && m_blupiAction != 59 && m_blupiAction != 7 && m_blupiAction != 6 && m_blupiAction != 29 && ((!m_blupiJeep && !m_blupiTank && !m_blupiSkate) || Math.Abs(m_blupiVitesse.x) <= 8.0))
 		{
 			if (m_blupiAir)
 			{
@@ -2792,7 +2779,7 @@ void CDecor::BlupiStep()
 		{
 			if (m_blupiAction == 14)
 			{
-				tinyPoint3.X -= CaisseGetMove(5);
+				tinyPoint3.x -= CaisseGetMove(5);
 			}
 			else
 			{
@@ -2801,23 +2788,23 @@ void CDecor::BlupiStep()
 				{
 					num3 = 3;
 				}
-				num4 = Tables.table_vitesse_march[num3];
+				num4 = table_vitesse_march[num3];
 				if (m_blupiPower)
 				{
 					num4 *= 3;
 					num4 /= 2;
 				}
-				tinyPoint3.X += Misc.Speed(m_blupiSpeedX, num4);
+				tinyPoint3.x += Misc.Speed(m_blupiSpeedX, num4);
 			}
 		}
 		if (m_blupiDir == 2 && m_blupiAction == 29)
 		{
-			tinyPoint3.X -= CaisseGetMove(3);
+			tinyPoint3.x -= CaisseGetMove(3);
 		}
 	}
 	if (m_blupiSpeedX > 0.0 && m_blupiFocus)
 	{
-		if (m_blupiDir == 1 && m_blupiAction != 3 && m_blupiAction != 59 && m_blupiAction != 7 && m_blupiAction != 6 && m_blupiAction != 29 && ((!m_blupiJeep && !m_blupiTank && !m_blupiSkate) || Math.Abs(m_blupiVitesseX) <= 8.0))
+		if (m_blupiDir == 1 && m_blupiAction != 3 && m_blupiAction != 59 && m_blupiAction != 7 && m_blupiAction != 6 && m_blupiAction != 29 && ((!m_blupiJeep && !m_blupiTank && !m_blupiSkate) || Math.Abs(m_blupiVitesse.x) <= 8.0))
 		{
 			if (m_blupiAir)
 			{
@@ -2842,7 +2829,7 @@ void CDecor::BlupiStep()
 		{
 			if (m_blupiAction == 14)
 			{
-				tinyPoint3.X += CaisseGetMove(5);
+				tinyPoint3.x += CaisseGetMove(5);
 			}
 			else
 			{
@@ -2851,18 +2838,18 @@ void CDecor::BlupiStep()
 				{
 					num3 = 3;
 				}
-				num4 = Tables.table_vitesse_march[num3];
+				num4 = table_vitesse_march[num3];
 				if (m_blupiPower)
 				{
 					num4 *= 3;
 					num4 /= 2;
 				}
-				tinyPoint3.X += Misc.Speed(m_blupiSpeedX, num4);
+				tinyPoint3.x += Misc.Speed(m_blupiSpeedX, num4);
 			}
 		}
 		if (m_blupiDir == 1 && m_blupiAction == 29)
 		{
-			tinyPoint3.X += CaisseGetMove(3);
+			tinyPoint3.x += CaisseGetMove(3);
 		}
 	}
 	if (m_blupiHelico)
@@ -3025,7 +3012,7 @@ void CDecor::BlupiStep()
 			m_blupiPhase = 0;
 			PlaySound(20, tinyPoint3);
 		}
-		m_scrollAdd.Y = 0;
+		m_scrollAdd.y = 0;
 		if (blupiAction == 14)
 		{
 			StopSound(38);
@@ -3039,30 +3026,30 @@ void CDecor::BlupiStep()
 	{
 		if (m_blupiAction == 9 && m_blupiDir == 1)
 		{
-			tinyPoint3.X += 4;
+			tinyPoint3.x += 4;
 		}
 		if (m_blupiAction == 9 && m_blupiDir == 2)
 		{
-			tinyPoint3.X -= 4;
+			tinyPoint3.x -= 4;
 		}
 		if (m_blupiAction == 10 && m_blupiDir == 1)
 		{
-			tinyPoint3.X -= 4;
+			tinyPoint3.x -= 4;
 		}
 		if (m_blupiAction == 10 && m_blupiDir == 2)
 		{
-			tinyPoint3.X += 4;
+			tinyPoint3.x += 4;
 		}
 	}
 	if ((m_keyPress & -3) == 0 && m_blupiSpeedX == 0.0 && m_blupiSpeedY == 0.0 && (m_blupiJeep || m_blupiTank || m_blupiSkate) && m_blupiFocus)
 	{
 		if (m_blupiAction == 10 && m_blupiDir == 1)
 		{
-			tinyPoint3.X -= 5;
+			tinyPoint3.x -= 5;
 		}
 		if (m_blupiAction == 10 && m_blupiDir == 2)
 		{
-			tinyPoint3.X += 5;
+			tinyPoint3.x += 5;
 		}
 	}
 	if ((m_keyPress & -3) == 0 && m_blupiSpeedX == 0.0 && m_blupiSpeedY == 0.0 && m_blupiNage && m_blupiFocus && m_blupiAction == 2)
@@ -3101,191 +3088,191 @@ void CDecor::BlupiStep()
 			{
 				m_blupiAction = 1;
 				m_blupiPhase = 0;
-				m_blupiVitesseY = 0.0;
+				m_blupiVitesse.y = 0.0;
 			}
 		}
 		if (Def.EasyMove)
 		{
 			if (m_blupiSpeedY <= -1.0 || (m_keyPress & 1) != 0)
 			{
-				if (m_blupiVitesseY > -7.0)
+				if (m_blupiVitesse.y > -7.0)
 				{
-					m_blupiVitesseY -= 0.5;
+					m_blupiVitesse.y -= 0.5;
 				}
-				if (m_blupiVitesseY == -0.5)
+				if (m_blupiVitesse.y == -0.5)
 				{
-					m_blupiVitesseY = -1.0;
+					m_blupiVitesse.y = -1.0;
 				}
 			}
 			else if (m_blupiSpeedY >= 1.0)
 			{
-				if (m_blupiVitesseY < 8.0)
+				if (m_blupiVitesse.y < 8.0)
 				{
-					m_blupiVitesseY += 0.5;
+					m_blupiVitesse.y += 0.5;
 				}
 			}
 			else
 			{
-				if (m_blupiVitesseY > 1.0)
+				if (m_blupiVitesse.y > 1.0)
 				{
-					m_blupiVitesseY -= 1.0;
+					m_blupiVitesse.y -= 1.0;
 				}
-				if (m_blupiVitesseY < 1.0)
+				if (m_blupiVitesse.y < 1.0)
 				{
-					m_blupiVitesseY += 1.0;
+					m_blupiVitesse.y += 1.0;
 				}
 			}
-			tinyPoint3.Y += (int)m_blupiVitesseY;
+			tinyPoint3.y += (int)m_blupiVitesse.y;
 		}
 		else
 		{
 			if (m_blupiSpeedY <= -1.0 || (m_keyPress & 1) != 0)
 			{
-				if (m_blupiVitesseY > -10.0)
+				if (m_blupiVitesse.y > -10.0)
 				{
-					m_blupiVitesseY -= 0.5;
+					m_blupiVitesse.y -= 0.5;
 				}
 			}
 			else if (m_blupiSpeedY >= 1.0)
 			{
-				if (m_blupiVitesseY < 12.0)
+				if (m_blupiVitesse.y < 12.0)
 				{
-					m_blupiVitesseY += 0.5;
+					m_blupiVitesse.y += 0.5;
 				}
 			}
 			else
 			{
-				if (m_blupiVitesseY > 1.0)
+				if (m_blupiVitesse.y > 1.0)
 				{
-					m_blupiVitesseY -= 1.0;
+					m_blupiVitesse.y -= 1.0;
 				}
-				if (m_blupiVitesseY < 1.0)
+				if (m_blupiVitesse.y < 1.0)
 				{
-					m_blupiVitesseY += 1.0;
+					m_blupiVitesse.y += 1.0;
 				}
 			}
-			tinyPoint3.Y += (int)m_blupiVitesseY;
+			tinyPoint3.y += (int)m_blupiVitesse.y;
 		}
 		if (Def.EasyMove)
 		{
 			if (m_blupiSpeedX <= -1.0)
 			{
 				int num5 = (int)(m_blupiSpeedX * 12.0);
-				if (m_blupiVitesseX > (double)num5)
+				if (m_blupiVitesse.x > num5)
 				{
-					m_blupiVitesseX -= 0.5;
+					m_blupiVitesse.x -= 0.5;
 				}
-				tinyPoint.X = tinyPoint3.X + (int)m_blupiVitesseX;
-				tinyPoint.Y = tinyPoint3.Y;
+				tinyPoint.x = tinyPoint3.x + (int)m_blupiVitesse.x;
+				tinyPoint.y = tinyPoint3.y;
 				if (BlupiBloque(tinyPoint, -1))
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 			else if (m_blupiSpeedX >= 1.0)
 			{
 				int num6 = (int)(m_blupiSpeedX * 12.0);
-				if (m_blupiVitesseX < (double)num6)
+				if (m_blupiVitesse.x < num6)
 				{
-					m_blupiVitesseX += 0.5;
+					m_blupiVitesse.x += 0.5;
 				}
-				tinyPoint.X = tinyPoint3.X + (int)m_blupiVitesseX;
-				tinyPoint.Y = tinyPoint3.Y;
+				tinyPoint.x = tinyPoint3.x + (int)m_blupiVitesse.x;
+				tinyPoint.y = tinyPoint3.y;
 				if (BlupiBloque(tinyPoint, 1))
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 			else
 			{
-				if (m_blupiVitesseX > 0.0)
+				if (m_blupiVitesse.x > 0.0)
 				{
-					m_blupiVitesseX -= 2.0;
-					if (m_blupiVitesseX < 0.0)
+					m_blupiVitesse.x -= 2.0;
+					if (m_blupiVitesse.x < 0.0)
 					{
-						m_blupiVitesseX = 0.0;
+						m_blupiVitesse.x = 0.0;
 					}
 				}
-				if (m_blupiVitesseX < 0.0)
+				if (m_blupiVitesse.x < 0.0)
 				{
-					m_blupiVitesseX += 2.0;
-					if (m_blupiVitesseX > 0.0)
+					m_blupiVitesse.x += 2.0;
+					if (m_blupiVitesse.x > 0.0)
 					{
-						m_blupiVitesseX = 0.0;
+						m_blupiVitesse.x = 0.0;
 					}
 				}
 			}
-			tinyPoint3.X += (int)m_blupiVitesseX;
+			tinyPoint3.x += (int)m_blupiVitesse.x;
 		}
 		else
 		{
 			if (m_blupiSpeedX <= -1.0)
 			{
 				int num7 = (int)(m_blupiSpeedX * 16.0);
-				if (m_blupiVitesseX > (double)num7)
+				if (m_blupiVitesse.x > num7)
 				{
-					m_blupiVitesseX -= 1.0;
+					m_blupiVitesse.x -= 1.0;
 				}
-				tinyPoint.X = tinyPoint3.X + (int)m_blupiVitesseX;
-				tinyPoint.Y = tinyPoint3.Y;
+				tinyPoint.x = tinyPoint3.x + (int)m_blupiVitesse.x;
+				tinyPoint.y = tinyPoint3.y;
 				if (BlupiBloque(tinyPoint, -1))
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 			else if (m_blupiSpeedX >= 1.0)
 			{
 				int num8 = (int)(m_blupiSpeedX * 16.0);
-				if (m_blupiVitesseX < (double)num8)
+				if (m_blupiVitesse.x < num8)
 				{
-					m_blupiVitesseX += 1.0;
+					m_blupiVitesse.x += 1.0;
 				}
-				tinyPoint.X = tinyPoint3.X + (int)m_blupiVitesseX;
-				tinyPoint.Y = tinyPoint3.Y;
+				tinyPoint.x = tinyPoint3.x + (int)m_blupiVitesse.x;
+				tinyPoint.y = tinyPoint3.y;
 				if (BlupiBloque(tinyPoint, 1))
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 			else
 			{
-				if (m_blupiVitesseX > 0.0)
+				if (m_blupiVitesse.x > 0.0)
 				{
-					m_blupiVitesseX -= 2.0;
-					if (m_blupiVitesseX < 0.0)
+					m_blupiVitesse.x -= 2.0;
+					if (m_blupiVitesse.x < 0.0)
 					{
-						m_blupiVitesseX = 0.0;
+						m_blupiVitesse.x = 0.0;
 					}
 				}
-				if (m_blupiVitesseX < 0.0)
+				if (m_blupiVitesse.x < 0.0)
 				{
-					m_blupiVitesseX += 2.0;
-					if (m_blupiVitesseX > 0.0)
+					m_blupiVitesse.x += 2.0;
+					if (m_blupiVitesse.x > 0.0)
 					{
-						m_blupiVitesseX = 0.0;
+						m_blupiVitesse.x = 0.0;
 					}
 				}
 			}
-			tinyPoint3.X += (int)m_blupiVitesseX;
+			tinyPoint3.x += (int)m_blupiVitesse.x;
 		}
 		MoveObjectPollution();
 		if (ButtonPressed == Def.ButtonGlygh.PlayAction && !flag4 && m_blupiTransport == -1)
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
-			rect.Left = m_blupiPos.X + 20;
-			rect.Right = m_blupiPos.X + 22;
-			rect.Top = m_blupiPos.Y + 60 - 2;
-			rect.Bottom = m_blupiPos.Y + 60;
+			rect.left = m_blupiPos.x + 20;
+			rect.right = m_blupiPos.x + 22;
+			rect.top = m_blupiPos.y + 60 - 2;
+			rect.bottom = m_blupiPos.y + 60;
 			flag2 = !DecorDetect(rect);
-			rect.Left = m_blupiPos.X + 60 - 22;
-			rect.Right = m_blupiPos.X + 60 - 20;
-			rect.Top = m_blupiPos.Y + 60 - 2;
-			rect.Bottom = m_blupiPos.Y + 60;
+			rect.left = m_blupiPos.x + 60 - 22;
+			rect.right = m_blupiPos.x + 60 - 20;
+			rect.top = m_blupiPos.y + 60 - 2;
+			rect.bottom = m_blupiPos.y + 60;
 			flag3 = !DecorDetect(rect);
 			if (!flag2 && !flag3)
 			{
-				tinyPoint.X = m_blupiPos.X;
-				tinyPoint.Y = m_blupiPos.Y - Decor.BLUPIFLOOR;
+				tinyPoint.x = m_blupiPos.x;
+				tinyPoint.y = m_blupiPos.y - BLUPIFLOOR;
 				ObjectStart(tinyPoint, 13, 0);
 				m_blupiHelico = false;
 				m_blupiAction = 1;
@@ -3314,99 +3301,99 @@ void CDecor::BlupiStep()
 					m_blupiAction = 1;
 					m_blupiPhase = 0;
 				}
-				m_blupiVitesseY = 0.0;
+				m_blupiVitesse.y = 0.0;
 			}
 		}
 		rect = BlupiRect(tinyPoint3);
-		rect.Top = tinyPoint3.Y + 60 - 2;
-		rect.Bottom = tinyPoint3.Y + 60 + Decor.OVERHEIGHT - 1;
+		rect.top = tinyPoint3.y + 60 - 2;
+		rect.bottom = tinyPoint3.y + 60 + OVERHEIGHT - 1;
 		bool flag7 = !DecorDetect(rect);
-		num = MoveAscenseurDetect(m_blupiPos, Decor.OVERHEIGHT);
+		num = MoveAscenseurDetect(m_blupiPos, OVERHEIGHT);
 		if (num != -1)
 		{
 			flag7 = false;
 		}
 		if ((m_blupiSpeedY < 0.0 || (m_keyPress & 1) != 0) && !flag7)
 		{
-			if (m_blupiVitesseY == 0.0 && num != -1)
+			if (m_blupiVitesse.y == 0.0 && num != -1)
 			{
-				m_blupiVitesseY = -5.0;
+				m_blupiVitesse.y = -5.0;
 			}
-			else if (m_blupiVitesseY > -5.0)
+			else if (m_blupiVitesse.y > -5.0)
 			{
-				m_blupiVitesseY -= 1.0;
+				m_blupiVitesse.y -= 1.0;
 			}
 		}
 		else if (m_blupiSpeedY > 0.0)
 		{
-			if (m_blupiVitesseY < 12.0)
+			if (m_blupiVitesse.y < 12.0)
 			{
-				m_blupiVitesseY += 5.0;
+				m_blupiVitesse.y += 5.0;
 			}
 		}
-		else if (m_blupiVitesseY < 12.0 && m_time % 2 == 0)
+		else if (m_blupiVitesse.y < 12.0 && m_time % 2 == 0)
 		{
-			m_blupiVitesseY += 1.0;
+			m_blupiVitesse.y += 1.0;
 		}
-		tinyPoint3.Y += (int)m_blupiVitesseY;
+		tinyPoint3.y += (int)m_blupiVitesse.y;
 		if (m_blupiSpeedX < 0.0 && flag4)
 		{
 			int num9 = (int)(m_blupiSpeedX * 12.0);
-			if (m_blupiVitesseX > (double)num9)
+			if (m_blupiVitesse.x > num9)
 			{
-				m_blupiVitesseX -= 1.0;
+				m_blupiVitesse.x -= 1.0;
 			}
-			tinyPoint.X = tinyPoint3.X + (int)m_blupiVitesseX;
-			tinyPoint.Y = tinyPoint3.Y;
+			tinyPoint.x = tinyPoint3.x + (int)m_blupiVitesse.x;
+			tinyPoint.y = tinyPoint3.y;
 			if (BlupiBloque(tinyPoint, -1))
 			{
-				m_blupiVitesseX = 0.0;
+				m_blupiVitesse.x = 0.0;
 			}
 		}
 		else if (m_blupiSpeedX > 0.0 && flag4)
 		{
 			int num10 = (int)(m_blupiSpeedX * 12.0);
-			if (m_blupiVitesseX < (double)num10)
+			if (m_blupiVitesse.x < num10)
 			{
-				m_blupiVitesseX += 1.0;
+				m_blupiVitesse.x += 1.0;
 			}
-			tinyPoint.X = tinyPoint3.X + (int)m_blupiVitesseX;
-			tinyPoint.Y = tinyPoint3.Y;
+			tinyPoint.x = tinyPoint3.x + (int)m_blupiVitesse.x;
+			tinyPoint.y = tinyPoint3.y;
 			if (BlupiBloque(tinyPoint, 1))
 			{
-				m_blupiVitesseX = 0.0;
+				m_blupiVitesse.x = 0.0;
 			}
 		}
 		else
 		{
-			if (m_blupiVitesseX > 0.0)
+			if (m_blupiVitesse.x > 0.0)
 			{
-				m_blupiVitesseX -= 1.0;
+				m_blupiVitesse.x -= 1.0;
 			}
-			if (m_blupiVitesseX < 0.0)
+			if (m_blupiVitesse.x < 0.0)
 			{
-				m_blupiVitesseX += 1.0;
+				m_blupiVitesse.x += 1.0;
 			}
 		}
-		tinyPoint3.X += (int)m_blupiVitesseX;
+		tinyPoint3.x += (int)m_blupiVitesse.x;
 		MoveObjectPollution();
 		if (ButtonPressed == Def.ButtonGlygh.PlayAction && !flag4 && m_blupiTransport == -1)
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
-			rect.Left = m_blupiPos.X + 20;
-			rect.Right = m_blupiPos.X + 22;
-			rect.Top = m_blupiPos.Y + 60 - 2;
-			rect.Bottom = m_blupiPos.Y + 60;
+			rect.left = m_blupiPos.x + 20;
+			rect.right = m_blupiPos.x + 22;
+			rect.top = m_blupiPos.y + 60 - 2;
+			rect.bottom = m_blupiPos.y + 60;
 			flag2 = !DecorDetect(rect);
-			rect.Left = m_blupiPos.X + 60 - 22;
-			rect.Right = m_blupiPos.X + 60 - 20;
-			rect.Top = m_blupiPos.Y + 60 - 2;
-			rect.Bottom = m_blupiPos.Y + 60;
+			rect.left = m_blupiPos.x + 60 - 22;
+			rect.right = m_blupiPos.x + 60 - 20;
+			rect.top = m_blupiPos.y + 60 - 2;
+			rect.bottom = m_blupiPos.y + 60;
 			flag3 = !DecorDetect(rect);
 			if (!flag2 && !flag3)
 			{
-				tinyPoint.X = m_blupiPos.X;
-				tinyPoint.Y = m_blupiPos.Y - Decor.BLUPIFLOOR;
+				tinyPoint.x = m_blupiPos.x;
+				tinyPoint.y = m_blupiPos.y - BLUPIFLOOR;
 				ObjectStart(tinyPoint, 46, 0);
 				m_blupiOver = false;
 				m_blupiAction = 1;
@@ -3423,86 +3410,86 @@ void CDecor::BlupiStep()
 	{
 		if (m_blupiSpeedY < 0.0 || (m_keyPress & 1) != 0)
 		{
-			if (m_blupiVitesseY > -5.0 && m_time % 6 == 0)
+			if (m_blupiVitesse.y > -5.0 && m_time % 6 == 0)
 			{
-				m_blupiVitesseY -= 1.0;
+				m_blupiVitesse.y -= 1.0;
 			}
 		}
 		else if (m_blupiSpeedY > 0.0)
 		{
-			if (m_blupiVitesseY < 0.0 && m_time % 6 == 0)
+			if (m_blupiVitesse.y < 0.0 && m_time % 6 == 0)
 			{
-				m_blupiVitesseY += 1.0;
+				m_blupiVitesse.y += 1.0;
 			}
 		}
-		else if (m_blupiVitesseY > -3.0 && m_time % 6 == 0)
+		else if (m_blupiVitesse.y > -3.0 && m_time % 6 == 0)
 		{
-			m_blupiVitesseY -= 1.0;
+			m_blupiVitesse.y -= 1.0;
 		}
-		tinyPoint3.Y += (int)m_blupiVitesseY;
+		tinyPoint3.y += (int)m_blupiVitesse.y;
 		if (m_blupiSpeedX < 0.0)
 		{
 			int num11 = (int)(m_blupiSpeedX * 10.0);
-			if (m_blupiVitesseX > (double)num11)
+			if (m_blupiVitesse.x > num11)
 			{
-				m_blupiVitesseX -= 1.0;
+				m_blupiVitesse.x -= 1.0;
 			}
-			tinyPoint.X = tinyPoint3.X + (int)m_blupiVitesseX;
-			tinyPoint.Y = tinyPoint3.Y;
+			tinyPoint.x = tinyPoint3.x + (int)m_blupiVitesse.x;
+			tinyPoint.y = tinyPoint3.y;
 			if (BlupiBloque(tinyPoint, -1))
 			{
-				m_blupiVitesseX = 0.0;
+				m_blupiVitesse.x = 0.0;
 			}
 		}
 		else if (m_blupiSpeedX > 0.0)
 		{
 			int num12 = (int)(m_blupiSpeedX * 10.0);
-			if (m_blupiVitesseX < (double)num12)
+			if (m_blupiVitesse.x < num12)
 			{
-				m_blupiVitesseX += 1.0;
+				m_blupiVitesse.x += 1.0;
 			}
-			tinyPoint.X = tinyPoint3.X + (int)m_blupiVitesseX;
-			tinyPoint.Y = tinyPoint3.Y;
+			tinyPoint.x = tinyPoint3.x + (int)m_blupiVitesse.x;
+			tinyPoint.y = tinyPoint3.y;
 			if (BlupiBloque(tinyPoint, 1))
 			{
-				m_blupiVitesseX = 0.0;
+				m_blupiVitesse.x = 0.0;
 			}
 		}
 		else
 		{
-			if (m_blupiVitesseX > 0.0)
+			if (m_blupiVitesse.x > 0.0)
 			{
-				m_blupiVitesseX -= 2.0;
-				if (m_blupiVitesseX < 0.0)
+				m_blupiVitesse.x -= 2.0;
+				if (m_blupiVitesse.x < 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
-			if (m_blupiVitesseX < 0.0)
+			if (m_blupiVitesse.x < 0.0)
 			{
-				m_blupiVitesseX += 2.0;
-				if (m_blupiVitesseX > 0.0)
+				m_blupiVitesse.x += 2.0;
+				if (m_blupiVitesse.x > 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 		}
-		tinyPoint3.X += (int)m_blupiVitesseX;
+		tinyPoint3.x += (int)m_blupiVitesse.x;
 	}
 	if (m_blupiEcrase && m_blupiFocus)
 	{
 		if (flag4)
 		{
-			if (m_blupiVitesseY < 2.0)
+			if (m_blupiVitesse.y < 2.0)
 			{
-				m_blupiVitesseY += 1.0;
+				m_blupiVitesse.y += 1.0;
 			}
 		}
 		else
 		{
-			m_blupiVitesseY = 0.0;
+			m_blupiVitesse.y = 0.0;
 		}
-		tinyPoint3.Y += (int)m_blupiVitesseY;
+		tinyPoint3.y += (int)m_blupiVitesse.y;
 		if (flag4)
 		{
 			num3 = 7;
@@ -3511,162 +3498,162 @@ void CDecor::BlupiStep()
 		{
 			num3 = 4;
 		}
-		num3 = (int)((double)num3 * m_blupiSpeedX);
+		num3 = (int)(num3 * m_blupiSpeedX);
 		if (m_blupiSpeedX < 0.0)
 		{
-			if (m_blupiVitesseX > (double)num3)
+			if (m_blupiVitesse.x > num3)
 			{
-				m_blupiVitesseX -= 1.0;
+				m_blupiVitesse.x -= 1.0;
 			}
-			tinyPoint.X = tinyPoint3.X + (int)m_blupiVitesseX;
-			tinyPoint.Y = tinyPoint3.Y;
+			tinyPoint.x = tinyPoint3.x + (int)m_blupiVitesse.x;
+			tinyPoint.y = tinyPoint3.y;
 			if (BlupiBloque(tinyPoint, -1))
 			{
-				m_blupiVitesseX = 0.0;
+				m_blupiVitesse.x = 0.0;
 			}
 		}
 		else if (m_blupiSpeedX > 0.0)
 		{
-			if (m_blupiVitesseX < (double)num3)
+			if (m_blupiVitesse.x < num3)
 			{
-				m_blupiVitesseX += 1.0;
+				m_blupiVitesse.x += 1.0;
 			}
-			tinyPoint.X = tinyPoint3.X + (int)m_blupiVitesseX;
-			tinyPoint.Y = tinyPoint3.Y;
+			tinyPoint.x = tinyPoint3.x + (int)m_blupiVitesse.x;
+			tinyPoint.y = tinyPoint3.y;
 			if (BlupiBloque(tinyPoint, 1))
 			{
-				m_blupiVitesseX = 0.0;
+				m_blupiVitesse.x = 0.0;
 			}
 		}
 		else
 		{
-			if (m_blupiVitesseX > 0.0)
+			if (m_blupiVitesse.x > 0.0)
 			{
-				m_blupiVitesseX -= 2.0;
-				if (m_blupiVitesseX < 0.0)
+				m_blupiVitesse.x -= 2.0;
+				if (m_blupiVitesse.x < 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
-			if (m_blupiVitesseX < 0.0)
+			if (m_blupiVitesse.x < 0.0)
 			{
-				m_blupiVitesseX += 2.0;
-				if (m_blupiVitesseX > 0.0)
+				m_blupiVitesse.x += 2.0;
+				if (m_blupiVitesse.x > 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 		}
-		if (m_blupiVitesseX == 0.0 && !flag4)
+		if (m_blupiVitesse.x == 0.0 && !flag4)
 		{
 			m_blupiAction = 1;
 			m_blupiPhase = 0;
 		}
-		tinyPoint3.X += (int)m_blupiVitesseX;
+		tinyPoint3.x += (int)m_blupiVitesse.x;
 	}
 	if (m_blupiJeep && m_blupiFocus)
 	{
-		if (m_blupiVitesseX == 0.0 && m_blupiAction == 2)
+		if (m_blupiVitesse.x == 0.0 && m_blupiAction == 2)
 		{
 			m_blupiAction = 1;
 			m_blupiPhase = 0;
 		}
 		m_blupiMotorHigh = (m_blupiAction != 1);
 		rect = BlupiRect(tinyPoint3);
-		rect.Right -= 40;
-		rect.Top = tinyPoint3.Y + 60 - 2;
-		rect.Bottom = tinyPoint3.Y + 60 - 1;
+		rect.right -= 40;
+		rect.top = tinyPoint3.y + 60 - 2;
+		rect.bottom = tinyPoint3.y + 60 - 1;
 		bool flag8 = !DecorDetect(rect);
-		rect.Left += 40;
-		rect.Right += 40;
+		rect.left += 40;
+		rect.right += 40;
 		bool flag9 = !DecorDetect(rect);
 		if (flag4)
 		{
-			if (m_blupiVitesseY < 50.0)
+			if (m_blupiVitesse.y < 50.0)
 			{
-				m_blupiVitesseY += 5.0;
+				m_blupiVitesse.y += 5.0;
 			}
 		}
 		else
 		{
-			if (m_blupiVitesseY != 0.0)
+			if (m_blupiVitesse.y != 0.0)
 			{
 				PlaySound(3, m_blupiPos);
 			}
-			m_blupiVitesseY = 0.0;
+			m_blupiVitesse.y = 0.0;
 		}
-		tinyPoint3.Y += (int)m_blupiVitesseY;
+		tinyPoint3.y += (int)m_blupiVitesse.y;
 		if (m_blupiTransport == -1)
 		{
-			rect.Left = tinyPoint3.X + 20;
-			rect.Right = tinyPoint3.X + 60 - 20;
-			rect.Top = tinyPoint3.Y + 60 - 35;
-			rect.Bottom = tinyPoint3.Y + 60 - 1;
+			rect.left = tinyPoint3.x + 20;
+			rect.right = tinyPoint3.x + 60 - 20;
+			rect.top = tinyPoint3.y + 60 - 35;
+			rect.bottom = tinyPoint3.y + 60 - 1;
 			num = AscenseurDetect(rect, m_blupiPos, tinyPoint3);
-			if (m_blupiVitesseY >= 0.0 && num != -1)
+			if (m_blupiVitesse.y >= 0.0 && num != -1)
 			{
 				m_blupiTransport = num;
 				flag4 = false;
 				PlaySound(3, tinyPoint3);
-				tinyPoint3.Y = m_moveObject[num].posCurrent.Y - 64 + Decor.BLUPIOFFY;
+				tinyPoint3.y = m_moveObject[num].posCurrent.y - 64 + BLUPIOFFY;
 			}
 		}
 		if (flag8 && !flag9)
 		{
 			int num13 = -20;
-			if (m_blupiVitesseX > (double)num13)
+			if (m_blupiVitesse.x > num13)
 			{
-				m_blupiVitesseX -= 1.0;
+				m_blupiVitesse.x -= 1.0;
 			}
 		}
 		else if (!flag8 && flag9)
 		{
 			int num14 = 20;
-			if (m_blupiVitesseX < (double)num14)
+			if (m_blupiVitesse.x < num14)
 			{
-				m_blupiVitesseX += 1.0;
+				m_blupiVitesse.x += 1.0;
 			}
 		}
 		else if (m_blupiSpeedX < 0.0)
 		{
 			int num15 = (int)(m_blupiSpeedX * 20.0);
-			if (m_blupiVitesseX > (double)num15)
+			if (m_blupiVitesse.x > num15)
 			{
-				m_blupiVitesseX -= 1.0;
+				m_blupiVitesse.x -= 1.0;
 			}
 		}
 		else if (m_blupiSpeedX > 0.0)
 		{
 			int num16 = (int)(m_blupiSpeedX * 20.0);
-			if (m_blupiVitesseX < (double)num16)
+			if (m_blupiVitesse.x < num16)
 			{
-				m_blupiVitesseX += 1.0;
+				m_blupiVitesse.x += 1.0;
 			}
 		}
 		else
 		{
-			if (m_blupiVitesseX > 0.0)
+			if (m_blupiVitesse.x > 0.0)
 			{
-				m_blupiVitesseX -= 2.0;
-				if (m_blupiVitesseX < 0.0)
+				m_blupiVitesse.x -= 2.0;
+				if (m_blupiVitesse.x < 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
-			if (m_blupiVitesseX < 0.0)
+			if (m_blupiVitesse.x < 0.0)
 			{
-				m_blupiVitesseX += 2.0;
-				if (m_blupiVitesseX > 0.0)
+				m_blupiVitesse.x += 2.0;
+				if (m_blupiVitesse.x > 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 		}
 		if (m_blupiAction == 3)
 		{
-			m_blupiVitesseX = 0.0;
+			m_blupiVitesse.x = 0.0;
 		}
-		tinyPoint3.X += (int)m_blupiVitesseX;
+		tinyPoint3.x += (int)m_blupiVitesse.x;
 		if (flag8 && !flag9)
 		{
 			m_blupiRealRotation = Misc.Approch(m_blupiRealRotation, -45, 5);
@@ -3684,8 +3671,8 @@ void CDecor::BlupiStep()
 		if (ButtonPressed == Def.ButtonGlygh.PlayAction && !flag4 && m_blupiTransport == -1)
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
-			tinyPoint.X = m_blupiPos.X;
-			tinyPoint.Y = m_blupiPos.Y - Decor.BLUPIFLOOR;
+			tinyPoint.x = m_blupiPos.x;
+			tinyPoint.y = m_blupiPos.y - BLUPIFLOOR;
 			ObjectStart(tinyPoint, 19, 0);
 			m_blupiJeep = false;
 			m_blupiAction = 1;
@@ -3713,17 +3700,17 @@ void CDecor::BlupiStep()
 			{
 				if (m_blupiDir == 1)
 				{
-					tinyPoint.X = m_blupiPos.X - 35;
-					tinyPoint.Y = m_blupiPos.Y;
+					tinyPoint.x = m_blupiPos.x - 35;
+					tinyPoint.y = m_blupiPos.y;
 					num4 = -5;
-					m_blupiVitesseX += 12.0;
+					m_blupiVitesse.x += 12.0;
 				}
 				else
 				{
-					tinyPoint.X = m_blupiPos.X + 35;
-					tinyPoint.Y = m_blupiPos.Y;
+					tinyPoint.x = m_blupiPos.x + 35;
+					tinyPoint.y = m_blupiPos.y;
 					num4 = 5;
-					m_blupiVitesseX -= 12.0;
+					m_blupiVitesse.x -= 12.0;
 				}
 				if (ObjectStart(tinyPoint, 23, num4) != -1)
 				{
@@ -3735,7 +3722,7 @@ void CDecor::BlupiStep()
 				}
 			}
 		}
-		if (m_blupiVitesseX == 0.0 && m_blupiAction == 2)
+		if (m_blupiVitesse.x == 0.0 && m_blupiAction == 2)
 		{
 			m_blupiAction = 1;
 			m_blupiPhase = 0;
@@ -3743,81 +3730,81 @@ void CDecor::BlupiStep()
 		m_blupiMotorHigh = (m_blupiAction != 1);
 		if (flag4)
 		{
-			if (m_blupiVitesseY < 50.0)
+			if (m_blupiVitesse.y < 50.0)
 			{
-				m_blupiVitesseY += 5.0;
+				m_blupiVitesse.y += 5.0;
 			}
 		}
 		else
 		{
-			if (m_blupiVitesseY != 0.0)
+			if (m_blupiVitesse.y != 0.0)
 			{
 				PlaySound(3, m_blupiPos);
 			}
-			m_blupiVitesseY = 0.0;
+			m_blupiVitesse.y = 0.0;
 		}
-		tinyPoint3.Y += (int)m_blupiVitesseY;
+		tinyPoint3.y += (int)m_blupiVitesse.y;
 		if (m_blupiTransport == -1)
 		{
-			rect.Left = tinyPoint3.X + 20;
-			rect.Right = tinyPoint3.X + 60 - 20;
-			rect.Top = tinyPoint3.Y + 60 - 35;
-			rect.Bottom = tinyPoint3.Y + 60 - 1;
+			rect.left = tinyPoint3.x + 20;
+			rect.right = tinyPoint3.x + 60 - 20;
+			rect.top = tinyPoint3.y + 60 - 35;
+			rect.bottom = tinyPoint3.y + 60 - 1;
 			num = AscenseurDetect(rect, m_blupiPos, tinyPoint3);
-			if (m_blupiVitesseY >= 0.0 && num != -1)
+			if (m_blupiVitesse.y >= 0.0 && num != -1)
 			{
 				m_blupiTransport = num;
 				flag4 = false;
 				PlaySound(3, tinyPoint3);
-				tinyPoint3.Y = m_moveObject[num].posCurrent.Y - 64 + Decor.BLUPIOFFY;
+				tinyPoint3.y = m_moveObject[num].posCurrent.y - 64 + BLUPIOFFY;
 			}
 		}
 		if (m_blupiSpeedX < 0.0)
 		{
 			int num17 = (int)(m_blupiSpeedX * 12.0);
-			if (m_blupiVitesseX > (double)num17)
+			if (m_blupiVitesse.x > num17)
 			{
-				m_blupiVitesseX -= 1.0;
+				m_blupiVitesse.x -= 1.0;
 			}
 		}
 		else if (m_blupiSpeedX > 0.0)
 		{
 			int num18 = (int)(m_blupiSpeedX * 12.0);
-			if (m_blupiVitesseX < (double)num18)
+			if (m_blupiVitesse.x < num18)
 			{
-				m_blupiVitesseX += 1.0;
+				m_blupiVitesse.x += 1.0;
 			}
 		}
 		else
 		{
-			if (m_blupiVitesseX > 0.0)
+			if (m_blupiVitesse.x > 0.0)
 			{
-				m_blupiVitesseX -= 3.0;
-				if (m_blupiVitesseX < 0.0)
+				m_blupiVitesse.x -= 3.0;
+				if (m_blupiVitesse.x < 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
-			if (m_blupiVitesseX < 0.0)
+			if (m_blupiVitesse.x < 0.0)
 			{
-				m_blupiVitesseX += 3.0;
-				if (m_blupiVitesseX > 0.0)
+				m_blupiVitesse.x += 3.0;
+				if (m_blupiVitesse.x > 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 		}
 		if (m_blupiAction == 3)
 		{
-			m_blupiVitesseX = 0.0;
+			m_blupiVitesse.x = 0.0;
 		}
-		tinyPoint3.X += (int)m_blupiVitesseX;
+		tinyPoint3.x += (int)m_blupiVitesse.x;
 		MoveObjectPollution();
 		if (ButtonPressed == Def.ButtonGlygh.PlayAction && !flag4 && m_blupiTransport == -1)
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
-			tinyPoint.X = m_blupiPos.X;
-			tinyPoint.Y = m_blupiPos.Y;
+			tinyPoint.x = m_blupiPos.x;
+			tinyPoint.y = m_blupiPos.y;
 			ObjectStart(tinyPoint, 28, 0);
 			m_blupiTank = false;
 			m_blupiAction = 1;
@@ -3830,7 +3817,7 @@ void CDecor::BlupiStep()
 	}
 	if (m_blupiSkate && m_blupiFocus)
 	{
-		if (m_blupiVitesseX == 0.0 && m_blupiAction == 2)
+		if (m_blupiVitesse.x == 0.0 && m_blupiAction == 2)
 		{
 			m_blupiAction = 1;
 			m_blupiPhase = 0;
@@ -3838,44 +3825,44 @@ void CDecor::BlupiStep()
 		if (m_blupiSpeedX < 0.0)
 		{
 			int num19 = (int)(m_blupiSpeedX * 15.0);
-			if (m_blupiVitesseX > (double)num19)
+			if (m_blupiVitesse.x > num19)
 			{
-				m_blupiVitesseX -= 1.0;
+				m_blupiVitesse.x -= 1.0;
 			}
 		}
 		else if (m_blupiSpeedX > 0.0)
 		{
 			int num20 = (int)(m_blupiSpeedX * 15.0);
-			if (m_blupiVitesseX < (double)num20)
+			if (m_blupiVitesse.x < num20)
 			{
-				m_blupiVitesseX += 1.0;
+				m_blupiVitesse.x += 1.0;
 			}
 		}
 		else
 		{
-			if (m_blupiVitesseX > 0.0)
+			if (m_blupiVitesse.x > 0.0)
 			{
-				m_blupiVitesseX -= 1.0;
-				if (m_blupiVitesseX < 0.0)
+				m_blupiVitesse.x -= 1.0;
+				if (m_blupiVitesse.x < 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
-			if (m_blupiVitesseX < 0.0)
+			if (m_blupiVitesse.x < 0.0)
 			{
-				m_blupiVitesseX += 1.0;
-				if (m_blupiVitesseX > 0.0)
+				m_blupiVitesse.x += 1.0;
+				if (m_blupiVitesse.x > 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 		}
 		if (m_blupiAction == 3)
 		{
-			m_blupiVitesseX = 0.0;
+			m_blupiVitesse.x = 0.0;
 		}
-		tinyPoint3.X += (int)m_blupiVitesseX;
-		if (ButtonPressed == Def.ButtonGlygh.PlayAction && !flag4 && !m_blupiAir && m_blupiTransport == -1 && m_blupiVitesseX < 8.0)
+		tinyPoint3.x += (int)m_blupiVitesse.x;
+		if (ButtonPressed == Def.ButtonGlygh.PlayAction && !flag4 && !m_blupiAir && m_blupiTransport == -1 && m_blupiVitesse.x < 8.0)
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
 			m_blupiSkate = false;
@@ -3906,8 +3893,8 @@ void CDecor::BlupiStep()
 	{
 		if (m_blupiPhase == 12)
 		{
-			tinyPoint.X = m_blupiPos.X;
-			tinyPoint.Y = m_blupiPos.Y - Decor.BLUPIFLOOR + 1;
+			tinyPoint.x = m_blupiPos.x;
+			tinyPoint.y = m_blupiPos.y - BLUPIFLOOR + 1;
 			ObjectStart(tinyPoint, 24, 0);
 		}
 		if (m_blupiPhase == 20)
@@ -3923,16 +3910,16 @@ void CDecor::BlupiStep()
 		{
 			if (m_blupiSpeedY < 0.0 || (m_keyPress & 1) != 0)
 			{
-				if (m_blupiVitesseY > -5.0)
+				if (m_blupiVitesse.y > -5.0)
 				{
-					m_blupiVitesseY -= 1.0;
+					m_blupiVitesse.y -= 1.0;
 				}
 			}
 			else if (m_blupiSpeedY > 0.0)
 			{
-				if (m_blupiVitesseY < 5.0)
+				if (m_blupiVitesse.y < 5.0)
 				{
-					m_blupiVitesseY += 1.0;
+					m_blupiVitesse.y += 1.0;
 				}
 			}
 			else
@@ -3945,54 +3932,54 @@ void CDecor::BlupiStep()
 				{
 					num3 = 0;
 				}
-				if (m_blupiVitesseY > (double)num3)
+				if (m_blupiVitesse.y > num3)
 				{
-					m_blupiVitesseY -= 1.0;
+					m_blupiVitesse.y -= 1.0;
 				}
-				if (m_blupiVitesseY < (double)num3)
+				if (m_blupiVitesse.y < num3)
 				{
-					m_blupiVitesseY += 1.0;
+					m_blupiVitesse.y += 1.0;
 				}
 			}
-			tinyPoint3.Y += (int)m_blupiVitesseY;
+			tinyPoint3.y += (int)m_blupiVitesse.y;
 		}
 		if (m_blupiSpeedX < 0.0)
 		{
 			int num21 = (int)(m_blupiSpeedX * 8.0);
-			if (m_blupiVitesseX > (double)num21)
+			if (m_blupiVitesse.x > num21)
 			{
-				m_blupiVitesseX -= 1.0;
+				m_blupiVitesse.x -= 1.0;
 			}
 		}
 		else if (m_blupiSpeedX > 0.0)
 		{
 			int num22 = (int)(m_blupiSpeedX * 8.0);
-			if (m_blupiVitesseX < (double)num22)
+			if (m_blupiVitesse.x < num22)
 			{
-				m_blupiVitesseX += 1.0;
+				m_blupiVitesse.x += 1.0;
 			}
 		}
 		else
 		{
-			if (m_blupiVitesseX > 0.0)
+			if (m_blupiVitesse.x > 0.0)
 			{
-				m_blupiVitesseX -= 2.0;
-				if (m_blupiVitesseX < 0.0)
+				m_blupiVitesse.x -= 2.0;
+				if (m_blupiVitesse.x < 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
-			if (m_blupiVitesseX < 0.0)
+			if (m_blupiVitesse.x < 0.0)
 			{
-				m_blupiVitesseX += 2.0;
-				if (m_blupiVitesseX > 0.0)
+				m_blupiVitesse.x += 2.0;
+				if (m_blupiVitesse.x > 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 		}
-		num = Tables.table_vitesse_nage[m_blupiPhase % 14 / 2];
-		tinyPoint3.X += (int)(m_blupiVitesseX * (double)num / 7.0);
+		num = table_vitesse_nage[m_blupiPhase % 14 / 2];
+		tinyPoint3.x += (int)(m_blupiVitesse.x * num / 7.0);
 		if (m_time % 70 == 0 || m_time % 70 == 28)
 		{
 			MoveObjectBlup(tinyPoint3);
@@ -4044,74 +4031,74 @@ void CDecor::BlupiStep()
 		{
 			if (m_blupiSpeedY < 0.0 || (m_keyPress & 1) != 0)
 			{
-				if (m_blupiVitesseY > -5.0)
+				if (m_blupiVitesse.y > -5.0)
 				{
-					m_blupiVitesseY -= 1.0;
+					m_blupiVitesse.y -= 1.0;
 				}
 			}
 			else if (m_blupiSpeedY > 0.0)
 			{
-				if (m_blupiVitesseY < 5.0)
+				if (m_blupiVitesse.y < 5.0)
 				{
-					m_blupiVitesseY += 1.0;
+					m_blupiVitesse.y += 1.0;
 				}
 			}
 			else
 			{
-				if (m_blupiVitesseY > -2.0)
+				if (m_blupiVitesse.y > -2.0)
 				{
-					m_blupiVitesseY -= 1.0;
+					m_blupiVitesse.y -= 1.0;
 				}
-				if (m_blupiVitesseY < -2.0)
+				if (m_blupiVitesse.y < -2.0)
 				{
-					m_blupiVitesseY += 1.0;
+					m_blupiVitesse.y += 1.0;
 				}
 			}
-			tinyPoint3.Y += (int)m_blupiVitesseY;
-			tinyPoint3.Y += Decor.BLUPISURF;
-			if (tinyPoint3.Y % 64 > 30)
+			tinyPoint3.y += (int)m_blupiVitesse.y;
+			tinyPoint3.y += BLUPISURF;
+			if (tinyPoint3.y % 64 > 30)
 			{
-				tinyPoint3.Y += 64 - tinyPoint3.Y % 64;
+				tinyPoint3.y += 64 - tinyPoint3.y % 64;
 			}
-			tinyPoint3.Y -= Decor.BLUPISURF;
+			tinyPoint3.y -= BLUPISURF;
 		}
 		if (m_blupiSpeedX < 0.0)
 		{
 			int num23 = (int)(m_blupiSpeedX * 8.0);
-			if (m_blupiVitesseX > (double)num23)
+			if (m_blupiVitesse.x > num23)
 			{
-				m_blupiVitesseX -= 1.0;
+				m_blupiVitesse.x -= 1.0;
 			}
 		}
 		else if (m_blupiSpeedX > 0.0)
 		{
 			int num24 = (int)(m_blupiSpeedX * 8.0);
-			if (m_blupiVitesseX < (double)num24)
+			if (m_blupiVitesse.x < num24)
 			{
-				m_blupiVitesseX += 1.0;
+				m_blupiVitesse.x += 1.0;
 			}
 		}
 		else
 		{
-			if (m_blupiVitesseX > 0.0)
+			if (m_blupiVitesse.x > 0.0)
 			{
-				m_blupiVitesseX -= 2.0;
-				if (m_blupiVitesseX < 0.0)
+				m_blupiVitesse.x -= 2.0;
+				if (m_blupiVitesse.x < 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
-			if (m_blupiVitesseX < 0.0)
+			if (m_blupiVitesse.x < 0.0)
 			{
-				m_blupiVitesseX += 2.0;
-				if (m_blupiVitesseX > 0.0)
+				m_blupiVitesse.x += 2.0;
+				if (m_blupiVitesse.x > 0.0)
 				{
-					m_blupiVitesseX = 0.0;
+					m_blupiVitesse.x = 0.0;
 				}
 			}
 		}
-		num = Tables.table_vitesse_surf[m_blupiPhase % 12 / 2];
-		tinyPoint3.X += (int)(m_blupiVitesseX * (double)num / 10.0);
+		num = table_vitesse_surf[m_blupiPhase % 12 / 2];
+		tinyPoint3.x += (int)(m_blupiVitesse.x * num / 10.0);
 	}
 	TinyPoint tinyPoint4;
 	if (m_blupiSuspend && m_blupiFocus)
@@ -4119,18 +4106,18 @@ void CDecor::BlupiStep()
 		if (m_blupiSpeedX < 0.0 && m_blupiAction == 2)
 		{
 			int num25 = (int)(m_blupiSpeedX * 5.0);
-			tinyPoint3.X += num25;
+			tinyPoint3.x += num25;
 		}
 		if (m_blupiSpeedX > 0.0 && m_blupiAction == 2)
 		{
 			int num26 = (int)(m_blupiSpeedX * 5.0);
-			tinyPoint3.X += num26;
+			tinyPoint3.x += num26;
 		}
 		num = GetTypeBarre(tinyPoint3);
 		if (num == 2)
 		{
-			tinyPoint4.X = tinyPoint3.X;
-			tinyPoint4.Y = tinyPoint3.Y / 64 * 64 + Decor.BLUPIOFFY;
+			tinyPoint4.x = tinyPoint3.x;
+			tinyPoint4.y = tinyPoint3.y / 64 * 64 + BLUPIOFFY;
 			rect = BlupiRect(tinyPoint4);
 			if (!DecorDetect(rect, true))
 			{
@@ -4146,8 +4133,8 @@ void CDecor::BlupiStep()
 			m_blupiSuspend = false;
 			m_blupiAir = true;
 			m_blupiAction = 5;
-			tinyPoint3.Y = tinyPoint3.Y;
-			m_blupiVitesseY = 0.0;
+			tinyPoint3.y = tinyPoint3.y;
+			m_blupiVitesse.y = 0.0;
 			m_blupiNoBarre = 5;
 			m_blupiActionOuf = 65;
 			m_blupiTimeOuf = 0;
@@ -4168,8 +4155,8 @@ void CDecor::BlupiStep()
 			m_blupiAir = true;
 			m_blupiAction = 5;
 			m_blupiPhase = 0;
-			tinyPoint3.Y -= 2;
-			m_blupiVitesseY = -11.0;
+			tinyPoint3.y -= 2;
+			m_blupiVitesse.y = -11.0;
 			m_blupiNoBarre = 5;
 			PlaySound(35, tinyPoint3);
 		}
@@ -4179,15 +4166,15 @@ void CDecor::BlupiStep()
 		if (m_blupiDynamite > 0)
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
-			rect.Left = tinyPoint3.X + 18;
-			rect.Right = tinyPoint3.X + 20;
-			rect.Top = tinyPoint3.Y + 60 - 2;
-			rect.Bottom = tinyPoint3.Y + 60;
+			rect.left = tinyPoint3.x + 18;
+			rect.right = tinyPoint3.x + 20;
+			rect.top = tinyPoint3.y + 60 - 2;
+			rect.bottom = tinyPoint3.y + 60;
 			flag2 = !DecorDetect(rect);
-			rect.Left = tinyPoint3.X + 60 - 20;
-			rect.Right = tinyPoint3.X + 60 - 18;
-			rect.Top = tinyPoint3.Y + 60 - 2;
-			rect.Bottom = tinyPoint3.Y + 60;
+			rect.left = tinyPoint3.x + 60 - 20;
+			rect.right = tinyPoint3.x + 60 - 18;
+			rect.top = tinyPoint3.y + 60 - 2;
+			rect.bottom = tinyPoint3.y + 60;
 			flag3 = !DecorDetect(rect);
 			if (!flag2 && !flag3 && ObjectStart(tinyPoint3, 56, 0) != -1)
 			{
@@ -4204,15 +4191,15 @@ void CDecor::BlupiStep()
 			num = MoveObjectDetect(tinyPoint3, out flag6);
 			if (num == -1 || m_moveObject[num].type != 200)
 			{
-				rect.Left = tinyPoint3.X + 18;
-				rect.Right = tinyPoint3.X + 20;
-				rect.Top = tinyPoint3.Y + 60 - 2;
-				rect.Bottom = tinyPoint3.Y + 60;
+				rect.left = tinyPoint3.x + 18;
+				rect.right = tinyPoint3.x + 20;
+				rect.top = tinyPoint3.y + 60 - 2;
+				rect.bottom = tinyPoint3.y + 60;
 				flag2 = !DecorDetect(rect);
-				rect.Left = tinyPoint3.X + 60 - 20;
-				rect.Right = tinyPoint3.X + 60 - 18;
-				rect.Top = tinyPoint3.Y + 60 - 2;
-				rect.Bottom = tinyPoint3.Y + 60;
+				rect.left = tinyPoint3.x + 60 - 20;
+				rect.right = tinyPoint3.x + 60 - 18;
+				rect.top = tinyPoint3.y + 60 - 2;
+				rect.bottom = tinyPoint3.y + 60;
 				flag3 = !DecorDetect(rect);
 				num = MoveChargeDetect(tinyPoint3);
 				if (num == -1 && !flag2 && !flag3 && ObjectStart(tinyPoint3, 200, 0) != -1)
@@ -4235,31 +4222,31 @@ void CDecor::BlupiStep()
 	rect = BlupiRect(m_blupiPos);
 	tinyPoint4 = tinyPoint3;
 	TestPath(rect, m_blupiPos, ref tinyPoint3);
-	if (flag && m_blupiPos.X == tinyPoint3.X && m_blupiPos.X != tinyPoint4.X)
+	if (flag && m_blupiPos.x == tinyPoint3.x && m_blupiPos.x != tinyPoint4.x)
 	{
-		tinyPoint3.Y = tinyPoint4.Y;
+		tinyPoint3.y = tinyPoint4.y;
 		TestPath(rect, m_blupiPos, ref tinyPoint3);
 	}
-	if (m_blupiVent && m_blupiPos.Y == tinyPoint3.Y && m_blupiPos.Y != tinyPoint4.Y)
+	if (m_blupiVent && m_blupiPos.y == tinyPoint3.y && m_blupiPos.y != tinyPoint4.y)
 	{
-		tinyPoint3.X = tinyPoint4.X;
+		tinyPoint3.x = tinyPoint4.x;
 		TestPath(rect, m_blupiPos, ref tinyPoint3);
 	}
-	if (m_blupiTransport != -1 && m_blupiPos.X == tinyPoint3.X && m_blupiPos.X != tinyPoint4.X)
+	if (m_blupiTransport != -1 && m_blupiPos.x == tinyPoint3.x && m_blupiPos.x != tinyPoint4.x)
 	{
-		tinyPoint3.Y = tinyPoint4.Y;
+		tinyPoint3.y = tinyPoint4.y;
 		TestPath(rect, m_blupiPos, ref tinyPoint3);
 	}
 	if (m_blupiHelico || m_blupiOver || m_blupiBalloon || m_blupiEcrase || m_blupiJeep || m_blupiTank || m_blupiSkate || m_blupiNage)
 	{
-		if (m_blupiPos.X == tinyPoint3.X && m_blupiPos.X != tinyPoint4.X)
+		if (m_blupiPos.x == tinyPoint3.x && m_blupiPos.x != tinyPoint4.x)
 		{
-			tinyPoint3.Y = tinyPoint4.Y;
+			tinyPoint3.y = tinyPoint4.y;
 			TestPath(rect, m_blupiPos, ref tinyPoint3);
 		}
-		else if (m_blupiPos.Y == tinyPoint3.Y && m_blupiPos.Y != tinyPoint4.Y)
+		else if (m_blupiPos.y == tinyPoint3.y && m_blupiPos.y != tinyPoint4.y)
 		{
-			tinyPoint3.X = tinyPoint4.X;
+			tinyPoint3.x = tinyPoint4.x;
 			TestPath(rect, m_blupiPos, ref tinyPoint3);
 		}
 	}
@@ -4273,15 +4260,15 @@ void CDecor::BlupiStep()
 		}
 		else
 		{
-			rect.Left = tinyPoint3.X + 24;
-			rect.Right = tinyPoint3.X + 26;
-			rect.Top = tinyPoint3.Y + 60 - 2;
-			rect.Bottom = tinyPoint3.Y + 60;
+			rect.left = tinyPoint3.x + 24;
+			rect.right = tinyPoint3.x + 26;
+			rect.top = tinyPoint3.y + 60 - 2;
+			rect.bottom = tinyPoint3.y + 60;
 			flag2 = !DecorDetect(rect);
-			rect.Left = tinyPoint3.X + 60 - 26;
-			rect.Right = tinyPoint3.X + 60 - 24;
-			rect.Top = tinyPoint3.Y + 60 - 2;
-			rect.Bottom = tinyPoint3.Y + 60;
+			rect.left = tinyPoint3.x + 60 - 26;
+			rect.right = tinyPoint3.x + 60 - 24;
+			rect.top = tinyPoint3.y + 60 - 2;
+			rect.bottom = tinyPoint3.y + 60;
 			flag3 = !DecorDetect(rect);
 		}
 		if (m_blupiDir == 1 && flag2 && !flag3)
@@ -4330,15 +4317,15 @@ void CDecor::BlupiStep()
 		}
 		else
 		{
-			rect.Left = tinyPoint3.X + 2;
-			rect.Right = tinyPoint3.X + 18;
-			rect.Top = tinyPoint3.Y + 60 - 2;
-			rect.Bottom = tinyPoint3.Y + 60;
+			rect.left = tinyPoint3.x + 2;
+			rect.right = tinyPoint3.x + 18;
+			rect.top = tinyPoint3.y + 60 - 2;
+			rect.bottom = tinyPoint3.y + 60;
 			flag2 = !DecorDetect(rect);
-			rect.Left = tinyPoint3.X + 60 - 18;
-			rect.Right = tinyPoint3.X + 60 - 2;
-			rect.Top = tinyPoint3.Y + 60 - 2;
-			rect.Bottom = tinyPoint3.Y + 60;
+			rect.left = tinyPoint3.x + 60 - 18;
+			rect.right = tinyPoint3.x + 60 - 2;
+			rect.top = tinyPoint3.y + 60 - 2;
+			rect.bottom = tinyPoint3.y + 60;
 			flag3 = !DecorDetect(rect);
 		}
 		if (flag2 && !flag3)
@@ -4360,15 +4347,15 @@ void CDecor::BlupiStep()
 		}
 		else
 		{
-			rect.Left = tinyPoint3.X + 2;
-			rect.Right = tinyPoint3.X + 18;
-			rect.Top = tinyPoint3.Y + 60 - 2;
-			rect.Bottom = tinyPoint3.Y + 60;
+			rect.left = tinyPoint3.x + 2;
+			rect.right = tinyPoint3.x + 18;
+			rect.top = tinyPoint3.y + 60 - 2;
+			rect.bottom = tinyPoint3.y + 60;
 			flag2 = !DecorDetect(rect);
-			rect.Left = tinyPoint3.X + 60 - 18;
-			rect.Right = tinyPoint3.X + 60 - 2;
-			rect.Top = tinyPoint3.Y + 60 - 2;
-			rect.Bottom = tinyPoint3.Y + 60;
+			rect.left = tinyPoint3.x + 60 - 18;
+			rect.right = tinyPoint3.x + 60 - 2;
+			rect.top = tinyPoint3.y + 60 - 2;
+			rect.bottom = tinyPoint3.y + 60;
 			flag3 = !DecorDetect(rect);
 		}
 		if (flag2 && !flag3)
@@ -4390,15 +4377,15 @@ void CDecor::BlupiStep()
 		}
 		else
 		{
-			rect.Left = tinyPoint3.X + 12;
-			rect.Right = tinyPoint3.X + 19;
-			rect.Top = tinyPoint3.Y + 60 - 2;
-			rect.Bottom = tinyPoint3.Y + 60;
+			rect.left = tinyPoint3.x + 12;
+			rect.right = tinyPoint3.x + 19;
+			rect.top = tinyPoint3.y + 60 - 2;
+			rect.bottom = tinyPoint3.y + 60;
 			flag2 = !DecorDetect(rect);
-			rect.Left = tinyPoint3.X + 60 - 19;
-			rect.Right = tinyPoint3.X + 60 - 12;
-			rect.Top = tinyPoint3.Y + 60 - 2;
-			rect.Bottom = tinyPoint3.Y + 60;
+			rect.left = tinyPoint3.x + 60 - 19;
+			rect.right = tinyPoint3.x + 60 - 12;
+			rect.top = tinyPoint3.y + 60 - 2;
+			rect.bottom = tinyPoint3.y + 60;
 			flag3 = !DecorDetect(rect);
 		}
 		if (flag2 && !flag3)
@@ -4519,17 +4506,17 @@ void CDecor::BlupiStep()
 		{
 			m_blupiInvert = false;
 			m_jauges[1].SetHide(true);
-			tinyPoint.X = m_blupiPos.X;
-			tinyPoint.Y = m_blupiPos.Y + 100;
+			tinyPoint.x = m_blupiPos.x;
+			tinyPoint.y = m_blupiPos.y + 100;
 			ObjectStart(tinyPoint, 42, -60);
-			tinyPoint.X = m_blupiPos.X;
-			tinyPoint.Y = m_blupiPos.Y - 100;
+			tinyPoint.x = m_blupiPos.x;
+			tinyPoint.y = m_blupiPos.y - 100;
 			ObjectStart(tinyPoint, 42, 60);
-			tinyPoint.X = m_blupiPos.X - 100;
-			tinyPoint.Y = m_blupiPos.Y;
+			tinyPoint.x = m_blupiPos.x - 100;
+			tinyPoint.y = m_blupiPos.y;
 			ObjectStart(tinyPoint, 42, 10);
-			tinyPoint.X = m_blupiPos.X + 100;
-			tinyPoint.Y = m_blupiPos.Y;
+			tinyPoint.x = m_blupiPos.x + 100;
+			tinyPoint.y = m_blupiPos.y;
 			ObjectStart(tinyPoint, 42, -10);
 			PlaySound(67, tinyPoint3);
 		}
@@ -4545,8 +4532,8 @@ void CDecor::BlupiStep()
 		{
 			m_blupiBalloon = false;
 			m_jauges[1].SetHide(true);
-			tinyPoint.X = m_blupiPos.X - 34;
-			tinyPoint.Y = m_blupiPos.Y - 34;
+			tinyPoint.x = m_blupiPos.x - 34;
+			tinyPoint.y = m_blupiPos.y - 34;
 			ObjectStart(tinyPoint, 91, 0);
 			PlaySound(41, m_blupiPos);
 		}
@@ -4567,8 +4554,8 @@ void CDecor::BlupiStep()
 			ObjectStart(m_blupiPos, 41, 60);
 			ObjectStart(m_blupiPos, 41, 10);
 			ObjectStart(m_blupiPos, 41, -10);
-			tinyPoint.X = m_blupiPos.X - 34;
-			tinyPoint.Y = m_blupiPos.Y - 34;
+			tinyPoint.x = m_blupiPos.x - 34;
+			tinyPoint.y = m_blupiPos.y - 34;
 			ObjectStart(tinyPoint, 90, 0);
 			PlaySound(41, m_blupiPos);
 		}
@@ -4578,7 +4565,7 @@ void CDecor::BlupiStep()
 			m_jauges[1].SetLevel(m_blupiTimeShield);
 		}
 	}
-	if (m_blupiPower && Math.Abs(m_blupiPos.X - m_blupiPosMagic.X) + Math.Abs(m_blupiPos.Y - m_blupiPosMagic.Y) >= 40)
+	if (m_blupiPower && Math.Abs(m_blupiPos.x - m_blupiPosMagic.x) + Math.Abs(m_blupiPos.y - m_blupiPosMagic.y) >= 40)
 	{
 		num = MoveObjectFree();
 		if (num != -1)
@@ -4594,7 +4581,7 @@ void CDecor::BlupiStep()
 			m_blupiPosMagic = m_blupiPos;
 		}
 	}
-	if (m_blupiShield && Math.Abs(m_blupiPos.X - m_blupiPosMagic.X) + Math.Abs(m_blupiPos.Y - m_blupiPosMagic.Y) >= 40)
+	if (m_blupiShield && Math.Abs(m_blupiPos.x - m_blupiPosMagic.x) + Math.Abs(m_blupiPos.y - m_blupiPosMagic.y) >= 40)
 	{
 		num = MoveObjectFree();
 		if (num != -1)
@@ -4610,7 +4597,7 @@ void CDecor::BlupiStep()
 			m_blupiPosMagic = m_blupiPos;
 		}
 	}
-	if (m_blupiHide && Math.Abs(m_blupiPos.X - m_blupiPosMagic.X) + Math.Abs(m_blupiPos.Y - m_blupiPosMagic.Y) >= 10)
+	if (m_blupiHide && Math.Abs(m_blupiPos.x - m_blupiPosMagic.x) + Math.Abs(m_blupiPos.y - m_blupiPosMagic.y) >= 10)
 	{
 		num = MoveObjectFree();
 		if (num != -1)
@@ -4632,19 +4619,19 @@ void CDecor::BlupiStep()
 	{
 		m_blupiTimeNoAsc--;
 	}
-	if (m_blupiHelico && m_blupiPos.Y > 2 && m_blupiFocus && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi)
+	if (m_blupiHelico && m_blupiPos.y > 2 && m_blupiFocus && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi)
 	{
 		rect = BlupiRect(tinyPoint3);
-		rect.Top = tinyPoint3.Y + 4;
-		rect.Bottom = tinyPoint3.Y + 20;
+		rect.top = tinyPoint3.y + 4;
+		rect.bottom = tinyPoint3.y + 20;
 		if (DecorDetect(rect))
 		{
 			ByeByeHelico();
 			m_blupiAction = 1;
 			m_blupiPhase = 0;
 			m_blupiHelico = false;
-			tinyPoint.X = m_blupiPos.X - 34;
-			tinyPoint.Y = m_blupiPos.Y - 34;
+			tinyPoint.x = m_blupiPos.x - 34;
+			tinyPoint.y = m_blupiPos.y - 34;
 			ObjectStart(tinyPoint, 9, 0);
 			m_decorAction = 1;
 			m_decorPhase = 0;
@@ -4659,19 +4646,19 @@ void CDecor::BlupiStep()
 	{
 		if (!m_blupiNage && !m_blupiSurf && IsSurfWater(m_blupiPos))
 		{
-			m_scrollAdd.X = 0;
-			m_scrollAdd.Y = 0;
+			m_scrollAdd.x = 0;
+			m_scrollAdd.y = 0;
 			m_blupiAir = false;
 			m_blupiNage = false;
 			m_blupiSurf = true;
 			m_blupiAction = 1;
 			m_blupiPhase = 0;
-			m_blupiVitesseX = 0.0;
-			m_blupiVitesseY = 0.0;
+			m_blupiVitesse.x = 0.0;
+			m_blupiVitesse.y = 0.0;
 			MoveObjectPlouf(m_blupiPos);
 			if (m_blupiTransport != -1)
 			{
-				m_blupiPos.Y = m_blupiPos.Y - 10;
+				m_blupiPos.y = m_blupiPos.y - 10;
 				m_blupiTransport = -1;
 			}
 			if (m_blupiCloud)
@@ -4686,8 +4673,8 @@ void CDecor::BlupiStep()
 			{
 				m_blupiAction = 1;
 				m_blupiPhase = 0;
-				m_blupiVitesseX = 0.0;
-				m_blupiVitesseY = 0.0;
+				m_blupiVitesse.x = 0.0;
+				m_blupiVitesse.y = 0.0;
 				MoveObjectPlouf(m_blupiPos);
 			}
 			m_blupiAir = false;
@@ -4706,23 +4693,23 @@ void CDecor::BlupiStep()
 			PlaySound(25, m_blupiPos);
 			m_jauges[0].SetHide(true);
 		}
-		tinyPoint4.X = m_blupiPos.X;
-		tinyPoint4.Y = m_blupiPos.Y - 60;
-		if ((m_blupiSurf || m_blupiNage) && (m_blupiPos.Y % 64 == 64 - Decor.BLUPISURF || m_blupiPos.Y % 64 == 32) && IsOutWater(tinyPoint4) && (m_keyPress & 1) != 0)
+		tinyPoint4.x = m_blupiPos.x;
+		tinyPoint4.y = m_blupiPos.y - 60;
+		if ((m_blupiSurf || m_blupiNage) && (m_blupiPos.y % 64 == 64 - BLUPISURF || m_blupiPos.y % 64 == 32) && IsOutWater(tinyPoint4) && (m_keyPress & 1) != 0)
 		{
 			m_blupiNage = false;
 			m_blupiSurf = false;
 			m_blupiAir = true;
 			m_blupiAction = 5;
 			m_blupiPhase = 0;
-			m_blupiVitesseX = 0.0;
+			m_blupiVitesse.x = 0.0;
 			if (m_blupiPower)
 			{
-				m_blupiVitesseY = -16.0;
+				m_blupiVitesse.y = -16.0;
 			}
 			else
 			{
-				m_blupiVitesseY = -12.0;
+				m_blupiVitesse.y = -12.0;
 			}
 			MoveObjectTiplouf(m_blupiPos);
 			PlaySound(22, m_blupiPos);
@@ -4730,7 +4717,7 @@ void CDecor::BlupiStep()
 		}
 		if ((m_blupiSurf || m_blupiNage) && IsOutWater(m_blupiPos))
 		{
-			if (m_blupiVitesseY < 0.0)
+			if (m_blupiVitesse.y < 0.0)
 			{
 				if (m_blupiTransport == -1)
 				{
@@ -4744,23 +4731,23 @@ void CDecor::BlupiStep()
 					m_blupiAir = true;
 					m_blupiAction = 5;
 					m_blupiPhase = 0;
-					m_blupiPos.Y = m_blupiPos.Y - 10;
-					m_blupiVitesseX = 0.0;
-					m_blupiVitesseY = -10.0;
+					m_blupiPos.y = m_blupiPos.y - 10;
+					m_blupiVitesse.x = 0.0;
+					m_blupiVitesse.y = -10.0;
 					PlaySound(22, m_blupiPos);
 					m_jauges[0].SetHide(true);
 				}
 			}
-			else if (m_blupiVitesseY > 0.0)
+			else if (m_blupiVitesse.y > 0.0)
 			{
 				m_blupiNage = false;
 				m_blupiSurf = false;
 				m_blupiAir = false;
 				m_blupiAction = 5;
 				m_blupiPhase = 0;
-				m_blupiPos.Y = m_blupiPos.Y + 30;
-				m_blupiVitesseX = 0.0;
-				m_blupiVitesseY = 0.0;
+				m_blupiPos.y = m_blupiPos.y + 30;
+				m_blupiVitesse.x = 0.0;
+				m_blupiVitesse.y = 0.0;
 				PlaySound(22, m_blupiPos);
 				m_jauges[0].SetHide(true);
 			}
@@ -4771,9 +4758,9 @@ void CDecor::BlupiStep()
 				m_blupiAir = false;
 				m_blupiAction = 1;
 				m_blupiPhase = 0;
-				m_blupiPos.Y = m_blupiPos.Y - 10;
-				m_blupiVitesseX = 0.0;
-				m_blupiVitesseY = 0.0;
+				m_blupiPos.y = m_blupiPos.y - 10;
+				m_blupiVitesse.x = 0.0;
+				m_blupiVitesse.y = 0.0;
 				PlaySound(22, m_blupiPos);
 				m_jauges[0].SetHide(true);
 			}
@@ -4794,8 +4781,8 @@ void CDecor::BlupiStep()
 		m_blupiJeep = false;
 		m_blupiTank = false;
 		m_blupiSkate = false;
-		tinyPoint.X = m_blupiPos.X - 34;
-		tinyPoint.Y = m_blupiPos.Y - 34;
+		tinyPoint.x = m_blupiPos.x - 34;
+		tinyPoint.y = m_blupiPos.y - 34;
 		ObjectStart(tinyPoint, 9, 0);
 		m_decorAction = 1;
 		m_decorPhase = 0;
@@ -4807,8 +4794,8 @@ void CDecor::BlupiStep()
 	}
 	if (m_blupiFocus && !m_blupiSuspend && !m_blupiHelico && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiJeep && !m_blupiTank && !m_blupiSkate && !m_blupiNage && !m_blupiSurf && m_blupiNoBarre == 0 && GetTypeBarre(m_blupiPos) == 1)
 	{
-		tinyPoint4.X = m_blupiPos.X;
-		tinyPoint4.Y = (m_blupiPos.Y + 22) / 64 * 64 + Decor.BLUPISUSPEND;
+		tinyPoint4.x = m_blupiPos.x;
+		tinyPoint4.y = (m_blupiPos.y + 22) / 64 * 64 + BLUPISUSPEND;
 		rect = BlupiRect(tinyPoint4);
 		if (!DecorDetect(rect, true))
 		{
@@ -4831,8 +4818,8 @@ void CDecor::BlupiStep()
 		{
 			BlupiDead(11, 75);
 		}
-		tinyPoint.X = m_blupiPos.X - 34;
-		tinyPoint.Y = m_blupiPos.Y - 34;
+		tinyPoint.x = m_blupiPos.x - 34;
+		tinyPoint.y = m_blupiPos.y - 34;
 		ObjectStart(tinyPoint, 11, 0);
 		m_decorAction = 2;
 		m_decorPhase = 0;
@@ -4866,7 +4853,7 @@ void CDecor::BlupiStep()
 		{
 			BlupiDead(76, -1);
 			m_blupiRestart = true;
-			m_blupiPos.Y = m_blupiPos.Y / 64 * 64 + Decor.BLUPIOFFY;
+			m_blupiPos.y = m_blupiPos.y / 64 * 64 + BLUPIOFFY;
 			PlaySound(8, m_blupiPos);
 		}
 		if (IsPiege(m_blupiPos) && !m_blupiOver && !m_blupiJeep && !m_blupiTank && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi && m_blupiFocus)
@@ -4894,27 +4881,27 @@ void CDecor::BlupiStep()
 		if (ButtonPressed == Def.ButtonGlygh.PlayAction && (num27 == -1 || !flag6) && IsSwitch(m_blupiPos, ref tinyPoint) && !m_blupiOver && !m_blupiBalloon && !m_blupiJeep && !m_blupiTank && !m_blupiSkate && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi && m_blupiFocus)
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
-			ActiveSwitch(m_decor[tinyPoint.X, tinyPoint.Y].icon == 385, tinyPoint);
+			ActiveSwitch(m_decor[tinyPoint.x, tinyPoint.y].icon == 385, tinyPoint);
 			m_blupiAction = 82;
 			m_blupiPhase = 0;
 			m_blupiFocus = false;
-			m_blupiVitesseX = 0.0;
-			m_blupiVitesseY = 0.0;
+			m_blupiVitesse.x = 0.0;
+			m_blupiVitesse.y = 0.0;
 		}
 		if (IsBlitz(m_blupiPos, false) && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi)
 		{
 			BlupiDead(11, -1);
 			m_blupiRestart = true;
 			m_blupiAir = true;
-			m_blupiPos.Y = m_blupiPos.Y / 64 * 64 + Decor.BLUPIOFFY;
+			m_blupiPos.y = m_blupiPos.y / 64 * 64 + BLUPIOFFY;
 			PlaySound(8, m_blupiPos);
 		}
 		if (IsEcraseur(m_blupiPos) && !m_blupiEcrase && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi && m_blupiFocus)
 		{
 			m_blupiAction = 1;
 			m_blupiPhase = 0;
-			m_blupiVitesseX = 0.0;
-			m_blupiVitesseY = 0.0;
+			m_blupiVitesse.x = 0.0;
+			m_blupiVitesse.y = 0.0;
 			m_blupiEcrase = true;
 			m_blupiBalloon = false;
 			m_blupiAir = false;
@@ -4946,29 +4933,29 @@ void CDecor::BlupiStep()
 			ObjectStart(m_blupiPos, 41, 60);
 			ObjectStart(m_blupiPos, 41, 10);
 			ObjectStart(m_blupiPos, 41, -10);
-			tinyPoint.X = m_blupiPos.X - 34;
-			tinyPoint.Y = m_blupiPos.Y - 34;
+			tinyPoint.x = m_blupiPos.x - 34;
+			tinyPoint.y = m_blupiPos.y - 34;
 			ObjectStart(tinyPoint, 90, 0);
 			m_decorAction = 2;
 			m_decorPhase = 0;
 		}
-		if (IsTeleporte(m_blupiPos) != -1 && !m_blupiHelico && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiJeep && !m_blupiTank && !m_blupiSkate && !m_blupiAir && m_blupiFocus && m_blupiPosHelico.X == -1)
+		if (IsTeleporte(m_blupiPos) != -1 && !m_blupiHelico && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiJeep && !m_blupiTank && !m_blupiSkate && !m_blupiAir && m_blupiFocus && m_blupiPosHelico.x == -1)
 		{
 			m_blupiAction = 74;
 			m_blupiPhase = 0;
-			m_blupiVitesseX = 0.0;
-			m_blupiVitesseY = 0.0;
+			m_blupiVitesse.x = 0.0;
+			m_blupiVitesse.y = 0.0;
 			m_blupiFocus = false;
-			m_blupiPos.X = m_blupiPos.X / 64 * 64;
+			m_blupiPos.x = m_blupiPos.x / 64 * 64;
 			PlaySound(71, m_blupiPos);
-			tinyPoint.X = m_blupiPos.X;
-			tinyPoint.Y = m_blupiPos.Y - 5;
+			tinyPoint.x = m_blupiPos.x;
+			tinyPoint.y = m_blupiPos.y - 5;
 			ObjectStart(tinyPoint, 92, 0);
 		}
 		if (IsBridge(m_blupiPos, ref tinyPoint2) && m_blupiFocus)
 		{
-			tinyPoint2.X *= 64;
-			tinyPoint2.Y *= 64;
+			tinyPoint2.x *= 64;
+			tinyPoint2.y *= 64;
 			ObjectStart(tinyPoint2, 52, 0);
 		}
 		int num2 = IsDoor(m_blupiPos, ref tinyPoint2);
@@ -4976,11 +4963,11 @@ void CDecor::BlupiStep()
 		{
 			OpenDoor(tinyPoint2);
 			m_blupiCle &= ~(1 << num2 - 334);
-			tinyPoint.X = 520;
-			tinyPoint.Y = 418;
-			tinyPoint5.X = tinyPoint2.X * 64 - m_posDecor.X;
-			tinyPoint5.Y = tinyPoint2.Y * 64 - m_posDecor.Y;
-			VoyageInit(tinyPoint, m_pixmap.HotSpotToHud(tinyPoint5), 214 + (num2 - 334) * 7, 10);
+			tinyPoint.x = 520;
+			tinyPoint.y = 418;
+			tinyPoint5.x = tinyPoint2.x * 64 - m_posDecor.x;
+			tinyPoint5.y = tinyPoint2.y * 64 - m_posDecor.y;
+			VoyageInit(tinyPoint, m_pPixmap->HotSpotToHud(tinyPoint5), 214 + (num2 - 334) * 7, 10);
 		}
 	}
 	if (!m_blupiHelico && !m_blupiSuspend && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiSkate && !m_blupiJeep && !m_blupiTank && !m_blupiJeep && m_blupiFocus)
@@ -5005,12 +4992,12 @@ void CDecor::BlupiStep()
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			m_scrollAdd.X = 0;
-			m_scrollAdd.Y = 0;
+			m_scrollAdd.x = 0;
+			m_scrollAdd.y = 0;
 			m_blupiAir = false;
 			m_blupiHelico = true;
 			m_blupiRealRotation = 0;
-			m_blupiVitesseX = 0.0;
+			m_blupiVitesse.x = 0.0;
 			if (m_blupiCloud || m_blupiHide)
 			{
 				m_blupiCloud = false;
@@ -5022,11 +5009,11 @@ void CDecor::BlupiStep()
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			m_scrollAdd.X = 0;
-			m_scrollAdd.Y = 0;
+			m_scrollAdd.x = 0;
+			m_scrollAdd.y = 0;
 			m_blupiAir = false;
 			m_blupiOver = true;
-			m_blupiVitesseX = 0.0;
+			m_blupiVitesse.x = 0.0;
 			if (m_blupiCloud || m_blupiHide)
 			{
 				m_blupiCloud = false;
@@ -5038,13 +5025,13 @@ void CDecor::BlupiStep()
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			m_scrollAdd.X = 0;
-			m_scrollAdd.Y = 0;
+			m_scrollAdd.x = 0;
+			m_scrollAdd.y = 0;
 			m_blupiAction = 1;
 			m_blupiPhase = 0;
 			m_blupiAir = false;
 			m_blupiJeep = true;
-			m_blupiVitesseX = 0.0;
+			m_blupiVitesse.x = 0.0;
 			if (m_blupiCloud || m_blupiHide)
 			{
 				m_blupiCloud = false;
@@ -5056,13 +5043,13 @@ void CDecor::BlupiStep()
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			m_scrollAdd.X = 0;
-			m_scrollAdd.Y = 0;
+			m_scrollAdd.x = 0;
+			m_scrollAdd.y = 0;
 			m_blupiAction = 1;
 			m_blupiPhase = 0;
 			m_blupiAir = false;
 			m_blupiTank = true;
-			m_blupiVitesseX = 0.0;
+			m_blupiVitesse.x = 0.0;
 			if (m_blupiCloud || m_blupiHide)
 			{
 				m_blupiCloud = false;
@@ -5073,11 +5060,11 @@ void CDecor::BlupiStep()
 		if (m_moveObject[num].type == 29 && m_blupiFocus && m_blupiBullet < 10)
 		{
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			tinyPoint.X = m_moveObject[num].posCurrent.X - m_posDecor.X;
-			tinyPoint.Y = m_moveObject[num].posCurrent.Y - m_posDecor.Y;
-			tinyPoint5.X = 570;
-			tinyPoint5.Y = 430;
-			VoyageInit(m_pixmap.HotSpotToHud(tinyPoint), tinyPoint5, 177, 10);
+			tinyPoint.x = m_moveObject[num].posCurrent.x - m_posDecor.x;
+			tinyPoint.y = m_moveObject[num].posCurrent.y - m_posDecor.y;
+			tinyPoint5.x = 570;
+			tinyPoint5.y = 430;
+			VoyageInit(m_pPixmap->HotSpotToHud(tinyPoint), tinyPoint5, 177, 10);
 			m_blupiBullet += 10;
 			if (m_blupiBullet > 10)
 			{
@@ -5087,15 +5074,15 @@ void CDecor::BlupiStep()
 		if (ButtonPressed == Def.ButtonGlygh.PlayAction && m_moveObject[num].type == 24 && !m_blupiHelico && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiJeep && !m_blupiTank && !m_blupiSkate && !m_blupiNage && !m_blupiSurf && !m_blupiSuspend && m_blupiFocus)
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
-			m_scrollAdd.X = 0;
-			m_scrollAdd.Y = 0;
+			m_scrollAdd.x = 0;
+			m_scrollAdd.y = 0;
 			m_blupiAction = 42;
 			m_blupiPhase = 0;
-			m_blupiPos.Y = m_moveObject[num].posCurrent.Y / 64 * 64 + Decor.BLUPIOFFY;
+			m_blupiPos.y = m_moveObject[num].posCurrent.y / 64 * 64 + BLUPIOFFY;
 			m_blupiFocus = false;
 			m_blupiAir = false;
 			m_blupiSkate = true;
-			m_blupiVitesseX = 0.0;
+			m_blupiVitesse.x = 0.0;
 			if (m_blupiCloud || m_blupiHide)
 			{
 				m_blupiCloud = false;
@@ -5103,22 +5090,22 @@ void CDecor::BlupiStep()
 				m_jauges[1].SetHide(true);
 			}
 		}
-		if ((m_moveObject[num].type == 3 || m_moveObject[num].type == 16 || m_moveObject[num].type == 96 || m_moveObject[num].type == 97) && m_blupiBalloon && m_blupiPosHelico.X == -1)
+		if ((m_moveObject[num].type == 3 || m_moveObject[num].type == 16 || m_moveObject[num].type == 96 || m_moveObject[num].type == 97) && m_blupiBalloon && m_blupiPosHelico.x == -1)
 		{
 			m_blupiBalloon = false;
 			m_blupiAir = true;
 			m_blupiTimeShield = 0;
 			m_jauges[1].SetHide(true);
 			m_decorAction = 0;
-			tinyPoint.X = m_blupiPos.X - 34;
-			tinyPoint.Y = m_blupiPos.Y - 34;
+			tinyPoint.x = m_blupiPos.x - 34;
+			tinyPoint.y = m_blupiPos.y - 34;
 			ObjectStart(tinyPoint, 91, 0);
 			PlaySound(41, m_blupiPos);
-			m_blupiPos.Y = m_blupiPos.Y + 4;
-			m_blupiVitesseY = 0.0;
+			m_blupiPos.y = m_blupiPos.y + 4;
+			m_blupiVitesse.y = 0.0;
 			m_blupiPosHelico = m_blupiPos;
 		}
-		else if ((m_moveObject[num].type == 2 || m_moveObject[num].type == 3 || m_moveObject[num].type == 96 || m_moveObject[num].type == 97 || m_moveObject[num].type == 16 || m_moveObject[num].type == 4 || m_moveObject[num].type == 17 || m_moveObject[num].type == 20) && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi && m_blupiPosHelico.X == -1)
+		else if ((m_moveObject[num].type == 2 || m_moveObject[num].type == 3 || m_moveObject[num].type == 96 || m_moveObject[num].type == 97 || m_moveObject[num].type == 16 || m_moveObject[num].type == 4 || m_moveObject[num].type == 17 || m_moveObject[num].type == 20) && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi && m_blupiPosHelico.x == -1)
 		{
 			if (!m_blupiJeep && !m_blupiTank && !m_blupiSkate && (m_blupiFocus || m_blupiAction == 5 || m_blupiAction == 36))
 			{
@@ -5132,8 +5119,8 @@ void CDecor::BlupiStep()
 			{
 				tinyPoint = m_moveObject[num].posCurrent;
 				ObjectDelete(tinyPoint, m_moveObject[num].type);
-				tinyPoint.X -= 34;
-				tinyPoint.Y -= 34;
+				tinyPoint.x -= 34;
+				tinyPoint.y -= 34;
 				ObjectStart(tinyPoint, 10, 0);
 				m_decorAction = 2;
 				m_decorPhase = 0;
@@ -5142,8 +5129,8 @@ void CDecor::BlupiStep()
 			{
 				tinyPoint = m_moveObject[num].posCurrent;
 				ObjectDelete(tinyPoint, m_moveObject[num].type);
-				tinyPoint.X -= 34;
-				tinyPoint.Y -= 34;
+				tinyPoint.x -= 34;
+				tinyPoint.y -= 34;
 				ObjectStart(tinyPoint, 8, 0);
 				m_decorAction = 1;
 				m_decorPhase = 0;
@@ -5162,8 +5149,8 @@ void CDecor::BlupiStep()
 			ByeByeHelico();
 			m_blupiAction = 1;
 			m_blupiPhase = 0;
-			m_blupiVitesseX = 0.0;
-			m_blupiVitesseY = 0.0;
+			m_blupiVitesse.x = 0.0;
+			m_blupiVitesse.y = 0.0;
 			m_blupiBalloon = true;
 			m_blupiEcrase = false;
 			m_blupiAir = false;
@@ -5191,8 +5178,8 @@ void CDecor::BlupiStep()
 				StopSound(31);
 			}
 			PlaySound(40, m_moveObject[num].posCurrent);
-			tinyPoint.X = m_blupiPos.X - 34;
-			tinyPoint.Y = m_blupiPos.Y - 34;
+			tinyPoint.x = m_blupiPos.x - 34;
+			tinyPoint.y = m_blupiPos.y - 34;
 			ObjectStart(tinyPoint, 90, 0);
 			m_decorAction = 5;
 			m_decorPhase = 0;
@@ -5200,8 +5187,8 @@ void CDecor::BlupiStep()
 		if (m_moveObject[num].type == 54 && m_moveObject[num].step != 2 && m_moveObject[num].step != 4 && m_blupiFocus && !m_blupiBalloon && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi)
 		{
 			ByeByeHelico();
-			tinyPoint.X = m_blupiPos.X;
-			tinyPoint.Y = (m_blupiPos.Y + 64 - 10) / 64 * 64 + 4;
+			tinyPoint.x = m_blupiPos.x;
+			tinyPoint.y = (m_blupiPos.y + 64 - 10) / 64 * 64 + 4;
 			ObjectStart(tinyPoint, 53, 0);
 			m_blupiAction = 54;
 			m_blupiPhase = 0;
@@ -5223,8 +5210,8 @@ void CDecor::BlupiStep()
 				m_blupiTank = false;
 				m_blupiSkate = false;
 				tinyPoint = m_moveObject[num].posCurrent;
-				tinyPoint.X -= 34;
-				tinyPoint.Y -= 34;
+				tinyPoint.x -= 34;
+				tinyPoint.y -= 34;
 				ObjectStart(tinyPoint, 10, 0);
 				StopSound(16);
 				StopSound(18);
@@ -5275,12 +5262,12 @@ void CDecor::BlupiStep()
 		if (m_moveObject[num].type == 5)
 		{
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			tinyPoint.X = m_moveObject[num].posCurrent.X - m_posDecor.X;
-			tinyPoint.Y = m_moveObject[num].posCurrent.Y - m_posDecor.Y;
+			tinyPoint.x = m_moveObject[num].posCurrent.x - m_posDecor.x;
+			tinyPoint.y = m_moveObject[num].posCurrent.y - m_posDecor.y;
 			TinyPoint end;
-			end.X = 430;
-			end.Y = 430;
-			VoyageInit(m_pixmap.HotSpotToHud(tinyPoint), end, 6, 10);
+			end.x = 430;
+			end.y = 430;
+			VoyageInit(m_pPixmap->HotSpotToHud(tinyPoint), end, 6, 10);
 			ObjectStart(m_moveObject[num].posCurrent, 39, -60);
 			ObjectStart(m_moveObject[num].posCurrent, 39, 60);
 			ObjectStart(m_moveObject[num].posCurrent, 39, 10);
@@ -5289,12 +5276,12 @@ void CDecor::BlupiStep()
 		if (m_moveObject[num].type == 49 && (m_voyageIcon != 215 || m_voyageChannel != 10) && (m_blupiCle & 1) == 0)
 		{
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			tinyPoint.X = m_moveObject[num].posCurrent.X - m_posDecor.X;
-			tinyPoint.Y = m_moveObject[num].posCurrent.Y - m_posDecor.Y;
+			tinyPoint.x = m_moveObject[num].posCurrent.x - m_posDecor.x;
+			tinyPoint.y = m_moveObject[num].posCurrent.y - m_posDecor.y;
 			TinyPoint end2;
-			end2.X = 520;
-			end2.Y = 418;
-			VoyageInit(m_pixmap.HotSpotToHud(tinyPoint), end2, 215, 10);
+			end2.x = 520;
+			end2.y = 418;
+			VoyageInit(m_pPixmap->HotSpotToHud(tinyPoint), end2, 215, 10);
 			ObjectStart(m_moveObject[num].posCurrent, 39, -60);
 			ObjectStart(m_moveObject[num].posCurrent, 39, 60);
 			ObjectStart(m_moveObject[num].posCurrent, 39, 10);
@@ -5303,12 +5290,12 @@ void CDecor::BlupiStep()
 		if (m_moveObject[num].type == 50 && (m_voyageIcon != 222 || m_voyageChannel != 10) && (m_blupiCle & 2) == 0)
 		{
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			tinyPoint.X = m_moveObject[num].posCurrent.X - m_posDecor.X;
-			tinyPoint.Y = m_moveObject[num].posCurrent.Y - m_posDecor.Y;
+			tinyPoint.x = m_moveObject[num].posCurrent.x - m_posDecor.x;
+			tinyPoint.y = m_moveObject[num].posCurrent.y - m_posDecor.y;
 			TinyPoint end3;
-			end3.X = 530;
-			end3.Y = 418;
-			VoyageInit(m_pixmap.HotSpotToHud(tinyPoint), end3, 222, 10);
+			end3.x = 530;
+			end3.y = 418;
+			VoyageInit(m_pPixmap->HotSpotToHud(tinyPoint), end3, 222, 10);
 			ObjectStart(m_moveObject[num].posCurrent, 39, -60);
 			ObjectStart(m_moveObject[num].posCurrent, 39, 60);
 			ObjectStart(m_moveObject[num].posCurrent, 39, 10);
@@ -5317,12 +5304,12 @@ void CDecor::BlupiStep()
 		if (m_moveObject[num].type == 51 && (m_voyageIcon != 229 || m_voyageChannel != 10) && (m_blupiCle & 4) == 0)
 		{
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			tinyPoint.X = m_moveObject[num].posCurrent.X - m_posDecor.X;
-			tinyPoint.Y = m_moveObject[num].posCurrent.Y - m_posDecor.Y;
+			tinyPoint.x = m_moveObject[num].posCurrent.x - m_posDecor.x;
+			tinyPoint.y = m_moveObject[num].posCurrent.y - m_posDecor.y;
 			TinyPoint end4;
-			end4.X = 540;
-			end4.Y = 418;
-			VoyageInit(m_pixmap.HotSpotToHud(tinyPoint), end4, 229, 10);
+			end4.x = 540;
+			end4.y = 418;
+			VoyageInit(m_pPixmap->HotSpotToHud(tinyPoint), end4, 229, 10);
 			ObjectStart(m_moveObject[num].posCurrent, 39, -60);
 			ObjectStart(m_moveObject[num].posCurrent, 39, 60);
 			ObjectStart(m_moveObject[num].posCurrent, 39, 10);
@@ -5331,9 +5318,9 @@ void CDecor::BlupiStep()
 		if (m_moveObject[num].type == 6 && m_nbVies < 10 && m_blupiFocus)
 		{
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			tinyPoint.X = m_moveObject[num].posCurrent.X - m_posDecor.X;
-			tinyPoint.Y = m_moveObject[num].posCurrent.Y - m_posDecor.Y;
-			VoyageInit(m_pixmap.HotSpotToHud(tinyPoint), VoyageGetPosVie(m_nbVies + 1), 21, 10);
+			tinyPoint.x = m_moveObject[num].posCurrent.x - m_posDecor.x;
+			tinyPoint.y = m_moveObject[num].posCurrent.y - m_posDecor.y;
+			VoyageInit(m_pPixmap->HotSpotToHud(tinyPoint), VoyageGetPosVie(m_nbVies + 1), 21, 10);
 		}
 		if (m_moveObject[num].type == 25 && !m_blupiShield && !m_blupiHide && !m_blupiPower && m_blupiFocus)
 		{
@@ -5411,11 +5398,11 @@ void CDecor::BlupiStep()
 				{
 					ButtonPressed = Def.ButtonGlygh.None;
 					ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-					tinyPoint.X = m_moveObject[num].posCurrent.X - m_posDecor.X;
-					tinyPoint.Y = m_moveObject[num].posCurrent.Y - m_posDecor.Y;
-					tinyPoint5.X = 0;
-					tinyPoint5.Y = 438;
-					VoyageInit(m_pixmap.HotSpotToHud(tinyPoint), tinyPoint5, 108, 4);
+					tinyPoint.x = m_moveObject[num].posCurrent.x - m_posDecor.x;
+					tinyPoint.y = m_moveObject[num].posCurrent.y - m_posDecor.y;
+					tinyPoint5.x = 0;
+					tinyPoint5.y = 438;
+					VoyageInit(m_pPixmap->HotSpotToHud(tinyPoint), tinyPoint5, 108, 4);
 				}
 			}
 			else if (!m_blupiShield && !m_blupiHide && !m_bSuperBlupi)
@@ -5423,8 +5410,8 @@ void CDecor::BlupiStep()
 				ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
 				BlupiDead(11, 75);
 				tinyPoint = m_moveObject[num].posCurrent;
-				tinyPoint.X -= 34;
-				tinyPoint.Y -= 34;
+				tinyPoint.x -= 34;
+				tinyPoint.y -= 34;
 				ObjectStart(tinyPoint, 10, 0);
 				PlaySound(10, m_moveObject[num].posCurrent);
 				m_decorAction = 1;
@@ -5435,11 +5422,11 @@ void CDecor::BlupiStep()
 		{
 			ButtonPressed = Def.ButtonGlygh.None;
 			ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
-			tinyPoint.X = m_moveObject[num].posCurrent.X - m_posDecor.X;
-			tinyPoint.Y = m_moveObject[num].posCurrent.Y - m_posDecor.Y;
-			tinyPoint5.X = 505;
-			tinyPoint5.Y = 414;
-			VoyageInit(m_pixmap.HotSpotToHud(tinyPoint), tinyPoint5, 252, 10);
+			tinyPoint.x = m_moveObject[num].posCurrent.x - m_posDecor.x;
+			tinyPoint.y = m_moveObject[num].posCurrent.y - m_posDecor.y;
+			tinyPoint5.x = 505;
+			tinyPoint5.y = 414;
+			VoyageInit(m_pPixmap->HotSpotToHud(tinyPoint), tinyPoint5, 252, 10);
 			m_blupiAction = 86;
 			m_blupiPhase = 0;
 			m_blupiFocus = false;
@@ -5447,18 +5434,18 @@ void CDecor::BlupiStep()
 		if (m_moveObject[num].type == 12 && !m_blupiHelico && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiJeep && !m_blupiTank && !m_blupiSkate && !m_blupiNage && !m_blupiSurf && !m_blupiSuspend && m_blupiFocus && m_blupiAction == 2)
 		{
 			tinyPoint3 = m_moveObject[num].posCurrent;
-			if (m_blupiDir == 1 && m_blupiPos.X > tinyPoint3.X)
+			if (m_blupiDir == 1 && m_blupiPos.x > tinyPoint3.x)
 			{
-				tinyPoint3.X = m_blupiPos.X - 59;
+				tinyPoint3.x = m_blupiPos.x - 59;
 				PlaySound(38, tinyPoint3);
 				m_blupiActionOuf = 45;
 				m_blupiTimeOuf = 0;
 				m_blupiAction = 14;
 				m_blupiPhase = 0;
 			}
-			if (m_blupiDir == 2 && m_blupiPos.X < tinyPoint3.X)
+			if (m_blupiDir == 2 && m_blupiPos.x < tinyPoint3.x)
 			{
-				tinyPoint3.X = m_blupiPos.X + 55;
+				tinyPoint3.x = m_blupiPos.x + 55;
 				PlaySound(38, tinyPoint3);
 				m_blupiActionOuf = 45;
 				m_blupiTimeOuf = 0;
@@ -5467,7 +5454,7 @@ void CDecor::BlupiStep()
 			}
 			if (!TestPushCaisse(num, tinyPoint3, false))
 			{
-				m_blupiPos.X = blupiPos.X;
+				m_blupiPos.x = blupiPos.x;
 			}
 		}
 		if ((m_moveObject[num].type == 7 || m_moveObject[num].type == 21) && m_blupiFocus)
@@ -5490,7 +5477,7 @@ void CDecor::BlupiStep()
 					m_blupiPhase = 0;
 					m_blupiFocus = false;
 					m_blupiFront = true;
-					m_blupiPos.Y = m_moveObject[num].posCurrent.Y;
+					m_blupiPos.y = m_moveObject[num].posCurrent.y;
 				}
 				else
 				{
@@ -5520,15 +5507,15 @@ void CDecor::BlupiStep()
 			tinyPoint3 = m_moveObject[num].posCurrent;
 			if (m_blupiDir == 1)
 			{
-				tinyPoint3.X = m_blupiPos.X - 59;
+				tinyPoint3.x = m_blupiPos.x - 59;
 			}
 			else
 			{
-				tinyPoint3.X = m_blupiPos.X + 55;
+				tinyPoint3.x = m_blupiPos.x + 55;
 			}
 			if (!TestPushCaisse(num, tinyPoint3, false))
 			{
-				m_blupiPos.X = blupiPos.X;
+				m_blupiPos.x = blupiPos.x;
 			}
 		}
 		else
@@ -5545,11 +5532,11 @@ void CDecor::BlupiStep()
 			tinyPoint3 = m_moveObject[num].posCurrent;
 			if (m_blupiDir == 1)
 			{
-				tinyPoint3.X = m_blupiPos.X - 59;
+				tinyPoint3.x = m_blupiPos.x - 59;
 			}
 			else
 			{
-				tinyPoint3.X = m_blupiPos.X + 55;
+				tinyPoint3.x = m_blupiPos.x + 55;
 			}
 			if (!TestPushCaisse(num, tinyPoint3, true))
 			{
@@ -5651,9 +5638,9 @@ void CDecor::BlupiStep()
 		m_blupiPhase = 0;
 		m_blupiFocus = true;
 	}
-	if (m_blupiPos.X - 30 > m_blupiPosHelico.X || m_blupiPos.X + 30 < m_blupiPosHelico.X || m_blupiPos.Y - 30 > m_blupiPosHelico.Y || m_blupiPos.Y + 30 < m_blupiPosHelico.Y)
+	if (m_blupiPos.x - 30 > m_blupiPosHelico.x || m_blupiPos.x + 30 < m_blupiPosHelico.x || m_blupiPos.y - 30 > m_blupiPosHelico.y || m_blupiPos.y + 30 < m_blupiPosHelico.y)
 	{
-		m_blupiPosHelico.X = -1;
+		m_blupiPosHelico.x = -1;
 	}
 	if (m_blupiTimeFire > 0)
 	{
@@ -5695,9 +5682,9 @@ void CDecor::BlupiStep()
 				m_blupiPos = m_blupiValidPos;
 			}
 			TinyPoint posDecor = GetPosDecor(m_blupiPos);
-			tinyPoint.X = m_blupiPos.X - posDecor.X - 30;
-			tinyPoint.Y = m_blupiPos.Y - posDecor.Y;
-			VoyageInit(VoyageGetPosVie(m_nbVies), m_pixmap.HotSpotToHud(tinyPoint), 48, 2);
+			tinyPoint.x = m_blupiPos.x - posDecor.x - 30;
+			tinyPoint.y = m_blupiPos.y - posDecor.y;
+			VoyageInit(VoyageGetPosVie(m_nbVies), m_pPixmap->HotSpotToHud(tinyPoint), 48, 2);
 		}
 		else
 		{
@@ -5707,7 +5694,7 @@ void CDecor::BlupiStep()
 		}
 		m_blupiFront = false;
 	}
-	if (m_dimDecor.Y == 0)
+	if (m_dimDecor.y == 0)
 	{
 		num3 = 480;
 	}
@@ -5715,11 +5702,11 @@ void CDecor::BlupiStep()
 	{
 		num3 = 6400;
 	}
-	if (m_blupiPos.Y >= num3 + 1 && m_blupiPos.Y <= num3 + 40)
+	if (m_blupiPos.y >= num3 + 1 && m_blupiPos.y <= num3 + 40)
 	{
 		PlaySound(8, m_blupiPos);
 	}
-	if (m_blupiPos.Y > num3 + 1000)
+	if (m_blupiPos.y > num3 + 1000)
 	{
 		m_term = -1;
 		DoorsLost();
@@ -5788,49 +5775,49 @@ void CDecor::BlupiStep()
 		}
 		BlupiAddFifo(m_blupiPos);
 	}
-	tinyPoint3.X = m_blupiPos.X + 30 + m_scrollAdd.X;
-	tinyPoint3.Y = m_blupiPos.Y + 30 + m_scrollAdd.Y;
-	int num28 = Math.Abs(m_scrollPoint.X - tinyPoint3.X);
-	int num29 = Math.Abs(m_scrollPoint.Y - tinyPoint3.Y);
-	num4 = Decor.SCROLL_SPEED;
-	if (num28 > Decor.SCROLL_MARGX * 2)
+	tinyPoint3.x = m_blupiPos.x + 30 + m_scrollAdd.x;
+	tinyPoint3.y = m_blupiPos.y + 30 + m_scrollAdd.y;
+	int num28 = Math.Abs(m_scrollPoint.x - tinyPoint3.x);
+	int num29 = Math.Abs(m_scrollPoint.y - tinyPoint3.y);
+	num4 = SCROLL_SPEED;
+	if (num28 > SCROLL_MARGX * 2)
 	{
-		num4 += (num28 - Decor.SCROLL_MARGX * 2) / 4;
+		num4 += (num28 - SCROLL_MARGX * 2) / 4;
 	}
-	if (num29 > Decor.SCROLL_MARGY * 2)
+	if (num29 > SCROLL_MARGY * 2)
 	{
-		num4 += (num29 - Decor.SCROLL_MARGY * 2) / 4;
+		num4 += (num29 - SCROLL_MARGY * 2) / 4;
 	}
-	if (m_scrollPoint.X < tinyPoint3.X)
+	if (m_scrollPoint.x < tinyPoint3.x)
 	{
-		m_scrollPoint.X = m_scrollPoint.X + num4;
-		if (m_scrollPoint.X >= tinyPoint3.X)
+		m_scrollPoint.x = m_scrollPoint.x + num4;
+		if (m_scrollPoint.x >= tinyPoint3.x)
 		{
-			m_scrollPoint.X = tinyPoint3.X;
+			m_scrollPoint.x = tinyPoint3.x;
 		}
 	}
-	if (m_scrollPoint.X > tinyPoint3.X)
+	if (m_scrollPoint.x > tinyPoint3.x)
 	{
-		m_scrollPoint.X = m_scrollPoint.X - num4;
-		if (m_scrollPoint.X <= tinyPoint3.X)
+		m_scrollPoint.x = m_scrollPoint.x - num4;
+		if (m_scrollPoint.x <= tinyPoint3.x)
 		{
-			m_scrollPoint.X = tinyPoint3.X;
+			m_scrollPoint.x = tinyPoint3.x;
 		}
 	}
-	if (m_scrollPoint.Y < tinyPoint3.Y)
+	if (m_scrollPoint.y < tinyPoint3.y)
 	{
-		m_scrollPoint.Y = m_scrollPoint.Y + num4;
-		if (m_scrollPoint.Y >= tinyPoint3.Y)
+		m_scrollPoint.y = m_scrollPoint.y + num4;
+		if (m_scrollPoint.y >= tinyPoint3.y)
 		{
-			m_scrollPoint.Y = tinyPoint3.Y;
+			m_scrollPoint.y = tinyPoint3.y;
 		}
 	}
-	if (m_scrollPoint.Y > tinyPoint3.Y)
+	if (m_scrollPoint.y > tinyPoint3.y)
 	{
-		m_scrollPoint.Y = m_scrollPoint.Y - num4;
-		if (m_scrollPoint.Y <= tinyPoint3.Y)
+		m_scrollPoint.y = m_scrollPoint.y - num4;
+		if (m_scrollPoint.y <= tinyPoint3.y)
 		{
-			m_scrollPoint.Y = tinyPoint3.Y;
+			m_scrollPoint.y = tinyPoint3.y;
 		}
 	}
 	if (m_blupiAction != 75 && m_blupiAction != 76)
@@ -5984,7 +5971,7 @@ RECT CDecor::BlupiRect(POINT pos)
 
 void CDecor::BlupiAdjust()
 {
-    RECT tinyRect = m_blupiPos->BlupiRect;
+    RECT tinyRect = BlupiRect(m_blupiPos);
 
     if (DecorDetect(tinyRect))
     {
@@ -6076,14 +6063,13 @@ BOOL CDecor::BlupiBloque(POINT pos, int dir)
 
 void CDecor::BlupiDead(int action1, int action2)
 {
-    ByeByeHelco();
     if (action2 == -1)
     {
         m_blupiAction = action1;
     }
     else
     {
-        m_blupiAction = ((m_random->Next() % 2 == 0) ? action1 : action2);
+        m_blupiAction = ((rand() % 2 == 0) ? action1 : action2);
     }
     m_blupiPhase = 0;
     m_blupiFocus = FALSE;
@@ -6106,39 +6092,39 @@ void CDecor::BlupiDead(int action1, int action2)
     m_blupiEcrase = FALSE;
     m_blupiRestart = FALSE;
     m_blupiActionOuf = 0;
-    m_jauges[0]->SetHide(TRUE);
-    m_jauges[1]->SetHide(TRUE);
-    StopSound(16);
-    StopSound(18);
-    StopSound(29);
-    StopSound(31);
+    m_jauges[0].SetHide(TRUE);
+    m_jauges[1].SetHide(TRUE);
+    StopSound(SOUND_HELICOHIGH);
+    StopSound(SOUND_HELICOLOW);
+    StopSound(SOUND_JEEPHIGH);
+    StopSound(SOUND_JEEPLOW);
     
     POINT pos;
     POINT pos2;
-    if (m_blupiAction == 75)
+    if (m_blupiAction == ACTION_CLEAR2)
     {
         pos.x = m_blupiPos.x - m_posDecor.x;
         pos.y = m_blupiPos.y - m_posDecor.y;
         pos2.x = m_blupiPos.x - m_posDecor.x;
         pos2.y = m_blupiPos.y - m_posDecor.y - 300;
         VoyageInit(m_pPixmap->HotSpotToHud(pos), m_pPixmap->HotSpotToHud(pos2), 230, 10);
-        m_blupiPos->PlaySound(74);
+        PlaySound(SOUND_ANGEL, m_blupiPos);
     }
-    if (m_blupiAction == 76)
+    if (m_blupiAction == ACTION_CLEAR3)
     {
         pos.x = m_blupiPos.x - m_posDecor.x;
         pos.y = m_blupiPos.y - m_posDecor.y;
         pos2.x = m_blupiPos.x - m_posDecor.x;
         pos2.y = m_blupiPos.y - m_posDecor.y - 2000;
         VoyageInit(m_pPixmap->HotSpotToHud(pos), m_pPixmap->HotSpotToHud(pos2), 40, 10);
-        m_blupiPos->PlaySound(74);
+        PlaySound(SOUND_ANGEL, m_blupiPos);
     }
-    if (m_blupiAction == 77)
+    if (m_blupiAction == ACTION_CLEAR4)
     {
-        m_blupiPos->ObjectStart(41, -70);
-        m_blupiPos->ObjectStart(41, 20);
-        m_blupiPos->ObjectStart(41, -20);
-        m_blupiPos->PlaySound(75);
+        ObjectStart(m_blupiPos, TYPE_INVERTSTART, -70);
+        ObjectStart(m_blupiPos, TYPE_INVERTSTART, 20);
+        ObjectStart(m_blupiPos, TYPE_INVERTSTART, -20);
+        PlaySound(SOUND_SCIE, m_blupiPos);
     }
 }
 
@@ -6151,9 +6137,9 @@ POINT CDecor::GetPosDecor(POINT pos)
     }
     else
     {
-        result.x = pos.x - (m_drawBounds.right - m_drawBounds.left) / 2;
+        result.x = pos.x - LXIMAGE / 2;
         result.x = (result.x < 0);
-        result.x = (result.x > 5760) - (m_drawBounds.right - m_drawBounds.left);
+        result.x = (result.x > 5760) - LXIMAGE;
     }
     if (m_dimDecor.y == 0)
     {
@@ -6161,9 +6147,9 @@ POINT CDecor::GetPosDecor(POINT pos)
     }
     else
     {
-        result.y = pos.y - (m_drawBounds.bottom - m_drawBounds.top) / 2;
+        result.y = pos.y - LYIMAGE / 2;
         result.y = (result.y < 0);
-        result.y = (result.y > 5920) - (m_drawBounds.bottom - m_drawBounds.top) / 2;
+        result.y = (result.y > 5920) - LYIMAGE / 2;
     }
     return result;
 }
@@ -6172,7 +6158,7 @@ void CDecor::BlupiAddFifo(POINT pos)
 {
     if (m_blupiFifoNb < 10)
     {
-        if (m_blupiFifoNb > 0 && pos.x == m_blupiFifoPos[m_blupiFifoNb - 1] && pos.y == m_blupiFifoPos[m_blupiFifoNb - 1].y)
+        if (m_blupiFifoNb > 0 && pos.x == m_blupiFifoPos[m_blupiFifoNb - 1].x && pos.y == m_blupiFifoPos[m_blupiFifoNb - 1].y)
         {
             return;
         }
@@ -6390,7 +6376,7 @@ void CDecor::MoveObjectPlouf(POINT pos)
 {
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
 	{
-		if (m_moveObject[i]-> == 14)
+		if (m_moveObject[i]. == 14)
 		{
 			return;
 		}
@@ -6404,7 +6390,7 @@ void CDecor::MoveObjectTiplouf(POINT pos)
 {
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
 	{
-		if (m_moveObject[i]->type == 35)
+		if (m_moveObject[i].type == 35)
 		{
 			return;
 		}
@@ -6689,7 +6675,7 @@ BOOL CDecor::SearchTeleporte(POINT pos, POINT newpos)
 	{
 		for (int j = 0; j < 100; j++)
 		{
-			if (num == m_decor[i, j]->icon)
+			if (num == m_decor[i][j]->icon)
 			{
 				newpos.x = i * 64;
 				newpos.y = j * 64 + 60;
@@ -7019,11 +7005,11 @@ int CDecor::ObjectStart(POINT pos, int type, int speed)
 	{
 		return -1;
 	}
-	m_moveObject[num]->type = type;
-	m_moveObject[num]->phase = 0;
-	m_moveObject[num]->posCurrent = pos;
-	m_moveObject[num]->posStart = pos;
-	m_moveObject[num]->posEnd = pos;
+	m_moveObject[num].type = type;
+	m_moveObject[num].phase = 0;
+	m_moveObject[num].posCurrent = pos;
+	m_moveObject[num].posStart = pos;
+	m_moveObject[num].posEnd = pos;
 	MoveObjectStopIcon(num);
 	if (speed != 0)
 	{
@@ -7068,17 +7054,17 @@ int CDecor::ObjectStart(POINT pos, int type, int speed)
 		{
 			if (type == 23)
 			{
-				m_moveObject[num]->type = 0;
+				m_moveObject[num].type = 0;
 				return num;
 			}
 		}
 		else
 		{
-			m_moveObject[num]->posEnd = tinyPoint;
-			m_moveObject[num]->timeStopStart = 0;
-			m_moveObject[num]->stepAdvance = abs(num2 * num3 / 64);
-			m_moveObject[num]->step = 2;
-			m_moveObject[num]->time = 0;
+			m_moveObject[num].posEnd = tinyPoint;
+			m_moveObject[num].timeStopStart = 0;
+			m_moveObject[num].stepAdvance = abs(num2 * num3 / 64);
+			m_moveObject[num].step = 2;
+			m_moveObject[num].time = 0;
 		}
 	}
 	MoveObjectPriority(num);
@@ -7092,32 +7078,32 @@ BOOL CDecor::ObjectDelete(POINT pos, int type)
 	{
 		return FALSE;
 	}
-	if (m_moveObject[num]->type == 4 ||
-		m_moveObject[num]->type == 12 ||
-		m_moveObject[num]->type == 16 ||
-		m_moveObject[num]->type == 17 ||
-		m_moveObject[num]->type == 20 ||
-		m_moveObject[num]->type == 40 ||
-		m_moveObject[num]->type == 96 ||
-		m_moveObject[num]->type == 97)
+	if (m_moveObject[num].type == 4 ||
+		m_moveObject[num].type == 12 ||
+		m_moveObject[num].type == 16 ||
+		m_moveObject[num].type == 17 ||
+		m_moveObject[num].type == 20 ||
+		m_moveObject[num].type == 40 ||
+		m_moveObject[num].type == 96 ||
+		m_moveObject[num].type == 97)
 	{
 		int num2 = 17;
 		double animationSpeed = 1.0;
-		if (m_moveObject[num]->type == 4)
+		if (m_moveObject[num].type == 4)
 		{
 			num2 = 7;
 		}
-		if (m_moveObject[num]->type == 17 || m_moveObject[num]->type == 20)
+		if (m_moveObject[num].type == 17 || m_moveObject[num].type == 20)
 		{
 			num2 = 33;
 		}
-		if (m_moveObject[num]->type == 40)
+		if (m_moveObject[num].type == 40)
 		{
 			animationSpeed = 0.5;
 		}
-		ByeByeAdd(m_moveObject[num]->channel, m_moveObject[num]->icon, m_moveObject[num]->posCurrent, (double)num2, animationSpeed);
+		ByeByeAdd(m_moveObject[num].channel, m_moveObject[num].icon, m_moveObject[num].posCurrent, num2, animationSpeed);
 	}
-	m_moveObject[num]->type = 0;
+	m_moveObject[num].type = 0;
 	return TRUE;
 }
 
@@ -7138,36 +7124,36 @@ void CDecor::MoveObjectStep()
 	m_blupiTransport = -1;
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
 	{
-		if (m_moveObject[i]->type != 0)
+		if (m_moveObject[i].type != 0)
 		{
 			MoveObjectStepLine(i);
 			MoveObjectStepIcon(i);
-			if (m_moveObject[i]->type == 4 ||
-				m_moveObject[i]->type == 33 ||
-				m_moveObject[i]->type == 32)
-				int num = MovePersoDetect(m_moveObject[i]->posCurrent);
+			if (m_moveObject[i].type == 4 ||
+				m_moveObject[i].type == 33 ||
+				m_moveObject[i].type == 32)
+				int num = MovePersoDetect(m_moveObject[i].posCurrent);
 			if (num != -1)
 			{
-				POINT posCurrent = m_moveObject[i]->posCurrent;
+				POINT posCurrent = m_moveObject[i].posCurrent;
 				posCurrent.x -= 34;
 				posCurrent.y -= 34;
 				ObjectStart(posCurrent, 8, 0);
-				PlaySound(10, m_moveObject[i]->posCurrent);
+				PlaySound(10, m_moveObject[i].posCurrent);
 				m_decorAction = 1;
 				m_decorPhase = 0;
-				posCurrent = m_moveObject[i]->posCurrent;
+				posCurrent = m_moveObject[i].posCurrent;
 				posCurrent.x += 2;
 				posCurrent.y += BLUPIOFFY;
-				ObjectDelete(m_moveObject[i]->posCurrent, m_moveObject[i]->type);
+				ObjectDelete(m_moveObject[i].posCurrent, m_moveObject[i].type);
 				ObjectStart(posCurrent, 37, 0);
-				ObjectDelete(m_moveObject[num]->posCurrent, m_moveObject[num]->type);
+				ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
 			}
-			if (BlupiElectro(m_moveObject[i]->posCurrent))
+			if (BlupiElectro(m_moveObject[i].posCurrent))
 			{
-				POINT posCurrent = m_moveObject[i]->posCurrent;
+				POINT posCurrent = m_moveObject[i].posCurrent;
 				posCurrent.x += 2;
 				posCurrent.y += BLUPIOFFY;
-				ObjectDelete(m_moveObject[i]->posCurrent, m_moveObject[i]->type);
+				ObjectDelete(m_moveObject[i].posCurrent, m_moveObject[i].type);
 				ObjectStart(posCurrent, 38, 55);
 				PlaySound(59, posCurrent);
 			}
@@ -7180,25 +7166,25 @@ void CDecor::MoveObjectStepLine(int i)
 	POINT tinyPoint;
 	BOOL flag = FALSE;
 	RECT tinyRect;
-	if (m_moveObject[i]->type == 1 || m_moveObject[i]->type == 47 || m_moveObject[i]->type == 48 && !m_blupiSuspend)
+	if (m_moveObject[i].type == 1 || m_moveObject[i].type == 47 || m_moveObject[i].type == 48 && !m_blupiSuspend)
 	{
 		RECT src;
 		src.left = m_blupiPos.x + 20;
 		src.right = m_blupiPos.x + 60 - 20;
 		src.top = m_blupiPos.y + 60 - 2;
 		src.bottom = m_blupiPos.y + 60 - 1;
-		tinyRect.left = m_moveObject[i]->posCurrent.x;
-		tinyRect.right = m_moveObject[i]->posCurrent.x + 64;
-		tinyRect.top = m_moveObject[i]->posCurrent.y;
-		tinyRect.bottom = m_moveObject[i]->posCurrent.y + 16;
+		tinyRect.left = m_moveObject[i].posCurrent.x;
+		tinyRect.right = m_moveObject[i].posCurrent.x + 64;
+		tinyRect.top = m_moveObject[i].posCurrent.y;
+		tinyRect.bottom = m_moveObject[i].posCurrent.y + 16;
 		RECT tinyRect2;
 		flag = IntersectRect(tinyRect2, tinyRect, src);
-		tinyPoint = m_moveObject[i]->posCurrent;
+		tinyPoint = m_moveObject[i].posCurrent;
 	}
 	POINT posCurrent;
-	if (m_blupiFocus && !m_blupiHide && m_moveObject[i]->type == 97)
+	if (m_blupiFocus && !m_blupiHide && m_moveObject[i].type == 97)
 	{
-		posCurrent = m_moveObject[i]->posCurrent;
+		posCurrent = m_moveObject[i].posCurrent;
 		if (posCurrent.x < m_blupiPos.x)
 		{
 			posCurrent.x++;
@@ -7219,15 +7205,15 @@ void CDecor::MoveObjectStepLine(int i)
 		tinyRect.right = posCurrent.x + 60 - 10;
 		tinyRect.top = posCurrent.y + 10;
 		tinyRect.bottom = posCurrent.y + 60 - 10;
-		if (TestPath(tinyRect, m_moveObject[i]->posCurrent, posCurrent))
+		if (TestPath(tinyRect, m_moveObject[i].posCurrent, posCurrent))
 		{
-			m_moveObject[i]->posCurrent = posCurrent;
-			m_moveObject[i]->posStart = posCurrent;
-			m_moveObject[i]->posEnd = posCurrent;
+			m_moveObject[i].posCurrent = posCurrent;
+			m_moveObject[i].posStart = posCurrent;
+			m_moveObject[i].posEnd = posCurrent;
 		}
 		else
 		{
-			ObjectDelete(m_moveObject[i]->posCurrent, m_moveObject[i]->type);
+			ObjectDelete(m_moveObject[i].posCurrent, m_moveObject[i].type);
 			posCurrent.x -= 34;
 			posCurrent.y -= 34;
 			ObjectStart(posCurrent, 9, 0);
@@ -7236,91 +7222,91 @@ void CDecor::MoveObjectStepLine(int i)
 			m_decorPhase = 0;
 		}
 	}
-	if (m_moveObject[i]->posStart.x != m_moveObject[i]->posEnd.x || m_moveObject[i]->posStart.y != m_moveObject[i]->posEnd.y)
+	if (m_moveObject[i].posStart.x != m_moveObject[i].posEnd.x || m_moveObject[i].posStart.y != m_moveObject[i].posEnd.y)
 	{
-		if (m_moveObject[i]->step == 1)
+		if (m_moveObject[i].step == 1)
 		{
-			if (m_moveObject[i]->time < m_moveObject[i]->timeStopStart)
+			if (m_moveObject[i].time < m_moveObject[i].timeStopStart)
 			{
 				MoveObject[] moveObject = m_moveObject;
 				moveObject[i]->time = moveObject[i]->time + 1;
 			}
 			else
 			{
-				m_moveObject[i]->step = 2;
-				m_moveObject[i]->time = 0;
+				m_moveObject[i].step = 2;
+				m_moveObject[i].time = 0;
 			}
 		}
-		else if (m_moveObject[i]->step == 2)
+		else if (m_moveObject[i].step == 2)
 		{
-			if (m_moveObject[i]->posCurrent.x != m_moveObject[i]->posEnd.x || m_moveObject[i]->posCurrent.x != m_moveObject[i]->posEnd.y)
+			if (m_moveObject[i].posCurrent.x != m_moveObject[i].posEnd.x || m_moveObject[i].posCurrent.x != m_moveObject[i].posEnd.y)
 			{
 				MoveObject[] moveObject2 = m_moveObject;
 				moveObject2[i]->time = moveObject2[i]->time + 1;
-				if (m_moveObject[i]->stepAdvance != 0)
+				if (m_moveObject[i].stepAdvance != 0)
 				{
-					m_moveObject[i]->posCurrent.x = (m_moveObject[i]->posEnd.x - m_moveObject[i]->posStart.x) * m_moveObject[i]->time / m_moveObject[i]->stepAdvance + m_moveObject[i]->posStart.x;
-					m_moveObject[i]->posCurrent.y = (m_moveObject[i]->posEnd.y - m_moveObject[i]->posStart.y) * m_moveObject[i]->time / m_moveObject[i]->stepAdvance + m_moveObject[i]->posStart.y;
+					m_moveObject[i].posCurrent.x = (m_moveObject[i].posEnd.x - m_moveObject[i].posStart.x) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart.x;
+					m_moveObject[i].posCurrent.y = (m_moveObject[i].posEnd.y - m_moveObject[i].posStart.y) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart.y;
 				}
 
 			}
-			else if (m_moveObject[i]->type == 15 || m_moveObject[i]->type == 23)
+			else if (m_moveObject[i].type == 15 || m_moveObject[i].type == 23)
 			{
-				m_moveObject[i]->type = 0;
+				m_moveObject[i].type = 0;
 			}
-			else if (m_moveObject[i]->type == 34)
+			else if (m_moveObject[i].type == 34)
 			{
-				m_moveObject[i]->posStart = m_moveObject[i]->posCurrent;
-				m_moveObject[i]->posEnd = m_moveObject[i]->posCurrent;
-				m_moveObject[i]->step = 3;
-				m_moveObject[i]->time = 0;
+				m_moveObject[i].posStart = m_moveObject[i].posCurrent;
+				m_moveObject[i].posEnd = m_moveObject[i].posCurrent;
+				m_moveObject[i].step = 3;
+				m_moveObject[i].time = 0;
 			}
 			else
 			{
-				m_moveObject[i]->step = 3;
-				m_moveObject[i]->time = 0;
+				m_moveObject[i].step = 3;
+				m_moveObject[i].time = 0;
 			}
 		}
-		else if (m_moveObject[i]->step == 3)
+		else if (m_moveObject[i].step == 3)
 		{
-			if (m_moveObject[i]->time < m_moveObject[i]->timeStopEnd)
+			if (m_moveObject[i].time < m_moveObject[i].timeStopEnd)
 			{
 				MoveObject[] moveObject3 = m_moveObject;
 				moveObject3[i]->time = moveObject3[i]->time + 1;
 			}
 			else
 			{
-				m_moveObject[i]->step = 4;
-				m_moveObject[i]->time = 0;
+				m_moveObject[i].step = 4;
+				m_moveObject[i].time = 0;
 			}
 		}
-		else if (m_moveObject[i]->step == 4)
+		else if (m_moveObject[i].step == 4)
 		{
-			if (m_moveObject[i]->posCurrent.x != m_moveObject[i]->posStart.x || m_moveObject[i]->posCurrent.y != m_moveObject[i]->posStart.y)
+			if (m_moveObject[i].posCurrent.x != m_moveObject[i].posStart.x || m_moveObject[i].posCurrent.y != m_moveObject[i].posStart.y)
 			{
 				MoveObject[] moveObject4 = m_moveObject;
 				moveObject4[i]->time = moveObject4[i]->time + 1;
-				if (m_moveObject[i]->stepRecede != 0)
+				if (m_moveObject[i].stepRecede != 0)
 				{
-					m_moveObject[i]->posCurrent.x = (m_moveObject[i]->posStart.x - m_moveObject[i]->posEnd.x) *
-						m_moveObject[i]->time / m_moveObject[i]->stepRecede + m_moveObject[i]->posEnd.x;
-					m_moveObject[i]->posCurrent.y = (m_moveObject[i]->posStart.y - m_moveObject[i]->posEnd.y) *
-						m_moveObject[i]->time / m_moveObject[i]->stepRecede + m_moveObject[i]->posEnd.y;
+					m_moveObject[i].posCurrent.x = (m_moveObject[i].posStart.x - m_moveObject[i].posEnd.x) *
+						m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd.x;
+					m_moveObject[i].posCurrent.y = (m_moveObject[i].posStart.y - m_moveObject[i].posEnd.y) *
+						m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd.y;
 				}
 			}
 			else
 			{
-				m_moveObject[i]->step = 1;
-				m_moveObject[i]->time = 0;
+				m_moveObject[i].step = 1;
+				m_moveObject[i].time = 0;
 			}
 		}
 	}
-	if (m_moveObject[i]->type == 22 && m_moveObject[i]->step == 3)
+	if (m_moveObject[i].type == 22 && m_moveObject[i].step == 3)
 	{
-		m_moveObject[i]->type = 0;
+		m_moveObject[i].type = 0;
 	}
-	posCurrent = m_moveObject[i]->posCurrent;
-	if (m_moveObject[i]->type == 1 || m_moveObject[i]->type == 47 || m_moveObject[i]->type == 48)
+	posCurrent = m_moveObject[i].posCurrent;
+	if (m_moveObject[i].type == 1 || m_moveObject[i].type == 47 || m_moveObject[i].type == 48)
 	{
 		posCurrent.y -= 64;
 	}
@@ -7329,13 +7315,13 @@ void CDecor::MoveObjectStepLine(int i)
 	SetMoveTraj(posCurrent);
 	if (flag)
 	{
-		m_blupiVector.x = m_moveObject[i]->posCurrent.x - tinyPoint.x;
-		m_blupiVector.y = m_moveObject[i]->posCurrent.y - (m_blupiPos.y + 60 - BLUPIFLOOR);
-		if (m_moveObject[i]->type == 47)
+		m_blupiVector.x = m_moveObject[i].posCurrent.x - tinyPoint.x;
+		m_blupiVector.y = m_moveObject[i].posCurrent.y - (m_blupiPos.y + 60 - BLUPIFLOOR);
+		if (m_moveObject[i].type == 47)
 		{
 			m_blupiVector.x = m_blupiVector.x + 2;
 		}
-		if (m_moveObject[i]->type == 48)
+		if (m_moveObject[i].type == 48)
 		{
 			m_blupiVector.x = m_blupiVector.x - 2;
 		}
@@ -7348,7 +7334,7 @@ void CDecor::MoveObjectStepLine(int i)
 
 void CDecor::DynamiteStart(int i, int dx, int dy)
 {
-	POINT posStart = m_moveObject[i]->posStart;
+	POINT posStart = m_moveObject[i].posStart;
 	posStart.x -= 34;
 	posStart.y -= 34;
 	posStart.x += dx;
@@ -7388,22 +7374,22 @@ void CDecor::DynamiteStart(int i, int dx, int dy)
 	}
 	for (i = 0; i < MAXMOVEOBJECT; i++)
 	{
-		if (m_moveObject[i]->type == 2 || m_moveObject[i]->type == 3 || m_moveObject[i]->type == 96 || m_moveObject[i]->type == 97 || m_moveObject[i]->type == 4 ||
-			m_moveObject[i]->type == 6 || m_moveObject[i]->type == 12 || m_moveObject[i]->type == 13 || m_moveObject[i]->type == 16 || m_moveObject[i]->type == 17 ||
-			m_moveObject[i]->type == 19 || m_moveObject[i]->type == 20 || m_moveObject[i]->type == 24 || m_moveObject[i]->type == 25 || m_moveObject[i]->type == 26 || m_moveObject[i]->type == 28 ||
-			m_moveObject[i]->type == 30 || m_moveObject[i]->type == 32 || m_moveObject[i]->type == 33 || m_moveObject[i]->type == 34 || m_moveObject[i]->type == 40 || m_moveObject[i]->type == 44 ||
-			m_moveObject[i]->type == 46 || m_moveObject[i]->type == 52 || m_moveObject[i]->type == 54 || m_moveObject[i]->type == 200 || m_moveObject[i]->type == 201 || m_moveObject[i]->type == 202 ||
-			m_moveObject[i]->type == 203)
+		if (m_moveObject[i].type == 2 || m_moveObject[i].type == 3 || m_moveObject[i].type == 96 || m_moveObject[i].type == 97 || m_moveObject[i].type == 4 ||
+			m_moveObject[i].type == 6 || m_moveObject[i].type == 12 || m_moveObject[i].type == 13 || m_moveObject[i].type == 16 || m_moveObject[i].type == 17 ||
+			m_moveObject[i].type == 19 || m_moveObject[i].type == 20 || m_moveObject[i].type == 24 || m_moveObject[i].type == 25 || m_moveObject[i].type == 26 || m_moveObject[i].type == 28 ||
+			m_moveObject[i].type == 30 || m_moveObject[i].type == 32 || m_moveObject[i].type == 33 || m_moveObject[i].type == 34 || m_moveObject[i].type == 40 || m_moveObject[i].type == 44 ||
+			m_moveObject[i].type == 46 || m_moveObject[i].type == 52 || m_moveObject[i].type == 54 || m_moveObject[i].type == 200 || m_moveObject[i].type == 201 || m_moveObject[i].type == 202 ||
+			m_moveObject[i].type == 203)
 		{
 			RECT src2;
-			src2.left = m_moveObject[i]->posCurrent.x;
-			src2.right = m_moveObject[i]->posCurrent.x + 60;
-			src2.top = m_moveObject[i]->posCurrent.y;
-			src2.bottom = m_moveObject[i]->posCurrent.y + 20;
+			src2.left = m_moveObject[i].posCurrent.x;
+			src2.right = m_moveObject[i].posCurrent.x + 60;
+			src2.top = m_moveObject[i].posCurrent.y;
+			src2.bottom = m_moveObject[i].posCurrent.y + 20;
 			RECT tinyRect;
 			if (IntersectRect(tinyRect, src2, src))
 			{
-				if (m_moveObject[i]->type == 12)
+				if (m_moveObject[i].type == 12)
 				{
 					SearchLinkCaisse(i, TRUE);
 					for (int l = 0; l < m_nbLinkCaisse; l++)
@@ -7411,7 +7397,7 @@ void CDecor::DynamiteStart(int i, int dx, int dy)
 						int channel = m_moveObject[m_linkCaisse[l]]->channel;
 						int icon2 = m_moveObject[m_linkCaisse[l]]->icon;
 						POINT posCurrent = m_moveObject[m_linkCaisse[l]]->posCurrent;
-						double num = (double)m_random->next(7, 23);
+						double num = m_random->next(7, 23);
 						if (m_random->next(0, 100) % 2 == 0)
 						{
 							num = -num;
@@ -7419,12 +7405,12 @@ void CDecor::DynamiteStart(int i, int dx, int dy)
 						ByeByeAdd(channel, icon2, posCurrent, num, 1.0);
 						m_moveObject[m_linkCaisse[l]]->type = 0;
 					}
-					ObjectDelete(m_moveObject[i]->posCurrent, m_moveObject[i]->type);
+					ObjectDelete(m_moveObject[i].posCurrent, m_moveObject[i].type);
 					UpdateCaisse();
 				}
 				else
 				{
-					ObjectDelete(m_moveObject[i]->posCurrent, m_moveObject[i]->type);
+					ObjectDelete(m_moveObject[i].posCurrent, m_moveObject[i].type);
 				}
 			}
 		}
@@ -7456,10 +7442,10 @@ int CDecor::AscenseurDetect(RECT rect, POINT oldpos, POINT newpos)
 	num = abs(num);
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
 	{
-		if (m_moveObject[i]->type == 1 || m_moveObject[i]->type == 47 || m_moveObject[i]->type == 48)
+		if (m_moveObject[i].type == 1 || m_moveObject[i].type == 47 || m_moveObject[i].type == 48)
 		{
 			RECT src;
-			src.left = m_moveObject[i]->posCurrent.x;
+			src.left = m_moveObject[i].posCurrent.x;
 
 		}
 	}
@@ -7471,7 +7457,7 @@ BOOL CDecor::SearchDoor(int n, POINT cel, POINT blupi)
     {
         for (int j = 0; j < 100; j++)
         {
-            int icon = m_decor[i, j]->icon;
+            int icon = m_decor[i][j].icon;
             if (icon >= 174 && icon <= 181 && icon - 174 + 1 == n)
             {
                 if (i > 0 && m_decor[i - 1, j]->icon == 182)
@@ -7503,7 +7489,7 @@ BOOL CDecor::SearchDoor(int n, POINT cel, POINT blupi)
                     cel.x = i + 2;
                     cel.y = j;
                     blupi.x = (i + 3) * 64 + 2;
-                    blupi.y = j * 64 + BLUPIOFF;
+                    blupi.y = j * 64 + BLUPIOFFY;
                     return TRUE;
                 }
             }
@@ -7518,7 +7504,7 @@ BOOL SearchGold(int n, POINT cel)
     {
         for (int j = 99; j >= 0; j--)
         {
-            if (m_decor[j, i]->icon == 183)
+            if (m_decor[j][i].icon == 183)
             {
                 cel.x = j;
                 cel.y = i;
@@ -7535,7 +7521,7 @@ void CDecor::OpenDoorsTresor()
     {
         for (int j = 0; j < 100; j++)
         {
-            int icon = m_decor[i, j]->icon;
+            int icon = m_decor[i][j].icon;
             if (icon >= 421 && icon <= 421 + m_nbTresor - 1)
             {
                 POINT cel;
@@ -7552,22 +7538,22 @@ void CDecor::OpenDoor(POINT cel)
     int icon = m_decor[cel.x, cel.y]->icon;
     m_decor[cel.x, cel.y]->icon = -1;
     int num = MoveObjectFree();
-    m_moveObject[num]->type = 22;
-    m_moveObject[num]->stepAdvance = 50;
-    m_moveObject[num]->stepRecede = 1;
-    m_moveObject[num]->timeStopStart = 0;
-    m_moveObject[num]->timeStopEnd = 0;
-    m_moveObject[num]->posStart.x = 64 * cel.x;
-    m_moveObject[num]->posStart.y = 64 * cel.y;
-    m_moveObject[num]->posEnd.x = 64 * cel.x;
-    m_moveObject[num]->posEnd.y = 64 * (cel.y - 1);
-    m_moveObject[num]->posCurrent = m_moveObject[num]->posStart;
-    m_moveObject[num]->step = 1;
-    m_moveObject[num]->time = 0;
-    m_moveObject[num]->phase = 0;
-    m_moveObject[num]->channel = 1;
-    m_moveObject[num]->icon = icon;
-    PlaySound(33, m_moveObject[num]->posStart);
+    m_moveObject[num].type = 22;
+    m_moveObject[num].stepAdvance = 50;
+    m_moveObject[num].stepRecede = 1;
+    m_moveObject[num].timeStopStart = 0;
+    m_moveObject[num].timeStopEnd = 0;
+    m_moveObject[num].posStart.x = 64 * cel.x;
+    m_moveObject[num].posStart.y = 64 * cel.y;
+    m_moveObject[num].posEnd.x = 64 * cel.x;
+    m_moveObject[num].posEnd.y = 64 * (cel.y - 1);
+    m_moveObject[num].posCurrent = m_moveObject[num].posStart;
+    m_moveObject[num].step = 1;
+    m_moveObject[num].time = 0;
+    m_moveObject[num].phase = 0;
+    m_moveObject[num].channel = 1;
+    m_moveObject[num].icon = icon;
+    PlaySound(33, m_moveObject[num].posStart);
 }
 
 void CDecor::OpenDoorsWin()
@@ -7595,7 +7581,7 @@ void CDecor::GetBlupiInfo(BOOL &bHelico, BOOL &bJeep, BOOL &bSkate, BOOL &bNage)
 
 void CDecor::MoveObjectSort()
 {
-	CDecor.MoveObject src = default(CDecor->MoveObject);
+	CMoveObject src = default(CDecor->MoveObject);
 	int num = 0;
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
 }
