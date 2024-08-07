@@ -61,40 +61,6 @@ typedef struct
 }
 DemoEvent;
 
-typedef enum
-{
-	cheat_cleanall = 2,
-	cheat_funskate = 6,
-	cheat_givecopter = 7,
-	cheat_jeepdrive = 8,
-	cheat_alltreasure = 9,
-	cheat_endgoal = 10,
-	cheat_roundshield = 12,
-	cheat_quicklollipop = 13,
-	cheat_tenbombs = 14,
-	cheat_birdlime = 15,
-	cheat_drivetank = 16,
-	cheat_powercharge = 17,
-	cheat_hidedrink = 18,
-	cheat_iovercraft = 22,
-	cheat_udynamite = 23,
-	cheat_wellkeys = 24
-}
-cheat;
-
-typedef enum
-{
-	KEY_NONE,
-	KEY_LEFT,
-	KEY_RIGHT,
-	KEY_UP,
-	KEY_DOWN,
-	KEY_JUMP,
-	INPUT_DOWN,
-	INPUT_UP,
-	KEY_FIRE
-};
-
 class CEvent
 {
 public:
@@ -104,7 +70,7 @@ public:
 
 	void	OutputNetDebug(const char* str);
 	POINT	GetMousePos();
-	void	Create(HWND hWnd, CPixmap *pPixmap, CDecor *pDecor, CSound *pSound, CMovie *pMovie, CNetwork *pNetwork);
+	void	Create(HINSTANCE hInstance, HWND hWnd, CPixmap *pPixmap, CDecor *pDecor, CSound *pSound, CNetwork *pNetwork, CMovie *pMovie);
 	void	SetFullScreen(BOOL bFullScreen);
 	void	SetMouseType(int mouseType);
 	int		GetWorld();
@@ -113,7 +79,7 @@ public:
 	int		GetImageWorld();
 	BOOL	IsHelpHide();
 	BOOL	ChangePhase(UINT phase);
-	WMessage GetPhase();
+	UINT	GetPhase();
 	void	MovieToStart();
 	BOOL	NetworkNuggets(int fuck);
 	void	HandleInputs();
@@ -149,7 +115,7 @@ public:
 	void	WaitMouse(BOOL bWait);
 	void	HideMouse(BOOL bHide);
 	void	FillMouse(int bFill);
-	POINT	GetLastMousePos(POINT out);
+	POINT	GetLastMousePos();
 	BOOL	TreatEvent(UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL	TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam);
 
@@ -179,10 +145,10 @@ public:
 
 	void	IntroStep();
 
-	void	AddPhaseText();
+	BOOL	AddPhaseText();
 	void	ReadInput();
 
-	void	DrawTextCenter(int res, int x, int y, int font=0);
+	void	DrawTextCenter(int res, POINT pos, int font=0);
 	BOOL	CreateButtons();
 	BOOL	EventButtons(UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL	MouseOnButton(POINT pos);
@@ -221,8 +187,8 @@ public:
 	BOOL	NetEnumSessions();
 	int		NetSearchPlayer(DPID dpid);
 	void	NetStartPlay();
-	void	NetSend(NetMessageType message, USHORT data);
-	void	NetDraw();
+	void	NetFUN_1d6b0(UINT message, USHORT data);
+	void	NetDrawMap();
 	void	ChatSend();
 
 	void	MouseRelease();
@@ -246,7 +212,7 @@ protected:
     BOOL        m_bSchool;
     BOOL        m_bPrivate;
 	BOOL 		m_bMulti;
-    BOOL        m_bAccessBuild;
+    BOOL        m_bBuildOfficialMissions;
     BOOL        m_bFullScreen;
     int         m_mouseType;
     HWND        m_hWnd;
@@ -256,7 +222,7 @@ protected:
     CMovie*		m_pMovie;
 	CNetwork* 	m_pNetwork;
 	char		m_movieToStart[MAX_PATH];
-	WMessage	m_phaseAfterMovie;
+	UINT		m_phaseAfterMovie;
 	CButton		m_buttons[MAXBUTTON];
 	int			m_lastFloor[MAXBUTTON];
 	int			m_lastObject[MAXBUTTON];
@@ -324,7 +290,8 @@ protected:
 	int 		m_textHiliEnd;
 	int 		m_textCursorIndex;
 	char 		m_textInput[100];
-	char 		m_pPlayerName[100];
+	char 		m_gamerName[100];
+	char		m_gamerNameList[10][100];
 	int 		m_lives;
 	int 		m_multi;
 	HINSTANCE	m_hInstance;

@@ -11,6 +11,7 @@
 #define _SE				FALSE	// TRUE eGames Special Edition
 #define _NOCD			TRUE
 
+#define MAXGAMER		8
 
 #define LXIMAGE			640		// dimensions de la fenêtre de jeu
 #define LYIMAGE			480
@@ -84,11 +85,23 @@ namespace Ch {
 	};
 };
 
-#define MESS_LOBBY		4
-#define NETEVENTMAX		20
+#define MESS_RESUME 0
+#define MESS_PAUSE 1
+#define MESS_LOBBY 4
+#define MESS_LEAVE 8
+#define MESS_LOST 9
+#define MESS_START 10
+#define MESS_PAUSE2 12
+#define MESS_OBJECTSTART 20
+#define MESS_OBJECTDELETE 21
+#define MESS_MODIFDECOR 30
+#define MESS_PLAYSOUND 40
+#define MESS_STOPSOUND 41
+#define MESS_ASCENSEURSTART 50
+#define MESS_ASCENSEUREND 51
+#define MESS_STOPCLOUD 60
 
-#define PK_PLAYSOUND	40
-
+#define MAXNETMESSAGE		20
 
 // Directions :
 
@@ -676,6 +689,7 @@ namespace Sound {
 #define KEY_DOWN	(1 << 3)
 #define KEY_JUMP	(1 << 4)
 #define KEY_FIRE	(1 << 5)
+#define KEY_NONE	0
 
 namespace Key {
 	enum Key {
@@ -983,6 +997,8 @@ namespace Key {
 #define WM_PHASE_GWRITE 1584
 #define WM_PHASE_DOQUIT 1587
 #define WM_PHASE_GAMER  1545
+
+#define WM_PHASE_CLEARGAMER 1528
 
 // Types de gestion de la souris.
 

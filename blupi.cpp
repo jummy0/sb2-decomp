@@ -335,19 +335,13 @@ void SetDecor()
 
 	phase = g_pEvent->GetPhase();
 
+	rect = { 0, 0, LXIMAGE, LYIMAGE };
+
 	if (phase == WM_PHASE_PLAY || phase == WM_PHASE_PLAYTEST || phase == WM_PHASE_BUILD)
 	{
-		rect.bottom = LYIMAGE;
-		rect.right = LXIMAGE;
-		rect.top = 0;
-		rect.left = 0;
 		g_pDecor->Build(rect);
 	}
 	else {
-		rect.bottom = LYIMAGE;
-		rect.right = LXIMAGE;
-		rect.top = 0;
-		rect.left = 0;
 		g_pPixmap->DrawImage(-1, 0, rect, 1);
 	}
 
@@ -753,7 +747,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	g_pEvent = new CEvent;
 	if (g_pEvent == NULL) return InitFail("New event", FALSE);
 
-	g_pEvent->Create(hInstance, g_hWnd, g_pPixmap, g_pDecor, g_pSound, g_pMovie, g_pNetwork);
+	g_pEvent->Create(hInstance, g_hWnd, g_pPixmap, g_pDecor, g_pSound, g_pNetwork, g_pMovie);
 	g_pEvent->SetFullScreen(g_bFullScreen);
 	g_pEvent->SetMouseType(g_mouseType);
 #if _INTRO

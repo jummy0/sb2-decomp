@@ -1490,8 +1490,8 @@ CEvent::~CEvent()
     WriteInfo(); // Read the file "info.blp"
 }
 
-void CEvent::Create(HWND hWnd, CPixmap *pPixmap, CDecor *pDecor,
-                    CSound *pSound, CMovie *pMovie, CNetwork *pNetwork)
+void CEvent::Create(HINSTANCE hInstance, HWND hWnd, CPixmap *pPixmap, CDecor *pDecor,
+                    CSound *pSound, CNetwork *pNetwork, CMovie *pMovie)
 {
 	HINSTANCE hInstance;
     POINT   pos;
@@ -1506,7 +1506,6 @@ void CEvent::Create(HWND hWnd, CPixmap *pPixmap, CDecor *pDecor,
 	m_gamer = 1;
 
     ReadInfo(1);
-	return;
 }
 
 int CEvent::GetButtonIndex(int button)
@@ -1664,7 +1663,7 @@ void CEvent::FlushInput()
 {
 	m_input = 0;
 	
-	m_pDecor->SetInput(0);
+	m_pDecor->SetInput(KEY_NONE);
 	return;
 
 }
@@ -1702,7 +1701,7 @@ BOOL CEvent::CreateButtons()
 
 void CEvent::ReadInput()
 {
-	BOOL something;
+	BOOL bCanCrouch;
 	MMRESULT joyPos;
 	int  i;
 	UINT keyInput;
@@ -1715,33 +1714,29 @@ void CEvent::ReadInput()
 	UINT bJoyID;
 
 
-	if (m_bMulti != FALSE)
+	if (m_bMulti)
 	{
 		m_pDecor->TreatNetData();
 	}
 	
-	if ((m_somethingJoystick == (void*)0) || (m_bDemoPlay != FALSE)) 
+	if (m_somethingJoystick == NULL || m_bDemoPlay) 
 	{
 		m_pDecor->SetJoystickEnable(FALSE);
 	}
 	else
 	{
 		m_pDecor->GetBlupiInfo(&bHelicopter, &bCar, &bSkateboard, &bWater);
-		something = TRUE;
+		bCanCrouch = TRUE;
 
-		if (((bHelicopter != FALSE) || (bCar != FALSE)) || (bSkateboard != FALSE))
+		if (bHelicopter || bCar || bSkateboard)
 		{
-			something = FALSE;
+			bCanCrouch = FALSE;
 		}
 		bJoyID = m_joyID;
-		joyInfo = &joy;
 
-		for (i != 0; i = 13; i++)
-		{
-			joyInfo->dwSize = 0;
-			joyInfo = (JOYINFOEX*)&joyInfo->dwFlags;
-		}
-		joy.dwSize = 52;
+		ZeroMemory(&joy, sizeof(joy));
+
+		joy.dwSize = sizeof(JOYINFOEX);
 		joy.dwFlags = 255;
 
 		joyPos = joyGetPosEx(bJoyID, &joy);
@@ -1750,57 +1745,53 @@ void CEvent::ReadInput()
 		{
 			m_input = 0;
 
-			if ((int)joy.dwXpos < 16384)
+			if (joy.dwXpos < 16384)
 			{
 				m_input = KEY_LEFT;
 			}
-			if ((m_input == KEY_NONE) && ((int)joy.dwYpos < 16384))
+			if (m_input == KEY_NONE && joy.dwYpos < 16384)
 			{
 				m_input = KEY_UP;
 			}
-			if (((m_input == KEY_NONE) || (something)) && (49152 < (int)joy.dwYpos))
+			if (m_input == KEY_NONE || joy.dwYpos > 49152)
 			{
 				m_input = m_input | KEY_DOWN;
 			}
-			if (((BYTE)joy.dwButtons & JOY_BUTTON1) != 0)
+			if (joy.dwButtons & JOY_BUTTON1)
 			{
-				m_input = m_input & ~(INPUT_DOWN | INPUT_UP) | KEY_JUMP;
+				m_input = m_input & ~(KEY_DOWN | KEY_UP) | KEY_JUMP;
 			}
-			if (((BYTE)joy.dwButtons & JOY_BUTTON2) != 0)
+			if (joy.dwButtons & JOY_BUTTON2)
 			{
-				if (bSkateboard == FALSE)
-				{
-					keyInput = m_input & ~INPUT_DOWN | KEY_UP | KEY_JUMP;
+				if (bSkateboard) {
+					keyInput = m_input & ~(KEY_DOWN | KEY_UP) | KEY_JUMP;
 				}
-				else
-				{
-					keyInput = m_input & ~(INPUT_DOWN | INPUT_UP) | KEY_JUMP;
+				else {
+					keyInput = m_input & ~KEY_DOWN | KEY_UP | KEY_JUMP;
 				}
 				m_input = keyInput;
 			}
-			if (((BYTE)joy.dwButtons & JOY_BUTTON3) != 0)
+			if (joy.dwButtons & JOY_BUTTON3)
 			{
-				if (bHelicopter == FALSE)
-				{
-					if (bSkateboard == FALSE)
-					{
-						keyInput = m_input | KEY_DOWN | KEY_JUMP;
-					}
-					else
-					{
-						keyInput = m_input & ~(INPUT_DOWN | INPUT_UP) | KEY_JUMP;
-					}
-				}
-				else
+				if (bHelicopter)
 				{
 					keyInput = m_input | KEY_DOWN;
 				}
+				else {
+					if (bSkateboard) {
+						keyInput = m_input & ~(KEY_DOWN | KEY_UP) | KEY_JUMP;
+					}
+					else {
+						keyInput = m_input | KEY_DOWN | KEY_JUMP;
+					}
+				}
+				
 				m_input = keyInput;
-				m_input = keyInput & ~INPUT_UP;
+				m_input = keyInput & ~KEY_UP;
 			}
-			if (((BYTE)joy.dwButtons & JOY_BUTTON4) != 0)
+			if (joy.dwButtons & JOY_BUTTON4)
 			{
-				m_input = m_input & ~(INPUT_DOWN | INPUT_UP) | KEY_FIRE;
+				m_input = m_input & ~(KEY_DOWN | KEY_UP) | KEY_FIRE;
 			}
 			m_pDecor->SetInput(m_input);
 			m_pDecor->SetJoystickEnable(TRUE);
@@ -1819,18 +1810,14 @@ void CEvent::NetSetPause(BOOL bPause, int players)
 	
 	bPause_ = bPause;
 	m_pDecor->SetPause(bPause);
-	if ((m_phase == WM_PHASE_PLAY) || (m_phase == WM_PHASE_PLAYTEST))
+	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
 	{
-		if (bPause_ == FALSE)
-		{
-			m_pSound->RestartMusic();
-		}
-		else
-		{
+		if (bPause_)
 			m_pSound->SuspendMusic();
-		}
+		else
+			m_pSound->RestartMusic();
 	}
-	if ((m_bMulti != FALSE) && (players != 0))
+	if (m_bMulti && players != 0)
 	{
 		m_pNetwork->Send(&bPause, 3, DPSEND_GUARANTEED);
 	}
@@ -1839,91 +1826,73 @@ void CEvent::NetSetPause(BOOL bPause, int players)
 
 void CEvent::NetSendLobby()
 {
-	int i;
 	NetPlayer* player;
 	NetPlayer* playerPacket;
 	UCHAR packet[132];
 	CNetwork* pNetwork;
 
-	packet._2_2_ = (int*)&m_multi;
+	packet[2] = *(short*)&m_multi;
 	pNetwork = m_pNetwork;
 	packet[0] = 132;
 	packet[1] = MESS_LOBBY;
 	player = pNetwork->m_players;
 	playerPacket = (NetPlayer*)(packet + 4);
-	for (i != 0; i = sizeof(NetPlayer); i++)
+	for (int i = 0; i < sizeof(NetPlayer); i++)
 	{
 		playerPacket = (NetPlayer*)player;
 		player = (NetPlayer*)&player->dpid;
 		playerPacket++;
 	}
 	pNetwork->Send(packet, 132, DPSEND_GUARANTEED);
-	return;
 }
 
 int	CEvent::NetSearchPlayer(DPID dpid)
 {
-	int i;
-	BYTE* pDpid;
-	
-	i = 0;
-	pDpid = (BYTE*)&m_pNetwork->m_players[0].dpid;
-
-	while ((pDpid[-4] == 0 || (dpid != *(DPID*)pDpid)))
+	for (int i = 0; i < MAXNETPLAYER; i++)
 	{
-		i++;
-		pDpid = pDpid + sizeof(NetPlayer);
-		if (3 < i)
-		{
-			return -1;
-		}
+		if (m_pNetwork->m_players[i].bIsPresent && m_pNetwork->m_players[0].dpid == dpid) return i;
 	}
-	return i;
+
+	return -1;
 }
 
 void CEvent::NetStartPlay()
 {
 	BOOL host;
 	int i;
-	int* player;
+	DPID player;
 	char message[2];
 	char str[52];
 	CNetwork* pNetwork;
 
 	OutputNetDebug("CEvent::NetStartPlay");
-	host = m_pNetwork->IsHost();
 
-	if (host != FALSE)
+	if (m_pNetwork->IsHost())
 	{
-		message[0] = '\x02';
-		message[1] = '\a';
+		message[0] = 2;
+		message[1] = MESS_START;
 		m_pNetwork->Send(message, 2, DPSEND_GUARANTEED);
-		OutputNetDebug("Sending_MESS_START");
+		OutputNetDebug("Sending MESS_START");
 	}
 	m_pDecor->SetTeam(0);
-	pNetwork = m_pNetwork;
 
-	i = 0;
-	player = &pNetwork->m_players[0].dpid;
-	
-	while ((((NetPlayer*)(player + -1))->bIsPresent == FALSE || (pNetwork->m_dpid != player)))
+	for (int i = 0; i < MAXNETPLAYER; i++)
 	{
-		i++;
-		player = player + 8;
-		if (3 < i)
+		if (m_pNetwork->m_players[i].bIsPresent && m_pNetwork->m_players[0].dpid == m_pNetwork->m_dpid)
 		{
-			m_bMulti = TRUE;
-			m_bPrivate = FALSE;
-			m_pDecor->SetMulti(TRUE);
+			m_pDecor->SetTeam(pNetwork->m_players[i].team);
+			sprintf(str, "color=%d", m_pNetwork->m_players[i].team);
+			OutputNetDebug(str);
 			return;
 		}
 	}
-	m_pDecor->SetTeam((int)pNetwork->m_players[i].team);
-	sprintf(str, "color=%d", (int)m_pNetwork->m_players[i].team);
-	OutputNetDebug(str);
+
+	m_bMulti = TRUE;
+	m_bPrivate = FALSE;
+	m_pDecor->SetMulti(TRUE);
 }
 
-void CEvent::NetSend(NetMessageType message, USHORT data)
+void CEvent::NetFUN_1d6b0(UINT message, USHORT data)
 {
 	UCHAR packet[4];
 
@@ -1936,13 +1905,9 @@ void CEvent::NetSend(NetMessageType message, USHORT data)
 	return;
 }
 
-void CEvent::NetDraw()
+void CEvent::NetDrawMap()
 {
-	int player;
-
-	player = NetSearchPlayer(m_pNetwork->m_dpid);
-	m_pDecor->DrawMap(TRUE, player);
-	return;
+	m_pDecor->DrawMap(TRUE, NetSearchPlayer(m_pNetwork->m_dpid));
 }
 
 void CEvent::ChatSend()
@@ -1998,15 +1963,61 @@ void AddCheatCode(char *pDst, char *pSrc)
 }
 
 
-void CEvent::DrawTextCenter(int res, int x, int y, int font)
+void CEvent::DrawTextCenter(int res, POINT pos, int font)
 {
     char    text[100];
-    POINT   pos;
 
     LoadString(res, text, 100);
-    pos.x = x;
-    pos.y = y;
     ::DrawTextCenter(m_pPixmap, pos, text, font);
+}
+
+BOOL CEvent::AddPhaseText()
+{
+	char text[100];
+
+
+	if (m_phase != WM_PHASE_INSERT && m_phase != WM_PHASE_BYE)
+	{
+		text[0] = 0;
+
+		if (m_bBuildOfficialMissions) AddCheatCode(text, cheat_code[0]);
+		if (m_bAllMissions) AddCheatCode(text, cheat_code[1]);
+		if (m_pDecor->GetSuperBlupi()) AddCheatCode(text, cheat_code[3]);
+		if (m_pDecor->GetDrawSecret()) AddCheatCode(text, cheat_code[11]);
+		if (m_pDecor->GetNetPacked()) AddCheatCode(text, cheat_code[19]);
+		if (m_pDecor->GetNetMovePredict()) AddCheatCode(text, cheat_code[21]);
+
+		m_pDecor->OutputNetDebug(text);
+
+		if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST && m_phase != WM_PHASE_BUILD)
+		{
+			m_pPixmap->DrawPart(-1, CHDECOR, { 2, 2 }, { 2, 2, 302, 14 }, 1, FALSE);
+		}
+		DrawTextLeft(m_pPixmap, { 2, 2 }, text, CHLITTLE);
+	}
+	if (m_phase == WM_PHASE_INIT)
+	{
+		DrawTextB(m_pPixmap, { 414, 446 }, "Version 2.2", FONTLITTLE);
+	}
+	if (m_phase == WM_PHASE_GAMER)
+	{
+		LoadString(TX_ChoosePlayer@2, text, 100);
+		DrawTextLeft(m_pPixmap, { LXIMAGE / 2 - GetTextWidth(text, 0) / 2, 26 }, text, FONTRED);
+
+		POINT pos { 110, 69 };
+		for (int i = 0; i < MAXGAMER; i++)
+		{
+			DrawTextB(m_pPixmap, pos, m_gamerNameList[i], FONTWHITE);
+			pos.y += DIMBUTTONY;
+		}
+
+		//SetEnable(WM_PHASE_CLEARGAMER); // TODO
+	}
+	if (m_phase == WM_PHASE_CREATE)
+	{
+		LoadString(0xFA, text, 100);
+		// TODO
+	}
 }
 
 BOOL CEvent::DrawButtons()
@@ -2209,11 +2220,9 @@ BOOL CEvent::TextSomething()
 	return 1;
 }
 
-POINT CEvent::GetLastMousePos(POINT out)
+POINT CEvent::GetLastMousePos()
 {
-	out.x = m_oldMousePos.x;
-	out.y = m_oldMousePos.y;
-	return;
+	return m_oldMousePos;
 }
 
 BOOL CEvent::TreatEvent(UINT message, WPARAM wParam, LPARAM lParam)
@@ -2537,12 +2546,12 @@ int CEvent::GetWorldGroup()
 
 void CEvent::SetMission(int index)
 {
-	if (m_bPrivate != 0)
+	if (m_bPrivate)
 	{
 		m_private = index;
 		return;
 	}
-	if (m_bMulti != 0)
+	if (m_bMulti)
 	{
 		m_multi = index;
 		return;
@@ -3018,7 +3027,7 @@ BOOL CEvent::DemoPlayStart()
 	m_bDemoPlay = TRUE;
 	m_bDemoRec = FALSE;
 
-	if (!m_pDecor->Read(header.world, FALSE, world, time, total))
+	if (!m_pDecor->CurrentRead(header.world, FALSE, world, time, total))
 	{
 		DemoPlayStop();
 		return FALSE;

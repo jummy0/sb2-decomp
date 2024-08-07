@@ -7,7 +7,7 @@
 /////////////////////////////////////////////////////////////////////////////
 
 #define MAXSESSION 100
-#define MAXPLAYERS 4
+#define MAXNETPLAYER 4
 
 typedef struct
 {
@@ -57,14 +57,14 @@ public:
 	void FreeUnknownList();
 	BOOL IsHost();
 
+	NetPlayer		m_players[4];
+	DPID			m_dpid;
 protected:
     LPDIRECTPLAY2	m_pDP;
 	NamedGUIDList	m_providers;
 	NamedGUIDList	m_sessions;
 	NamedGUIDList	m_unknown;
 	BOOL			m_bHost;
-	DPID			m_dpid;
-	NetPlayer		m_players[4];
 };
 
 static BOOL EnumProvidersCallback(LPGUID lpguidSP, LPSTR lpSTName,

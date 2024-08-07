@@ -9,10 +9,267 @@
 #include "text.h"
 #include "texttables.h"
 
-#pragma warning (disable: 4996)
-
 /////////////////////////////////////////////////////////////////////////////
 
+static CharOffset table_offsets[] =
+{
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ ' ',	0,	0,	-1,	0,	0 },
+	{ '!',	0,	0,	-1,	0,	0 },
+	{ '"',	0,	0,	-1,	0,	0 },
+	{ '#',	0,	0,	-1,	0,	0 },
+	{ '$',	0,	0,	-1,	0,	0 },
+	{ '%',	0,	0,	-1,	0,	0 },
+	{ '&',	0,	0,	-1,	0,	0 },
+	{ '\'',	0,	0,	-1,	0,	0 },
+	{ '(',	0,	0,	-1,	0,	0 },
+	{ ')',	0,	0,	-1,	0,	0 },
+	{ '*',	0,	0,	-1,	0,	0 },
+	{ '+',	0,	0,	-1,	0,	0 },
+	{ ',',	0,	0,	-1,	0,	0 },
+	{ '-',	0,	0,	-1,	0,	0 },
+	{ '.',	0,	0,	-1,	0,	0 },
+	{ '/',	0,	0,	-1,	0,	0 },
+	{ '0',	0,	0,	-1,	0,	0 },
+	{ '1',	0,	0,	-1,	0,	0 },
+	{ '2',	0,	0,	-1,	0,	0 },
+	{ '3',	0,	0,	-1,	0,	0 },
+	{ '4',	0,	0,	-1,	0,	0 },
+	{ '5',	0,	0,	-1,	0,	0 },
+	{ '6',	0,	0,	-1,	0,	0 },
+	{ '7',	0,	0,	-1,	0,	0 },
+	{ '8',	0,	0,	-1,	0,	0 },
+	{ '9',	0,	0,	-1,	0,	0 },
+	{ ':',	0,	0,	-1,	0,	0 },
+	{ ';',	0,	0,	-1,	0,	0 },
+	{ '<',	0,	0,	-1,	0,	0 },
+	{ '=',	0,	0,	-1,	0,	0 },
+	{ '>',	0,	0,	-1,	0,	0 },
+	{ '?',	0,	0,	-1,	0,	0 },
+	{ '@',	0,	0,	-1,	0,	0 },
+	{ 'A',	0,	0,	-1,	0,	0 },
+	{ 'B',	0,	0,	-1,	0,	0 },
+	{ 'C',	0,	0,	-1,	0,	0 },
+	{ 'D',	0,	0,	-1,	0,	0 },
+	{ 'E',	0,	0,	-1,	0,	0 },
+	{ 'F',	0,	0,	-1,	0,	0 },
+	{ 'G',	0,	0,	-1,	0,	0 },
+	{ 'H',	0,	0,	-1,	0,	0 },
+	{ 'I',	0,	0,	-1,	0,	0 },
+	{ 'J',	0,	0,	-1,	0,	0 },
+	{ 'K',	0,	0,	-1,	0,	0 },
+	{ 'L',	0,	0,	-1,	0,	0 },
+	{ 'M',	0,	0,	-1,	0,	0 },
+	{ 'N',	0,	0,	-1,	0,	0 },
+	{ 'O',	0,	0,	-1,	0,	0 },
+	{ 'P',	0,	0,	-1,	0,	0 },
+	{ 'Q',	0,	0,	-1,	0,	0 },
+	{ 'R',	0,	0,	-1,	0,	0 },
+	{ 'S',	0,	0,	-1,	0,	0 },
+	{ 'T',	0,	0,	-1,	0,	0 },
+	{ 'U',	0,	0,	-1,	0,	0 },
+	{ 'V',	0,	0,	-1,	0,	0 },
+	{ 'W',	0,	0,	-1,	0,	0 },
+	{ 'X',	0,	0,	-1,	0,	0 },
+	{ 'Y',	0,	0,	-1,	0,	0 },
+	{ 'Z',	0,	0,	-1,	0,	0 },
+	{ '[',	0,	0,	-1,	0,	0 },
+	{ '\\',	0,	0,	-1,	0,	0 },
+	{ ']',	0,	0,	-1,	0,	0 },
+	{ '^',	0,	0,	-1,	0,	0 },
+	{ '_',	0,	0,	-1,	0,	0 },
+	{ '`',	0,	0,	-1,	0,	0 },
+	{ 'a',	0,	0,	-1,	0,	0 },
+	{ 'b',	0,	0,	-1,	0,	0 },
+	{ 'c',	0,	0,	-1,	0,	0 },
+	{ 'd',	0,	0,	-1,	0,	0 },
+	{ 'e',	0,	0,	-1,	0,	0 },
+	{ 'f',	0,	0,	-1,	0,	0 },
+	{ 'g',	0,	0,	-1,	0,	0 },
+	{ 'h',	0,	0,	-1,	0,	0 },
+	{ 'i',	0,	0,	-1,	0,	0 },
+	{ 'j',	0,	0,	-1,	0,	0 },
+	{ 'k',	0,	0,	-1,	0,	0 },
+	{ 'l',	0,	0,	-1,	0,	0 },
+	{ 'm',	0,	0,	-1,	0,	0 },
+	{ 'n',	0,	0,	-1,	0,	0 },
+	{ 'o',	0,	0,	-1,	0,	0 },
+	{ 'p',	0,	0,	-1,	0,	0 },
+	{ 'q',	0,	0,	-1,	0,	0 },
+	{ 'r',	0,	0,	-1,	0,	0 },
+	{ 's',	0,	0,	-1,	0,	0 },
+	{ 't',	0,	0,	-1,	0,	0 },
+	{ 'u',	0,	0,	-1,	0,	0 },
+	{ 'v',	0,	0,	-1,	0,	0 },
+	{ 'w',	0,	0,	-1,	0,	0 },
+	{ 'x',	0,	0,	-1,	0,	0 },
+	{ 'y',	0,	0,	-1,	0,	0 },
+	{ 'z',	0,	0,	-1,	0,	0 },
+	{ '{',	0,	0,	-1,	0,	0 },
+	{ '|',	0,	0,	-1,	0,	0 },
+	{ '}',	0,	0,	-1,	0,	0 },
+	{ '~',	0,	0,	-1,	0,	0 },
+	{ 0x7f,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 0x05,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 0x04,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 0x10,	0,	0,	-1,	0,	0 },
+	{ 'a',	0,	0,	2,	2,	0 },
+	{ 0x11,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 0x1b,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 0x1d,	0,	0,	-1,	0,	0 },
+	{ 0x13,	0,	0,	-1,	0,	0 },
+	{ 0x12,	0,	0,	-1,	0,	0 },
+	{ 0x15,	0,	0,	-1,	0,	0 },
+	{ 0x14,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 'i',	0,	0,	2,	-1,	0 },
+	{ 0x17,	0,	0,	-1,	0,	0 },
+	{ 0x16,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 'n',	0,	0,	'~',	-1,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 'o',	0,	0,	2,	1,	0 },
+	{ 0x18,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 0x1c,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 0x19,	0,	0,	-1,	0,	0 },
+	{ 'u',	0,	0,	2,	2,	0 },
+	{ 0x1a,	0,	0,	-1,	0,	0 },
+	{ 0x0f,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 },
+	{ 1,	0,	0,	-1,	0,	0 }
+};
 
 // Retourne l'offset pour un caract�re donn�.
 
@@ -40,7 +297,7 @@ int GetOffset(char c)
 
 // Retourne la longueur d'un caract�re.
 
-int GetCharWidth(char c, int font)
+int GetCharWidthB(char c, int font)
 {
 	static unsigned char table_width[128] =
 	{
@@ -76,148 +333,105 @@ int GetCharWidth(char c, int font)
 	}
 }
 
+void DrawCharSingle(CPixmap *pPixmap, POINT pos, char *pText, int font)
+{
+	if (font == FONTLITTLE)
+	{
+		pPixmap->DrawIcon(-1, CHLITTLE, *pText, pos, 0, FALSE);
+	}
+	else
+	{
+		pPixmap->DrawIcon(-1, CHTEXT, *pText + font * 128, pos, 0, FALSE);
+	}
+}
+
+void DrawChar(CPixmap *pPixmap, POINT *pos, char c, int font)
+{
+	POINT pos2 { table_offsets[c].charOffsetX + pos->x, table_offsets[c].charOffsetY + pos->y };
+	DrawCharSingle(pPixmap, pos2, &table_offsets[c].charIcon, font);
+	if (table_offsets[c].accentIcon != -1)
+	{
+		pos2 = { table_offsets[c].accentOffsetX + pos->x, table_offsets[c].accentOffsetY + pos->y };
+		DrawCharSingle(pPixmap, pos2, &table_offsets[c].accentIcon, font);
+	}
+	pos->x += GetCharWidthB(c, font);
+}
+
+void DrawTextLeft(CPixmap *pPixmap, POINT pos, char *pText, int font)
+{
+	DrawTextB(pPixmap, pos, pText, font);
+}
+
 // Affiche un texte.
 
 void DrawTextB(CPixmap *pPixmap, POINT pos, char *pText, int font)
 {
-	int		rank;
-
-	if ( font == FONTLITTLE )
+	while (*pText != 0)
 	{
-		while ( *pText != 0 )
-		{
-			rank = GetOffset(*pText);
-			pPixmap->DrawIcon(-1, CHLITTLE, rank, pos);
-
-			pos.x += GetCharWidth(*pText++, font);
-		}
-	}
-	else
-	{
-		while ( *pText != 0 )
-		{
-			rank = GetOffset(*pText);
-			rank += 128*font;
-			pPixmap->DrawIcon(-1, CHTEXT, rank, pos);
-
-			pos.x += GetCharWidth(*pText++, font);
-		}
+		DrawChar(pPixmap, &pos, *pText++, font);
 	}
 }
 
-void DrawTextLeft(CPixmap* pPixmap, POINT pos, char *text, int font)
-{
-	DrawTextB(pPixmap, pos, text, font);
-	return;
-}
-
-/*
-void DrawTextNew(CPixmap* pPixmap, POINT pos, char* pText, int font)
-{
-	char text;
-
-	text = *pText;
-	
-	while (text != '\0')
-	{
-		pText = pText + 1;
-		DrawChar(pPixmap, &pos, text, font);
-		text = *pText;
-	}
-}
-*/
-
-//Implement later
-
-void DrawChar(CPixmap* pPixmap, POINT* pos, char c, double size)
-{
-	POINT pos2;
-	int num = (int)((short)c * 6);
-	int num2 = (int)table_char[num];
-	pos2.x = pos->x + (int)table_char[num + 1];
-	pos2.y = pos->y + (int)table_char[num + 2];
-	DrawCharSingle(pPixmap, pos2, num2, size);
-	num2 = (int)table_char[num + 3];
-	if (num2 != -1)
-	{
-		pos2.x = pos->x + (int)table_char[num + 4];
-		pos2.y = pos->y + (int)table_char[num + 5];
-		DrawCharSingle(pPixmap, pos2, num2, size);
-	}
-	pos->x += GetCharWidth(c, size);
-}
-
-void DrawCharSingle(CPixmap pPixmap, POINT pos, int rank, double size)
-{
-	pPixmap.DrawChar(rank, pos, size);
-}
-
-void GetSomethingDrawText(CPixmap* pPixmap, POINT pos, char* pText, int font)
-{
-	DrawTextNew(pPixmap, pos, pText, font);
-	return;
-}
-
-// Affiche un texte pench�.
+// Affiche un texte penché.
 
 void DrawTextPente(CPixmap *pPixmap, POINT pos, char *pText,
-				   int pente, int font)
+	int pente, int font)
 {
 	int		rank, lg, rel, start;
 
 	start = pos.y;
 	rel = 0;
-	while ( *pText != 0 )
+	while (*pText != 0)
 	{
 		rank = GetOffset(*pText);
-		rank += 128*font;
+		rank += 128 * font;
 		pPixmap->DrawIcon(-1, CHTEXT, rank, pos);
 
-		lg = GetCharWidth(*pText++, font);
+		lg = GetCharWidthB(*pText++, font);
 		rel += lg;
 		pos.x += lg;
-		pos.y = start + rel/pente;
+		pos.y = start + rel / pente;
 	}
 }
 
-// Affiche un pav� de texte.
-// Une ligne vide est affich�e avec un demi interligne !
+// Affiche un pavé de texte.
+// Une ligne vide est affichée avec un demi interligne !
 // Si part != -1, n'affiche que les lignes qui commencent
 // par "n|", avec n=part.
 
 void DrawTextRect(CPixmap *pPixmap, POINT pos, char *pText,
-				  int pente, int font, int part)
+	int pente, int font, int part)
 {
 	char		text[100];
 	char*		pDest;
 	int			itl;
 
-	if ( font == FONTLITTLE )  itl = DIMLITTLEY;
+	if (font == FONTLITTLE)  itl = DIMLITTLEY;
 	else                       itl = DIMTEXTY;
 
-	while ( *pText != 0 )
+	while (*pText != 0)
 	{
 		pDest = text;
-		while ( *pText != 0 && *pText != '\r' && *pText != '\n' )
+		while (*pText != 0 && *pText != '\r' && *pText != '\n')
 		{
 			*pDest++ = *pText++;
 		}
 		*pDest = 0;
-		if ( *pText == '\r' )  pText ++;  // saute '\r'
-		if ( *pText == '\n' )  pText ++;  // saute '\n'
+		if (*pText == '\r')  pText++;  // saute '\r'
+		if (*pText == '\n')  pText++;  // saute '\n'
 
 		pDest = text;
-		if ( text[0] != 0 && text[1] == '|' )  // commence par "n|" ?
+		if (text[0] != 0 && text[1] == '|')  // commence par "n|" ?
 		{
-			if ( part != -1 && part != text[0]-'0' )  continue;
+			if (part != -1 && part != text[0] - '0')  continue;
 			pDest += 2;  // saute "n|"
 		}
 		else
 		{
-			if ( part != -1 )  continue;
+			if (part != -1)  continue;
 		}
 
-		if ( pente == 0 )
+		if (pente == 0)
 		{
 			DrawTextB(pPixmap, pos, pDest, font);
 		}
@@ -226,19 +440,19 @@ void DrawTextRect(CPixmap *pPixmap, POINT pos, char *pText,
 			DrawTextPente(pPixmap, pos, pDest, pente, font);
 		}
 
-		if ( pDest[0] == 0 )  // ligne vide ?
+		if (pDest[0] == 0)  // ligne vide ?
 		{
-			pos.y += itl/2;  // descend de 1/2 ligne
+			pos.y += itl / 2;  // descend de 1/2 ligne
 		}
 		else
 		{
-			pos.y += itl;  // passe � la ligne suivante
+			pos.y += itl;  // passe à la ligne suivante
 		}
 	}
 }
 
-// Affiche un texte centr� pouvant �ventuellement
-// contenir plusieurs lignes s�par�es par des '\n'.
+// Affiche un texte centré pouvant éventuellement
+// contenir plusieurs lignes séparées par des '\n'.
 
 void DrawTextCenter(CPixmap *pPixmap, POINT pos, char *pText, int font)
 {
@@ -247,32 +461,32 @@ void DrawTextCenter(CPixmap *pPixmap, POINT pos, char *pText, int font)
 	int			itl;
 	POINT		start;
 
-	if ( font == FONTLITTLE )  itl = DIMLITTLEY;
+	if (font == FONTLITTLE)  itl = DIMLITTLEY;
 	else                       itl = DIMTEXTY;
 
-	while ( *pText != 0 )
+	while (*pText != 0)
 	{
 		pDest = text;
-		while ( *pText != 0 && *pText != '\r' && *pText != '\n' )
+		while (*pText != 0 && *pText != '\r' && *pText != '\n')
 		{
 			*pDest++ = *pText++;
 		}
 		*pDest = 0;
-		if ( *pText == '\r' )  pText ++;  // saute '\r'
-		if ( *pText == '\n' )  pText ++;  // saute '\n'
+		if (*pText == '\r')  pText++;  // saute '\r'
+		if (*pText == '\n')  pText++;  // saute '\n'
 
 		pDest = text;
-		start.x = pos.x - GetTextWidth(pDest)/2;
+		start.x = pos.x - GetTextWidth(pDest) / 2;
 		start.y = pos.y;
 		DrawTextB(pPixmap, start, pDest, font);
 
-		if ( pDest[0] == 0 )  // ligne vide ?
+		if (pDest[0] == 0)  // ligne vide ?
 		{
-			pos.y += itl/2;  // descend de 1/2 ligne
+			pos.y += itl / 2;  // descend de 1/2 ligne
 		}
 		else
 		{
-			pos.y += itl;  // passe � la ligne suivante
+			pos.y += itl;  // passe à la ligne suivante
 		}
 	}
 }
@@ -284,40 +498,40 @@ int GetTextHeight(char *pText, int font, int part)
 	char		text[100];
 	char*		pDest;
 	int			itl;
-	int			h=0;
+	int			h = 0;
 
-	if ( font == FONTLITTLE )  itl = DIMLITTLEY;
+	if (font == FONTLITTLE)  itl = DIMLITTLEY;
 	else                       itl = DIMTEXTY;
 
-	while ( *pText != 0 )
+	while (*pText != 0)
 	{
 		pDest = text;
-		while ( *pText != 0 && *pText != '\r' && *pText != '\n' )
+		while (*pText != 0 && *pText != '\r' && *pText != '\n')
 		{
 			*pDest++ = *pText++;
 		}
 		*pDest = 0;
-		if ( *pText == '\r' )  pText ++;  // saute '\r'
-		if ( *pText == '\n' )  pText ++;  // saute '\n'
+		if (*pText == '\r')  pText++;  // saute '\r'
+		if (*pText == '\n')  pText++;  // saute '\n'
 
 		pDest = text;
-		if ( text[0] != 0 && text[1] == '|' )  // commence par "n|" ?
+		if (text[0] != 0 && text[1] == '|')  // commence par "n|" ?
 		{
-			if ( part != -1 && part != text[0]-'0' )  continue;
+			if (part != -1 && part != text[0] - '0')  continue;
 			pDest += 2;  // saute "n|"
 		}
 		else
 		{
-			if ( part != -1 )  continue;
+			if (part != -1)  continue;
 		}
 
-		if ( pDest[0] == 0 )  // ligne vide ?
+		if (pDest[0] == 0)  // ligne vide ?
 		{
-			h += itl/2;  // descend de 1/2 ligne
+			h += itl / 2;  // descend de 1/2 ligne
 		}
 		else
 		{
-			h += itl;  // passe � la ligne suivante
+			h += itl;  // passe à la ligne suivante
 		}
 	}
 
@@ -330,72 +544,10 @@ int GetTextWidth(char *pText, int font)
 {
 	int		width = 0;
 
-	while ( *pText != 0 )
+	while (*pText != 0)
 	{
-		width += GetCharWidth(*pText++, font);
+		width += GetCharWidthB(*pText++, font);
 	}
 
 	return width;
 }
-
-
-// Retourne la longueur d'un grand chiffre.
-
-void GetBignumInfo(int num, int &start, int &lg)
-{
-	static int table[11] =
-	{
-		0,53,87,133,164,217,253,297,340,382,426
-	};
-
-	start = table[num];
-	lg    = table[num+1]-table[num];
-}
-
-// Affiche un grand nombre.
-
-void DrawBignum(CPixmap *pPixmap, POINT pos, int num)
-{
-	char	string[10];
-	int		i = 0;
-	int		start, lg;
-	RECT	rect;
-
-	sprintf(string, "%d", num);
-
-	rect.top    = 0;
-	rect.bottom = 52;
-	while ( string[i] != 0 )
-	{
-		GetBignumInfo(string[i]-'0', start, lg);
-
-		rect.left  = start;
-		rect.right = start+lg;
-		pPixmap->DrawPart(-1, CHBIGNUM, pos, rect);
-		pos.x += lg+4;
-
-		i ++;
-	}
-}
-
-// Retourne la longueur d'un grand nombre.
-
-int GetBignumWidth(int num)
-{
-	char	string[10];
-	int		i = 0;
-	int		start, lg;
-	int		width = -4;
-
-	sprintf(string, "%d", num);
-
-	while ( string[i] != 0 )
-	{
-		GetBignumInfo(string[i]-'0', start, lg);
-		width += lg+4;
-		i ++;
-	}
-
-	return width;
-}
-

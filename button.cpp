@@ -156,9 +156,7 @@ void CButton::Draw()
 
 	if ( m_bHide ) // is button hidden ?
 	{
-		pos.y 	   = m_pos.y;
-		pos.x	   = m_pos.x;
-		m_pPixmap->DrawPart(-1, CHBACK, m_pos, rect, 1); // draw the background
+		m_pPixmap->DrawPart(-1, CHBACK, m_pos, { m_pos.x, m_pos.y, m_pos.x + m_dim.x, m_pos.y + m_dim.y }, 1); // draw the background
 		return;
 	}
 

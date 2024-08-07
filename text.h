@@ -19,43 +19,31 @@ typedef struct
 CharOffset;
 
 extern
-void DrawTextB(CPixmap *pPixmap, POINT pos, char *pText, int font);
+void DrawCharSingle(CPixmap *pPixmap, POINT pos, char *pText, int font);
 
 extern
-void DrawTextLeft(CPixmap* pPixmap, POINT pos, char *text, int font);
+void DrawChar(CPixmap *pPixmap, POINT *pos, char c, int font);
 
 extern
-void DrawTextNew(CPixmap *pPixmap, POINT pos, char* pText, int font);
+void DrawTextLeft(CPixmap *pPixmap, POINT pos, char *pText, int font);
 
 extern
-void DrawChar(CPixmap* pPixmap, POINT pos, char* pText, double size);
-
-extern
-void DrawCharSingle(CPixmap* pPixmap, POINT pos, int rank, double size);
-
-extern
-void DrawTextNew(CPixmap* pPixmap, POINT pos, char* pText, int font);
+void DrawTextB(CPixmap *pPixmap, POINT pos, char *pText, int font = 0);
 
 extern
 void DrawTextPente(CPixmap *pPixmap, POINT pos, char *pText,
-                   int pente, int font=0);
+	int pente, int font = 0);
 
 extern
 void DrawTextRect(CPixmap *pPixmap, POINT pos, char *pText,
-                  int pente, int font=0, int part=-1);
+	int pente, int font = 0, int part = -1);
 
 extern
-void DrawTextCenter(CPixmap *pPixmap, POINT pos, char *pText, int font=0);
+void DrawTextCenter(CPixmap *pPixmap, POINT pos, char *pText, int font = 0);
 
 extern
-int GetTextHeight(char *pText, int font=0, int part=-1);
+int GetTextHeight(char *pText, int font = 0, int part = -1);
 
 extern
-int GetTextWidth(char *pText, int font=0);
-
-extern
-void DrawBignum(CPixmap *pPixmap, POINT pos, int num);
-
-extern
-int GetBignumWidth(int num);
+int GetTextWidth(char *pText, int font = 0);
 
