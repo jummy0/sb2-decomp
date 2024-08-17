@@ -1,0 +1,71 @@
+﻿  blupi.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(241): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(83): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(480): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(452): note: see previous definition of 'WM_PHASE_PRIVATE'
+c:\users\jimmy\documents\github\sb2-decomp\resource.h(106): warning C4005: 'TX_SHOWNEXT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\resource.h(104): note: see previous definition of 'TX_SHOWNEXT'
+c:\users\jimmy\documents\github\sb2-decomp\decor.h(29): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(241): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\event.h(100): warning C4091: 'typedef ': ignored on left of '' when no variable is declared
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(242): warning C4101: 'targetlevel': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(238): warning C4101: 'rcRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(238): warning C4101: 'clip': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(242): warning C4101: 'i': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(241): warning C4101: 'posMouse': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(354): warning C4293: '<<': shift count negative or too big, undefined behavior
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(363): warning C4293: '<<': shift count negative or too big, undefined behavior
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(345): warning C4101: 'posMouse': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(615): warning C4101: 'num2': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(619): warning C4101: 'open': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(663): warning C4101: 'rcRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(798): warning C4101: 'timeStep': unreferenced local variable
+  Generating Code...
+  Skipping... (no relevant changes detected)
+  pixmap.cpp
+LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/FORCE' specification
+blupi.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
+pixmap.obj : warning LNK4006: "int __cdecl Benchmark(void)" (?Benchmark@@YAHXZ) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int __cdecl FlushGame(void)" (?FlushGame@@YAHXZ) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int __cdecl GetNum(char *)" (?GetNum@@YAHPAD@Z) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int __cdecl InitFail(char const *,int)" (?InitFail@@YAHPBDH@Z) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int __cdecl ReadConfig(char *)" (?ReadConfig@@YAHPAD@Z) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int __cdecl RestoreGame(void)" (?RestoreGame@@YAHXZ) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "void __cdecl SetDecor(void)" (?SetDecor@@YAXXZ) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "void (__stdcall*__cdecl TimerStep(void))(unsigned int,unsigned int,unsigned long,unsigned long,unsigned long)" (?TimerStep@@YAP6GXIIKKK@ZXZ) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "void __cdecl UpdateFrame(void)" (?UpdateFrame@@YAXXZ) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "long __stdcall WindowProc(struct HWND__ *,unsigned int,unsigned int,long)" (?WindowProc@@YGJPAUHWND__@@IIJ@Z) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: _WinMain@16 already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "struct HWND__ * g_hWnd" (?g_hWnd@@3PAUHWND__@@A) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "class CEvent * g_pEvent" (?g_pEvent@@3PAVCEvent@@A) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "class CPixmap * g_pPixmap" (?g_pPixmap@@3PAVCPixmap@@A) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "class CSound * g_pSound" (?g_pSound@@3PAVCSound@@A) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "class CMovie * g_pMovie" (?g_pMovie@@3PAVCMovie@@A) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "class CDecor * g_pDecor" (?g_pDecor@@3PAVCDecor@@A) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "class CNetwork * g_pNetwork" (?g_pNetwork@@3PAVCNetwork@@A) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "char * g_CDPath" (?g_CDPath@@3PADA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_bFullScreen" (?g_bFullScreen@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_speedRate" (?g_speedRate@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_timerInterval" (?g_timerInterval@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_mouseType" (?g_mouseType@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_benchmark" (?g_benchmark@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_bBenchmarkSuccess" (?g_bBenchmarkSuccess@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_bTrueColor" (?g_bTrueColor@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_bTrueColorBack" (?g_bTrueColorBack@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_bTrueColorDecor" (?g_bTrueColorDecor@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "unsigned int g_updateTimer" (?g_updateTimer@@3IA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_bActive" (?g_bActive@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_bTermInit" (?g_bTermInit@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_timer" (?g_timer@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_objectMax" (?g_objectMax@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_elementMax" (?g_elementMax@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_blupiMax" (?g_blupiMax@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "int g_exploMax" (?g_exploMax@@3HA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "short * g_object" (?g_object@@3PAFA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "short * g_element" (?g_element@@3PAFA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "short * g_blupiCh" (?g_blupiCh@@3PAFA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "short * g_explo" (?g_explo@@3PAFA) already defined in blupi.obj; second definition ignored
+pixmap.obj : warning LNK4006: "unsigned int g_lastPhase" (?g_lastPhase@@3IA) already defined in blupi.obj; second definition ignored
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\Debug\Speedy Eggbert 2 Source.exe : warning LNK4088: image being generated due to /FORCE option; image may not run
+  Speedy Eggbert 2 Source.vcxproj -> C:\Users\Jimmy\Documents\GitHub\sb2-decomp\Debug\Speedy Eggbert 2 Source.exe
+  Speedy Eggbert 2 Source.vcxproj -> C:\Users\Jimmy\Documents\GitHub\sb2-decomp\Debug\Speedy Eggbert 2 Source.pdb (Full PDB)

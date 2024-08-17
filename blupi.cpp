@@ -16,7 +16,7 @@ using namespace std;
 #include <mmsystem.h>
 #include <time.h>
 #include <sys/timeb.h>
-#include <mmiscapi2.h>
+//#include <mmiscapi2.h>
 #include <WinBase.h>
 #include "def.h"
 #include "resource.h"
@@ -62,7 +62,7 @@ BOOL 		g_bTrueColorDecor;
 MMRESULT    g_updateTimer;			// timer g�n�ral
 BOOL		g_bActive = TRUE;		// is application active ?
 BOOL		g_bTermInit = FALSE;	// initialisation en cours
-int			g_bTimer;
+int			g_timer;
 int			g_objectMax;
 int			g_elementMax;
 int			g_blupiMax;
@@ -187,7 +187,7 @@ BOOL ReadConfig (LPSTR lpCmdLine)
 		g_benchmark = GetNum(pText+10);
 		if ( g_benchmark < 0 ) g_benchmark = 0;
 		if ( g_benchmark > 100000 ) g_benchmark = 100000;
-		if ( g_benchmark > 3099 ) g_bBenchmarkSuccess = 1, g_bTrueColor = 1, g_bTrueColorDecor;
+		if ( g_benchmark > 3099 ) g_bBenchmarkSuccess = 1, g_bTrueColor = 1, g_bTrueColorDecor = 1;
 	}
 
 	pText = strstr(buffer, "TrueColor=");
@@ -479,7 +479,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 					totalDim.y = 66;
 					iconDim.x = 64;
 					iconDim.y = 66/2;
-					g_pPixmap->Cache2(CHLITTLE, "image16\\little.blp", totalDim, iconDim, TRUE);
+					g_pPixmap->Cache(CHLITTLE, "image16\\little.blp", totalDim, iconDim, TRUE);
 					g_pPixmap->SetTransparent(CHLITTLE, RGB(0,0,255));
 
 					g_pPixmap->SavePalette();
@@ -584,10 +584,10 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 
 LPTIMECALLBACK TimerStep()
 {
-	if ((g_bActive != FALSE) && (g_bTimer == 0))
+	if (g_bActive && g_timer == 0)
 	{
-		g_bTimer = 1;
-		PostAppMessageA(g_hWnd, 1025, 0, 0);
+		g_timer = 1;
+		PostMessageA(g_hWnd, WM_UPDATE, 0, 0);
 	}
 	return NULL;
 }
@@ -805,11 +805,11 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	Benchmark();
 	g_hWnd = (HWND)timeSetEvent(g_timerInterval, (g_timerInterval + (g_timerInterval >> 31 & 3U)) >> 2, TimerStep(), 0, 1);
 
-	while ( TRUE )
+	while (TRUE)
 	{
-		if ( PeekMessage(&msg, NULL, 0,0, PM_NOREMOVE) )
+		if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
 		{
-			if ( !GetMessage(&msg, NULL, 0, 0) )
+			if (!GetMessage(&msg, NULL, 0, 0))
 			{
 				return msg.wParam;
 			}
@@ -818,7 +818,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 		}
 		else
 		{
-			if ( !g_bActive ) WaitMessage();
+			if (!g_bActive) WaitMessage();
 		}
 	}
 

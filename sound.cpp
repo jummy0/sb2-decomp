@@ -3,7 +3,7 @@
 
 #include <dsound.h>
 #include <stdio.h>
-#include <mciapi.h>
+//#include <mciapi.h>
 #include "sound.h"
 #include "misc.h"
 #include "def.h"

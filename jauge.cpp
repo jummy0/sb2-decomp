@@ -8,7 +8,7 @@ using namespace std;
 #include <stdlib.h>
 #include <stdio.h>
 #include <ddraw.h>
-#include <minwindef.h>
+//#include <minwindef.h>
 #include <windef.h>
 #include "def.h"
 #include "pixmap.h"

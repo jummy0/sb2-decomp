@@ -4,7 +4,7 @@
 
 using namespace std;
 
-#include <minwindef.h>
+//#include <minwindef.h>
 #include <windef.h>
 #include "decor.h"
 #include "pixmap.h"

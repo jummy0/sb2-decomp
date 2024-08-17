@@ -1,0 +1,244 @@
+﻿  blupi.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+c:\users\jimmy\documents\github\sb2-decomp\resource.h(106): warning C4005: 'TX_SHOWNEXT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\resource.h(104): note: see previous definition of 'TX_SHOWNEXT'
+c:\users\jimmy\documents\github\sb2-decomp\decor.h(29): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(249): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\event.h(100): warning C4091: 'typedef ': ignored on left of '' when no variable is declared
+blupi.cpp(242): warning C4101: 'targetlevel': unreferenced local variable
+blupi.cpp(238): warning C4101: 'rcRect': unreferenced local variable
+blupi.cpp(238): warning C4101: 'clip': unreferenced local variable
+blupi.cpp(242): warning C4101: 'i': unreferenced local variable
+blupi.cpp(241): warning C4101: 'posMouse': unreferenced local variable
+blupi.cpp(354): warning C4293: '<<': shift count negative or too big, undefined behavior
+blupi.cpp(363): warning C4293: '<<': shift count negative or too big, undefined behavior
+blupi.cpp(345): warning C4101: 'posMouse': unreferenced local variable
+blupi.cpp(615): warning C4101: 'num2': unreferenced local variable
+blupi.cpp(619): warning C4101: 'open': unreferenced local variable
+blupi.cpp(663): warning C4101: 'rcRect': unreferenced local variable
+blupi.cpp(798): warning C4101: 'timeStep': unreferenced local variable
+  button.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+c:\users\jimmy\documents\github\sb2-decomp\decor.h(29): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(249): note: see previous definition of 'MAXMOVEOBJECT'
+button.cpp(52): warning C4101: 'icon': unreferenced local variable
+button.cpp(52): warning C4101: 'i': unreferenced local variable
+button.cpp(147): warning C4101: 'rect': unreferenced local variable
+  ddutil.cpp
+  decor.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+c:\users\jimmy\documents\github\sb2-decomp\resource.h(106): warning C4005: 'TX_SHOWNEXT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\resource.h(104): note: see previous definition of 'TX_SHOWNEXT'
+c:\users\jimmy\documents\github\sb2-decomp\decor.h(29): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(249): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\event.h(100): warning C4091: 'typedef ': ignored on left of '' when no variable is declared
+decor.cpp(131): warning C4552: '!=': operator has no effect; expected operator with side-effect
+decor.cpp(143): warning C4101: 'i': unreferenced local variable
+decor.cpp(554): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+decor.cpp(579): warning C4101: 'text': unreferenced local variable
+decor.cpp(1008): warning C4101: 'tinyRect': unreferenced local variable
+decor.cpp(1044): warning C4553: '==': operator has no effect; did you intend '='?
+decor.cpp(1277): warning C4553: '==': operator has no effect; did you intend '='?
+decor.cpp(1530): warning C4553: '==': operator has no effect; did you intend '='?
+decor.cpp(6532): warning C4101: 'type2': unreferenced local variable
+decor.cpp(6565): warning C4244: '=': conversion from 'LONG' to 'short', possible loss of data
+decor.cpp(6588): warning C4101: 'players': unreferenced local variable
+decor.cpp(6703): warning C4101: 'rect2': unreferenced local variable
+decor.cpp(6702): warning C4101: 'rect1': unreferenced local variable
+decor.cpp(6704): warning C4101: 'rect3': unreferenced local variable
+decor.cpp(6785): warning C4101: 'moveObject': unreferenced local variable
+decor.cpp(6800): warning C4101: 'tinyRect2': unreferenced local variable
+decor.cpp(7866): warning C4101: 'tinyRect': unreferenced local variable
+decor.cpp(8108): warning C4101: 'tinyRect': unreferenced local variable
+decor.cpp(8163): warning C4101: 'tinyRect': unreferenced local variable
+decor.cpp(8185): warning C4101: 'tinyRect': unreferenced local variable
+decor.cpp(8221): warning C4101: 'src3': unreferenced local variable
+decor.cpp(8251): warning C4101: 'tinyRect': unreferenced local variable
+decor.cpp(8279): warning C4101: 'tinyRect': unreferenced local variable
+decor.cpp(8307): warning C4101: 'tinyRect': unreferenced local variable
+decor.cpp(8786): warning C4553: '==': operator has no effect; did you intend '='?
+decor.cpp(9019): warning C4129: '%': unrecognized character escape sequence
+decor.cpp(9023): warning C4129: 'w': unrecognized character escape sequence
+  event.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+c:\users\jimmy\documents\github\sb2-decomp\resource.h(106): warning C4005: 'TX_SHOWNEXT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\resource.h(104): note: see previous definition of 'TX_SHOWNEXT'
+c:\users\jimmy\documents\github\sb2-decomp\decor.h(29): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(249): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\event.h(100): warning C4091: 'typedef ': ignored on left of '' when no variable is declared
+event.cpp(1289): warning C4552: '!=': operator has no effect; expected operator with side-effect
+event.cpp(1316): warning C4101: 'pos': unreferenced local variable
+event.cpp(1453): warning C4101: 'i': unreferenced local variable
+event.cpp(1544): warning C4552: '!=': operator has no effect; expected operator with side-effect
+event.cpp(1659): warning C4552: '!=': operator has no effect; expected operator with side-effect
+event.cpp(1848): warning C4101: 'element': unreferenced local variable
+event.cpp(1846): warning C4101: 'stream': unreferenced local variable
+event.cpp(1897): warning C4101: 'icon': unreferenced local variable
+event.cpp(1897): warning C4101: 'world': unreferenced local variable
+event.cpp(1895): warning C4101: 'levels': unreferenced local variable
+event.cpp(1897): warning C4101: 'volume': unreferenced local variable
+event.cpp(1897): warning C4101: 'time': unreferenced local variable
+event.cpp(1896): warning C4101: 'types': unreferenced local variable
+event.cpp(1894): warning C4101: 'i': unreferenced local variable
+event.cpp(1906): warning C4101: 'bEnable': unreferenced local variable
+event.cpp(1897): warning C4101: 'pente': unreferenced local variable
+event.cpp(1897): warning C4101: 'button': unreferenced local variable
+event.cpp(2281): warning C4101: 'sound': unreferenced local variable
+event.cpp(2283): warning C4101: 'bEnable': unreferenced local variable
+event.cpp(2434): warning C4101: 'sound': unreferenced local variable
+event.cpp(2613): warning C4101: 'bPrivate': unreferenced local variable
+event.cpp(2614): warning C4101: 'bMission': unreferenced local variable
+event.cpp(2612): warning C4101: 'bUser': unreferenced local variable
+event.cpp(2637): warning C4101: 'bUser': unreferenced local variable
+event.cpp(2675): warning C4101: 'world': unreferenced local variable
+event.cpp(2675): warning C4101: 'total': unreferenced local variable
+event.cpp(2680): warning C4101: 'pTerm': unreferenced local variable
+event.cpp(2675): warning C4101: 'max': unreferenced local variable
+event.cpp(2675): warning C4101: 'music': unreferenced local variable
+event.cpp(2676): warning C4101: 'iconDim': unreferenced local variable
+event.cpp(2676): warning C4101: 'totalDim': unreferenced local variable
+event.cpp(2677): warning C4101: 'filename': unreferenced local variable
+event.cpp(2675): warning C4101: 'time': unreferenced local variable
+event.cpp(2675): warning C4101: 'index': unreferenced local variable
+event.cpp(2678): warning C4101: 'pButtonExist': unreferenced local variable
+event.cpp(2675): warning C4101: 'i': unreferenced local variable
+event.cpp(2679): warning C4101: 'bEnable': unreferenced local variable
+event.cpp(2679): warning C4101: 'bHide': unreferenced local variable
+event.cpp(2811): warning C4101: 'icon': unreferenced local variable
+event.cpp(2811): warning C4101: 'channel': unreferenced local variable
+event.cpp(2810): warning C4101: 'cel': unreferenced local variable
+event.cpp(2969): warning C4101: 'pDest': unreferenced local variable
+event.cpp(2970): warning C4101: 'indic': unreferenced local variable
+event.cpp(2968): warning C4101: 'pText': unreferenced local variable
+event.cpp(2971): warning C4101: 'h1': unreferenced local variable
+event.cpp(2971): warning C4101: 'h2': unreferenced local variable
+event.cpp(2971): warning C4101: 'nb': unreferenced local variable
+event.cpp(3080): warning C4101: 'world': unreferenced local variable
+event.cpp(3080): warning C4101: 'total': unreferenced local variable
+event.cpp(3080): warning C4101: 'mission': unreferenced local variable
+event.cpp(3080): warning C4101: 'time': unreferenced local variable
+event.cpp(3218): warning C4101: 'doors': unreferenced local variable
+  jauge.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+c:\users\jimmy\documents\github\sb2-decomp\decor.h(29): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(249): note: see previous definition of 'MAXMOVEOBJECT'
+jauge.cpp(78): warning C4293: '<<': shift count negative or too big, undefined behavior
+  menu.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+c:\users\jimmy\documents\github\sb2-decomp\resource.h(106): warning C4005: 'TX_SHOWNEXT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\resource.h(104): note: see previous definition of 'TX_SHOWNEXT'
+c:\users\jimmy\documents\github\sb2-decomp\decor.h(29): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(249): note: see previous definition of 'MAXMOVEOBJECT'
+  misc.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+  movie.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+  network.cpp
+  pixmap.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+c:\users\jimmy\documents\github\sb2-decomp\resource.h(106): warning C4005: 'TX_SHOWNEXT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\resource.h(104): note: see previous definition of 'TX_SHOWNEXT'
+c:\users\jimmy\documents\github\sb2-decomp\decor.h(29): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(249): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\event.h(100): warning C4091: 'typedef ': ignored on left of '' when no variable is declared
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(242): warning C4101: 'targetlevel': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(238): warning C4101: 'rcRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(238): warning C4101: 'clip': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(242): warning C4101: 'i': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(241): warning C4101: 'posMouse': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(354): warning C4293: '<<': shift count negative or too big, undefined behavior
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(363): warning C4293: '<<': shift count negative or too big, undefined behavior
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(345): warning C4101: 'posMouse': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(615): warning C4101: 'num2': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(619): warning C4101: 'open': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(663): warning C4101: 'rcRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(798): warning C4101: 'timeStep': unreferenced local variable
+pixmap.cpp(912): warning C4293: '<<': shift count negative or too big, undefined behavior
+pixmap.cpp(1039): warning C4018: '<': signed/unsigned mismatch
+  sound.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+c:\users\jimmy\documents\github\sb2-decomp\resource.h(106): warning C4005: 'TX_SHOWNEXT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\resource.h(104): note: see previous definition of 'TX_SHOWNEXT'
+sound.cpp(69): warning C4002: too many actual parameters for macro 'TRY_DS'
+sound.cpp(272): warning C4838: conversion from 'unsigned int' to 'int' requires a narrowing conversion
+  text.cpp
+c:\users\jimmy\documents\github\sb2-decomp\def.h(249): warning C4005: 'MAXMOVEOBJECT': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(91): note: see previous definition of 'MAXMOVEOBJECT'
+c:\users\jimmy\documents\github\sb2-decomp\def.h(488): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
+  c:\users\jimmy\documents\github\sb2-decomp\def.h(460): note: see previous definition of 'WM_PHASE_PRIVATE'
+text.cpp(120): warning C4101: 'width': unreferenced local variable
+text.cpp(119): warning C4101: 'pos1': unreferenced local variable
+  wave.cpp
+pixmap.obj : error LNK2005: "short * g_blupiCh" (?g_blupiCh@@3PAFA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "class CSound * g_pSound" (?g_pSound@@3PAVCSound@@A) already defined in blupi.obj
+pixmap.obj : error LNK2005: "char * g_CDPath" (?g_CDPath@@3PADA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "class CDecor * g_pDecor" (?g_pDecor@@3PAVCDecor@@A) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_objectMax" (?g_objectMax@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "class CMovie * g_pMovie" (?g_pMovie@@3PAVCMovie@@A) already defined in blupi.obj
+pixmap.obj : error LNK2005: "short * g_object" (?g_object@@3PAFA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_timerInterval" (?g_timerInterval@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "class CEvent * g_pEvent" (?g_pEvent@@3PAVCEvent@@A) already defined in blupi.obj
+pixmap.obj : error LNK2005: "short * g_element" (?g_element@@3PAFA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_bTrueColor" (?g_bTrueColor@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "unsigned int g_updateTimer" (?g_updateTimer@@3IA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_bTermInit" (?g_bTermInit@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_timer" (?g_timer@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_blupiMax" (?g_blupiMax@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_benchmark" (?g_benchmark@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "unsigned int g_lastPhase" (?g_lastPhase@@3IA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "class CNetwork * g_pNetwork" (?g_pNetwork@@3PAVCNetwork@@A) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_bBenchmarkSuccess" (?g_bBenchmarkSuccess@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "short * g_explo" (?g_explo@@3PAFA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_speedRate" (?g_speedRate@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_bFullScreen" (?g_bFullScreen@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_bTrueColorBack" (?g_bTrueColorBack@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_bActive" (?g_bActive@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "class CPixmap * g_pPixmap" (?g_pPixmap@@3PAVCPixmap@@A) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_bTrueColorDecor" (?g_bTrueColorDecor@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "struct HWND__ * g_hWnd" (?g_hWnd@@3PAUHWND__@@A) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_elementMax" (?g_elementMax@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_mouseType" (?g_mouseType@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int g_exploMax" (?g_exploMax@@3HA) already defined in blupi.obj
+pixmap.obj : error LNK2005: _WinMain@16 already defined in blupi.obj
+pixmap.obj : error LNK2005: "int __cdecl Benchmark(void)" (?Benchmark@@YAHXZ) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int __cdecl InitFail(char const *,int)" (?InitFail@@YAHPBDH@Z) already defined in blupi.obj
+pixmap.obj : error LNK2005: "void (__stdcall*__cdecl TimerStep(void))(unsigned int,unsigned int,unsigned long,unsigned long,unsigned long)" (?TimerStep@@YAP6GXIIKKK@ZXZ) already defined in blupi.obj
+pixmap.obj : error LNK2005: "long __stdcall WindowProc(struct HWND__ *,unsigned int,unsigned int,long)" (?WindowProc@@YGJPAUHWND__@@IIJ@Z) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int __cdecl FlushGame(void)" (?FlushGame@@YAHXZ) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int __cdecl RestoreGame(void)" (?RestoreGame@@YAHXZ) already defined in blupi.obj
+pixmap.obj : error LNK2005: "void __cdecl SetDecor(void)" (?SetDecor@@YAXXZ) already defined in blupi.obj
+pixmap.obj : error LNK2005: "void __cdecl UpdateFrame(void)" (?UpdateFrame@@YAXXZ) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int __cdecl ReadConfig(char *)" (?ReadConfig@@YAHPAD@Z) already defined in blupi.obj
+pixmap.obj : error LNK2005: "int __cdecl GetNum(char *)" (?GetNum@@YAHPAD@Z) already defined in blupi.obj
+MSVCRT.lib(exe_main.obj) : error LNK2001: unresolved external symbol _main
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\Release\Speedy Eggbert 2 Source.exe : fatal error LNK1120: 1 unresolved externals

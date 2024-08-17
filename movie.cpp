@@ -14,7 +14,7 @@ using namespace std;
 #include <direct.h>
 #include <mmsystem.h>		
 #include <digitalv.h>		
-#include <mciapi.h>
+//#include <mciapi.h>
 #include "def.h"
 #include "movie.h"
 #include "misc.h"

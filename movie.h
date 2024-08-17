@@ -5,7 +5,7 @@
 #pragma once
 using namespace std;
 
-#include <mciapi.h>
+//#include <mciapi.h>
 
 class CMovie
 {

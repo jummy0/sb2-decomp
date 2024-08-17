@@ -30,7 +30,6 @@ public:
     BOOL    RestorePalette();
     int     SearchColor(int red, int green, int blue);
     BOOL    Cache(int channel, char *pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette);
-    BOOL    Cache2(int channel, const char *pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette);
     BOOL    Cache(int channel, HBITMAP hbm, POINT totalDim);
     BOOL    BackgroundCache(int channel, const char* pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette);
     BOOL    CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor, BOOL bTrueColorDecor, int mouseType, const char* pFilename, int region);

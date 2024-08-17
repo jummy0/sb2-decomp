@@ -111,7 +111,7 @@ BOOL CDecor::LoadImages()
     iconDim.x = DIMCELX * 2;
     iconDim.y = DIMCELY * 2;
         sprintf(filename, "decor%.3d.blp", m_region);
-        if (!m_pPixmap->Cache2(CHBACK, filename, totalDim, iconDim, FALSE)) return FALSE;
+        if (!m_pPixmap->Cache(CHBACK, filename, totalDim, iconDim, FALSE)) return FALSE;
         if (m_region == 0)
         {
             return FALSE;
@@ -7828,7 +7828,7 @@ void CDecor::DynamiteStart(int i, int dx, int dy)
 	src.right = posStart.x + 128;
 	src.top = posStart.y;
 	src.bottom = posStart.y + 128;
-	POINT tinyPoint;
+	POINT tinyPoint{ 0, 0 };
 	for (int j = 0; j < 2; j++)
 	{
 		tinyPoint.x = posStart.x / 64;
@@ -8369,9 +8369,7 @@ void CDecor::MoveObjectSort()
 	int num = 0;
 	int i;
 	MoveObject* object;
-	MoveObject* moveObject;
-
-	*(MoveObject*)moveObject = m_moveObject[100][100];
+	MoveObject* moveObject = &m_moveObject[100][100];
 	
 	for (i = 0; i < MAXMOVEOBJECT; i++)
 	{

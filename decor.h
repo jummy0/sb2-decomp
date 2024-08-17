@@ -5,7 +5,7 @@
 using namespace std;
 
 #include <windows.h>
-#include <minwindef.h>
+//#include <minwindef.h>
 #include <windef.h>
 #include "def.h"
 #include "network.h"
