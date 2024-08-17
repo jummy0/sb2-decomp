@@ -1,4 +1,4 @@
-#include <minwindef.h>
+//#include <minwindef.h>
 #include <windef.h>
 #include "decor.h"
 #include "sound.h"
@@ -8,17 +8,6 @@
 
 using namespace std;
 
-
-typedef struct
-{
-	int		message;
-	int		type;
-	int		iconMenu[20];
-	POINT	pos;
-	int		toolTips[20];
-}
-Button;
-
 class CButton
 {
 public:
@@ -26,10 +15,7 @@ public:
 	~CButton();
 
 	BOOL	Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
-				   POINT pos, int type, BOOL bMinimizeRedraw,
-				   /*int *pMenu, int nbMenu,
-				   int *pTooltips, int nbToolTips,
-				   int region,*/ UINT message);
+				   POINT pos, int type, BOOL bMinimizeRedraw, int region, UINT message);
 	void	SetSomethingMenu(int somethingMenu);
 	void	Draw();
 	void	Redraw();

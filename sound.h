@@ -1,17 +1,50 @@
 // sound.h
 //
 
+using namespace std;
+
 #pragma once
 
-#include <dsound.h>
+#include <windef.h>
+//#include <minwindef.h>
+#include "dsound.h"
 #include <stdio.h>
 
+typedef enum
+{
+    SOUND_10_BOUM,
+    SOUND_11_TRESOR,
+    SOUND_13_ENDKO,
+    SOUND_14_ENDOK,
+    SOUND_16_HELICOHIGH,
+    SOUND_18_HELICOLOW,
+    SOUND_23_PLOUF,
+    SOUND_24_BLUP,
+    SOUND_29_JEEPHIGH,
+    SOUND_31_JEEPLOW,
+    SOUND_33_DOOR,
+    SOUND_42_STARTSHIELD,
+    SOUND_50_SUCETTE,
+    SOUND_51_GLU,
+    SOUND_57_DRINK,
+    SOUND_58_CHARGE,
+    SOUND_59_ELECTRO,
+    SOUND_60_PERSOTAKE,
+    SOUND_64_TIPLOUF,
+    SOUND_69_BLITZ,
+    SOUND_74_ANGEL,
+    SOUND_75_SCIE,
+    SOUND_76_SWITCHOFF,
+    SOUND_92_FOLLOW
+}
+Sound;
 
 ///////////////////////////////////////////////////////////////////////////
 
 #define MAXSOUND    100
 #define MAXVOLUME   20
 #define MAXBLUPI    100
+#define WIN32_LEAN_AND_MEAN
 
 class CSound
 {

@@ -4,10 +4,14 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
+#pragma once
+
+using namespace std;
+
 #include "movie.h"
 #include "menu.h"
 #include "button.h"
-#include "decor.h"
+
 
 typedef struct
 {
@@ -95,7 +99,7 @@ public:
 	int		GetState(int button);
 	void	SetState(int button, int state);
 	BOOL	GetEnable(int button);
-	void	SetEnable(int button, BOOL bEnable);
+	void	SetEnable(WMessage button, int bEnable);
 	void	SetSomething(int button, int bSomething);
 	BOOL	GetHide(int button);
 	void	SetHide(int button, BOOL bHide);
@@ -144,6 +148,13 @@ public:
 	void	DebugDisplay(char m);
 
 	void	IntroStep();
+	void	SetLives(int lives);
+
+	void	ReadAll();
+	BOOL	SaveState(int rank);
+	void	SomethingUserMissions(char* lpFilename, LPCSTR fileSomething);
+
+	
 
 	BOOL	AddPhaseText();
 	void	ReadInput();
@@ -168,13 +179,14 @@ public:
 
 	void	PrivateLibelle();
 	BOOL	ReadLibelle(int world, BOOL bSchool, BOOL bHelp);
-	BOOL	WriteInfo();
+	BOOL	WriteInfo(int gamer, char* playername);
 	BOOL	ReadInfo(int gamer);	
 	void	TryPhase();
 	void	UnTryPhase();
 	int		GetTryPhase();
 	BOOL	ReadPlayer();
-	void	SetLives(int lives);
+	void	PutTextInputBox(POINT pos);
+	
 
 	void	DemoRecStart();
 	void	DemoRecStop();
@@ -190,6 +202,8 @@ public:
 	void	NetFUN_1d6b0(UINT message, USHORT data);
 	void	NetDrawMap();
 	void	ChatSend();
+	void	HandleChatBuffer();
+	void	ChatMessageSound(char* data);
 
 	void	MouseRelease();
 	void	MouseCapture();
@@ -200,8 +214,10 @@ protected:
     int         m_exercice;
     int         m_mission;
 	char		m_gamerName[100];
+	char		m_gamerNameList[10][100];
 	void*		m_somethingJoystick;
 	int			m_menuIndex;
+	int			m_fileIndex;
 	int			m_menuDecor[10];
 	BOOL		m_bMouseRelease;
     int         m_private;
@@ -295,6 +311,9 @@ protected:
 	int 		m_lives;
 	int 		m_multi;
 	HINSTANCE	m_hInstance;
-	char 		m_chatZone[100][5];
+	char		m_chatZone[100][5];
 	char 		m_text[100];
 };
+
+extern
+int		DirectoryThing(LPCSTR filename);

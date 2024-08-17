@@ -5,12 +5,15 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ddraw.h>
+#include <time.h>
+#include <sys/timeb.h>
 #include "def.h"
 #include "pixmap.h"
 #include "misc.h"
 #include "ddutil.h"
 #include "blupi.cpp"
 
+#pragma comment(lib, "ddraw.lib")
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -125,6 +128,21 @@ BOOL CPixmap::Create(HWND hwnd, POINT dim,
 	DDSURFACEDESC		ddsd;
 	HRESULT				ddrval;
 	POINT				pos;
+	HDC					hdc;
+
+	hdc = CreateCompatibleDC(NULL);
+	if (hdc == NULL) {
+		bTrueColor = 0;
+		bTrueColorDecor = 0;
+	}
+	else {
+		ddrval = GetDeviceCaps(hdc, SIZEPALETTE);
+		if ((ddrval != 0) && (ddrval < 257)) {
+			bTrueColor = 0;
+			bTrueColorDecor = 0;
+		}
+		DeleteDC(hdc);
+	}
 
 	m_hWnd        = hwnd;
 	m_bFullScreen = bFullScreen;
@@ -174,7 +192,7 @@ BOOL CPixmap::Create(HWND hwnd, POINT dim,
     // Set the video mode to 640x480x8.
 	if ( m_bFullScreen )
 	{
-		ddrval = m_lpDD->SetDisplayMode(dim.x, dim.y, 8);
+		ddrval = m_lpDD->SetDisplayMode(dim.x, dim.y, bTrueColor || bTrueColorDecor ? 16 : 8);
 		if ( ddrval != DD_OK )
 		{
 			OutputDebug("Fatal error: SetDisplayMode\n");
@@ -278,24 +296,129 @@ BOOL CPixmap::Restore()
 	return TRUE;
 }
 
-/*
-void HudIcon(int channel, int rank, POINT pos)
-{
-	pos.x = (int)((double)pos.x + CPixmap::originX)
-}
-
 void CPixmap::QuickIcon(int channel, int rank, POINT pos)
 {
-	RECT rect;
+	int num;
+	tagRECT rect;
+
+	if (channel == CHOBJECT)
 	{
-		rect.left = pos.x;
-		rect.top = pos.y;
-		rect.right = pos.x;
-		rect.bottom = pos.y;
-	};
-	DrawIcon(channel, rank, rect, 1.0, TRUE);
+		if (g_objectMax <= rank)
+		{
+			return;
+		}
+		num = rank * 12;
+		rect.left = (LONG)g_object[rank * 6];
+		rect.top = (LONG)g_object[rank * 6 + 1];
+		rect.right = g_object[rank * 6 + 4] + rect.left;
+		rect.bottom = g_object[rank * 6 + 2];
+		pos.x = pos.x + g_object[rank * 6 + 2];
+		num = (int)g_object[rank * 6 + 3];
+	}
+	else if (channel == CHELEMENT)
+	{
+		if (g_elementMax <= rank)
+		{
+			return;
+		}
+		num = rank * 12;
+		rect.left = (LONG)g_element[rank * 6];
+		rect.top = (LONG)g_element[rank * 6 + 1];
+		rect.right = g_element[rank * 6 + 4] + rect.left;
+		rect.bottom = g_element[rank * 6 + 5] + rect.top;
+		pos.x = pos.x + g_element[rank * 6 + 2];
+		num = (int)g_element[rank * 6 + 3];
+	}
+	else if ((((channel == CHBLUPI) || (channel == CHBLUPI1)) || (channel == CHBLUPI2)) || (channel == CHBLUPI3))
+	{
+		if (g_blupiMax <= rank)
+		{
+			return;
+		}
+		num = rank * 12;
+		rect.left = (LONG)g_blupiCh[rank * 6];
+		rect.top = (LONG)g_blupiCh[rank * 6 + 1];
+		rect.right = g_blupiCh[rank * 6 + 4] + rect.left;
+		rect.bottom = g_blupiCh[rank * 6 + 5] + rect.top;
+		pos.x = pos.x + g_blupiCh[rank * 6 + 2];
+		num = (int)g_blupiCh[rank * 6 + 3];
+	}
+	else
+	{
+		if (channel != CHEXPLO)
+		{
+			rect.right = m_iconDim[channel].x;
+			num = m_totalDim[channel].x / rect.right;
+			rect.bottom = m_iconDim[channel].y;
+			if (rank < 0)
+			{
+				return;
+			}
+			if ((m_totalDim[channel].y / rect.bottom) * num <= rank)
+			{
+				return;
+			}
+			rect.left = (rank % num) * rect.right;
+			rect.right = rect.left + rect.right;
+			rect.top = (rank / num) * rect.bottom;
+			rect.bottom = rect.top + rect.bottom;
+			goto LABEL_1;
+		}
+		if (g_exploMax <= rank)
+		{
+			return;
+		}
+		rect.left = (LONG)g_explo[rank * 6];
+		rect.top = (LONG)g_explo[rank * 6 + 1];
+		rect.right = g_explo[rank * 6 + 4] + rect.left;
+		rect.bottom = g_explo[rank * 6 + 5] + rect.top;
+		pos.x = pos.x + g_explo[rank * 6 + 2];
+		num = (int)g_explo[rank * 6 + 3];
+	}
+	pos.y = pos.y + num;
+
+LABEL_1:
+	num = m_clipRect.left;
+	if (pos.x < num)
+	{
+		num = num - pos.x;
+		pos.x = m_clipRect.left;
+		rect.left = rect.left + num;
+	}
+	num = (m_clipRect.right + rect.left) - pos.x;
+	if (num < rect.right)
+	{
+		rect.right = num;
+	}
+	num = m_clipRect.top;
+	if (pos.y < num)
+	{
+		num = num - pos.y;
+		pos.y = m_clipRect.top;
+		rect.top = rect.top + num;
+	}
+	num = (m_clipRect.bottom + rect.top) - pos.y;
+	if (num < rect.bottom)
+	{
+		rect.bottom = num;
+	}
+	if ((rect.left < rect.right) && (rect.top < rect.bottom))
+	{
+		while (num = (m_lpDDSBack->BltFast(pos.x, pos.y, m_lpDDSurface[channel], &rect, 1), num != 0))
+		{
+			if ((num == 0x7789FE3E) && (num = RestoreAll(), num != 0))
+			{
+				return;
+			}
+			if (num != 0x7789FE3E)
+			{
+				return;
+			}
+		}
+	}
+	return;
 }
-*/
+
 
 // Initialise la palette syst�me.
 
@@ -607,49 +730,14 @@ int CPixmap::SearchColor(int red, int green, int blue)
 	return j;
 }
 
+// Cache une image contenant des icônes.
 
-// Cache une image contenant des ic�nes.
-
-BOOL CPixmap::Cache1(int channel, char *pFilename, POINT totalDim, BOOL bUsePalette)
-{
-	POINT		iconDim;
-
-	if (strstr(pFilename, "blupi") == pFilename)
-	{
-		return FALSE;
-	}
-	else
-	{
-		if (strstr(pFilename, "element") == pFilename)
-		{
-			return FALSE;
-		}
-		if (strstr(pFilename, "explo") == pFilename)
-		{
-			return FALSE;
-		}
-		if (strstr(pFilename, "object") == pFilename)
-		{
-			return FALSE;
-		}
-		return TRUE;
-	}
-
-	if (bUsePalette != 0)
-	{
-		//TODO: more
-	}
-}
-
-
-// Cache une image globale.
-
-BOOL CPixmap::Cache2(int channel, char *pFilename, POINT totalDim, POINT iconDim,
+BOOL CPixmap::Cache(int channel, char *pFilename, POINT totalDim, POINT iconDim,
 	BOOL bUsePalette)
 {
-	HRESULT     ddrval;
+	HRESULT		 ddrval;
 
-	if (channel < 0 || channel >= MAXIMAGE)  return FALSE;
+	if (channel < 0 || channel >= MAXIMAGE)	return FALSE;
 
 	if (m_lpDDSurface[channel] != NULL)
 	{
@@ -659,10 +747,10 @@ BOOL CPixmap::Cache2(int channel, char *pFilename, POINT totalDim, POINT iconDim
 	// Create and set the palette.
 	if (bUsePalette)
 	{
-		if (m_bDebug)  OutputDebug("Use palette\n");
+		if (m_bDebug)	OutputDebug("Use palette\n");
 		if (m_lpDDPal != NULL)
 		{
-			if (m_bDebug)  OutputDebug("Release palette\n");
+			if (m_bDebug)	OutputDebug("Release palette\n");
 			m_lpDDPal->Release();
 			m_lpDDPal = NULL;
 		}
@@ -671,8 +759,8 @@ BOOL CPixmap::Cache2(int channel, char *pFilename, POINT totalDim, POINT iconDim
 
 		if (m_lpDDPal)
 		{
-			if (m_bDebug)  OutputDebug("Set palette\n");
-			m_lpDDSPrimary->SetPalette(NULL);  // indispensable !
+			if (m_bDebug)	OutputDebug("Set palette\n");
+			m_lpDDSPrimary->SetPalette(NULL);	// indispensable !
 			ddrval = m_lpDDSPrimary->SetPalette(m_lpDDPal);
 			if (ddrval != DD_OK)
 			{
@@ -691,8 +779,8 @@ BOOL CPixmap::Cache2(int channel, char *pFilename, POINT totalDim, POINT iconDim
 	}
 
 	// Set the color key to white
-	if (m_bDebug)  OutputDebug("DDSetColorKey\n");
-	DDSetColorKey(m_lpDDSurface[channel], RGB(255, 255, 255));  // blanc
+	if (m_bDebug)	OutputDebug("DDSetColorKey\n");
+	DDSetColorKey(m_lpDDSurface[channel], RGB(255, 255, 255));	// blanc
 
 	strcpy(m_filename[channel], pFilename);
 
@@ -702,16 +790,89 @@ BOOL CPixmap::Cache2(int channel, char *pFilename, POINT totalDim, POINT iconDim
 	return TRUE;
 }
 
-BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor, BOOL bTrueColorDecor, int mouseType, char* pFilename, int region)
-{
-	char filename[100];
+// Cache une image provenant d'un bitmap.
 
+// Probably not needed?
+
+
+BOOL CPixmap::Cache(int channel, HBITMAP hbm, POINT totalDim)
+{
+	if ( channel < 0 || channel >= MAXIMAGE )  return FALSE;
+
+	if ( m_lpDDSurface[channel] != NULL )
+	{
+		Flush(channel);
+	}
+
+    // Create the offscreen surface, by loading our bitmap.
+    m_lpDDSurface[channel] = DDConnectBitmap(m_lpDD, hbm);
+
+    if ( m_lpDDSurface[channel] == NULL )
+    {
+		OutputDebug("Fatal error: DDLoadBitmap\n");
+        return FALSE;
+    }
+
+    // Set the color key to white
+    DDSetColorKey(m_lpDDSurface[channel], RGB(255,255,255));  // blanc
+	
+	m_totalDim[channel] = totalDim;
+	m_iconDim[channel]  = totalDim;
+
+	return TRUE;
+}
+
+BOOL CPixmap::BackgroundCache(int channel, const char* pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette)
+{	
+	BOOL decor;
+	char file[100];
+
+	decor = strstr(pFilename, "blupi") != pFilename &&
+		strstr(pFilename, "element") != pFilename &&
+		strstr(pFilename, "explo") != pFilename &&
+		strstr(pFilename, "object") != pFilename;
+	if (bUsePalette)
+	{
+		goto LABEL1;
+	}
+	if (decor)
+	{
+		if (m_bTrueColor == FALSE)
+		{
+			if (decor) goto LABEL1;
+			if (m_bTrueColorDecor == FALSE) goto LABEL1;
+		}
+	}
+	strcpy(file, "image16\\");
+	strcat(file, pFilename);
+	if (Cache(channel, file, totalDim, iconDim, FALSE))
+	{
+		return TRUE;
+	}
+LABEL1:
+	strcpy(file, "image08\\");
+	strcat(file, pFilename);
+	return Cache(channel, file, totalDim, iconDim, bUsePalette);
+}
+
+BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor, BOOL bTrueColorDecor, int mouseType, const char* pFilename, int region)
+{
+	SetDebug(TRUE); //
+	char filename[100];
+	char image[12];
 	POINT totalDim;
 	POINT iconDim;
 	RECT rect;
 	POINT dim;
 
-	m_dim = dim;
+
+	totalDim.x = 640;
+	totalDim.y = 480;
+	iconDim.x = 0;
+	iconDim.y = 0;
+
+	dim.x = LXIMAGE;
+	dim.y = LYIMAGE;
 
 	if (cache == FALSE)
 	{
@@ -728,8 +889,8 @@ BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor,
 		return FALSE;
 	}
 
-	OutputDebug("Image:_init\n");
-	if (Cache2(0, "init.blp", totalDim, iconDim, TRUE) == FALSE)
+	OutputDebug("Image: init\n");
+	if (BackgroundCache(0, "init.blp", totalDim, iconDim, TRUE) == FALSE)
 	{
 		return FALSE;
 	}
@@ -738,104 +899,160 @@ BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor,
 	SavePalette();
 	OutputDebug("InitSysPalette\n");
 	InitSysPalette();
-	SetDebug(FALSE);
+	//SetDebug(FALSE);
 
 	if (cache == FALSE)
 	{
-		if (Cache2(0, pFilename, totalDim, iconDim, FALSE) == NULL)
+		if (BackgroundCache(0, pFilename, totalDim, iconDim, FALSE) == FALSE)
 		{
-			return NULL;
+			return FALSE;
 		}
 	}
 	else
 	{
+		*(char*)image = (LXIMAGE) << 64;
+		rect.bottom = LYIMAGE;
+		rect.left = LOWORD(image);
+		rect.top = HIWORD(image);
+		rect.right = HIWORD(image);
 		DrawImage(0, 0, rect, 1);
 		Display();
 	}
-	if (Cache2(CHOBJECT, "object.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHOBJECT, "object.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHOBJECT, RGB(0, 0, 255));
-	if (Cache2(CHBLUPI, "blupi000.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHBLUPI, "blupi000.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHBLUPI, RGB(0, 0, 255));
-	if (Cache2(CHBLUPI1, "blupi001.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHBLUPI1, "blupi001.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHBLUPI1, RGB(0, 0, 255));
-	if (Cache2(CHBLUPI2, "blupi002.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHBLUPI2, "blupi002.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHBLUPI2, RGB(0, 0, 255));
-	if (Cache2(CHBLUPI3, "blupi003.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHBLUPI3, "blupi003.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHBLUPI3, RGB(0, 0, 255));
-	if (Cache2(CHTEMP, "temp.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHTEMP, "temp.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHTEMP, RGB(0, 0, 255));
-	if (Cache2(CHMAP, "map.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHMAP, "map.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHMAP, RGB(0, 0, 255));
-	if (Cache2(CHELEMENT, "element.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHELEMENT, "element.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHELEMENT, RGB(0, 0, 255));
-	if (Cache2(CHEXPLO, "explo.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHEXPLO, "explo.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHEXPLO, RGB(0, 0, 255));
 	sprintf(filename, "decor%.3d.blp", region);
-	if (Cache2(CHDECOR, filename, totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHDECOR, filename, totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
-	if (Cache2(CHBUTTON, "button00.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHBUTTON, "button00.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHBUTTON, RGB(0, 0, 255));
-	if (Cache2(CHJAUGE, "jauge.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHJAUGE, "jauge.blp", totalDim, iconDim, FALSE) == FALSE)
 	{
 		return FALSE;
 	}
 	SetTransparent(CHJAUGE, RGB(0, 0, 255));
-	if (Cache2(CHTEXT, "text.blp", totalDim, iconDim, FALSE) == FALSE)
+	if (BackgroundCache(CHTEXT, "text.blp", totalDim, iconDim, FALSE) != FALSE)
 	{
-		return FALSE;
-	}
-	SetTransparent(CHTEXT, RGB(0, 0, 255));
-	if (Cache2(CHLITTLE, "little.blp", totalDim, iconDim, FALSE) == FALSE)
-	{
-		SetTransparent(CHLITTLE, RGB(0, 0, 255));
-		Benchmark();
-		return TRUE;
+		SetTransparent(CHTEXT, RGB(0, 0, 255));
+		if (BackgroundCache(CHLITTLE, "little.blp", totalDim, iconDim, FALSE) != FALSE)
+		{
+			SetTransparent(CHLITTLE, RGB(0, 0, 255));
+			Benchmark();
+			return TRUE;
+		}
 	}
 	return FALSE;
 }
 
 int CPixmap::Benchmark()
 {
+	timeb time[2];
+	RECT  rect;
+	FILE* file;
+	UINT  crap;
+	int   num;
+	int	  num2;
+	int   num3;
+	UINT  num4;
+	int	  num5;
+	int	  num6;
+	int	  i;
+	POINT pos;
+	POINT dest;
+	char  buffer[100];
 
+	ftime(time);
+	num = (int)time;
+	num2 = 29;
+	num3 = 10;
+
+	rect.top = num;
+	rect.left = 29;
+	rect.right = 669;
+	rect.bottom = 509;
+	num5 = 120;
+	dest.x = 0;
+	dest.y = 0;
+	DrawPart(-1, -3, dest, rect, 1, FALSE);
+	do
+	{
+		pos.x = 13;
+		pos.y = 13;
+		QuickIcon(1, 1, pos);
+		num5--;
+	} while (num5);
+	ftime(time);
+	i = (int)time;
+
+	crap = 0;
+
+	num4 = crap & 0xFFFF;
+
+	if (num4 < num)
+	{
+		i = num4 + 100;
+	}
+	num6 = i - num;
+	sprintf(buffer, "Benchmark = %d\r\n", i - num);
+
+	file = fopen("data\\bench.blp", "wb");
+
+	if (fopen("data\\bench.blp", "wb"))
+	{
+		fwrite(buffer, strlen(buffer), 1, file);
+		fclose(file);
+	}
+	return num6;
 }
 
-void CPixmap::SetDebug(BOOL bDebug)
-{
-	m_bDebug = bDebug;
-	DDSetDebug(bDebug);
-}
+
 
 // Purge une image.
 
@@ -885,7 +1102,7 @@ void CPixmap::SetClipping(RECT clip)
 
 // Retourne la r�gion de clipping.
 
-RECT CPixmap::GetClipping()
+RECT CPixmap::GetClipping(RECT* rect)
 {
 	return m_clipRect;
 }
@@ -894,73 +1111,7 @@ RECT CPixmap::GetClipping()
 // Teste si un point fait partie d'une ic�ne.
 //Rough rewritten code, might need improvement
 
-BOOL CPixmap::IsIconPixel(int channel, int rank, POINT pos)
-{
-	int			nbx, nby;
-	COLORREF	rgb;
-	HDC			hDC;
 
-	if (channel == 1)
-	{
-		if (g_objectMax <= rank)
-		{
-			return;
-		}
-	}
-	else if (channel == 10)
-	{
-		if (g_elementMax <= rank)
-		{
-			return;
-		}
-	}
-	else if (channel == CHBLUPI || channel == CHBLUPI1 || channel == CHBLUPI2 || channel == CHBLUPI3)
-	{
-		if (g_blupiMax <= rank)
-		{
-			return;
-		}
-	}
-	else
-	{
-		if (channel != CHEXPLO)
-		{
-			if (rank < 0)
-				return;
-		}
-		if (rank < 0 || rank >= nbx * nby)
-		{
-			return;
-		}
-			if (g_exploMax <= rank)
-			{
-				return;
-		}
-	}
-
-	if ( channel < 0 || channel >= MAXIMAGE )  return FALSE;
-	if (  m_lpDDSurface[channel] == NULL )     return FALSE;
-
-	if ( m_iconDim[channel].x == 0 ||
-		 m_iconDim[channel].y == 0 )  return FALSE;
-
-	nbx = m_totalDim[channel].x / m_iconDim[channel].x;
-	nby = m_totalDim[channel].y / m_iconDim[channel].y;
-
-	if ( rank < 0 || rank >= nbx*nby )  return FALSE;
-
-	pos.x += (rank%nbx)*m_iconDim[channel].x;
-	pos.y += (rank/nbx)*m_iconDim[channel].y;
-
-	if ( m_lpDDSurface[channel]->GetDC(&hDC) != DD_OK )  return FALSE;
-	rgb = GetPixel(hDC, pos.x, pos.y);
-	m_lpDDSurface[channel]->ReleaseDC(hDC);
-
-	if ( rgb == m_colorSurface[2*channel+0] ||
-		 rgb == m_colorSurface[2*channel+1] )  return FALSE;
-
-	return TRUE;
-}
 
 
 // Dessine une partie d'image rectangulaire.
@@ -980,6 +1131,7 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 		{
 			return FALSE;
 		}
+
 	}
 	else if (channel == CHELEMENT)
 	{
@@ -1001,6 +1153,9 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 	{
 		if (channel != CHEXPLO)
 		{
+			nbx = m_totalDim[channel].x / m_iconDim[channel].x;
+			nby = m_totalDim[channel].y / m_iconDim[channel].y;
+
 			if (channel < 0 || channel >= MAXIMAGE) return FALSE;
 			if (m_lpDDSurface[channel] == NULL) return FALSE;
 			if (m_iconDim[channel].x == 0 ||

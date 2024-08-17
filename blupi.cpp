@@ -3,11 +3,21 @@
 
 #define WIN32_LEAN_AND_MEAN
 
+#pragma once
+
+#pragma comment(lib, "winmm.lib")
+
+using namespace std;
+
 #include <windows.h>
 #include <windowsx.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <mmsystem.h>
+#include <time.h>
+#include <sys/timeb.h>
+//#include <mmiscapi2.h>
+#include <WinBase.h>
 #include "def.h"
 #include "resource.h"
 #include "ddutil.h"
@@ -21,6 +31,8 @@
 #include "event.h"
 #include "misc.h"
 #include "network.h"
+
+#pragma warning (disable : 4996)
 
 // Define Globals
 
@@ -54,10 +66,15 @@ int			g_something;
 MMRESULT    g_updateTimer;			// timer général
 BOOL		g_bActive = TRUE;		// is application active ?
 BOOL		g_bTermInit = FALSE;	// initialisation en cours
+int			g_timer;
 int			g_objectMax;
 int			g_elementMax;
 int			g_blupiMax;
 int			g_exploMax;
+short		g_object[6];
+short		g_element[6];
+short		g_blupiCh[6];
+short		g_explo[6];
 
 UINT		g_lastPhase = 999;
 
@@ -240,9 +257,6 @@ void UpdateFrame(void)
 	int phase, term;
 
 	g_pEvent->ReadInput();
-
-
-	g_pEvent->ReadInput();
 	phase = g_pEvent->GetPhase();
 	if (phase == WM_PHASE_PLAY || phase == WM_PHASE_PLAYTEST || phase == WM_PHASE_BUILD)
 	{
@@ -256,71 +270,78 @@ void UpdateFrame(void)
 		}
 	}
 
-	if (phase == WM_PHASE_INIT)
-	{
-		g_pEvent->DemoStep();
-	}
-
-	if (phase == WM_PHASE_PLAYMOVIE || phase == WM_PHASE_WINMOVIE || phase == WM_PHASE_WINMOVIEDESIGN || phase == WM_PHASE_WINMOVIEMULTI)
-	{
-		g_pEvent->MovieToStart();
-	}
-
-	if (phase == WM_PHASE_INSERT)
-	{
-		g_pEvent->TryInsert();
-	}
-
-	if (phase == WM_PHASE_PLAY)
-	{
-		term = g_pDecor->IsTerminated();
-		if (g_pEvent->IsPrivate())
+		if (phase == WM_PHASE_INIT)
 		{
-			if (term == -1)
-			{
-				g_pEvent->ChangePhase(WM_PHASE_HISTORY1);
-				return;
-			}
-			if (term != 0)
-			{
-				g_pEvent->ChangePhase(WM_PHASE_HELP);
-				return;
-			}
+			g_pEvent->DemoStep();  // d?marre ?v. d?mo automatique
 		}
-		else
+
+		if (phase == WM_PHASE_PLAYMOVIE || phase == WM_PHASE_WINMOVIE || WM_PHASE_WINMOVIEDESIGN || WM_PHASE_WINMOVIEMULTI)
 		{
-			if (g_pEvent->IsMulti())
+			g_pEvent->MovieToStart();
+		}
+
+		if (phase == WM_PHASE_INSERT)
+		{
+			g_pEvent->TryInsert();
+		}
+
+		if (phase == WM_PHASE_PLAY)
+		{
+			if (g_pEvent->IsPrivate() == FALSE)
 			{
-				if (term == -1) {
-					g_pEvent->ChangePhase(WM_PHASE_H0MOVIE);
-					return;
+				if (g_pEvent->IsMulti() == FALSE)
+				{
+					if (g_pDecor->IsTerminated() == -1)
+					{
+						g_pEvent->GetWorldGroup();
+						g_pEvent->SetLives(g_pDecor->GetNbVies());
+						g_pEvent->ChangePhase(WM_PHASE_LOST);
+					}
+					if (g_pDecor->IsTerminated() == -2)
+					{
+						g_pEvent->SetLives(g_pDecor->GetNbVies());
+						g_pEvent->ChangePhase(WM_PHASE_WINMOVIE);
+					}
+					if (0 < g_pDecor->IsTerminated())
+					{
+						g_pEvent->SetLives(g_pDecor->GetNbVies());
+						g_pEvent->SetMission(g_pDecor->IsTerminated());
+						g_pEvent->ChangePhase(WM_PHASE_PLAY);
+					}
 				}
-				if (term != 0) {
-					g_pEvent->ChangePhase(WM_PHASE_H2MOVIE);
-					return;
+				else
+				{
+					if (g_pDecor->IsTerminated() == -1)
+					{
+						g_pEvent->ChangePhase(WM_PHASE_WINm);
+						return;
+					}
+					if (g_pDecor->IsTerminated() != 0)
+					{
+						g_pEvent->ChangePhase(WM_PHASE_WINMOVIEm);
+						return;
+					}
 				}
 			}
 			else
 			{
-				if (term == -1) {
-					g_pEvent->GetWorldGroup(); // probably intended to be a variable assignment? wtf ghidra
-					g_pEvent->SetNbVies(g_pDecor->GetNbVies());
-					g_pEvent->ChangePhase(WM_PHASE_LOST);
+				if (g_pDecor->IsTerminated() == -1)
+				{
+					g_pEvent->ChangePhase(WM_PHASE_LOSTd);
+					return;
 				}
-				if (term == -2) {
-					g_pEvent->SetNbVies(g_pDecor->GetNbVies());
-					g_pEvent->ChangePhase(WM_PHASE_PLAYMOVIE);
-				}
-				if (term > 0) {
-					g_pEvent->SetNbVies(g_pDecor->GetNbVies());
-					g_pDecor->SetMission(term);
-					g_pEvent->ChangePhase(WM_PHASE_PLAY);
+				if (g_pDecor->IsTerminated() != 0)
+				{
+					g_pEvent->ChangePhase(WM_PHASE_WINMOVIEd);
+					return;
 				}
 			}
-			
 		}
 	}
+	return;
 }
+
+
 
 // Incomplete
 
@@ -329,6 +350,7 @@ void SetDecor()
 	RECT rect;
 	UINT phase;
 	POINT posMouse;
+	char  test[12];
 
 	g_pPixmap->MouseBackClear();
 	posMouse = g_pEvent->GetLastMousePos();
@@ -365,6 +387,7 @@ int Benchmark()
 
 
 // Restitue le jeu après une activation en mode fullScreen.
+
 
 BOOL RestoreGame()
 {
@@ -434,14 +457,6 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 {
 	static HINSTANCE   hInstance;
 	POINT 			   mousePos, totalDim, iconDim;
-#if 0
-	if ( message != WM_TIMER )
-	{
-		char s[100];
-		sprintf(s, "message=%d,%d\n", message, wParam);
-		OutputDebug(s);
-	}
-#endif
 
 	// La touche F10 envoie un autre message pour activer
 	// le menu dans les applications Windows standard !
@@ -605,6 +620,16 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 
 }
 
+LPTIMECALLBACK TimerStep()
+{
+	if (g_bActive && g_timer == 0)
+	{
+		g_timer = 1;
+		PostMessageA(g_hWnd, WM_UPDATE, 0, 0);
+	}
+	return NULL;
+}
+
 
 // Erreur dans DoInit.
 
@@ -623,9 +648,54 @@ BOOL InitFail(char *msg, BOOL bDirectX)
 	return FALSE;
 }
 
-//[Space for SetTimer]
+int Benchmark()
+{
+	timeb time[6];
+	int num0;
+	int num;
+	int num2;
+	int num3;
+	int i;
+	short crap[6];
+	FILE* open;
+	int frame;
+	_MEMORYSTATUS buffer;
+	char file[100];
 
-// Initialisation de l'application.
+	ftime(time);
+
+	num = (int)time;
+	frame = 10;
+
+	do
+	{
+		UpdateFrame();
+		SetDecor();
+		g_pPixmap->Display();
+		frame++;
+	} while (frame);
+
+	ftime(time);
+	i = (int)time;
+
+	num0 = HIWORD(crap) & 0xFFFF;
+
+	if (num0 < num)
+	{
+		num0 = num0 + 1000;
+	}
+	num3 = i - num0;
+	buffer.dwLength = 32;
+	GlobalMemoryStatus(&buffer);
+	sprintf(file, "CheckTime = %d\r\nMemory = %d", num3, buffer.dwTotalPhys);
+
+	if (fopen("data\\time.blp", "wb"))
+	{
+		fwrite(file, strlen(file), 1, fopen("data\\time.blp", "wb"));
+		fclose(fopen("data\\time.blp", "wb"));
+	}
+	return num3;
+}
 
 static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 {
@@ -714,14 +784,23 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	g_pPixmap = new CPixmap;
 	if (g_pPixmap == NULL) return InitFail("New pixmap", TRUE);
 
-	g_pPixmap->SetBenchmarkSuccess(g_bBenchmarkSuccess);
+	totalDim.x = LXIMAGE;
+	totalDim.y = LYIMAGE;
+	if (!g_pPixmap->Create(g_hWnd, totalDim, g_bFullScreen, g_mouseType, g_bTrueColorBack, g_bTrueColorDecor))
+		return InitFail("Create pixmap", TRUE);
 
-#if _INTRO
-	if (!g_pPixmap->CacheAll(TRUE, g_hWnd, g_bFullScreen, g_bTrueColor, g_bTrueColorDecor, g_mouseType, "intro1.blp", FALSE))
-#else
-	if (!g_pPixmap->CacheAll(TRUE, g_hWnd, g_bFullScreen, g_bTrueColorBack, g_bTrueColorDecor, g_mouseType, "init.blp", FALSE))
-#endif
+	OutputDebug("Image: init\n");
+	totalDim.x = LXIMAGE;
+	totalDim.y = LYIMAGE;
+	iconDim.x = 0;
+	iconDim.y = 0;
+
+	if (!g_pPixmap->CacheAll(TRUE, g_hWnd, g_bFullScreen, g_bTrueColor, g_bTrueColorDecor, g_mouseType, "init.blp", 0))
 		return FALSE;
+	OutputDebug("SavePalette\n");
+	g_pPixmap->SavePalette();
+	OutputDebug("InitSysPalette\n");
+	g_pPixmap->InitSysPalette();
 
 	g_pSound = new CSound;
 	if (g_pSound == NULL) return InitFail("New sound", TRUE);
@@ -775,6 +854,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 					LPSTR lpCmdLine, int nCmdShow)
 {
 	MSG		msg;
+	LPTIMECALLBACK timeStep;
 
 	if ( !DoInit(hInstance, lpCmdLine, nCmdShow) )
 	{
@@ -782,13 +862,13 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	}
 
 	Benchmark();
-	timeSetEvent(g_timerInterval, g_timerInterval >> 2, (LPTIMECALLBACK)TimerStep, 0, 1);
+	g_hWnd = (HWND)timeSetEvent(g_timerInterval, (g_timerInterval + (g_timerInterval >> 31 & 3U)) >> 2, TimerStep(), 0, 1);
 
-	while ( TRUE )
+	while (TRUE)
 	{
-		if ( PeekMessage(&msg, NULL, 0,0, PM_NOREMOVE) )
+		if (PeekMessage(&msg, NULL, 0, 0, PM_NOREMOVE))
 		{
-			if ( !GetMessage(&msg, NULL, 0, 0) )
+			if (!GetMessage(&msg, NULL, 0, 0))
 			{
 				return msg.wParam;
 			}

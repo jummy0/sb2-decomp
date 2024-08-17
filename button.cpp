@@ -5,7 +5,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <ddraw.h>
-#include <minwindef.h>
+//#include <minwindef.h>
 #include <windef.h>
 #include "def.h"
 #include "pixmap.h"
@@ -46,10 +46,7 @@ CButton::~CButton()
 // Create a new Button
 
 BOOL CButton::Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
-                     POINT pos, int type, BOOL bMinimizeRedraw,
-                     /*int *pMenu, int nbMenu,
-                     int *pToolTips, int nbToolTips,
-                     int region,*/ UINT message)
+                     POINT pos, int type, BOOL bMinimizeRedraw, int region, UINT message)
 {
     POINT iconDim;
     //int i, icon;
@@ -382,7 +379,6 @@ BOOL CButton::MouseDown(POINT pos)
 	m_bRedraw	 = TRUE;
 	PostMessage(m_hWnd, WM_UPDATE, 0, 0);
 
-	m_pSound->PlayImage(SOUND_CLICK, pos);
 	return TRUE;
 }
 
