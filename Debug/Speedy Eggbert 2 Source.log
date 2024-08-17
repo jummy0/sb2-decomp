@@ -1,4 +1,4 @@
-﻿  blupi.cpp
+﻿  decor.cpp
 c:\users\jimmy\documents\github\sb2-decomp\def.h(241): warning C4005: 'MAXMOVEOBJECT': macro redefinition
   c:\users\jimmy\documents\github\sb2-decomp\def.h(83): note: see previous definition of 'MAXMOVEOBJECT'
 c:\users\jimmy\documents\github\sb2-decomp\def.h(480): warning C4005: 'WM_PHASE_PRIVATE': macro redefinition
@@ -8,21 +8,34 @@ c:\users\jimmy\documents\github\sb2-decomp\resource.h(106): warning C4005: 'TX_S
 c:\users\jimmy\documents\github\sb2-decomp\decor.h(29): warning C4005: 'MAXMOVEOBJECT': macro redefinition
   c:\users\jimmy\documents\github\sb2-decomp\def.h(241): note: see previous definition of 'MAXMOVEOBJECT'
 c:\users\jimmy\documents\github\sb2-decomp\event.h(100): warning C4091: 'typedef ': ignored on left of '' when no variable is declared
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(242): warning C4101: 'targetlevel': unreferenced local variable
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(238): warning C4101: 'rcRect': unreferenced local variable
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(238): warning C4101: 'clip': unreferenced local variable
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(242): warning C4101: 'i': unreferenced local variable
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(241): warning C4101: 'posMouse': unreferenced local variable
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(354): warning C4293: '<<': shift count negative or too big, undefined behavior
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(363): warning C4293: '<<': shift count negative or too big, undefined behavior
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(345): warning C4101: 'posMouse': unreferenced local variable
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(615): warning C4101: 'num2': unreferenced local variable
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(619): warning C4101: 'open': unreferenced local variable
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(663): warning C4101: 'rcRect': unreferenced local variable
-c:\users\jimmy\documents\github\sb2-decomp\blupi.cpp(798): warning C4101: 'timeStep': unreferenced local variable
-  Generating Code...
-  Skipping... (no relevant changes detected)
-  pixmap.cpp
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(132): warning C4101: 'i': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(543): warning C4554: '&': check operator precedence for possible error; use parentheses to clarify precedence
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(568): warning C4101: 'text': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(997): warning C4101: 'tinyRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(1033): warning C4553: '==': operator has no effect; did you intend '='?
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(1266): warning C4553: '==': operator has no effect; did you intend '='?
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(1519): warning C4553: '==': operator has no effect; did you intend '='?
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(6521): warning C4101: 'type2': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(6554): warning C4244: '=': conversion from 'LONG' to 'short', possible loss of data
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(6577): warning C4101: 'players': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(6692): warning C4101: 'rect2': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(6691): warning C4101: 'rect1': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(6693): warning C4101: 'rect3': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(6774): warning C4101: 'moveObject': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(6789): warning C4101: 'tinyRect2': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(7855): warning C4101: 'tinyRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(8097): warning C4101: 'tinyRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(8152): warning C4101: 'tinyRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(8174): warning C4101: 'tinyRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(8210): warning C4101: 'src3': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(8240): warning C4101: 'tinyRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(8268): warning C4101: 'tinyRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(8296): warning C4101: 'tinyRect': unreferenced local variable
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(8775): warning C4553: '==': operator has no effect; did you intend '='?
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(9008): warning C4129: '%': unrecognized character escape sequence
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(9012): warning C4129: 'w': unrecognized character escape sequence
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(5295): warning C4715: 'CDecor::BlupiIsGround': not all control paths return a value
+c:\users\jimmy\documents\github\sb2-decomp\decor.cpp(8218): warning C4715: 'CDecor::MoveObjectDetect': not all control paths return a value
 LINK : warning LNK4075: ignoring '/INCREMENTAL' due to '/FORCE' specification
 blupi.obj : warning LNK4075: ignoring '/EDITANDCONTINUE' due to '/OPT:LBR' specification
 pixmap.obj : warning LNK4006: "int __cdecl Benchmark(void)" (?Benchmark@@YAHXZ) already defined in blupi.obj; second definition ignored

@@ -108,7 +108,7 @@ public:
 
 	void	OutputNetDebug(const char* str);
 	POINT	GetMousePos();
-	void	Create(HWND hWnd, CPixmap *pPixmap, CDecor *pDecor, CSound *pSound, CMovie *pMovie, CNetwork *pNetwork);
+	void	Create(HINSTANCE hInstance, HWND hWnd, CPixmap *pPixmap, CDecor *pDecor, CSound *pSound, CNetwork *pNetwork, CMovie *pMovie);
 	void	SetFullScreen(BOOL bFullScreen);
 	void	SetMouseType(int mouseType);
 	int		GetWorld();

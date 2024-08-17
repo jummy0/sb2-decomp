@@ -752,7 +752,6 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 
 	if (!g_pPixmap->CacheAll(TRUE, g_hWnd, g_bFullScreen, g_bTrueColor, g_bTrueColorDecor, g_mouseType, "init.blp", 0))
 		return FALSE;
-
 	OutputDebug("SavePalette\n");
 	g_pPixmap->SavePalette();
 	OutputDebug("InitSysPalette\n");
@@ -778,7 +777,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	g_pEvent = new CEvent;
 	if (g_pEvent == NULL) return InitFail("New event", FALSE);
 
-	g_pEvent->Create(g_hWnd, g_pPixmap, g_pDecor, g_pSound, g_pMovie, g_pNetwork);
+	g_pEvent->Create(hInstance, g_hWnd, g_pPixmap, g_pDecor, g_pSound, g_pNetwork, g_pMovie);
 	g_pEvent->SetFullScreen(g_bFullScreen);
 	g_pEvent->SetMouseType(g_mouseType);
 	g_pEvent->ChangePhase(WM_PHASE_INIT);

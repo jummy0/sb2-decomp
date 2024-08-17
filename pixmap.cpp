@@ -857,6 +857,7 @@ LABEL1:
 
 BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor, BOOL bTrueColorDecor, int mouseType, const char* pFilename, int region)
 {
+	SetDebug(TRUE); //
 	char filename[100];
 	char image[12];
 	POINT totalDim;
@@ -898,7 +899,7 @@ BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor,
 	SavePalette();
 	OutputDebug("InitSysPalette\n");
 	InitSysPalette();
-	SetDebug(FALSE);
+	//SetDebug(FALSE);
 
 	if (cache == FALSE)
 	{
@@ -979,7 +980,6 @@ BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor,
 	SetTransparent(CHJAUGE, RGB(0, 0, 255));
 	if (BackgroundCache(CHTEXT, "text.blp", totalDim, iconDim, FALSE) != FALSE)
 	{
-		return FALSE;
 		SetTransparent(CHTEXT, RGB(0, 0, 255));
 		if (BackgroundCache(CHLITTLE, "little.blp", totalDim, iconDim, FALSE) != FALSE)
 		{
@@ -987,7 +987,6 @@ BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor,
 			Benchmark();
 			return TRUE;
 		}
-		return FALSE;
 	}
 	return FALSE;
 }
@@ -1027,7 +1026,7 @@ int CPixmap::Benchmark()
 		pos.x = 13;
 		pos.y = 13;
 		QuickIcon(1, 1, pos);
-		num5++;
+		num5--;
 	} while (num5);
 	ftime(time);
 	i = (int)time;

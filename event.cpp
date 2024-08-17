@@ -1286,7 +1286,7 @@ CEvent::CEvent()
 	m_bCtrlDown     = FALSE;
 	m_input			= 0;
 
-	for (i != 0; i = 20; i++)
+	for (i = 0; i < 20; i++)
 	{
 		m_menuIndex = 0;
 		m_menuIndex++;
@@ -1309,10 +1309,9 @@ CEvent::~CEvent()
 	return;
 }
 
-void CEvent::Create(HWND hWnd, CPixmap *pPixmap, CDecor *pDecor,
-                    CSound *pSound, CMovie *pMovie, CNetwork *pNetwork)
+void CEvent::Create(HINSTANCE hInstance, HWND hWnd, CPixmap *pPixmap, CDecor *pDecor,
+                    CSound *pSound, CNetwork *pNetwork, CMovie *pMovie)
 {
-	HINSTANCE hInstance;
     POINT   pos;
 
 	m_hInstance = hInstance;

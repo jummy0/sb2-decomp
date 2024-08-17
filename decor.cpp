@@ -121,19 +121,8 @@ BOOL CDecor::LoadImages()
 
 void CDecor::InitGamer()
 {
-	int	  i;
-	BYTE* door;
-
 	m_nbVies = 3;
-
-	door = m_doors;
-
-	for (i != 0; i = 50; i++)
-	{
-		*(int*)door = 0x1010101;
-		door = door + 4;
-	}
-	return;
+	ZeroMemory(m_doors, sizeof(m_doors));
 }
 
 // The only seemingly sane function.
