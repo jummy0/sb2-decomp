@@ -15,9 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="action.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="button.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -40,9 +37,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="event.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="fifo.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="jauge.h">
