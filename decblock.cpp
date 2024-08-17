@@ -4,8 +4,10 @@
 #include "def.h"
 #include "decor.h"
 #include "misc.h"
+#include "obstacle.h"
+#include "dectables.h"
 
-BOOL CDecor::BlitzActif(int celx, int cely)
+BOOL CDecor::BlitzActif(POINT cel)
 {
 	if (m_phase == WM_PHASE_BUILD) {
 		//TODO: rewrite this like a human
@@ -13,14 +15,14 @@ BOOL CDecor::BlitzActif(int celx, int cely)
 		return 1 - (((m_time ^ foo) - foo & 1 ^ foo) == foo);
 	}
 
-	POINT pos = { celx * DIMOBJX, cely * DIMOBJY };
+	POINT pos = { cel.x * DIMOBJX, cel.y * DIMOBJY };
 
 	int num = m_time % 100;
 
 	if (m_blupiPos.x >= pos.x - 80 && m_blupiPos.x <= pos.x + 80 &&
 		m_blupiPos.y >= pos.y - 500 && m_blupiPos.y <= pos.y + 500)
 	{
-		if (m_time % 100 < 70 && cely > 0 && m_decor[celx][cely - 1].icon == 0x130)
+		if (m_time % 100 < 70 && cely > 0 && m_decor[cel.x][cel.y - 1].icon == 0x130)
 		{
 			PlaySound(SOUND_BLITZ, pos, 0);
 		}
@@ -125,7 +127,7 @@ int CDecor::IsWorld(POINT pos)
 	{
 		return -1;
 	}
-	int icon = m_decor[pos.x / 64, pos.y / 64]->icon;
+	int icon = m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon;
 	if (icon >= 158 && icon <= 165)
 	{
 		return icon - 158 + 1;
@@ -160,17 +162,17 @@ int CDecor::IsWorld(POINT pos)
 void CDecor::ActiveSwitch(BOOL bState, POINT cel)
 {
 	POINT pos;
-	pos.x = cel.x * 64;
-	pos.y = cel.y * 64;
+	pos.x = cel.x * DIMOBJX;
+	pos.y = cel.y * DIMOBJY;
 	ModifDecor(pos, bState ? 384 : 385);
-	PlaySoundB(bState ? 77 : 76, pos);
+	PlaySound(bState ? 77 : 76, pos);
 	cel.x -= 20;
 	for (int i = 0; i < 41; i++)
 	{
 		if (cel.x >= 0 && cel.x < 100 && m_decor[cel.x, cel.y]->icon == (bState ? 379 : 378))
 		{
-			pos.x = cel.x * 64;
-			pos.y = cel.y * 64;
+			pos.x = cel.x * DIMOBJX;
+			pos.y = cel.y * DIMOBJY;
 			ModifDecor(pos, bState ? 378 : 379);
 		}
 		cel.x++;
@@ -190,7 +192,7 @@ int CDecor::GetTypeBarre(POINT pos)
 	{
 		return 0;
 	}
-	int icon = m_decor[pos.x / 64, pos.y / 64]->icon;
+	int icon = m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon;
 	if (icon != 138 && icon != 202)
 	{
 		return 0;
@@ -199,7 +201,7 @@ int CDecor::GetTypeBarre(POINT pos)
 	{
 		return 1;
 	}
-	icon = m_decor[pos.x / 64, pos.y / 64 + 1]->icon;
+	icon = m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY + 1]->icon;
 	if (IsPassIcon(icon))
 	{
 		return 2;
@@ -217,14 +219,14 @@ int CDecor::GetTypeBarre(POINT pos)
 BOOL CDecor::IsLave(POINT pos)
 {
 	pos.x += 30;
-	return pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / 64, pos.y / 64]->icon == 68;
+	return pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon == 68;
 }
 
 BOOL CDecor::IsPiege(POINT pos)
 {
 	pos.x += 30;
 	pos.y += 60;
-	return pos.x % 64 >= 15 && pos.x % 64 <= 49 && pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / 64, pos.y / 64]->icon == 373;
+	return pos.x % 64 >= 15 && pos.x % 64 <= 49 && pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon == 373;
 }
 
 BOOL CDecor::IsGoutte(POINT pos, BOOL bAlways)
@@ -238,7 +240,7 @@ BOOL CDecor::IsGoutte(POINT pos, BOOL bAlways)
 	{
 		return FALSE;
 	}
-	int icon = m_decor[pos.x / 64, pos.y / 64]->icon;
+	int icon = m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon;
 	if (bAlways)
 	{
 		return icon == 404 || icon == 410;
@@ -249,7 +251,7 @@ BOOL CDecor::IsGoutte(POINT pos, BOOL bAlways)
 BOOL CDecor::IsScie(POINT pos)
 {
 	pos.x += 30;
-	return pos.x % 64 >= 4 && pos.x % 64 <= 60 && pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / 64, pos.y / 64]->icon == 378;
+	return pos.x % 64 >= 4 && pos.x % 64 <= 60 && pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon == 378;
 }
 
 BOOL CDecor::IsSwitch(POINT pos, POINT celSwitch)
@@ -263,9 +265,9 @@ BOOL CDecor::IsSwitch(POINT pos, POINT celSwitch)
 	{
 		return FALSE;
 	}
-	celSwitch.x = pos.x / 64;
-	celSwitch.y = pos.y / 64;
-	return m_decor[pos.x / 64, pos.y / 64]->icon == 384 || m_decor[pos.x / 64, pos.y / 64]->icon == 385;
+	celSwitch.x = pos.x / DIMOBJX;
+	celSwitch.y = pos.y / DIMOBJY;
+	return m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon == 384 || m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon == 385;
 }
 
 BOOL CDecor::IsEcraseur(POINT pos)
@@ -275,7 +277,7 @@ BOOL CDecor::IsEcraseur(POINT pos)
 		return FALSE;
 	}
 	pos.x += 30;
-	return pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / 64, pos.y / 64]->icon == 317;
+	return pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon == 317;
 }
 
 BOOL CDecor::IsBlitz(POINT pos, BOOL bAlways)
@@ -286,8 +288,8 @@ BOOL CDecor::IsBlitz(POINT pos, BOOL bAlways)
 		return FALSE;
 	}
 	POINT tinyPoint;
-	tinyPoint.x = pos.x / 64;
-	tinyPoint.y = pos.y / 64;
+	tinyPoint.x = pos.x / DIMOBJX;
+	tinyPoint.y = pos.y / DIMOBJY;
 	return m_decor[tinyPoint.x, tinyPoint.y]->icon == 305 && (bAlways || BlitzActif(tinyPoint.x, tinyPoint.y));
 }
 
@@ -295,31 +297,31 @@ BOOL CDecor::IsRessort(POINT pos)
 {
 	pos.x += 30;
 	pos.y += 60;
-	return pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / 64, pos.y / 64]->icon == 211;
+	return pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon == 211;
 }
 
 BOOL CDecor::IsTemp(POINT pos)
 {
 	pos.x += 30;
 	pos.y += 60;
-	return pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / 64, pos.y / 64]->icon == 324;
+	return pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon == 324;
 }
 
 BOOL CDecor::IsBridge(POINT pos, POINT celBridge)
 {
 	pos.x += 30;
 	pos.y += 60;
-	if (pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / 64, pos.y / 64]->icon == 364)
+	if (pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon == 364)
 	{
-		celBridge.x = pos.x / 64;
-		celBridge.y = pos.y / 64;
+		celBridge.x = pos.x / DIMOBJX;
+		celBridge.y = pos.y / DIMOBJY;
 		return TRUE;
 	}
 	pos.y -= 60;
-	if (pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / 64, pos.y / 64]->icon == 364)
+	if (pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon == 364)
 	{
-		celBridge.x = pos.x / 64;
-		celBridge.y = pos.y / 64;
+		celBridge.x = pos.x / DIMOBJX;
+		celBridge.y = pos.y / DIMOBJY;
 		return TRUE;
 	}
 	return FALSE;
@@ -340,11 +342,11 @@ int CDecor::IsDoor(POINT pos, POINT celPorte)
 	pos.x += 30;
 	for (int i = 0; i < 2; i++)
 	{
-		if (pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / 64, pos.y / 64]->icon >= 334 && m_decor[pos.x / 64, pos.y / 64]->icon <= 336)
+		if (pos.x >= 0 && pos.x < DIMOBJX * MAXCELX && pos.y >= 0 && pos.y < DIMOBJY * MAXCELY && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon >= 334 && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon <= 336)
 		{
-			celPorte.x = pos.x / 64;
-			celPorte.y = pos.y / 64;
-			return m_decor[pos.x / 64, pos.y / 64]->icon;
+			celPorte.x = pos.x / DIMOBJX;
+			celPorte.y = pos.y / DIMOBJY;
+			return m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon;
 		}
 		pos.x += num;
 	}
@@ -353,19 +355,19 @@ int CDecor::IsDoor(POINT pos, POINT celPorte)
 
 int CDecor::IsTeleporte(POINT pos)
 {
-	if (pos.x % 64 > 6)
+	if (pos.x % DIMOBJX > 6)
 	{
 		return -1;
 	}
 	pos.x += 30;
 	pos.y -= 60;
-	if (pos.x < 0 || pos.x >= 6400 || pos.y < 0 || pos.y >= 6400)
+	if (pos.x < 0 || pos.x >= DIMOBJX * MAXCELX || pos.y < 0 || pos.y >= DIMOBJY * MAXCELY)
 	{
 		return -1;
 	}
-	if (m_decor[pos.x / 64, pos.y / 64]->icon >= 330 && m_decor[pos.x / 64, pos.y / 64]->icon <= 333)
+	if (m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon >= 330 && m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon <= 333)
 	{
-		return m_decor[pos.x / 64, pos.y / 64]->icon;
+		return m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon;
 	}
 	return -1;
 }
@@ -401,7 +403,7 @@ BOOL CDecor::IsSurfWater(POINT pos)
 	{
 		return FALSE;
 	}
-	int icon = m_decor[(pos.x + 30) / 64, pos.y / 64]->icon;
+	int icon = m_decor[(pos.x + 30) / 64, pos.y / DIMOBJY]->icon;
 	int icon2 = m_decor[(pos.x + 30) / 64, (pos.y + BLUPISURF) / 64]->icon;
 	return icon != 92 && icon2 == 92;
 }
@@ -409,7 +411,7 @@ BOOL CDecor::IsSurfWater(POINT pos)
 BOOL CDecor::IsDeepWater(POINT pos)
 {
 	int num = (pos.x + 30) / 64;
-	int num2 = pos.y / 64;
+	int num2 = pos.y / DIMOBJY;
 	if (num < 0 || num >= 100 || num2 < 0 || num2 >= 100)
 	{
 		return FALSE;
@@ -474,7 +476,7 @@ BOOL CDecor::IsVentillo(POINT pos)
 	{
 		return FALSE;
 	}
-	int icon = m_decor[pos.x / 64, pos.y / 64]->icon;
+	int icon = m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon;
 	if (icon < 126 || icon > 137)
 	{
 		return FALSE;
@@ -528,7 +530,7 @@ BOOL CDecor::IsVentillo(POINT pos)
 	{
 		pos.x += tinyPoint.x;
 		pos.y += tinyPoint.y;
-		if (num != m_decor[pos.x / 64, pos.y / 64]->icon)
+		if (num != m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon)
 		{
 			break;
 		}
@@ -539,12 +541,12 @@ BOOL CDecor::IsVentillo(POINT pos)
 
 void CDecor::ModifDecor(POINT pos, int icon, BOOL bMulti)
 {// TODO: this
-	int icon2 = m_decor[pos.x / 64, pos.y / 64]->icon;
+	int icon2 = m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon;
 	if (icon == -1 && icon >= 126 && icon2 <= 137)
 	{
 		ByeByeAdd(1, icon2, pos, 17.0, 1.0);
 	}
-	m_decor[pos.x / 64, pos.y / 64]->icon = icon;
+	m_decor[pos.x / DIMOBJX, pos.y / DIMOBJY]->icon = icon;
 }
 
 BOOL CDecor::IsRightBorder(POINT pos, POINT offset)
@@ -553,50 +555,44 @@ BOOL CDecor::IsRightBorder(POINT pos, POINT offset)
 }
 
 
-BOOL CDecor::IsFromage(int x, int y)
+BOOL CDecor::IsFromage(POINT cel)
 {
-	if (x < 0 || x >= 100 || y < 0 || y >= 100)
-	{
-		return FALSE;
-	}
-	int icon = m_decor[x, y]->icon;
+	if (!IsValidCel(cel)) return FALSE;
+
+	int icon = m_decor[cel.x][cel.y].icon;
 	return (icon >= 246 && icon <= 249) || icon == 339;
 }
 
-BOOL CDecor::IsGrotte(int x, int y)
+BOOL CDecor::IsGrotte(POINT cel)
 {
-	if (x < 0 || x >= 100 || y < 0 || y >= 100)
-	{
-		return FALSE;
-	}
+	if (!IsValidCel(cel)) return FALSE;
+
 	int icon = m_decor[x, y]->icon;
 	return icon = 284 || icon == 301 || icon == 337;
 }
 
-void CDecor::AdaptMidBorder(int x, int y)
+void CDecor::AdaptMidBorder(POINT cel)
 {
-	if (x < 0 || x >= 100 || y < 0 || y >= 100)
-	{
-		return;
-	}
+	if (!IsValidCel(cel)) return;
+
 	int num = 15;
-	if (!IsRightBorder(x, y + 1, 0, -1))
+	if (!IsRightBorder({ cel.x, cel.y + 1 }, { 0, -1 }))
 	{
 		num &= -2;
 	}
-	if (!IsRightBorder(x, y + 1, 0, 1))
+	if (!IsRightBorder({ cel.x, cel.y + 1 }, { 0, 1 }))
 	{
 		num &= -3;
 	}
-	if (!IsRightBorder(x + 1, y, -1, 0))
+	if (!IsRightBorder({ cel.x + 1, cel.y }, { -1, 0 }))
 	{
 		num &= -5;
 	}
-	if (!IsRightBorder(x - 1, y, 1, 0))
+	if (!IsRightBorder({ cel.x - 1, cel.y }, { 1, 0 }))
 	{
 		num &= -9;
 	}
-	int num2 = m_decor[x, y]->icon;
+	int num2 = m_decor[cel.x][cel.y].icon;
 	if (num2 == 156)
 	{
 		num2 = 35;

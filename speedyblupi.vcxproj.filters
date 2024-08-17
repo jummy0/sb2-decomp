@@ -59,6 +59,18 @@
     <ClCompile Include="network.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="decio.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="decmove.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="decnet.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
+    <ClCompile Include="decblock.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="actions.h">
@@ -68,9 +80,6 @@
       <Filter>Sources</Filter>
     </ClInclude>
     <ClInclude Include="ddutil.h">
-      <Filter>Sources</Filter>
-    </ClInclude>
-    <ClInclude Include="decmove.h">
       <Filter>Sources</Filter>
     </ClInclude>
     <ClInclude Include="decor.h">
@@ -121,6 +130,9 @@
     <ClInclude Include="network.h">
       <Filter>Sources</Filter>
     </ClInclude>
+    <ClInclude Include="decdesign.cpp">
+      <Filter>Sources</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="arrow.cur">
@@ -167,6 +179,9 @@
     </None>
     <None Include="data\config.def">
       <Filter>Data</Filter>
+    </None>
+    <None Include="blupi.rct">
+      <Filter>Resource Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>

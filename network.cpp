@@ -196,7 +196,7 @@ BOOL CNetwork::CreateSession(char * pName)
 	desc.lpszSessionNameA = pName;
 	desc.dwSize = sizeof(desc);
 	desc.dwFlags = DPSESSION_KEEPALIVE | DPSESSION_MIGRATEHOST;
-	desc.dwMaxPlayers = MAXPLAYERS;
+	desc.dwMaxPlayers = MAXNETPLAYER;
 
 	hr = m_pDP->Open(&desc, DPOPEN_CREATE);
 	if (hr != DP_OK)
@@ -242,7 +242,7 @@ BOOL CNetwork::Receive(LPVOID pDest, DWORD dwDataSize, LPDWORD lpdwPlayer)
 	ZeroMemory(pDest, dwDataSize);
 
 	*lpdwPlayer = -1;
-	for (int i = 0; i < MAXPLAYERS; i++)
+	for (int i = 0; i < MAXNETPLAYER; i++)
 	{
 		if (m_players[i].bIsPresent && from == i)
 		{

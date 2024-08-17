@@ -13,7 +13,6 @@
 #include "decor.h"
 #include "text.h"
 #include "misc.h"
-#include "DECMOVE.h"
 #include "event.h"
 #include "dectables.h"
 #include "jauge.h"
@@ -37,9 +36,17 @@
 #define TEXTDELAY	   10 // tooltip popup delay
 #define NOTIFDELAY		200
 
-BOOL IsValidCel(POINT cel)
+inline BOOL IsValidCel(POINT cel)
 {
 	return cel.x >= 0 && cel.x < MAXCELX && cel.y >= 0 && cel.y < MAXCELY;
+}
+
+inline void CDecor::StopVehicleSound()
+{
+	StopSound(SOUND_HELICOHIGH);
+	StopSound(SOUND_HELICOLOW);
+	StopSound(SOUND_JEEPHIGH);
+	StopSound(SOUND_JEEPLOW);
 }
 
 // Constructor
@@ -846,35 +853,76 @@ void CDecor::DrawInfo()
 	POINT pos;
 	char text[100];
 
-	if (m_phase == WM_PHASE_PLAY || WM_PHASE_PLAYTEST)
+	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
 	{
 		for (int i = 4; i != 0; i--) {
 			if (m_notifText[i] != '\0') {
-				pos.x = 10;
-				pos.y = 10;
-				DrawTextB(m_pPixmap, pos, m_notifText[i], 0);
+				DrawText(m_pPixmap, { 10, 10 }, m_notifText[i], 0);
 			}
 		}
 
 		if (m_nbVies > 0) {
-			pos.x = -15;
+			pos = { -15, 417 };
 			for (int i = 0; i < m_nbVies; i++) {
-				pos.y = 417;
-				m_pPixmap->QuickIcon(GetBlupiChannelStandard(), 48, pos);
+				m_pPixmap->QuickIcon(GetBlupiChannelActual(), 48, pos);
 				pos.x += 16;
 			}
 		}
 
 		if (m_blupiBullet > 0) {
-			pos.x = -15;
-			pos.y = 398;
+			pos = { 398, 442 };
 			for (int i = 0; i < m_blupiBullet; i++) {
 				m_pPixmap->QuickIcon(CHELEMENT, 176, pos);
 				pos.x += 4;
 			}
 		}
 
-		//TODO: more
+		if (m_blupiPerso > 0) {
+			m_pPixmap->QuickIcon(CHBUTTON, GetIconPerso(), { 465, 438 });
+			sprintf(text, "=_%d", m_blupiPerso);
+			DrawText(m_pPixmap, { 497, 452 }, text, FONTWHITE);
+		}
+
+		if (m_blupiDynamite > 0) {
+			m_pPixmap->QuickIcon(CHELEMENT, 252, { 505, 414 });
+		}
+
+		if (m_blupiCle | CLE_RED) {
+			m_pPixmap->QuickIcon(CHELEMENT, 215, { 520, 418 });
+		}
+
+		if (m_blupiCle | CLE_GREEN) {
+			m_pPixmap->QuickIcon(CHELEMENT, 222, { 530, 418 });
+		}
+
+		if (m_blupiCle | CLE_BLUE) {
+			m_pPixmap->QuickIcon(CHELEMENT, 229, { 540, 418 });
+		}
+
+		if ((m_mission != 1 && m_mission % 10 != 0) || m_bPrivate)
+		{
+			sprintf(text, "%d/%d", m_nbTresor, m_totalTresor);
+			DrawText(m_pPixmap, { 590, 452 }, text, FONTWHITE);
+		}
+
+		for (int i = 0; i < 2; i++)
+		{
+			if (!(m_jauges[i].GetHide())) m_jauges[i].Draw();
+		}
+
+		if (m_mission == 10 && m_phase == WM_PHASE_PLAY && !m_bPrivate)
+		{
+			switch (m_nbTresor)
+			{
+			case 0:
+				if (m_blupiPos.x > 212) m_blupiPos.x = 212;
+				break;
+			case 1:
+				if (m_blupiPos.x > 788) m_blupiPos.x = 788;
+				break;
+			}
+			// more...
+		}
 	}
 }
 
@@ -883,9 +931,9 @@ POINT CDecor::DecorNextAction()
     int num = 0;
     if (m_decorAction == 0 || m_bPause)
     {
-        m_posDecor;
+        return m_posDecor;
     }
-    POINT posDecor = m_posDecor;
+	POINT posDecor = m_posDecor;
     while (table_decor_action[num] != 0)
     {
 		if (m_decorAction == table_decor_action[num])
@@ -901,7 +949,7 @@ POINT CDecor::DecorNextAction()
 				}
 				else
 				{
-					num2 = 6400 - (m_drawBounds.right - m_drawBounds.left);
+					num2 = DIMOBJX * MAXCELX - LXIMAGE;
 				}
 				if (posDecor.x < 0)
 				{
@@ -917,7 +965,7 @@ POINT CDecor::DecorNextAction()
 				}
 				else
 				{
-					num2 = 6400 - (m_drawBounds.bottom - m_drawBounds.top);
+					num2 = DIMOBJY * MAXCELY - LYIMAGE;
 				}
 				if (posDecor.y < 0)
 				{
@@ -967,11 +1015,11 @@ void CDecor::SetFieldD814(BOOL param)
 	m_bD814 = param;
 }
 
-void CDecor::PlaySoundB(int sound, POINT pos, BOOL bLocal)
+void CDecor::PlaySound(int sound, POINT pos, BOOL bLocal)
 {
 	if (!bLocal) NetPlaySound(sound, pos);
 
-	m_pSound->PlayImage(sound, { pos.x - m_posDecor.x, pos.y - m_posDecor.y }, -1);
+	m_pSound->PlayImage(sound, pos - m_posDecor, -1);
 
 	switch (sound) {
 	case SOUND_HELICOHIGH:
@@ -1011,27 +1059,12 @@ void CDecor::StopSound(int sound)
 
 void CDecor::AdaptMotorVehicleSound(POINT pos)
 {
-    POINT blupiPos = pos;
-    blupiPos.x -= m_posDecor.x;
-    blupiPos.y -= m_posDecor.y;
+	POINT blupiPos = pos - m_posDecor;
 
-    if (m_bHelicoMarch)
-    {
-        m_pSound->PlayImage(SOUND_HELICOHIGH, blupiPos);
-    }
-    if (m_bHelicoStop)
-    {
-        m_pSound->PlayImage(SOUND_HELICOLOW, blupiPos);
-    }
-    if (m_bJeepMarch)
-    {
-        m_pSound->PlayImage(SOUND_JEEPHIGH, blupiPos);
-    }
-    if (m_bJeepStop)
-    {
-        m_pSound->PlayImage(SOUND_JEEPLOW, blupiPos);
-    }
-    return;
+    if (m_bHelicoMarch) m_pSound->PlayImage(SOUND_HELICOHIGH, blupiPos);
+    if (m_bHelicoStop) m_pSound->PlayImage(SOUND_HELICOLOW, blupiPos);
+    if (m_bJeepMarch)  m_pSound->PlayImage(SOUND_JEEPHIGH, blupiPos);
+    if (m_bJeepStop) m_pSound->PlayImage(SOUND_JEEPLOW, blupiPos);
 }
 
 void CDecor::VehicleSoundsPhase(int phase)
@@ -1104,289 +1137,279 @@ void CDecor::SetPause(BOOL bPause)
 	m_bPause = bPause;
 }
 
-void CDecor::InitializeDoors(GameData *gameData)
+void CDecor::InitializeDoors(BYTE* doors)
 {
     for (int i = 0; i < MAXMOVEOBJECT; i++)
     {
-		gameData[i] = m_doors[i];
+		doors[i] = m_doors[i];
     }
 }
 
 void CDecor::MemorizeDoors(BYTE* doors)
 {
-	int i;
-
-	i = 0;
-
-	do
+	for (int i = 0; i < MAXMOVEOBJECT; i++)
 	{
 		m_doors[i] = doors[i];
-		i++;
-	} while (i < 200);
-	return;
+	} 
 }
 
 void CDecor::SetAllMissions(BOOL bAllMissions)
 {
-    m_bCheatDoors = CheatDoors;
-    m_bPrivate, m_mission->AdaptDoors;
+	m_bCheatDoors = bAllMissions;
+	AdaptDoors(m_bPrivate, m_mission);
     return;
 }
 
 void CDecor::CheatAction(int cheat)
 {
-    if (cheat == 2) // cleanall
-    {
-        for (int i = 0; i < MAXMOVEOBJECT; i++)
-        {
-            if (m_moveObject[i].type == 2 || m_moveObject[i].type == 3 || m_moveObject[i].type == 96 ||
-                m_moveObject[i].type == 97 || m_moveObject[i].type == 4 || m_moveObject[i].type == 16 ||
-                m_moveObject[i].type == 17 || m_moveObject[i].type == 20 || m_moveObject[i].type == 44 ||
-                m_moveObject[i].type == 54 || m_moveObject[i].type == 32 || m_moveObject[i].type == 33)
-            {
-                m_decorAction = 1;
-                m_decorPhase = 0;
-                m_moveObject[i].type = 8;
-                m_moveObject[i].phase = 0;
+	MoveObject* mob;
 
-               moveObject = m_moveObject;
-               int num = i;
-               moveObject[num]->posCurrent.x = moveObject[num]->posCurrent.x - 34;
-               moveObject2 = m_moveObject;
-               int num2 = i;
-               moveObject2[num2]->posCurrent.y = moveObject2[num2].posCurrent.y - 34;
-               m_moveObject[i].posStart = m_moveObject[i].posCurrent;
-               m_moveObject[i].posEnd = m_moveObject[i].posCurrent;
-               MoveObjectStepIcon(i);
-               PlaySound(10, m_moveObject[i].posCurrent);
-
-            }
-        }
-    }
-    if (cheat == 6) // funskate
-    {
-        m_blupiAir = FALSE;
-        m_blupiHelico = FALSE;
-        m_blupiOver = FALSE;
-        m_blupiJeep = FALSE;
-        m_blupiTank = FALSE;
-        m_blupiSkate = TRUE;
-        m_blupiNage = FALSE;
-        m_blupiSurf = FALSE;
-        m_blupiVent = FALSE;
-        m_blupiSuspend = FALSE;
-        m_pSound->StopSound(SOUND_HELICOHIGH);
-        StopSound(18);
-        StopSound(29);
-        StopSound(31);
-    }
-    if (cheat == 7) // givecopter
-    {
-        m_blupiAir = FALSE;
-        m_blupiHelico = TRUE;
-        m_blupiOver = FALSE;
-        m_blupiJeep = FALSE;
-        m_blupiTank = FALSE;
-        m_blupiSkate = FALSE;
-        m_blupiNage = FALSE;
-        m_blupiSurf = FALSE;
-        m_blupiVent = FALSE;
-        m_blupiSuspend = FALSE;
-    }
-    if (cheat == 8) // jeepdrive
-    {
-        m_blupiAir = FALSE;
-        m_blupiHelico = FALSE;
-        m_blupiOver = FALSE;
-        m_blupiJeep = TRUE;
-        m_blupiTank = FALSE;
-        m_blupiSkate = FALSE;
-        m_blupiNage = FALSE;
-        m_blupiSurf = FALSE;
-        m_blupiVent = FALSE;
-        m_blupiSuspend = FALSE;
-    }
-    if (cheat == 9) // alltreasure
-    {
-        for (int i = 0; i < MAXMOVEOBJECT; i++)
-        {
-            if (m_moveObject[i].type == 5)
-            {
-                m_moveObject[i].type == 0;
-                m_nbTresor++;
-                OpenDoorsTresor();
-                PlaySound(11, m_moveObject[i].posCurrent);
-            }
-        }
-    }
-    if (cheat == 10) // endgoal
-    {
-        for (int i = 0; i < MAXMOVEOBJECT; i++)
-        {
-            if (m_moveObject[i].type == 7 || m_moveObject[i].type == 21)
-            {
-                m_blupiPos = m_moveObject[i].posCurrent;
-                if (m_nbTresor >= m_totalTresor)
-                {
-                    if (m_moveObject[i].type == 21)
-                    {
-                        m_bFoundCle = TRUE;
-                    }
-                    StopSound(16);
-                    StopSound(18);
-                    StopSound(29);
-                    StopSound(31);
-                    PlaySound(14);
-                    m_blupiAction = 13;
-                    m_blupiPhase = 0;
-                    m_blupiFocus = FALSE;
-                    m_blupiFront = TRUE;
-                    m_blupiAir = FALSE;
-                    m_blupiHelico = FALSE;
-                    m_blupiOver = FALSE;
-                    m_blupiJeep = TRUE;
-                    m_blupiTank = FALSE;
-                    m_blupiSkate = FALSE;
-                    m_blupiNage = FALSE;
-                    m_blupiSurf = FALSE;
-                    m_blupiVent = FALSE;
-                    m_blupiSuspend = FALSE;
-                    m_blupiShield = FALSE;
-                    m_blupiPower = FALSE;
-                    m_blupiCloud = FALSE;
-                    m_blupiHide = FALSE;
-                    m_blupiInvert = FALSE;
-                    m_blupiBalloon = FALSE;
-                    m_blupiEcrase = FALSE;
-                }
-                else
-                {
-                    PlaySound(13, m_moveObject[i].posCurrent);
-                }
-                m_goalPhase = 50;
-            }
-        }
-    }
-    if (cheat == 12) // roundshield
-    {
-        PlaySound(42, m_blupiPos);
-        m_blupiShield = TRUE;
-        m_blupiPower = FALSE;
-        m_blupiCloud = FALSE;
-        m_blupiHide = FALSE;
-        m_blupiTimeShield = 100;
-        m_blupiPosMagic = m_blupiPos;
-        m_jauges[1].SetHide(FALSE);
-    }
-    if (cheat == 13) // quicklollipop
-    {
-        m_blupiAction = 49;
-        m_blupiPhase = 0;
-        m_blupiHelico = FALSE;
-        m_blupiOver = FALSE;
-        m_blupiJeep = FALSE;
-        m_blupiTank = FALSE;
-        m_blupiSkate = FALSE;
-        m_blupiShield = FALSE;
-        m_blupiPower = FALSE;
-        m_blupiCloud = FALSE;
-        m_blupiHide = FALSE;
-        m_blupiFocus = FALSE;
-        PlaySound(50, m_blupiPos);
-    }
-    if (cheat == 14) // tenbombs
-    {
-        m_blupiPerso = 10;
-        PlaySound(60, m_blupiPos);
-    }
-    if (cheat == 15) // birdlime
-    {
-        m_blupiBullet = 10;
-    }
-    if (cheat == 16) // drivetank
-    {
-        m_blupiAir = FALSE;
-        m_blupiHelico = FALSE;
-        m_blupiOver = FALSE;
-        m_blupiJeep = FALSE;
-        m_blupiTank = TRUE;
-        m_blupiSkate = FALSE;
-        m_blupiNage = FALSE;
-        m_blupiSurf = FALSE;
-        m_blupiVent = FALSE;
-        m_blupiSuspend = FALSE;
-        m_blupiCloud = FALSE;
-        m_blupiHide = FALSE;
-    }
-    if (cheat == 17) // powercharge
-    {
-        m_blupiAction = 56;
-        m_blupiPhase = 0;
-        m_blupiHelico = FALSE;
-        m_blupiOver = FALSE;
-        m_blupiJeep = FALSE;
-        m_blupiTank = TRUE;
-        m_blupiSkate = FALSE;
-        m_blupiShield = FALSE;
-        m_blupiPower = FALSE;
-        m_blupiCloud = FALSE;
-        m_blupiHide = FALSE;
-        m_blupiJumpAie = FALSE;
-        m_blupiFocus = FALSE;
-        PlaySound(58, m_blupiPos);
-    }
-    if (cheat == 18) // hidedrink
-    {
-        m_blupiAction = 55;
-        m_blupiPhase = 0;
-        m_blupiHelico = FALSE;
-        m_blupiOver = FALSE;
-        m_blupiJeep = FALSE;
-        m_blupiTank = FALSE;
-        m_blupiSkate = FALSE;
-        m_blupiShield = FALSE;
-        m_blupiPower = FALSE;
-        m_blupiCloud = FALSE;
-        m_blupiHide = FALSE;
-        m_blupiJumpAie = FALSE;
-        m_blupiFocus = FALSE;
-        PlaySound(57, m_blupiPos);
-    }
-    if (cheat == 22) // iovercraft
-    {
-        m_blupiAir = FALSE;
-        m_blupiHelico = FALSE;
-        m_blupiOver = TRUE;
-        m_blupiJeep = FALSE;
-        m_blupiTank = FALSE;
-        m_blupiSkate = FALSE;
-        m_blupiNage = FALSE;
-        m_blupiSurf = FALSE;
-        m_blupiVent = FALSE;
-        m_blupiSuspend = FALSE;
-    }
-    if (cheat == cheat_dynamite)
-    {
-        m_blupiDynamite = 1;
-        PlaySound(60, m_blupiPos);
-    }
-    if (cheat == 24) // wellkeys
-    {
-        m_blupiCle |= 7;
-    }
-    if (m_blupiShield && m_blupiHide && m_blupiCloud && m_blupiPower)
+	switch (cheat)
+	{
+	case 2: // cleanall
+		for (int i = 0; i < MAXMOVEOBJECT; i++)
+		{
+			mob = &m_moveObject[i];
+			switch (mob->type)
+			{
+			case TYPE_BOMBEDOWN:
+			case TYPE_BOMBEUP:
+			case TYPE_BOMBEFOLLOW1:
+			case TYPE_BOMBEFOLLOW2:
+			case TYPE_BULLDOZER:
+			case TYPE_BOMBEMOVE:
+			case TYPE_POISSON:
+			case TYPE_OISEAU:
+			case TYPE_GUEPE:
+			case TYPE_CREATURE:
+			case TYPE_BLUPIHELICO:
+			case TYPE_BLUPITANK:
+				m_decorAction = 1;
+				m_decorPhase = 0;
+				mob->type = TYPE_EXPLO1;
+				mob->phase = 0;
+				mob->posCurrent -= { 34, 34 };
+				mob->posStart = mob->posCurrent;
+				mob->posEnd = mob->posCurrent;
+				MoveObjectStepIcon(i);
+				PlaySound(SOUND_BOUM, mob->posCurrent, FALSE);
+			}
+		}
+		break;
+	case 6: // funskate
+		m_blupiAir = FALSE;
+		m_blupiHelico = FALSE;
+		m_blupiOver = FALSE;
+		m_blupiJeep = FALSE;
+		m_blupiTank = FALSE;
+		m_blupiSkate = TRUE;
+		m_blupiNage = FALSE;
+		m_blupiSurf = FALSE;
+		m_blupiVent = FALSE;
+		m_blupiSuspend = FALSE;
+		StopVehicleSound();
+		break;
+	case 7: // givecopter
+		m_blupiAir = FALSE;
+		m_blupiHelico = TRUE;
+		m_blupiOver = FALSE;
+		m_blupiJeep = FALSE;
+		m_blupiTank = FALSE;
+		m_blupiSkate = FALSE;
+		m_blupiNage = FALSE;
+		m_blupiSurf = FALSE;
+		m_blupiVent = FALSE;
+		m_blupiSuspend = FALSE;
+		StopVehicleSound();
+		PlaySound(SOUND_HELICOSTART, m_blupiPos, FALSE);
+		PlaySound(SOUND_HELICOLOW, m_blupiPos, TRUE);
+		break;
+	case 8: // jeepdrive
+		m_blupiAir = FALSE;
+		m_blupiHelico = FALSE;
+		m_blupiOver = FALSE;
+		m_blupiJeep = TRUE;
+		m_blupiTank = FALSE;
+		m_blupiSkate = FALSE;
+		m_blupiNage = FALSE;
+		m_blupiSurf = FALSE;
+		m_blupiVent = FALSE;
+		m_blupiSuspend = FALSE;
+		StopVehicleSound();
+		PlaySound(SOUND_JEEPLOW, m_blupiPos, TRUE);
+		break;
+	case 9: // alltreasure
+		for (int i = 0; i < MAXMOVEOBJECT; i++)
+		{
+			if (m_moveObject[i].type == TYPE_TRESOR)
+			{
+				m_moveObject[i].type = 0;
+				m_nbTresor++;
+				OpenDoorsTresor();
+				PlaySound(SOUND_TRESOR, m_moveObject[i].posCurrent, FALSE);
+			}
+		}
+		break;
+	case 10: // endgoal
+		for (int i = 0; i < MAXMOVEOBJECT; i++)
+		{
+			mob = &m_moveObject[i];
+			if (mob->type == TYPE_GOAL || mob->type == TYPE_CLE)
+			{
+				m_blupiPos = mob->posCurrent;
+				if (m_nbTresor >= m_totalTresor)
+				{
+					if (mob->type == TYPE_CLE)
+					{
+						m_bFoundCle = TRUE;
+					}
+					StopVehicleSound();
+					PlaySound(SOUND_ENDOK, mob->posCurrent, FALSE);
+					m_blupiAction = ACTION_WIN;
+					m_blupiPhase = 0;
+					m_blupiFocus = FALSE;
+					m_blupiFront = TRUE;
+					m_blupiAir = FALSE;
+					m_blupiHelico = FALSE;
+					m_blupiOver = FALSE;
+					m_blupiJeep = TRUE;
+					m_blupiTank = FALSE;
+					m_blupiSkate = FALSE;
+					m_blupiNage = FALSE;
+					m_blupiSurf = FALSE;
+					m_blupiVent = FALSE;
+					m_blupiSuspend = FALSE;
+					m_blupiShield = FALSE;
+					m_blupiPower = FALSE;
+					m_blupiCloud = FALSE;
+					m_blupiHide = FALSE;
+					m_blupiInvert = FALSE;
+					m_blupiBalloon = FALSE;
+					m_blupiEcrase = FALSE;
+				}
+				else
+				{
+					PlaySound(SOUND_ENDKO, mob->posCurrent, FALSE);
+				}
+				m_goalPhase = 50;
+			}
+		}
+		break;
+	case 12: // roundshield
+		PlaySound(SOUND_STARTSHIELD, m_blupiPos, FALSE);
+		m_blupiShield = TRUE;
+		m_blupiPower = FALSE;
+		m_blupiCloud = FALSE;
+		m_blupiHide = FALSE;
+		m_blupiTimeShield = 100;
+		m_blupiPosMagic = m_blupiPos;
+		m_jauges[1].SetHide(FALSE);
+		break;
+	case 13: // quicklollipop
+		m_blupiAction = ACTION_SUCETTE;
+		m_blupiPhase = 0;
+		m_blupiHelico = FALSE;
+		m_blupiOver = FALSE;
+		m_blupiJeep = FALSE;
+		m_blupiTank = FALSE;
+		m_blupiSkate = FALSE;
+		m_blupiShield = FALSE;
+		m_blupiPower = FALSE;
+		m_blupiCloud = FALSE;
+		m_blupiHide = FALSE;
+		m_blupiFocus = FALSE;
+		PlaySound(SOUND_SUCETTE, m_blupiPos, FALSE);
+		break;
+	case 14: // tenbombs
+		m_blupiPerso = 10;
+		PlaySound(SOUND_PERSOTAKE, m_blupiPos, FALSE);
+		break;
+	case 15: // birdlime
+		m_blupiBullet = 10;
+		break;
+	case 16: // drivetank
+		m_blupiAir = FALSE;
+		m_blupiHelico = FALSE;
+		m_blupiOver = FALSE;
+		m_blupiJeep = FALSE;
+		m_blupiTank = TRUE;
+		m_blupiSkate = FALSE;
+		m_blupiNage = FALSE;
+		m_blupiSurf = FALSE;
+		m_blupiVent = FALSE;
+		m_blupiSuspend = FALSE;
+		m_blupiCloud = FALSE;
+		m_blupiHide = FALSE;
+		PlaySound(SOUND_JEEPLOW, m_blupiPos, TRUE);
+		break;
+	case 17: // powercharge
+		m_blupiAction = ACTION_CHARGE;
+		m_blupiPhase = 0;
+		m_blupiHelico = FALSE;
+		m_blupiOver = FALSE;
+		m_blupiJeep = FALSE;
+		m_blupiTank = TRUE;
+		m_blupiSkate = FALSE;
+		m_blupiShield = FALSE;
+		m_blupiPower = FALSE;
+		m_blupiCloud = FALSE;
+		m_blupiHide = FALSE;
+		m_blupiJumpAie = FALSE;
+		m_blupiFocus = FALSE;
+		PlaySound(SOUND_CHARGE, m_blupiPos, FALSE);
+		break;
+	case 18: // hidedrink
+		m_blupiAction = ACTION_DRINK;
+		m_blupiPhase = 0;
+		m_blupiHelico = FALSE;
+		m_blupiOver = FALSE;
+		m_blupiJeep = FALSE;
+		m_blupiTank = FALSE;
+		m_blupiSkate = FALSE;
+		m_blupiShield = FALSE;
+		m_blupiPower = FALSE;
+		m_blupiCloud = FALSE;
+		m_blupiHide = FALSE;
+		m_blupiJumpAie = FALSE;
+		m_blupiFocus = FALSE;
+		PlaySound(SOUND_DRINK, m_blupiPos, FALSE);
+		break;
+	case 22: // iovercraft
+		m_blupiAir = FALSE;
+		m_blupiHelico = FALSE;
+		m_blupiOver = TRUE;
+		m_blupiJeep = FALSE;
+		m_blupiTank = FALSE;
+		m_blupiSkate = FALSE;
+		m_blupiNage = FALSE;
+		m_blupiSurf = FALSE;
+		m_blupiVent = FALSE;
+		m_blupiSuspend = FALSE;
+		StopVehicleSound();
+		PlaySound(SOUND_HELICOSTART, m_blupiPos, FALSE);
+		PlaySound(SOUND_HELICOLOW, m_blupiPos, TRUE);
+		break;
+	case 23: // udynamite
+		m_blupiDynamite = 1;
+		PlaySound(SOUND_PERSOTAKE, m_blupiPos, FALSE);
+		break;
+	case 24: // wellkeys
+		m_blupiCle |= CLE_RED | CLE_GREEN | CLE_BLUE;
+		break;
+	}
+    if (!m_blupiShield && !m_blupiHide && !m_blupiCloud && !m_blupiPower)
     {
         m_jauges[1].SetHide(TRUE);
     }
-    if (m_blupiHelico && m_blupiOver)
+    if (!m_blupiHelico && !m_blupiOver)
     {
-        m_pSound->StopSound(SOUND_HELICOHIGH);
-        StopSound(18);
+        StopSound(SOUND_HELICOHIGH);
+        StopSound(SOUND_HELICOLOW);
     }
     if (m_blupiJeep && m_blupiTank)
     {
-        StopSound(29);
-        StopSound(31);
+        StopSound(SOUND_JEEPHIGH);
+        StopSound(SOUND_JEEPLOW);
     }
 }
 
@@ -1615,17 +1638,14 @@ void CDecor::AdaptDoors(BOOL bPrivate, int mission)
 
 void CDecor::OpenDoorsTresor()
 {
-	for (int i = 0; i < 100; i++)
+	for (int x = 0; x < MAXCELX; x++)
 	{
-		for (int j = 0; j < 100; j++)
+		for (int y = 0; y < MAXCELY; y++)
 		{
-			int icon = m_decor[i][j].icon;
-			if (icon >= 421 && icon <= 421 + m_nbTresor - 1)
+			int icon = m_decor[x][y].icon;
+			if (icon >= Object::DoorTreasure_1 && icon <= Object::DoorTreasure_1 + m_nbTresor - 1)
 			{
-				POINT cel;
-				cel.x = i;
-				cel.y = j;
-				OpenDoor(cel);
+				OpenDoor({ x, y });
 			}
 		}
 	}
@@ -1633,25 +1653,25 @@ void CDecor::OpenDoorsTresor()
 
 void CDecor::OpenDoor(POINT cel)
 {
-	int icon = m_decor[cel.x, cel.y]->icon;
+	int icon = m_decor[cel.x][cel.y].icon;
 	m_decor[cel.x, cel.y]->icon = -1;
 	int num = MoveObjectFree();
-	m_moveObject[num].type = 22;
+	m_moveObject[num].type = TYPE_DOOR;
 	m_moveObject[num].stepAdvance = 50;
 	m_moveObject[num].stepRecede = 1;
 	m_moveObject[num].timeStopStart = 0;
 	m_moveObject[num].timeStopEnd = 0;
-	m_moveObject[num].posStart.x = 64 * cel.x;
-	m_moveObject[num].posStart.y = 64 * cel.y;
-	m_moveObject[num].posEnd.x = 64 * cel.x;
-	m_moveObject[num].posEnd.y = 64 * (cel.y - 1);
+	m_moveObject[num].posStart.x = DIMOBJX * cel.x;
+	m_moveObject[num].posStart.y = DIMOBJY * cel.y;
+	m_moveObject[num].posEnd.x = DIMOBJX * cel.x;
+	m_moveObject[num].posEnd.y = DIMOBJY * (cel.y - 1);
 	m_moveObject[num].posCurrent = m_moveObject[num].posStart;
-	m_moveObject[num].step = 1;
+	m_moveObject[num].step = STEP_STOPSTART;
 	m_moveObject[num].time = 0;
 	m_moveObject[num].phase = 0;
-	m_moveObject[num].channel = 1;
+	m_moveObject[num].channel = CHOBJECT;
 	m_moveObject[num].icon = icon;
-	PlaySoundB(33, m_moveObject[num].posStart);
+	PlaySound(33, m_moveObject[num].posStart);
 }
 
 void CDecor::OpenDoorsWin()
@@ -1710,8 +1730,8 @@ void CDecor::DoorsLost()
 	}
 	for (int i = 0; i < 2; i++)
 	{
-		int num = pos.x / 64;
-		int num2 = pos.y / 64;
+		int num = pos.x / DIMOBJX;
+		int num2 = pos.y / DIMOBJY;
 		if (num2 < 0)
 		{
 			return FALSE;

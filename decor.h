@@ -88,7 +88,7 @@ public:
 	void	SetInput(int keys);
 	void	SetJoystickEnable(BOOL bJoystick);
 	void	SetFieldD814(BOOL param_1);
-	void	PlaySoundB(int sound, POINT pos, BOOL bLocal);
+	void	PlaySound(int sound, POINT pos, BOOL bLocal);
 	void	StopSound(int sound);
 	void	AdaptMotorVehicleSound(POINT pos);
 	void	VehicleSoundsPhase(int phase);
@@ -103,7 +103,7 @@ public:
 	void	SetNbVies(int nbVies);
 	BOOL	GetPause();
 	void	SetPause(BOOL bPause);
-	void	InitializeDoors(GameData *gameData);
+	void	InitializeDoors(BYTE *doors);
 	void	MemorizeDoors(BYTE* doors);
 	void	SetAllMissions(BOOL bAllMissions);
 	void	CheatAction(int cheat);
@@ -128,7 +128,7 @@ public:
 	BOOL	DrawMap(BOOL bPlay, int team);
 
 	// DecBlock.cpp
-	BOOL	BlitzActif(int celx, int cely);
+	BOOL	BlitzActif(POINT cel);
 	int		SoundEnviron(int sound, int obstacle);
 	int		IsWorld(POINT pos);
 	void	ActiveSwitch(BOOL bState, POINT cel);
@@ -154,9 +154,9 @@ public:
 	BOOL	IsVentillo(POINT pos);
 	void	ModifDecor(POINT pos, int icon, BOOL _foo);
 	BOOL	IsRightBorder(POINT cel, POINT offset);
-	BOOL	IsFromage(int x, int y);
-	BOOL	IsGrotte(int x, int y);
-	void	AdaptMidBorder(int x, int y);
+	BOOL	IsFromage(POINT cel);
+	BOOL	IsGrotte(POINT cel);
+	void	AdaptMidBorder(POINT cel);
 	void	AdaptBorder(POINT cel);
 
 	// DecDesign.cpp
@@ -274,6 +274,8 @@ public:
 	void	OpenDoorsWin();
 	void	OpenGoldsWin();
 	void	DoorsLost();
+
+	inline void StopVehicleSound();
 
 protected:
 	HWND		m_hWnd;
@@ -421,5 +423,5 @@ protected:
 
 POINT GetCel (int x, int y);
 POINT GetCel (POINT cel, int x, int y);
-BOOL IsValidCel (POINT cel);
+inline BOOL IsValidCel (POINT cel);
 POINT GetVector (int direct);

@@ -26,10 +26,10 @@ int CDecor::GetBlupiChannelActual()
 
 void CDecor::GetBlupiInfo(BOOL* bHelico, BOOL* bJeep, BOOL* bSkate, BOOL* bNage)
 {
-	bHelico = m_blupiHelico;
-	bJeep = (m_blupiJeep | m_blupiTank);
-	bSkate = m_blupiSkate;
-	bNage = (m_blupiNage | m_blupiSurf);
+	*bHelico = m_blupiHelico;
+	*bJeep = m_blupiJeep | m_blupiTank;
+	*bSkate = m_blupiSkate;
+	*bNage = m_blupiNage | m_blupiSurf;
 }
 
 void CDecor::BlupiSearchIcon()
@@ -70,7 +70,6 @@ void CDecor::BlupiSearchIcon()
 		{
 			num3 = 15;
 		}
-		m_blupiRealRotation = (int)(m_blupiVitesseX * 2.0);
 	}
 	if (m_blupiOver)
 	{
@@ -141,8 +140,8 @@ BOOL CDecor::BlupiIsGround()
 	if (m_blupiTransport == -1)
 	{
 		RECT rect = BlupiRect(m_blupiPos);
-		rect.top = m_blupiPos.y + 60 - 2;
-		rect.bottom = m_blupiPos.y + 60 - 1;
+		rect.top = m_blupiPos.y + DIMBLUPIY - 2;
+		rect.bottom = m_blupiPos.y + DIMBLUPIY - 1;
 		return DecorDetect(rect, TRUE);
 	}
 	else {
@@ -156,59 +155,59 @@ RECT CDecor::BlupiRect(POINT pos)
 	if (m_blupiNage || m_blupiSurf)
 	{
 		result.left = pos.x + 12;
-		result.right = pos.x + 60 - 12;
-		if (m_blupiAction == 1)
+		result.right = pos.x + DIMBLUPIX - 12;
+		if (m_blupiAction == ACTION_STOP)
 		{
 			result.top = pos.y + 5;
-			result.bottom = pos.y + 60 - 10;
+			result.bottom = pos.y + DIMBLUPIY - 10;
 		}
 		else
 		{
 			result.top = pos.y + 15;
-			result.bottom = pos.y + 60 - 10;
+			result.bottom = pos.y + DIMBLUPIY - 10;
 		}
 	}
 	else if (m_blupiJeep)
 	{
 		result.left = pos.x + 2;
-		result.right = pos.x + 60 - 2;
+		result.right = pos.x + DIMBLUPIX - 2;
 		result.top = pos.y + 10;
-		result.bottom = pos.y + 60 - 2;
+		result.bottom = pos.y + DIMBLUPIY - 2;
 	}
 	else if (m_blupiTank)
 	{
 		result.left = pos.x + 2;
-		result.right = pos.x + 60 - 2;
+		result.right = pos.x + DIMBLUPIX - 2;
 		result.top = pos.y + 10;
-		result.bottom = pos.y + 60 - 2;
+		result.bottom = pos.y + DIMBLUPIY - 2;
 	}
 	else if (m_blupiOver)
 	{
 		result.left = pos.x + 2;
-		result.right = pos.x + 60 - 2;
+		result.right = pos.x + DIMBLUPIX - 2;
 		result.top = pos.y + 2;
-		result.bottom = pos.y + 60 - 2;
+		result.bottom = pos.y + DIMBLUPIY - 2;
 	}
 	else if (m_blupiBalloon)
 	{
 		result.left = pos.x + 10;
-		result.right = pos.x + 60 - 10;
+		result.right = pos.x + DIMBLUPIX - 10;
 		result.top = pos.y + 5;
-		result.bottom = pos.y + 60 - 2;
+		result.bottom = pos.y + DIMBLUPIY - 2;
 	}
 	else if (m_blupiEcrase)
 	{
 		result.left = pos.x + 5;
-		result.right = pos.x + 60 - 5;
+		result.right = pos.x + DIMBLUPIX - 5;
 		result.top = pos.y + 39;
-		result.bottom = pos.y + 60 - 2;
+		result.bottom = pos.y + DIMBLUPIY - 2;
 	}
 	else
 	{
 		result.left = pos.x + 12;
-		result.right = pos.x + 60 - 12;
+		result.right = pos.x + DIMBLUPIX - 12;
 		result.top = pos.y + 11;
-		result.bottom = pos.y + 60 - 2;
+		result.bottom = pos.y + DIMBLUPIY - 2;
 	}
 	return result;
 }
@@ -323,7 +322,7 @@ void CDecor::BlupiStep()
 		BlupiDead(75, -1);
 		m_blupiRestart = TRUE;
 		m_blupiAir = TRUE;
-		m_blupiPos.y = m_blupiPos.y / 64 * 64 + BLUPIOFFY;
+		m_blupiPos.y = m_blupipos.y / DIMOBJY * 64 + BLUPIOFFY;
 		PlaySound(8, m_blupiPos);
 		return;
 	}
@@ -2978,7 +2977,7 @@ void CDecor::BlupiStep()
 		{
 			BlupiDead(76, -1);
 			m_blupiRestart = true;
-			m_blupiPos.y = m_blupiPos.y / 64 * 64 + BLUPIOFFY;
+			m_blupiPos.y = m_blupipos.y / DIMOBJY * 64 + BLUPIOFFY;
 			PlaySound(8, m_blupiPos);
 		}
 		if (IsPiege(m_blupiPos) && !m_blupiOver && !m_blupiJeep && !m_blupiTank && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi && m_blupiFocus)
@@ -3018,7 +3017,7 @@ void CDecor::BlupiStep()
 			BlupiDead(11, -1);
 			m_blupiRestart = true;
 			m_blupiAir = true;
-			m_blupiPos.y = m_blupiPos.y / 64 * 64 + BLUPIOFFY;
+			m_blupiPos.y = m_blupipos.y / DIMOBJY * 64 + BLUPIOFFY;
 			PlaySound(8, m_blupiPos);
 		}
 		if (IsEcraseur(m_blupiPos) && !m_blupiEcrase && !m_blupiShield && !m_blupiHide && !m_bSuperBlupi && m_blupiFocus)
@@ -3071,7 +3070,7 @@ void CDecor::BlupiStep()
 			m_blupiVitesse.x = 0.0;
 			m_blupiVitesse.y = 0.0;
 			m_blupiFocus = false;
-			m_blupiPos.x = m_blupiPos.x / 64 * 64;
+			m_blupiPos.x = m_blupipos.x / DIMOBJX * 64;
 			PlaySound(71, m_blupiPos);
 			tinyPoint.x = m_blupiPos.x;
 			tinyPoint.y = m_blupiPos.y - 5;

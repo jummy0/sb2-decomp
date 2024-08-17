@@ -1,9 +1,5 @@
 // misc.h
 //
-#pragma once
-#include <stdio.h>
-#include <minwindef.h>
-using namespace std;
 
 extern void InitHInstance(HINSTANCE hInstance);
 extern void OutputDebug(const char *pMessage);

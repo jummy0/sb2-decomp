@@ -1997,7 +1997,7 @@ BOOL CEvent::AddPhaseText()
 	}
 	if (m_phase == WM_PHASE_INIT)
 	{
-		DrawTextB(m_pPixmap, { 414, 446 }, "Version 2.2", FONTLITTLE);
+		DrawText(m_pPixmap, { 414, 446 }, "Version 2.2", FONTLITTLE);
 	}
 	if (m_phase == WM_PHASE_GAMER)
 	{
@@ -2007,7 +2007,7 @@ BOOL CEvent::AddPhaseText()
 		POINT pos { 110, 69 };
 		for (int i = 0; i < MAXGAMER; i++)
 		{
-			DrawTextB(m_pPixmap, pos, m_gamerNameList[i], FONTWHITE);
+			DrawText(m_pPixmap, pos, m_gamerNameList[i], FONTWHITE);
 			pos.y += DIMBUTTONY;
 		}
 

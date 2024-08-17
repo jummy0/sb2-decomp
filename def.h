@@ -5,6 +5,10 @@
 
 #include <Windows.h>
 
+// prevent WinAPI from overriding our functions
+#undef PlaySound
+#undef DrawText
+
 #define _DEMO			FALSE	// TRUE=demo, FALSE=complet
 #define _INTRO			FALSE	// TRUE si images d'introduction
 #define _EGAMES			FALSE	// TRUE version pour eGames
@@ -43,10 +47,10 @@
 #define DIMSTATX		60
 #define DIMSTATY		30
 
-#define DIMTEXTX		16		// dimensions max d'un caractère
+#define DIMTEXTX		16		// dimensions max d'un caractère
 #define DIMTEXTY		16
 
-#define DIMLITTLEX		16		// dimensions max d'un petit caractère
+#define DIMLITTLEX		16		// dimensions max d'un petit caractère
 #define DIMLITTLEY		12
 
 #define CHDECOR			0
@@ -772,109 +776,6 @@ namespace Key {
 #define WM_DECOR4				(WM_USER+23)
 #define WM_DECOR5				(WM_USER+24)
 
-
-#define WM_ACTION_GO			(WM_USER+30)
-#define WM_ACTION_ABAT1			(WM_USER+31)
-#define WM_ACTION_ABAT2			(WM_USER+32)
-#define WM_ACTION_ABAT3			(WM_USER+33)
-#define WM_ACTION_ABAT4			(WM_USER+34)
-#define WM_ACTION_ABAT5			(WM_USER+35)
-#define WM_ACTION_ABAT6			(WM_USER+36)
-#define WM_ACTION_BUILD1		(WM_USER+37)
-#define WM_ACTION_BUILD2		(WM_USER+38)
-#define WM_ACTION_BUILD3		(WM_USER+39)
-#define WM_ACTION_BUILD4		(WM_USER+40)
-#define WM_ACTION_BUILD5		(WM_USER+41)
-#define WM_ACTION_BUILD6		(WM_USER+42)
-#define WM_ACTION_STOP			(WM_USER+43)
-#define WM_ACTION_CARRY			(WM_USER+44)
-#define WM_ACTION_DEPOSE		(WM_USER+45)
-#define WM_ACTION_ROC1			(WM_USER+46)
-#define WM_ACTION_ROC2			(WM_USER+47)
-#define WM_ACTION_ROC3			(WM_USER+48)
-#define WM_ACTION_ROC4			(WM_USER+49)
-#define WM_ACTION_ROC5			(WM_USER+50)
-#define WM_ACTION_ROC6			(WM_USER+51)
-#define WM_ACTION_ROC7			(WM_USER+52)
-#define WM_ACTION_MUR			(WM_USER+53)
-#define WM_ACTION_CULTIVE		(WM_USER+54)
-#define WM_ACTION_CULTIVE2		(WM_USER+55)
-#define WM_ACTION_MANGE			(WM_USER+56)
-#define WM_ACTION_MAKE			(WM_USER+57)
-#define WM_ACTION_BUILD			(WM_USER+58)
-#define WM_ACTION_PALIS			(WM_USER+59)
-#define WM_ACTION_NEWBLUPI		(WM_USER+60)
-#define WM_ACTION_PONTE			(WM_USER+61)
-#define WM_ACTION_PONTS			(WM_USER+62)
-#define WM_ACTION_PONTO			(WM_USER+63)
-#define WM_ACTION_PONTN			(WM_USER+64)
-#define WM_ACTION_PONTEL		(WM_USER+65)
-#define WM_ACTION_PONTSL		(WM_USER+66)
-#define WM_ACTION_PONTOL		(WM_USER+67)
-#define WM_ACTION_PONTNL		(WM_USER+68)
-#define WM_ACTION_TOUR			(WM_USER+69)
-#define WM_ACTION_CARRY2		(WM_USER+70)
-#define WM_ACTION_DEPOSE2		(WM_USER+71)
-#define WM_ACTION_MANGE2		(WM_USER+72)
-#define WM_ACTION_BOIT			(WM_USER+73)
-#define WM_ACTION_BOIT2			(WM_USER+74)
-#define WM_ACTION_LABO			(WM_USER+75)
-#define WM_ACTION_FLEUR1		(WM_USER+76)
-#define WM_ACTION_FLEUR2		(WM_USER+77)
-#define WM_ACTION_DYNAMITE		(WM_USER+78)
-#define WM_ACTION_DYNAMITE2		(WM_USER+79)
-#define WM_ACTION_T_DYNAMITE	(WM_USER+80)
-#define WM_ACTION_FLEUR3		(WM_USER+81)
-#define WM_ACTION_R_BUILD1		(WM_USER+82)
-#define WM_ACTION_R_BUILD2		(WM_USER+83)
-#define WM_ACTION_R_BUILD3		(WM_USER+84)
-#define WM_ACTION_R_BUILD4		(WM_USER+85)
-#define WM_ACTION_R_MAKE1		(WM_USER+86)
-#define WM_ACTION_R_MAKE2		(WM_USER+87)
-#define WM_ACTION_R_MAKE3		(WM_USER+88)
-#define WM_ACTION_R_MAKE4		(WM_USER+89)
-#define WM_ACTION_R_BUILD5		(WM_USER+90)
-#define WM_ACTION_R_MAKE5		(WM_USER+91)
-#define WM_ACTION_BATEAUE		(WM_USER+92)
-#define WM_ACTION_BATEAUS		(WM_USER+93)
-#define WM_ACTION_BATEAUO		(WM_USER+94)
-#define WM_ACTION_BATEAUN		(WM_USER+95)
-#define WM_ACTION_BATEAUDE		(WM_USER+96)
-#define WM_ACTION_BATEAUDS		(WM_USER+97)
-#define WM_ACTION_BATEAUDO		(WM_USER+98)
-#define WM_ACTION_BATEAUDN		(WM_USER+99)
-#define WM_ACTION_BATEAUAE		(WM_USER+100)
-#define WM_ACTION_BATEAUAS		(WM_USER+101)
-#define WM_ACTION_BATEAUAO		(WM_USER+102)
-#define WM_ACTION_BATEAUAN		(WM_USER+103)
-#define WM_ACTION_MJEEP			(WM_USER+104)
-#define WM_ACTION_DJEEP			(WM_USER+105)
-#define WM_ACTION_DRAPEAU		(WM_USER+106)
-#define WM_ACTION_DRAPEAU2		(WM_USER+107)
-#define WM_ACTION_DRAPEAU3		(WM_USER+108)
-#define WM_ACTION_EXTRAIT		(WM_USER+109)
-#define WM_ACTION_FABJEEP		(WM_USER+110)
-#define WM_ACTION_FABMINE		(WM_USER+111)
-#define WM_ACTION_MINE			(WM_USER+112)
-#define WM_ACTION_MINE2			(WM_USER+113)
-#define WM_ACTION_R_BUILD6		(WM_USER+114)
-#define WM_ACTION_R_MAKE6		(WM_USER+115)
-#define WM_ACTION_E_RAYON		(WM_USER+116)
-#define WM_ACTION_ELECTRO		(WM_USER+117)
-#define WM_ACTION_ELECTROm		(WM_USER+118)
-#define WM_ACTION_GRILLE		(WM_USER+119)
-#define WM_ACTION_MAISON		(WM_USER+120)
-#define WM_ACTION_FABDISC		(WM_USER+121)
-#define WM_ACTION_A_MORT		(WM_USER+122)
-#define WM_ACTION_REPEAT		(WM_USER+123)
-#define WM_ACTION_TELEPORTE00	(WM_USER+124)
-#define WM_ACTION_TELEPORTE10	(WM_USER+125)
-#define WM_ACTION_TELEPORTE01	(WM_USER+126)
-#define WM_ACTION_TELEPORTE11	(WM_USER+127)
-#define WM_ACTION_FABARMURE		(WM_USER+128)
-#define WM_ACTION_MARMURE		(WM_USER+129)
-#define WM_ACTION_DARMURE		(WM_USER+130)
-
 #define WM_BUTTON0				(WM_USER+200)
 #define WM_BUTTON1				(WM_USER+201)
 #define WM_BUTTON2				(WM_USER+202)
@@ -1452,3 +1353,73 @@ namespace Object {
 		DoorTreasure_20
 	};
 }
+
+#define CLE_RED (1 << 0)
+#define CLE_GREEN (1 << 1)
+#define CLE_BLUE (1 << 2)
+
+struct POINT
+{
+	int x;
+	int y;
+
+	POINT operator+(const POINT& a) const
+	{
+		return { a.x + x, a.y + y };
+	}
+
+	POINT operator-(const POINT& a) const
+	{
+		return { a.x - x, a.y - y };
+	}
+
+	POINT operator*(const POINT& a) const
+	{
+		return { a.x * x, a.y * y };
+	}
+
+	POINT operator/(const POINT& a) const
+	{
+		return { a.x / x, a.y / y };
+	}
+
+	POINT operator*(const int& a) const
+	{
+		return { x * a, y * a };
+	}
+
+	POINT operator/(const int& a) const
+	{
+		return { x / a, y / a };
+	}
+
+	POINT operator+=(const POINT& a)
+	{
+		return { x += a.x, y += a.y };
+	}
+
+	POINT operator-=(const POINT& a)
+	{
+		return { x -= a.x, y -= a.y };
+	}
+
+	POINT operator*=(const POINT& a)
+	{
+		return { x *= a.x, y *= a.y };
+	}
+
+	POINT operator/=(const POINT& a)
+	{
+		return { x /= a.x, y /= a.y };
+	}
+
+	POINT operator*=(const int& a)
+	{
+		return { x *= x, y *= a };
+	}
+
+	POINT operator/=(const int& a)
+	{
+		return { x /= a, y /= a };
+	}
+};

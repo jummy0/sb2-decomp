@@ -1,0 +1,109 @@
+--------------------Configuration: speedyblupi - Win32 Debug--------------------
+Begining build with project "C:\Users\Jimmy\Documents\GitHub\sb2-decomp\speedyblupi.dsp", at root.
+Active configuration is Win32 (x86) Application (based on Win32 (x86) Application)
+
+Project's tools are:
+			"32-bit C/C++ Compiler for 80x86" with flags "/nologo /MLd /W3 /Gm /GX /Zi /Od /I "dxsdk3/sdk/inc" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /Fp"Debug/speedyblupi.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /c "
+			"OLE Type Library Maker" with flags "/nologo /D "_DEBUG" /mktyplib203 /o NUL /win32 "
+			"Win32 Resource Compiler" with flags "/l 0x409 /fo"Debug/blupi-d.res" /d "_DEBUG" "
+			"Browser Database Maker" with flags "/nologo /o"Debug/speedyblupi.bsc" "
+			"COFF Linker for 80x86" with flags "kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/speedyblupi.pdb" /debug /machine:I386 /out:"Debug/speedyblupi.exe" /pdbtype:sept /libpath:"dxsdk3/sdk/lib" "
+			"Custom Build" with flags ""
+			"<Component 0xa>" with flags ""
+
+Creating command line "rc.exe /l 0x409 /fo"Debug/blupi-d.res" /d "_DEBUG" "C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc"" 
+Creating temp file "C:\Users\Jimmy\AppData\Local\Temp\RSP48F6.tmp" with contents </nologo /MLd /W3 /Gm /GX /Zi /Od /I "dxsdk3/sdk/inc" /D "WIN32" /D "_DEBUG" /D "_WINDOWS" /Fp"Debug/speedyblupi.pch" /YX /Fo"Debug/" /Fd"Debug/" /FD /c 
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\decblock.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\decblupi.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\decdesign.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\decio.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\decmove.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\decnet.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\decor.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\event.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\jauge.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\network.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\pixmap.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\sound.cpp"
+"C:\Users\Jimmy\Documents\GitHub\sb2-decomp\ddutil.cpp"
+>
+Creating command line "cl.exe @C:\Users\Jimmy\AppData\Local\Temp\RSP48F6.tmp" 
+Creating temp file "C:\Users\Jimmy\AppData\Local\Temp\RSP48F7.tmp" with contents <kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /nologo /subsystem:windows /incremental:yes /pdb:"Debug/speedyblupi.pdb" /debug /machine:I386 /out:"Debug/speedyblupi.exe" /pdbtype:sept /libpath:"dxsdk3/sdk/lib" 
+".\Debug\blupi.obj"
+".\Debug\blupi-d.res"
+".\Debug\button.obj"
+".\Debug\decblock.obj"
+".\Debug\decblupi.obj"
+".\Debug\decdesign.obj"
+".\Debug\decio.obj"
+".\Debug\decmove.obj"
+".\Debug\decnet.obj"
+".\Debug\decor.obj"
+".\Debug\event.obj"
+".\Debug\jauge.obj"
+".\Debug\menu.obj"
+".\Debug\misc.obj"
+".\Debug\movie.obj"
+".\Debug\network.obj"
+".\Debug\pixmap.obj"
+".\Debug\sound.obj"
+".\Debug\text.obj"
+".\Debug\wave.obj"
+".\Debug\ddutil.obj">
+Creating command line "link.exe @C:\Users\Jimmy\AppData\Local\Temp\RSP48F7.tmp" 
+Compiling resources...
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (31): error RC2135 : file not found: blupi.ico
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (81): error RC2135 : file not found: map.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (82): error RC2135 : file not found: arrowup.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (83): error RC2135 : file not found: arrowdow.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (84): error RC2135 : file not found: arrowlef.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (85): error RC2135 : file not found: arrowrig.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (86): error RC2135 : file not found: arrowul.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (87): error RC2135 : file not found: arrowur.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (88): error RC2135 : file not found: arrowdr.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (89): error RC2135 : file not found: arrowdl.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (90): error RC2135 : file not found: wait.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (91): error RC2135 : file not found: empty.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (92): error RC2135 : file not found: fill.cur
+
+
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (93): error RC2135 : file not found: arrow.cur
+C:\Users\Jimmy\Documents\GitHub\sb2-decomp\blupi-d.rc (181): error RC2104 : undefined keyword or key name: TX_TERMMIN
+
+
+
+
+
+
+Error executing rc.exe.
+
+
+
+speedyblupi.exe - 15 error(s), 0 warning(s)

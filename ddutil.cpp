@@ -16,7 +16,7 @@
 #include "ddutil.h"
 #include "misc.h"
 
-#pragma warning (disable :4996)
+
 
 
 // Le message :

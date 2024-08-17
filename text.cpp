@@ -11,7 +11,7 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-static CharOffset table_offsets[] =
+static CharProperties table_char[] =
 {
 	{ 1,	0,	0,	-1,	0,	0 },
 	{ 1,	0,	0,	-1,	0,	0 },
@@ -271,7 +271,7 @@ static CharOffset table_offsets[] =
 	{ 1,	0,	0,	-1,	0,	0 }
 };
 
-// Retourne l'offset pour un caract�re donn�.
+// Retourne l'offset pour un caractère donné.
 
 int GetOffset(char c)
 {
@@ -347,24 +347,24 @@ void DrawCharSingle(CPixmap *pPixmap, POINT pos, char *pText, int font)
 
 void DrawChar(CPixmap *pPixmap, POINT *pos, char c, int font)
 {
-	POINT pos2 { table_offsets[c].charOffsetX + pos->x, table_offsets[c].charOffsetY + pos->y };
-	DrawCharSingle(pPixmap, pos2, &table_offsets[c].charIcon, font);
-	if (table_offsets[c].accentIcon != -1)
+	POINT pos2 { table_char[c].charOffsetX + pos->x, table_char[c].charOffsetY + pos->y };
+	DrawCharSingle(pPixmap, pos2, &table_char[c].charIcon, font);
+	if (table_char[c].accentIcon != -1)
 	{
-		pos2 = { table_offsets[c].accentOffsetX + pos->x, table_offsets[c].accentOffsetY + pos->y };
-		DrawCharSingle(pPixmap, pos2, &table_offsets[c].accentIcon, font);
+		pos2 = { table_char[c].accentOffsetX + pos->x, table_char[c].accentOffsetY + pos->y };
+		DrawCharSingle(pPixmap, pos2, &table_char[c].accentIcon, font);
 	}
 	pos->x += GetCharWidthB(c, font);
 }
 
 void DrawTextLeft(CPixmap *pPixmap, POINT pos, char *pText, int font)
 {
-	DrawTextB(pPixmap, pos, pText, font);
+	DrawText(pPixmap, pos, pText, font);
 }
 
 // Affiche un texte.
 
-void DrawTextB(CPixmap *pPixmap, POINT pos, char *pText, int font)
+void DrawText(CPixmap *pPixmap, POINT pos, char *pText, int font)
 {
 	while (*pText != 0)
 	{
@@ -433,7 +433,7 @@ void DrawTextRect(CPixmap *pPixmap, POINT pos, char *pText,
 
 		if (pente == 0)
 		{
-			DrawTextB(pPixmap, pos, pDest, font);
+			DrawText(pPixmap, pos, pDest, font);
 		}
 		else
 		{
@@ -478,7 +478,7 @@ void DrawTextCenter(CPixmap *pPixmap, POINT pos, char *pText, int font)
 		pDest = text;
 		start.x = pos.x - GetTextWidth(pDest) / 2;
 		start.y = pos.y;
-		DrawTextB(pPixmap, start, pDest, font);
+		DrawText(pPixmap, start, pDest, font);
 
 		if (pDest[0] == 0)  // ligne vide ?
 		{

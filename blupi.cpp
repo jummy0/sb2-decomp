@@ -33,14 +33,14 @@
 
 // Variables Globals
 
-HWND		g_hWnd;					// handle aÌ€ la feneÌ‚tre
+HWND		g_hWnd;					// handle à la fenètre
 CEvent*		g_pEvent  = NULL;
 CPixmap*	g_pPixmap = NULL;		// pixmap principal
 CSound*		g_pSound  = NULL;		// sound principal
 CMovie*		g_pMovie  = NULL;		// movie principal
 CDecor*		g_pDecor  = NULL;
 CNetwork*   g_pNetwork;
-char		g_CDPath[MAX_PATH];		// chemin d'acceÌ€s au CD-Rom
+char		g_CDPath[MAX_PATH];		// chemin d'accès au CD-Rom
 BOOL		g_bFullScreen = FALSE;	// FALSE si mode de test
 int			g_speedRate = 1;
 int			g_timerInterval = 50;	// inverval = 50ms
@@ -51,7 +51,7 @@ BOOL 		g_bTrueColorBack;
 BOOL 		g_bTrueColorDecor;
 BOOL		g_bCDAudio;
 int			g_something;
-MMRESULT    g_updateTimer;			// timer gÃ©nÃ©ral
+MMRESULT    g_updateTimer;			// timer général
 BOOL		g_bActive = TRUE;		// is application active ?
 BOOL		g_bTermInit = FALSE;	// initialisation en cours
 int			g_objectMax;
@@ -62,7 +62,7 @@ int			g_exploMax;
 UINT		g_lastPhase = 999;
 
 
-// Lit un numÃ©ro dÃ©cimal.
+// Lit un numéro décimal.
 
 int GetNum(char *p)
 {
@@ -233,7 +233,7 @@ BOOL ReadConfig (LPSTR lpCmdLine)
 	return TRUE;
 }
 
-// Mise aÌ€ jour principale. [TODO: Rewrite Variables]
+// Mise à jour principale. [TODO: Rewrite Variables]
 
 void UpdateFrame(void)
 {
@@ -364,7 +364,7 @@ int Benchmark()
 }
 
 
-// Restitue le jeu aprÃ¨s une activation en mode fullScreen.
+// Restitue le jeu après une activation en mode fullScreen.
 
 BOOL RestoreGame()
 {
@@ -374,7 +374,7 @@ BOOL RestoreGame()
 	return g_pPixmap->Restore();
 }
 
-// LibÃ¨re le jeu avant une dÃ©sactivation en mode fullScreen.
+// Libère le jeu avant une désactivation en mode fullScreen.
 
 BOOL FlushGame()
 {
@@ -506,7 +506,7 @@ LRESULT CALLBACK WindowProc (HWND hWnd, UINT message,
 				SetWindowTextA(hWnd, "Blupi");
 				if ( g_pSound != NULL ) g_pSound->RestartMusic();
 			}
-			else // dÃ©sactive ?
+			else // désactive ?
 			{
 				if ( g_bFullScreen )
 				{
@@ -710,7 +710,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 		return InitFail("Game not correctly installed", FALSE);
 	}
 
-	// CrÃ©e le pixmap principal.
+	// Crée le pixmap principal.
 	g_pPixmap = new CPixmap;
 	if (g_pPixmap == NULL) return InitFail("New pixmap", TRUE);
 

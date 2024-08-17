@@ -16,7 +16,7 @@ typedef struct
     char  accentOffsetX;
     char  accentOffsetY;
 }
-CharOffset;
+CharProperties;
 
 extern
 void DrawCharSingle(CPixmap *pPixmap, POINT pos, char *pText, int font);
@@ -28,7 +28,7 @@ extern
 void DrawTextLeft(CPixmap *pPixmap, POINT pos, char *pText, int font);
 
 extern
-void DrawTextB(CPixmap *pPixmap, POINT pos, char *pText, int font = 0);
+void DrawText(CPixmap *pPixmap, POINT pos, char *pText, int font = 0);
 
 extern
 void DrawTextPente(CPixmap *pPixmap, POINT pos, char *pText,

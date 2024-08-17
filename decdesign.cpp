@@ -249,7 +249,7 @@ void CDecor::PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 4 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -268,7 +268,7 @@ void CDecor::PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -287,7 +287,7 @@ void CDecor::PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64, cel.y * 64 };
+		pMob->posStart = { cel.x * DIMOBJX, cel.y * DIMOBJY };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -324,7 +324,7 @@ void CDecor::PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 8 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -394,7 +394,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 4 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -413,7 +413,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 8 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -432,7 +432,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 8 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -451,7 +451,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 8 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -470,7 +470,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 6 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 6 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -489,7 +489,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 4 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -508,7 +508,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 4 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -538,7 +538,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 6 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 6 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -571,7 +571,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * 64 + 2, cel.y * 64 + 6 };
+		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 6 };
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
