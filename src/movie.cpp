@@ -14,7 +14,7 @@ using namespace std;
 #include <direct.h>
 #include <mmsystem.h>		
 #include <digitalv.h>		
-#include <mciapi.h>
+// #include <mciapi.h>
 #include "def.h"
 #include "movie.h"
 #include "misc.h"
@@ -39,7 +39,7 @@ BOOL CMovie::initAVI()
 	// set up the open parameters
 	mciOpen.dwCallback 		 = 0L;
 	mciOpen.wDeviceID 		 = 0;
-	mciOpen.lpstrDeviceType  = (LPWSTR)AVI_VIDEO;
+	mciOpen.lpstrDeviceType  = AVI_VIDEO;
 	mciOpen.lpstrElementName = NULL;
 	mciOpen.lpstrAlias 		 = NULL;
 	mciOpen.dwStyle 		 = 0;
@@ -126,7 +126,7 @@ BOOL CMovie::fileOpenMovie(HWND hWnd, RECT rect, char *pFilename)
 	mciOpen.dwCallback       = 0L;
 	mciOpen.wDeviceID        = 0;
 	mciOpen.lpstrDeviceType  = NULL;
-	mciOpen.lpstrElementName = (LPWSTR)string;
+	mciOpen.lpstrElementName = string;
 	mciOpen.lpstrAlias       = NULL;
 	mciOpen.dwStyle          = WS_CHILD;
 	mciOpen.hWndParent       = hWnd;
@@ -144,7 +144,7 @@ BOOL CMovie::fileOpenMovie(HWND hWnd, RECT rect, char *pFilename)
 		mciWindow.dwCallback = 0L;
 		mciWindow.hWnd       = NULL;
 		mciWindow.nCmdShow   = SW_SHOW;
-		mciWindow.lpstrText  = (LPWSTR)NULL;
+		mciWindow.lpstrText  = NULL;
 //		mciSendCommand(m_wMCIDeviceID, MCI_WINDOW,
 //					   MCI_DGV_WINDOW_STATE,
 //					   (DWORD)(LPMCI_DGV_WINDOW_PARMS)&mciWindow);

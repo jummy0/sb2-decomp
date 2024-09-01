@@ -9,8 +9,6 @@
 #define MAXSESSION 100
 #define MAXPLAYERS 4
 #define _CRT_SECURE_NO_WARNINGS_GLOBALS
-#define WIN32_LEAN_AND_MEAN
-
 
 typedef struct
 {
@@ -37,26 +35,6 @@ typedef struct
 	NamedGUID* list[MAXSESSION];
 }
 NamedGUIDList;
-
-typedef struct
-{
-	BYTE	messageType;
-	BYTE	data1;
-	short	x;
-	short	y;
-	short   channel;
-}
-NetMessage;
-
-typedef enum
-{
-	MESS_RESUME,
-	MESS_PAUSE,
-	MESS_START,
-	MESS_LEAVE,
-	MESS_LOST,
-}
-NetMessageType;
 
 class CNetwork
 {

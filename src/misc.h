@@ -1,9 +1,8 @@
 // misc.h
 //
 #pragma once
-#include <stdio.h>
-#include <minwindef.h>
-using namespace std;
+
+// #include <minwindef.h>
 
 extern void InitHInstance(HINSTANCE hInstance);
 extern void OutputDebug(const char *pMessage);
@@ -14,9 +13,9 @@ extern POINT ConvLongToPos(LPARAM lParam);
 
 extern void InitRandom();
 extern int  Random(int min, int max);
+extern BOOL IntersectRect(RECT dst, RECT src1, RECT src2);
 extern BOOL IsRectEmpty(RECT rect);
 
-extern int  Speed(double speed, int max);
 extern void GetCurrentDir(char *pName, int lg);
 extern void AddCDPath(char *pFilename);
 extern void AddUserPath(char *pFilename);

@@ -80,9 +80,6 @@
     <ClCompile Include="src\decor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\dectables.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="src\event.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -113,15 +110,27 @@
     <ClCompile Include="src\wave.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\decblock.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\decnet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\decdesign.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\decio.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\decmove.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\button.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\ddutil.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\decmove.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\decor.h">
@@ -134,9 +143,6 @@
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\event.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\fifo.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\jauge.h">
@@ -169,16 +175,13 @@
     <ClInclude Include="src\wave.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\action.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\actions.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\resource.h">
       <Filter>Source Files</Filter>
     </ClInclude>
     <ClInclude Include="src\resource1.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\obstacle.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

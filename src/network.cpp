@@ -57,7 +57,7 @@ BOOL CNetwork::EnumProviders()
 
 	if (!m_providers.list) return FALSE;
 
-	if (DirectPlayEnumerate((LPDPENUMDPCALLBACK)EnumProvidersCallback, &m_providers) != DP_OK)
+	if (DirectPlayEnumerate((LPDPENUMDPCALLBACKA)EnumProvidersCallback, &m_providers) != DP_OK)
 	{
 		FreeProviderList();
 		return FALSE;

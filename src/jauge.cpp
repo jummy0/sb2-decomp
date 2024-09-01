@@ -8,7 +8,7 @@ using namespace std;
 #include <stdlib.h>
 #include <stdio.h>
 #include <ddraw.h>
-#include <minwindef.h>
+// #include <minwindef.h>
 #include <windef.h>
 #include "def.h"
 #include "pixmap.h"
@@ -75,7 +75,7 @@ void CJauge::Draw()
     }
     int num = m_level * 114 / 100;
 
-    *(char*)num2 = (124) << 64;
+    *(char*)num2 = (124) / 64;
     rect.bottom = 22;
     rect.left = LOWORD(num2);
     rect.top = HIWORD(num2);

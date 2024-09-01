@@ -1,7 +1,5 @@
 // CPixmap.h
 
-using namespace std;
-
 #pragma once
 
 #include <ddraw.h>
@@ -9,7 +7,7 @@ using namespace std;
 /////////////////////////////////////////////////////////////
 
 #define MAXIMAGE    100
-#define DIRECTDRAW_VERSION 0x0500
+#define DIRECTDRAW_VERSION 0x0500 // ????????????
 
 class CPixmap
 {
@@ -39,7 +37,7 @@ public:
     void    SetTransparent(int channel, COLORREF color);
     void    SetTransparent2(int channel, COLORREF color1, COLORREF color2);
     void    SetClipping(RECT clip);
-    RECT    GetClipping(RECT* rect);
+    RECT    GetClipping();
     void    HudIcon(int channel, int rank, POINT pos);
     void    QuickIcon(int channel, int rank, POINT pos);
 
@@ -126,3 +124,5 @@ protected:
     POINT                  m_iconDim[MAXIMAGE];
     DDBLTFX                m_DDbltfx;
 };
+
+static inline BOOL IsBlupiChannel(int channel);

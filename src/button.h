@@ -1,12 +1,10 @@
-#include <minwindef.h>
+#pragma once
+
+// #include <minwindef.h>
 #include <windef.h>
 #include "decor.h"
 #include "sound.h"
 #include "pixmap.h"
-
-#pragma once
-
-using namespace std;
 
 class CButton
 {

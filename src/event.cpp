@@ -104,1194 +104,324 @@ static Phase table[] =
 		WM_PHASE_TESTCD,
 		"init.blp",
 		FALSE,
-		{
-			{
-				0
-			},
-		},
+		FALSE,
+		{ 0 }
 	},
-
 	{
 		WM_PHASE_INIT,
 		"init.blp",
 		FALSE,
+		FALSE,
 		{
 			{
+				WM_PHASE_GAMER,
+				0,{ 1, IC_BT_PLAY },
+				0x56, 0x19a,
+				{ 1, TX_BUTTON_PLAYP }
+			},
+			{
 				WM_PHASE_DEMO,
-				0, {1,48},
-				86, 410,
-				{1,TX_BUTTON_DEMO},
+				0,{ 1, IC_BT_DEMO },
+				0x80, 0x19a,
+				{ 1, 0xd4 }
 			},
 			{
+#if _BYE
 				WM_PHASE_BYE,
-//?				WM_CLOSE,
-				0, {1,84},
-				128, 410,
-				{1,TX_BUTTON_QUITTER},
-			},
-			{
-				WM_PHASE_SCHOOL,
-				0, {1,6},
-				21, 410,
-				{1,TX_BUTTON_APPRENDRE},
-			},
-			{
-				0
-			},
-		},
+#else
+				WM_CLOSE,
+#endif //_BYE
+				0,{ 1, IC_BT_CANCEL },
+				0x21c, 0x19a,
+				{ 1, TX_BUTTON_QUITTER }
+			}
+		}
 	},
-
 	{
 		WM_PHASE_GAMER,
 		"gamer.blp",
 		FALSE,
+		FALSE,
 		{
 			{
 				WM_BUTTON1,
-				0, {0,0},
-				60, 58,
-				{1,TX_CHOOSEPLAYER},
+				0,{ 0 },
+				60, 58 + DIMBUTTONX * 0,
+				{ 1, TX_CHOOSEGAMER }
 			},
 			{
 				WM_BUTTON2,
-				0, {0,0},
-				60, 98,
-				{1,TX_CHOOSEPLAYER},
+				0,{ 0 },
+				60, 58 + DIMBUTTONX * 1,
+				{ 1, TX_CHOOSEGAMER }
 			},
 			{
 				WM_BUTTON3,
-				0, {0,0},
-				60, 138,
-				{1,TX_CHOOSEPLAYER},
+				0,{ 0 },
+				60, 58 + DIMBUTTONX * 2,
+				{ 1, TX_CHOOSEGAMER }
 			},
 			{
 				WM_BUTTON4,
-				0, {0,0},
-				60, 178,
-				{1,TX_CHOOSEPLAYER},
+				0,{ 0 },
+				60, 58 + DIMBUTTONX * 3,
+				{ 1, TX_CHOOSEGAMER }
 			},
 			{
 				WM_BUTTON5,
-				0, {0,0},
-				60, 218,
-				{1,TX_CHOOSEPLAYER},
+				0,{ 0 },
+				60, 58 + DIMBUTTONX * 4,
+				{ 1, TX_CHOOSEGAMER }
 			},
 			{
 				WM_BUTTON6,
-				0, {0,0},
-				60, 258,
-				{1,TX_CHOOSEPLAYER},
+				0,{ 0 },
+				60, 58 + DIMBUTTONX * 5,
+				{ 1, TX_CHOOSEGAMER }
+
 			},
 			{
 				WM_BUTTON7,
-				0, {0,0},
-				60, 298,
-				{1,TX_CHOOSEPLAYER},
+				0,{ 0 },
+				60, 58 + DIMBUTTONX * 6,
+				{ 1, TX_CHOOSEGAMER }
 			},
 			{
 				WM_BUTTON8,
-				0, {0,0},
-				60, 338,
-				{1,TX_CHOOSEPLAYER},
+				0,{ 0 },
+				60, 58 + DIMBUTTONX * 7,
+				{ 1, TX_CHOOSEGAMER }
+			},
+			/* // unused gamer slots 9-10 mentioned in promotional texts
+			{
+			WM_BUTTON9,
+			0,{ 0 },
+			60, 58 + DIMBUTTONX * 8,
+			{ 1, TX_CHOOSEGAMER }
 			},
 			{
-				WM_PHASE_NAMEg,
-				0, {1,46},
-				546, 178,
-				{1,TX_PLAYERSNAME},
+			WM_BUTTON10,
+			0,{ 0 },
+			60, 58 + DIMBUTTONX * 9,
+			{ 1, TX_CHOOSEGAMER }
+			},
+			*/
+			{
+				WM_PHASE_NAMEGAMER,
+				0,{ 1, IC_BT_NAME },
+				0xb2, 0x222,
+				{ 1, TX_PLAYERSNAME }
 			},
 			{
-				WM_PHASE_CLEARg,
-				0, {1,36},
-				546, 220,
-				{1, TX_CLEARPLAYER},
+				WM_PHASE_CLEARGAMER,
+				0,{ 1, IC_BT_DELETE },
+				0xdc, 0x222,
+				{ 1, /* i dont remember lol */ 0 }
 			},
 			{
 				WM_PHASE_DOPLAY,
-				0, {1, 48},
-				65, 414,
-				{1,	TX_SINGLEPLAYER},
+				0,{ 1, IC_BT_PLAY },
+				0x41, 0x19e,
+				{ 1, 0xc3 }
 			},
 			{
 				WM_PHASE_SERVICE,
-				0, {1, 83},
-				107, 414,
-				{1, TX_MUTLIPLAYER},
+				0,{ 1, IC_BT_MULTI },
+				0x6b, 0x19e,
+				{ 1, 0xc4 }
 			},
 			{
 				WM_PHASE_PRIVATE,
-				0, {1, 49},
-				149, 414,
-				{1, TX_DESIGN},
+				0,{ 1, IC_BT_DESIGN },
+				0x95, 0x19e,
+				{ 1, 0xbc }
 			},
 			{
 				WM_PHASE_GREAD,
-				0, {1, 52},
-				191, 414,
-				{1, TX_OPEN},
+				0,{ 1, IC_BT_READ },
+				0xbf, 0x19e,
+				{ 1, 0x108 }
 			},
 			{
 				WM_PHASE_SETUP,
-				0, {1, 47},
-				330, 414,
-				{1, TX_SETTINGS},
+				0,{ 1, IC_BT_SETUP },
+				0x14a, 0x19e,
+				{ 1, TX_BUTTON_SETUP }
 			},
 			{
 				WM_PHASE_INIT,
-				0, {1, 40},
-				540, 414,
-				{1, TX_BUTTON_TERM},
-			},
-			{
-				0
-			},
-		},
+				0,{ 1, IC_BT_STOP },
+				0x21c, 0x19e,
+				{ 1, TX_BUTTON_TERM }
+			}
+		}
 	},
-
 	{
-		WM_PHASE_NAMEg,
+		WM_PHASE_NAMEGAMER,
 		"name.blp",
 		FALSE,
+		FALSE,
 		{
 			{
-				WM_PHASE_CONFIRM,
-				0, {1,18},
-				222, 326,
-				{1, TX_CONFIRM},
+				WM_PHASE_1562,
+				0,{ 1, IC_BT_ACCEPT },
+				0xde, 0x146,
+				{ 1, 0xae }
 			},
 			{
 				WM_PHASE_GAMER,
-				0, {1,36},
-				378, 326,
-				{1, TX_CANCEL},
-			},
-			{
-				0
-			},
-		},
+				0,{ 1, IC_BT_DELETE },
+				0x17a, 0x146,
+				{ 1, 0xaf }
+			}
+		}
 	},
-
 	{
-		WM_PHASE_CLEARg,
+		WM_PHASE_CLEARGAMER,
 		"clear.blp",
 		FALSE,
+		FALSE,
 		{
 			{
-				WM_PHASE_YES,
-				0, {1,18},
-				222, 326,
-				{1,TX_YES},
+				WM_PHASE_1563,
+				0,{ 1, IC_BT_ACCEPT },
+				0xde, 0x146,
+				{ 1, 0xb0 }
 			},
 			{
 				WM_PHASE_GAMER,
-				0, {1,36},
-				378, 326,
-				{1,TX_NO},
-			},
-			{
-				0
-			},
-		},
+				0,{ 1, IC_BT_DELETE },
+				0x17a, 0x146,
+				{ 1, 0xb1 }
+			}
+		}
 	},
-	
+	WM_PHASE_SERVICE,
+	"service.blp",
+	FALSE,
+	FALSE,
 	{
-		WM_PHASE_SERVICE,
-		"service.blp",
-		FALSE,
 		{
-			{
-				WM_BUTTON1,
-				0, {1,51},
-				140, 110,
-				0,
-			},
-			{
-				WM_BUTTON2,
-				0, {1,51},
-				140, 150,
-				0,
-			},
-			{
-				WM_BUTTON3,
-				0, {1,51},
-				140, 190,
-				0,
-			},
-			{
-				WM_BUTTON4,
-				0, {1,51},
-				140, 230,
-				0,
-			},
-			{
-				WM_BUTTON5,
-				0, {1,51},
-				140, 270,
-				0,
-			},
-			{
-				WM_BUTTON6,
-				0, {1, 51},
-				140, 310,
-				0,
-			},
-			{
-				WM_BUTTON10,
-				0, {1, 72},
-				466, 110,
-				{1, TX_SHOWCONNECTION},
-			},
-			{
-				WM_BUTTON11,
-				0, {1, 73},
-				466, 310,
-				{1, TX_SHOWNEXT},
-			},
-			{
-				WM_PHASE_DPLAY_DO_SERVICE,
-				0, {1, 18},
-				222, 389,
-				{1, TX_CONFIRM},
-			},
-			{
-				WM_PHASE_DPLAY_CANCEL_SERVICE,
-				0, {1, 36},
-				380, 389,
-				{1, TX_CANCEL},
-			},
-			{
-				0
-			},
+			WM_BUTTON1,
+			0,{ 1, IC_BT_ARROWRIGHT },
+			0x8c, 0x6e,
+			{ 0 }
 		},
-	},
-
-	{
-		WM_PHASE_SESSION,
-		"session.blp",
-		FALSE,
 		{
-			{
-				WM_BUTTON1,
-				0, {1,51},
-				120, 100,
-				0,
-			},
-			{
-				WM_BUTTON2,
-				0, {1,51},
-				120, 150,
-				0,
-			},
-			{
-				WM_BUTTON3,
-				0, {1,51},
-				120, 190,
-				0,
-			},
-			{
-				WM_BUTTON4,
-				0, {1,51},
-				120, 230,
-				0,
-			},
-			{
-				WM_BUTTON5,
-				0, {1,51},
-				120, 270,
-				0,
-			},
-			{
-				WM_BUTTON6,
-				0, {1,51},
-				120, 310,
-				0,
-			},
-			{
-				WM_BUTTON7,
-				0, {1,72},
-				490, 330,
-				{1,TX_SHOWPREV},
-			},
-			{
-				WM_BUTTON8,
-				0, {1,73},
-				490, 310,
-				{1,TX_SHOWNEXT},
-			},
-			{
-				WM_PHASE_JOINGAME,
-				0, {1,45},
-				120, 389,
-				{1,TX_GAMEJOIN},
-			},
-			{
-				WM_PHASE_DPLAY_CREATE_LOBBY,
-				0, {1, 43},
-				162, 389,
-				{1, TX_CREATE_MULTIGAME},
-			},
-			{
-				WM_PHASE_DPLAY_REFRESH,
-				0, {1, 72},
-				260, 389,
-				{1, TX_UPDATELIST},
-			},
-			{
-				WM_PHASE_DPLAY_CANCEL_SESSION,
-				0, {1, 36},
-				485, 389,
-				{1, TX_CANCEL},
-			},
-			{
-				0
-			},
+			WM_BUTTON2,
+			0,{ 1, IC_BT_ARROWRIGHT },
+			0x8c, 0x96,
+			{ 0 }
 		},
-	},
-
-	{
-		WM_PHASE_SETUPp,
-		"image16\\setup.blp",
-		FALSE,
 		{
-			{
-				WM_BUTTON1,
-				0, {1,50},
-				54, 330,
-				{1,TX_BUTTON_SETUP1},
-			},
-			{
-				WM_BUTTON2,
-				0, {1,51},
-				54+40, 330,
-				{1,TX_BUTTON_SETUP2},
-			},
-			{
-				WM_BUTTON3,
-				0, {1,50},
-				284, 330,
-				{1,TX_BUTTON_SETUP3},
-			},
-			{
-				WM_BUTTON4,
-				0, {1,51},
-				284+40, 330,
-				{1,TX_BUTTON_SETUP4},
-			},
-			{
-				WM_BUTTON5,
-				0, {1,50},
-				399, 330,
-				{1,TX_BUTTON_SETUP5},
-			},
-			{
-				WM_BUTTON6,
-				0, {1,51},
-				399+40, 330,
-				{1,TX_BUTTON_SETUP6},
-			},
-#if !_EGAMES
-			{
-				WM_BUTTON7,
-				0, {1,50},
-				514, 330,
-				{1,TX_BUTTON_SETUP7},
-			},
-			{
-				WM_BUTTON8,
-				0, {1,51},
-				514+40, 330,
-				{1,TX_BUTTON_SETUP8},
-			},
-#endif
-			{
-				WM_PHASE_PLAY,
-				0, {1,77},
-				11, 424,
-				{1,TX_BUTTON_CONTP},
-			},
-			{
-				0
-			},
+			WM_BUTTON3,
+			0,{ 1, IC_BT_ARROWRIGHT },
+			0x8c, 0xbe,
+			{ 0 }
 		},
-	},
-
-	{
-		WM_PHASE_READ,
-		"image16\\read.blp",
-		FALSE,
 		{
-			{
-				WM_READ0,
-				0, {0},
-				420, 30+42*0,
-				0,
-			},
-			{
-				WM_READ1,
-				0, {0},
-				420, 30+42*1,
-				0,
-			},
-			{
-				WM_READ2,
-				0, {0},
-				420, 30+42*2,
-				0,
-			},
-			{
-				WM_READ3,
-				0, {0},
-				420, 30+42*3,
-				0,
-			},
-			{
-				WM_READ4,
-				0, {0},
-				420, 30+42*4,
-				0,
-			},
-			{
-				WM_READ5,
-				0, {0},
-				420, 30+42*5,
-				0,
-			},
-			{
-				WM_READ6,
-				0, {0},
-				420, 30+42*6,
-				0,
-			},
-			{
-				WM_READ7,
-				0, {0},
-				420, 30+42*7,
-				0,
-			},
-			{
-				WM_READ8,
-				0, {0},
-				420, 30+42*8,
-				0,
-			},
-			{
-				WM_READ9,
-				0, {0},
-				420, 30+42*9,
-				0,
-			},
-			{
-				WM_PHASE_STOP,
-				0, {1,40},
-				16, 424,
-				{1,TX_BUTTON_TERM},
-			},
-			{
-				0
-			},
+			WM_BUTTON4,
+			0,{ 1, IC_BT_ARROWRIGHT },
+			0x8c, 0xe6,
+			{ 0 }
 		},
-	},
-
-	{
-		WM_PHASE_WRITE,
-		"image16\\write.blp",
-		FALSE,
 		{
-			{
-				WM_WRITE0,
-				0, {0},
-				420, 30+42*0,
-				0,
-			},
-			{
-				WM_WRITE1,
-				0, {0},
-				420, 30+42*1,
-				0,
-			},
-			{
-				WM_WRITE2,
-				0, {0},
-				420, 30+42*2,
-				0,
-			},
-			{
-				WM_WRITE3,
-				0, {0},
-				420, 30+42*3,
-				0,
-			},
-			{
-				WM_WRITE4,
-				0, {0},
-				420, 30+42*4,
-				0,
-			},
-			{
-				WM_WRITE5,
-				0, {0},
-				420, 30+42*5,
-				0,
-			},
-			{
-				WM_WRITE6,
-				0, {0},
-				420, 30+42*6,
-				0,
-			},
-			{
-				WM_WRITE7,
-				0, {0},
-				420, 30+42*7,
-				0,
-			},
-			{
-				WM_WRITE8,
-				0, {0},
-				420, 30+42*8,
-				0,
-			},
-			{
-				WM_WRITE9,
-				0, {0},
-				420, 30+42*9,
-				0,
-			},
-			{
-				WM_PHASE_STOP,
-				0, {1,40},
-				16, 424,
-				{1,TX_BUTTON_TERM},
-			},
-			{
-				0
-			},
+			WM_BUTTON5,
+			0,{ 1, IC_BT_ARROWRIGHT },
+			0x8c, 0x10e,
+			{ 0 }
 		},
-	},
-
-	{
-		WM_PHASE_WRITEp,
-		"image16\\write.blp",
-		FALSE,
 		{
-			{
-				WM_WRITE0,
-				0, {0},
-				420, 30+42*0,
-				0,
-			},
-			{
-				WM_WRITE1,
-				0, {0},
-				420, 30+42*1,
-				0,
-			},
-			{
-				WM_WRITE2,
-				0, {0},
-				420, 30+42*2,
-				0,
-			},
-			{
-				WM_WRITE3,
-				0, {0},
-				420, 30+42*3,
-				0,
-			},
-			{
-				WM_WRITE4,
-				0, {0},
-				420, 30+42*4,
-				0,
-			},
-			{
-				WM_WRITE5,
-				0, {0},
-				420, 30+42*5,
-				0,
-			},
-			{
-				WM_WRITE6,
-				0, {0},
-				420, 30+42*6,
-				0,
-			},
-			{
-				WM_WRITE7,
-				0, {0},
-				420, 30+42*7,
-				0,
-			},
-			{
-				WM_WRITE8,
-				0, {0},
-				420, 30+42*8,
-				0,
-			},
-			{
-				WM_WRITE9,
-				0, {0},
-				420, 30+42*9,
-				0,
-			},
-			{
-				WM_PHASE_PLAY,
-				0, {1,77},
-				16, 424,
-				{1,TX_BUTTON_CONTP},
-			},
-			{
-				0
-			},
+			WM_BUTTON6,
+			0,{ 1, IC_BT_ARROWRIGHT },
+			0x8c, 0x136,
+			{ 0 }
 		},
-	},
-
-	{
-		WM_PHASE_LOST,
-		"image16\\lost.blp",
-		TRUE,
 		{
-			{
-				WM_PHASE_INFO,
-				0, {1,50},
-				9, 431,
-				{1,TX_BUTTON_REPEAT},
-			},
-			{
-				0
-			},
+			WM_BUTTON10,
+			0,{ 1, IC_BT_ARROWUP },
+			0x1d2, 0x6e,
+			{ 1, 0xf2 }
 		},
-	},
-
-	{
-		WM_PHASE_WIN,
-		"image16\\win.blp",
-		TRUE,
 		{
-			{
-				WM_NEXT,
-				0, {1,51},
-				9, 431,
-				{1,TX_BUTTON_NEXTP},
-			},
-			{
-				0
-			},
+			WM_BUTTON11,
+			0,{ 1, IC_BT_ARROWDOWN },
+			0x1d2, 0x136,
+			{ 1, 0xf1 }
 		},
-	},
-
-	{
-		WM_PHASE_LASTWIN,
-		"image\\last%.3d.blp",
-		TRUE,
 		{
-			{
-				WM_PHASE_INIT,
-				0, {1,51},
-				9, 431,
-				{1,TX_BUTTON_NEXTP},
-			},
-			{
-				0
-			},
+			WM_PHASE_DPLAY_DO_SERVICE,
+			0,{ 1, IC_BT_ACCEPT },
+			0xde, 0x185,
+			{ 1, 0xae }
 		},
-	},
-	
-	{
-		WM_PHASE_BUILD,
-		"image\\build.blp",
-		TRUE,
 		{
-			{
-				WM_DECOR1,		// pose des sols
-				0, {6, 0,1,2,3,4,25},
-				11+42*2, 190+42*0,
-				{6,TX_OBJ_HERBE,TX_OBJ_MOUSSE,TX_OBJ_TERRE,
-				   TX_OBJ_EAU,TX_OBJ_DALLESPEC,TX_OBJ_COUVTELE},
-			},
-			{
-				WM_DECOR2,		// pose des plantes
-				0, {4, 6,7,8,11},
-				11+42*2, 190+42*1,
-				{4,TX_OBJ_DELOBJ,TX_OBJ_PLANTE,
-				   TX_OBJ_ARBRE,TX_OBJ_FLEUR1},
-			},
-			{
-				WM_DECOR3,		// pose des batiments
-				0, {11, 18,81,33,61,82,93,20,21,22,57,58},
-				11+42*2, 190+42*2,
-				{11,TX_OBJ_DELOBJ,TX_OBJ_BATIMENT,TX_OBJ_TOUR,
-					TX_OBJ_MINEFER,TX_OBJ_BATENNEMIS,TX_OBJ_BARENNEMIS,
-					TX_OBJ_MURPAL,TX_OBJ_ROC,TX_OBJ_OBJET,
-					TX_OBJ_ARME,TX_OBJ_VEHICULE},
-			},
-			{
-				WM_DECOR4,		// pose des blupi
-				0, {10, 12,13,14,85,15,16,17,38,75,56},
-				11+42*2, 190+42*3,
-				{10,TX_OBJ_DELPERSO,TX_OBJ_BLUPIf,TX_OBJ_BLUPI,
-					TX_OBJ_DISCIPLE,TX_OBJ_ARAIGNEE,TX_OBJ_VIRUS,
-					TX_OBJ_TRACKS,TX_OBJ_BOMBE,TX_OBJ_ELECTRO,
-					TX_OBJ_ROBOT},
-			},
-			{
-				WM_DECOR5,		// pose les catastrophes
-				0, {2, 36,37},
-				11+42*2, 190+42*4,
-				{2,TX_OBJ_DELFEU,TX_OBJ_STARTFEU},
-			},
-			{
-				WM_PHASE_REGION,
-				0, {1,5},
-				11+42*0, 190+42*1,
-				{1,TX_BUTTON_REGION},
-			},
-			{
-				WM_PHASE_INFO,
-				0, {1,40},
-				11+42*0, 424,
-				{1,TX_BUTTON_TERMC},
-			},
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_BUTTON,
-		"image16\\button00.blp",
-		TRUE,
-		{
-			{
-				WM_BUTTON1,		// stop
-				0, {1,40},
-				170+42*0, 30+52*0,
-				{1,TX_ACTION_STOP},
-			},
-			{
-				WM_BUTTON0,		// go
-				0, {1,24},
-				170+42*1, 30+52*0,
-				{1,TX_ACTION_GO},
-			},
-			{
-				WM_BUTTON3,		// carry
-				0, {1,30},
-				170+42*3, 30+52*0,
-				{1,TX_ACTION_CARRY},
-			},
-			{
-				WM_BUTTON4,		// depose
-				0, {1,31},
-				170+42*4, 30+52*0,
-				{1,TX_ACTION_DEPOSE},
-			},
-			{
-				WM_BUTTON32,	// r�p�te
-				0, {1,100},
-				170+42*6, 30+52*0,
-				{1,TX_ACTION_REPEAT},
-			},
-
-			{
-				WM_BUTTON5,		// abat
-				0, {1,22},
-				170+42*0, 30+52*1,
-				{1,TX_ACTION_ABAT},
-			},
-			{
-				WM_BUTTON16,	// abat n
-				0, {1,42},
-				170+42*1, 30+52*1,
-				{1,TX_ACTION_ABATn},
-			},
-			{
-				WM_BUTTON6,		// roc
-				0, {1,27},
-				170+42*3, 30+52*1,
-				{1,TX_ACTION_ROC},
-			},
-			{
-				WM_BUTTON17,	// roc n
-				0, {1,43},
-				170+42*4, 30+52*1,
-				{1,TX_ACTION_ROCn},
-			},
-			{
-				WM_BUTTON22,	// fleurs
-				0, {1,54},
-				170+42*6, 30+52*1,
-				{1,TX_ACTION_FLEUR},
-			},
-			{
-				WM_BUTTON23,	// fleurs n
-				0, {1,55},
-				170+42*7, 30+52*1,
-				{1,TX_ACTION_FLEURn},
-			},
-
-			{
-				WM_BUTTON9,		// build2 (couveuse)
-				0, {1,25},
-				170+42*0, 30+52*2,
-				{1,TX_ACTION_BUILD2},
-			},
-			{
-				WM_BUTTON15,	// palis
-				0, {1,26},
-				170+42*1, 30+52*2,
-				{1,TX_ACTION_PALIS},
-			},
-			{
-				WM_BUTTON18,	// pont
-				0, {1,23},
-				170+42*2, 30+52*2,
-				{1,TX_ACTION_PONT},
-			},
-			{
-				WM_BUTTON25,	// bateau
-				0, {1,58},
-				170+42*3, 30+52*2,
-				{1,TX_ACTION_BATEAU},
-			},
-			{
-				WM_BUTTON13,	// build6 (t�l�porteur)
-				0, {1,101},
-				170+42*4, 30+52*2,
-				{1,TX_ACTION_BUILD6},
-			},
-			{
-				WM_BUTTON14,	// mur
-				0, {1,20},
-				170+42*6, 30+52*2,
-				{1,TX_ACTION_MUR},
-			},
-			{
-				WM_BUTTON19,	// tour
-				0, {1,33},
-				170+42*7, 30+52*2,
-				{1,TX_ACTION_TOUR},
-			},
-
-			{
-				WM_BUTTON8,		// build1 (cabane)
-				0, {1,19},
-				170+42*0, 30+52*3,
-				{1,TX_ACTION_BUILD1},
-			},
-			{
-				WM_BUTTON7,		// cultive
-				0, {1,28},
-				170+42*1, 30+52*3,
-				{1,TX_ACTION_CULTIVE},
-			},
-			{
-				WM_BUTTON2,		// mange
-				0, {1,32},
-				170+42*2, 30+52*3,
-				{1,TX_ACTION_MANGE},
-			},
-
-			{
-				WM_BUTTON10,	// build3 (laboratoire)
-				0, {1,35},
-				170+42*0, 30+52*4,
-				{1,TX_ACTION_BUILD3},
-			},
-			{
-				WM_BUTTON21,	// laboratoire
-				0, {1,39},
-				170+42*1, 30+52*4,
-				{1,TX_ACTION_LABO},
-			},
-			{
-				WM_BUTTON20,	// boit
-				0, {1,34},
-				170+42*2, 30+52*4,
-				{1,TX_ACTION_BOIT},
-			},
-			{
-				WM_BUTTON24,	// dynamite
-				0, {1,41},
-				170+42*3, 30+52*4,
-				{1,TX_ACTION_DYNAMITE},
-			},
-
-			{
-				WM_BUTTON27,	// drapeau
-				0, {1,64},
-				170+42*0, 30+52*5,
-				{1,TX_ACTION_DRAPEAU},
-			},
-			{
-				WM_BUTTON11,	// build4 (mine)
-				0, {1,61},
-				170+42*1, 30+52*5,
-				{1,TX_ACTION_BUILD4},
-			},
-			{
-				WM_BUTTON28,	// extrait
-				0, {1,62},
-				170+42*2, 30+52*5,
-				{1,TX_ACTION_EXTRAIT},
-			},
-			{
-				WM_BUTTON12,	// build5 (usine)
-				0, {1,59},
-				170+42*4, 30+52*5,
-				{1,TX_ACTION_BUILD5},
-			},
-			{
-				WM_BUTTON29,	// fabrique jeep
-				0, {1,65},
-				170+42*5, 30+52*5,
-				{1,TX_ACTION_FABJEEP},
-			},
-			{
-				WM_BUTTON30,	// fabrique mine
-				0, {1,63},
-				170+42*6, 30+52*5,
-				{1,TX_ACTION_FABMINE},
-			},
-			{
-				WM_BUTTON34,	// fabrique armure
-				0, {1,106},
-				170+42*7, 30+52*5,
-				{1,TX_ACTION_FABARMURE},
-			},
-			{
-				WM_BUTTON31,	// fabrique disciple
-				0, {1,83},
-				170+42*8, 30+52*5,
-				{1,TX_ACTION_FABDISC},
-			},
-
-//			{
-//				WM_BUTTON13,	// build6
-//				0, {0},
-//				170+42*2, 30+52*5,
-//				{1,TX_ACTION_BUILD6},
-//			},
-			{
-				WM_PHASE_BUILD,
-				0, {1,50},
-				11, 424,
-				{1,TX_BUTTON_TERM},
-			},
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_TERM,
-		"image\\term.blp",
-		TRUE,
-		{
-			{
-				WM_PHASE_BUILD,
-				0, {1,50},
-				11, 424,
-				{1,TX_BUTTON_TERM},
-			},
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_MUSIC,
-		"image16\\music.blp",
-		TRUE,
-		{
-			
-			{
-				WM_PHASE_BUILD,
-				0, {1,50},
-				11, 424,
-				{1,TX_BUTTON_TERM},
-			},
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_REGION,
-		"image16\\region.blp",
-		TRUE,
-		{
-			
-			{
-				WM_PHASE_BUILD,
-				0, {1,50},
-				11, 424,
-				{1,TX_BUTTON_TERM},
-			},
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_PLAYMOVIE,
-		"image\\movie.blp",
-		FALSE,
-		{
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_WINMOVIE,
-		"image\\movie.blp",
-		FALSE,
-		{
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_H0MOVIE,
-		"image\\movie.blp",
-		FALSE,
-		{
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_H1MOVIE,
-		"image\\movie.blp",
-		FALSE,
-		{
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_H2MOVIE,
-		"image\\movie.blp",
-		FALSE,
-		{
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_BYE,
-		"image16\\bye.blp",
-		FALSE,
-		{
-			{
-				0
-			},
-		},
-	},
-
-	{
-		WM_PHASE_INSERT,
-		"image\\insert.blp",
-		FALSE,
-		{
-//?			{
-//?				WM_PHASE_INFO,
-//?				0, {1,48},
-//?				16, 424-42,
-//?				{1,TX_BUTTON_PLAYP},
-//?			},
-			{
-				WM_PHASE_INIT,
-				0, {1,40},
-				16, 424,
-				{1,TX_BUTTON_QUITTER},
-			},
-			{
-				0
-			},
-		},
-	},
-
-	{
-		0
+			WM_PHASE_DPLAY_CANCEL_SERVICE,
+			0,{ 1, IC_BT_DELETE },
+			0x17c, 0x185,
+			{ 1, 0xaf }
+		}
 	}
+		// more...
 };
 
 // Constructor
 
 CEvent::CEvent()
 {
-    int     i;
-	int* menuIndex;
+	int     i;
 
-
-	CMenu(m_menu);
 
 	m_somethingJoystick = 0;
-    m_bFullScreen   = TRUE;
-	m_mouseType     = MOUSETYPEGRA;
-	m_saveIndex		= -1;
-	m_index         = -1;
-	m_exercice      = 0;
-	m_mission       = 1;
-	m_private       = 1;
-	m_maxMission    = 0;
-	m_phase         = 0;
-	m_bSchool       = FALSE;
-	m_bPrivate      = FALSE;
-	m_bAccessBuild  = FALSE;
-	m_bRunMovie     = FALSE;
-	m_bBuildModify  = FALSE;
-	m_bMousePress   = FALSE;
-	m_bMouseDown    = FALSE;
+	m_bFullScreen = TRUE;
+	m_mouseType = MOUSETYPEGRA;
+	m_index = -1;
+	m_exercice = 0;
+	m_mission = 1;
+	m_private = 1;
+	m_maxMission = 0;
+	m_phase = 0;
+	m_bSchool = FALSE;
+	m_bPrivate = FALSE;
+	m_bBuildOfficialMissions = FALSE;
+	m_bRunMovie = FALSE;
+	m_bBuildModify = FALSE;
+	m_bMousePress = FALSE;
+	m_bMouseDown = FALSE;
 	m_oldMousePos.x = 0;
 	m_oldMousePos.y = 0;
-	m_mouseSprite   = 0;
-	m_bFillMouse    = FALSE;
-	m_bWaitMouse    = FALSE;
-	m_bHideMouse    = FALSE;
-	m_bShowMouse    = FALSE;
-	m_tryPhase		= 0;
-	m_rankCheat     = -1;
-	m_posCheat      = 0;
-	m_speed         = 1;
-	m_bMovie        = TRUE;
-	m_bAllMissions  = FALSE;
+	m_mouseSprite = 0;
+	m_bFillMouse = FALSE;
+	m_bWaitMouse = FALSE;
+	m_bHideMouse = FALSE;
+	m_bShowMouse = FALSE;
+	m_tryPhase = 0;
+	m_rankCheat = -1;
+	m_posCheat = 0;
+	m_speed = 1;
+	m_bMovie = TRUE;
+	m_bAllMissions = FALSE;
 	m_bHiliInfoButton = TRUE;
-	m_bSpeed        = FALSE;
-	m_bHelp         = FALSE;
-	m_bChangeCheat  = FALSE;
-	m_scrollSpeed   = 1;
-	m_bPause        = FALSE;
-	m_bShift        = FALSE;
-	m_shiftPhase    = 0;
+	m_bSpeed = FALSE;
+	m_bHelp = FALSE;
+	m_bChangeCheat = FALSE;
+	m_scrollSpeed = 1;
+	m_bPause = FALSE;
+	m_bShift = FALSE;
+	m_shiftPhase = 0;
 	m_movieToStart[0] = 0;
-	m_bInfoHelp     = FALSE;
-	m_bDemoRec      = FALSE;
-	m_bDemoPlay     = FALSE;
-	m_pDemoBuffer   = NULL;
-	m_demoTime      = 0;
-	m_bCtrlDown     = FALSE;
-	m_input			= 0;
+	m_bInfoHelp = FALSE;
+	m_bDemoRec = FALSE;
+	m_bDemoPlay = FALSE;
+	m_pDemoBuffer = NULL;
+	m_demoTime = 0;
+	m_bCtrlDown = FALSE;
+	m_input = 0;
 
-	for (i = 0; i < MAXINDEX; i++)
+	for (i != 0; i = 20; i++)
 	{
 		m_menuIndex = 0;
+		m_menuIndex++;
 	}
 
 	m_menuDecor[10] = 1;
@@ -1312,7 +442,7 @@ CEvent::~CEvent()
 }
 
 void CEvent::Create(HINSTANCE hInstance, HWND hWnd, CPixmap *pPixmap, CDecor *pDecor,
-                    CSound *pSound, CMovie *pMovie, CNetwork *pNetwork)
+                    CSound *pSound, CNetwork *pNetwork, CMovie *pMovie )
 {
     POINT   pos;
 
@@ -1407,7 +537,7 @@ BOOL CEvent::GetEnable(int button)
     return FALSE;
 }
 
-void CEvent::SetEnable(WMessage button, int bEnable)
+void CEvent::SetEnable(int button, int bEnable)
 {
     int      index;
 
@@ -1518,7 +648,7 @@ BOOL CEvent::CreateButtons()
 				bMinimizeRedraw, m_pDecor->GetRegion(), message);
 
 			iconMenu = table[m_index].buttons[i].iconMenu + (m_phase * sizeof(Phase));
-			if (((m_bAccessBuild == FALSE) && (m_phase == WM_PHASE_BUILD)) && (message == 1054))
+			if (((m_bBuildOfficialMissions == FALSE) && (m_phase == WM_PHASE_BUILD)) && (message == 1054))
 			{
 				iconMenu++;
 			}
@@ -1556,7 +686,7 @@ void CEvent::ReadInput()
 	}
 	else
 	{
-		m_pDecor->GetBlupiInfo(bHelicopter, bCar, bSkateboard, bWater);
+		m_pDecor->GetBlupiInfo(&bHelicopter, &bCar, &bSkateboard, &bWater);
 		something = TRUE;
 
 		if (((bHelicopter != FALSE) || (bCar != FALSE)) || (bSkateboard != FALSE))
@@ -1594,17 +724,17 @@ void CEvent::ReadInput()
 			}
 			if (((BYTE)joy.dwButtons & JOY_BUTTON1) != 0)
 			{
-				m_input = m_input & ~(INPUT_DOWN | INPUT_UP) | KEY_JUMP;
+				m_input = m_input & ~(KEY_DOWN | KEY_UP) | KEY_JUMP;
 			}
 			if (((BYTE)joy.dwButtons & JOY_BUTTON2) != 0)
 			{
 				if (bSkateboard == FALSE)
 				{
-					keyInput = m_input & ~INPUT_DOWN | KEY_UP | KEY_JUMP;
+					keyInput = m_input & ~KEY_DOWN | KEY_UP | KEY_JUMP;
 				}
 				else
 				{
-					keyInput = m_input & ~(INPUT_DOWN | INPUT_UP) | KEY_JUMP;
+					keyInput = m_input & ~(KEY_DOWN | KEY_UP) | KEY_JUMP;
 				}
 				m_input = keyInput;
 			}
@@ -1618,7 +748,7 @@ void CEvent::ReadInput()
 					}
 					else
 					{
-						keyInput = m_input & ~(INPUT_DOWN | INPUT_UP) | KEY_JUMP;
+						keyInput = m_input & ~(KEY_DOWN | KEY_UP) | KEY_JUMP;
 					}
 				}
 				else
@@ -1626,11 +756,11 @@ void CEvent::ReadInput()
 					keyInput = m_input | KEY_DOWN;
 				}
 				m_input = keyInput;
-				m_input = keyInput & ~INPUT_UP;
+				m_input = keyInput & ~KEY_UP;
 			}
 			if (((BYTE)joy.dwButtons & JOY_BUTTON4) != 0)
 			{
-				m_input = m_input & ~(INPUT_DOWN | INPUT_UP) | KEY_FIRE;
+				m_input = m_input & ~(KEY_DOWN | KEY_UP) | KEY_FIRE;
 			}
 			m_pDecor->SetInput(m_input);
 			m_pDecor->SetJoystickEnable(TRUE);
@@ -1741,7 +871,7 @@ void CEvent::NetStartPlay()
 	OutputNetDebug(str);
 }
 
-void CEvent::NetSend(NetMessageType message, USHORT data)
+void CEvent::NetSend(int message, USHORT data)
 {
 	UCHAR packet[4];
 
@@ -1796,7 +926,7 @@ void CEvent::ChatSend()
 		pos[133].x = 0;
 		m_textHiliEnd = i - 1;
 		m_textCursorIndex = 0;
-		SetEnable((WMessage)WM_BUTTON20, 0);
+		SetEnable(WM_BUTTON20, 0);
 	}
 	return;
 }
@@ -1922,7 +1052,7 @@ BOOL CEvent::DrawButtons()
         m_bChangeCheat = FALSE;
 
         text[0] = 0;
-		if (m_bAccessBuild != 0)
+		if (m_bBuildOfficialMissions != 0)
 		{
 			AddCheatCode(text, cheat_code[0]);
 		}
@@ -1930,11 +1060,11 @@ BOOL CEvent::DrawButtons()
 		{
 			AddCheatCode(text, cheat_code[1]);
 		}
-        if ( m_pDecor->GetInvincible() )
+        if ( m_pDecor->GetSuperBlupi() )
         {
             AddCheatCode(text, cheat_code[3]);
         }
-		if ( m_pDecor->GetShowSecret() )
+		if ( m_pDecor->GetDrawSecret() )
 		{
 			AddCheatCode(text, cheat_code[11]);
 		}
@@ -1965,7 +1095,7 @@ BOOL CEvent::DrawButtons()
 
 	if (m_phase == WM_PHASE_INIT)
 	{
-		DrawTextB(m_pPixmap, pos, (char*)"Version 2.0", FONTLITTLE);
+		DrawText(m_pPixmap, pos, "Version 2.2", FONTLITTLE);
 	}
 
 	if (m_phase == WM_PHASE_GAMER)
@@ -1982,12 +1112,12 @@ BOOL CEvent::DrawButtons()
 		{
 			pos.y = 69;
 			pos.x = 110;
-			DrawTextB(m_pPixmap, pos, pText, 0);
+			DrawText(m_pPixmap, pos, pText, 0);
 			nice = 69 + 40;
 			*(char*)pText += 100;
 			lg++;
 		} while (lg != 0);
-		SetEnable((WMessage)WM_PHASE_CLEARg, (int)(m_filenameBuffer + -1) + m_gamer * 4 + 212);
+		SetEnable(WM_PHASE_CLEARGAMER, (int)(m_filenameBuffer + -1) + m_gamer * 4 + 212);
 	}
 
 	if (m_phase == WM_PHASE_PLAY && m_phase == WM_PHASE_PLAYTEST && m_phase == WM_PHASE_BUILD)
@@ -2065,17 +1195,17 @@ BOOL CEvent::DrawButtons()
 		pos.y = 26;
 		DrawTextLeft(m_pPixmap, pos, res, FONTRED);
 	}
-	if (m_phase == WM_PHASE_LOST || m_phase == WM_PHASE_LOSTd || m_phase == WM_PHASE_WINm)
+	if (m_phase == WM_PHASE_LOST || m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_WINMULTI)
 	{
 		LoadString(TX_LOST1 + GetWorld() % 5, res, 50);
 		DrawTextLeft(m_pPixmap, pos, res, FONTWHITE);
 	}
-	if (m_phase == WM_PHASE_WIN || m_phase == WM_PHASE_WINd || m_phase == WM_PHASE_LOSTm)
+	if (m_phase == WM_PHASE_WIN || m_phase == WM_PHASE_WINDESIGN || m_phase == WM_PHASE_LOSTMULTI)
 	{
 		LoadString(TX_WIN1 + GetWorld() % 5, res, 50);
 		DrawTextLeft(m_pPixmap, pos, res, FONTWHITE);
 	}
-	if (m_phase == WM_PHASE_READd)
+	if (m_phase == WM_PHASE_READDESIGN)
 	{
 
 	}
@@ -2121,7 +1251,7 @@ BOOL CEvent::DrawButtons()
 	{
 		DrawTextLeft(m_pPixmap, m_posToolTips, m_textToolTips, FONTWHITE);
 	}
-	if (m_phase == WM_PHASE_CLEARg)
+	if (m_phase == WM_PHASE_CLEARGAMER)
 	{
 		LoadString(TX_CHOOSEGAMER, res, 100);
 		lg = GetTextWidth((char*)res, 0);
@@ -2135,7 +1265,7 @@ BOOL CEvent::DrawButtons()
 		lg = GetTextWidth(text, 0);
 		DrawTextLeft(m_pPixmap, pos, res, 0);
 	}
-	if (m_phase == WM_PHASE_CLEARd)
+	if (m_phase == WM_PHASE_CLEARDESIGN)
 	{
 		LoadString(TX_DESIGNMISSION, res, 100);
 		lg = GetTextWidth(res, 0);
@@ -2337,13 +1467,13 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 			{
 				pos.x = 320;
 				pos.y = LYIMAGE / 2;
-				m_pSound->PlayImage(SOUND_3_JUMPEND, pos, -1);
+				m_pSound->PlayImage(SOUND_JUMPEND, pos, -1);
 			}
 			else
 			{
 				pos.x = 320;
 				pos.y = LYIMAGE / 2;
-				m_pSound->PlayImage(SOUND_41_RESSORT, pos, -1);
+				m_pSound->PlayImage(SOUND_RESSORT, pos, -1);
 			}
 			m_rankCheat = -1;
 			m_posCheat = 1;
@@ -2377,16 +1507,16 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 				{
 					if (m_phase != WM_PHASE_SETUP)
 					{
-						if (m_phase != WM_PHASE_NAMEg)
+						if (m_phase != WM_PHASE_NAMEGAMER)
 						{
-							if (m_phase == WM_PHASE_NAMEd)
+							if (m_phase == WM_PHASE_NAMEDESIGN)
 							{
-								m_pDecor->SetGamerName(m_textInput);
+								m_pDecor->SetMissionTitle(m_textInput);
 								ChangePhase(WM_PHASE_INFO);
 								return TRUE;
 							}
-							if ((m_phase == WM_PHASE_INIT) || (m_phase == WM_PHASE_WINm)) ChangePhase(WM_PHASE_GAMER); return TRUE;
-							if ((m_phase == WM_PHASE_BUILD) || ((m_phase == WM_PHASE_LOSTd || m_phase == WM_PHASE_LOST))) ChangePhase(WM_PHASE_INFO); return TRUE;
+							if ((m_phase == WM_PHASE_INIT) || (m_phase == WM_PHASE_WINMULTI)) ChangePhase(WM_PHASE_GAMER); return TRUE;
+							if ((m_phase == WM_PHASE_BUILD) || ((m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_LOST))) ChangePhase(WM_PHASE_INFO); return TRUE;
 							if (((m_phase != WM_PHASE_INFO) && (m_phase != WM_PHASE_STOP)) && (m_phase != WM_PHASE_HELP))
 							{
 								if (m_phase == WM_PHASE_SERVICE)
@@ -2702,11 +1832,6 @@ void CEvent::SetMission(int index)
 	return;
 }
 
-UINT CDecor::GetPhase()
-{
-	return m_phase;
-}
-
 void CEvent::TryInsert()
 {
 	if ( m_tryInsertCount == 0 )
@@ -2791,23 +1916,22 @@ BOOL CEvent::ChangePhase(UINT phase)
 	char  filename[MAX_PATH];
 	char* pButtonExist;
 	BOOL  bEnable, bHide;
-	Term* pTerm;
 	char* playerName;
 
 	sprintf(filename, "CEvent::ChangePhase [Begin] --- % ", phase);
 	OutputNetDebug(filename);
-	if (phase == WM_PHASE_634)
+	if (phase == WM_PHASE_1588)
 	{
 	    PostMessageA(m_hWnd, 16, 0, 0);
 		return TRUE;
 	}
-	m_pDecor->SetSpeedY(m_bDemoPlay);
+	//m_pDecor->SetSpeedY(m_bDemoPlay);
 	if (m_mouseType == MOUSETYPEGRA && m_bFullScreen != 0)
 	{
 		ShowCursor(FALSE);
 		m_bShowMouse = FALSE;
 	}
-	if (phase == WM_PHASE_608)
+	if (phase == WM_PHASE_1544)
 	{
 		//m_pDecor->CurrentRead(999, 1, m_gamer);
 		phase = WM_PHASE_BUILD;
@@ -2866,7 +1990,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 					mission = (mission / 10) * 10;
 				}
 				SetMission(m_mission);
-				m_phase = (WMessage)WM_PHASE_PLAY;
+				m_phase = WM_PHASE_PLAY;
 				
 				return ChangePhase(WM_PHASE_PLAY);
 			}
@@ -2896,11 +2020,6 @@ BOOL CEvent::ChangePhase(UINT phase)
 
 }
 
-UINT CEvent::GetPhase()
-{
-	return m_phase;
-}
-
 // Implement LoadLevel
 
 void CEvent::MovieToStart()
@@ -2920,36 +2039,6 @@ void CEvent::MovieToStart()
 
 		m_movieToStart[0] = 0;
 	}
-}
-
-BOOL CEvent::BuildDown(POINT pos, int fwKeys, BOOL bMix)
-{
-	POINT cel;
-	int	  menu, channel, icon;
-	
-	if (pos.x < POSDRAWX || pos.x > POSDRAWX + DIMDRAWX ||
-		pos.y < POSDRAWY || pos.y > POSDRAWY + DIMDRAWY) return FALSE;
-
-	if (GetState(WM_DECOR1) == 1)
-	{
-		//cel = m_pDecor->ConvPosToCel2(pos);
-		//m_pDecor->BlupiDelete(pos);
-	}
-	if (GetState(WM_DECOR2) == 2)
-	{
-		//cel = m_pDecor->ConvPosToCel2(pos);
-		menu = GetMenu(WM_DECOR2);
-	}
-}
-
-BOOL CEvent::BuildMove(POINT pos, int fwKeys)
-{
-	if (fwKeys & MK_LBUTTON)
-	{
-		BuildDown(pos, fwKeys, FALSE);
-	}
-	//m_pDecor->ConvPosToCel2(pos);
-	return TRUE;
 }
 
 void CEvent::MouseRelease()
@@ -3351,9 +2440,9 @@ BOOL CEvent::WriteInfo(int gamer, char* playername)
 	info.speed = m_speed;
 	info.bMovie = m_bMovie;
 	info.bHiliInfoButton = m_bHiliInfoButton;
-	info.bAccessBuild = m_bAccessBuild;
+	info.bAccessBuild = m_bBuildOfficialMissions;
 
-	m_pDecor->InitalizeDoors(door);
+	m_pDecor->InitializeDoors(door);
 
 	info.audioVolume = m_pSound->GetAudioVolume();
 	info.midiVolume = m_pSound->GetMidiVolume();
@@ -3412,9 +2501,9 @@ BOOL CEvent::ReadInfo(int gamer)
 	info.speed = m_speed;
 	info.bMovie = m_bMovie;
 	info.bHiliInfoButton = m_bHiliInfoButton;
-	info.bAccessBuild = m_bAccessBuild;
+	info.bAccessBuild = m_bBuildOfficialMissions;
 
-	m_pDecor->SetAccessBuild(info.skill);
+	m_pDecor->SetBuildOfficialMissions(info.skill);
 
 	m_pSound->SetAudioVolume(info.audioVolume);
 	m_pSound->SetMidiVolume(info.midiVolume);

@@ -78,7 +78,7 @@ int GetCharWidth(char c, int font)
 
 // Affiche un texte.
 
-void DrawTextB(CPixmap *pPixmap, POINT pos, char *pText, int font)
+void DrawText(CPixmap *pPixmap, POINT pos, char *pText, int font)
 {
 	int		rank;
 
@@ -107,7 +107,7 @@ void DrawTextB(CPixmap *pPixmap, POINT pos, char *pText, int font)
 
 void DrawTextLeft(CPixmap* pPixmap, POINT pos, char *text, int font)
 {
-	DrawTextB(pPixmap, pos, text, font);
+	DrawText(pPixmap, pos, text, font);
 	return;
 }
 
@@ -196,7 +196,7 @@ void DrawTextRect(CPixmap *pPixmap, POINT pos, char *pText,
 
 		if ( pente == 0 )
 		{
-			DrawTextB(pPixmap, pos, pDest, font);
+			DrawText(pPixmap, pos, pDest, font);
 		}
 		else
 		{
@@ -241,7 +241,7 @@ void DrawTextCenter(CPixmap *pPixmap, POINT pos, char *pText, int font)
 		pDest = text;
 		start.x = pos.x - GetTextWidth(pDest)/2;
 		start.y = pos.y;
-		DrawTextB(pPixmap, start, pDest, font);
+		DrawText(pPixmap, start, pDest, font);
 
 		if ( pDest[0] == 0 )  // ligne vide ?
 		{
@@ -310,67 +310,6 @@ int GetTextWidth(char *pText, int font)
 	while ( *pText != 0 )
 	{
 		width += GetCharWidth(*pText++, font);
-	}
-
-	return width;
-}
-
-
-// Retourne la longueur d'un grand chiffre.
-
-void GetBignumInfo(int num, int &start, int &lg)
-{
-	static int table[11] =
-	{
-		0,53,87,133,164,217,253,297,340,382,426
-	};
-
-	start = table[num];
-	lg    = table[num+1]-table[num];
-}
-
-// Affiche un grand nombre.
-
-void DrawBignum(CPixmap *pPixmap, POINT pos, int num)
-{
-	char	string[10];
-	int		i = 0;
-	int		start, lg;
-	RECT	rect;
-
-	sprintf(string, "%d", num);
-
-	rect.top    = 0;
-	rect.bottom = 52;
-	while ( string[i] != 0 )
-	{
-		GetBignumInfo(string[i]-'0', start, lg);
-
-		rect.left  = start;
-		rect.right = start+lg;
-		pPixmap->DrawPart(-1, CHBIGNUM, pos, rect);
-		pos.x += lg+4;
-
-		i ++;
-	}
-}
-
-// Retourne la longueur d'un grand nombre.
-
-int GetBignumWidth(int num)
-{
-	char	string[10];
-	int		i = 0;
-	int		start, lg;
-	int		width = -4;
-
-	sprintf(string, "%d", num);
-
-	while ( string[i] != 0 )
-	{
-		GetBignumInfo(string[i]-'0', start, lg);
-		width += lg+4;
-		i ++;
 	}
 
 	return width;

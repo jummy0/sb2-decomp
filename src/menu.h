@@ -2,10 +2,7 @@
 
 #pragma once
 
-using namespace std;
-
-#include <minwindef.h>
-#include <windef.h>
+// #include <minwindef.h>
 #include "decor.h"
 #include "pixmap.h"
 

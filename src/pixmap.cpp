@@ -311,85 +311,68 @@ BOOL CPixmap::Restore()
 void CPixmap::QuickIcon(int channel, int rank, POINT pos)
 {
 	int num;
-	tagRECT rect;
+	RECT rect;
 
 	if (channel == CHOBJECT)
 	{
-		if (g_objectMax <= rank)
-		{
-			return;
-		}
-		num = rank * 12;
-		rect.left = (LONG)g_object[rank * 6];
-		rect.top = (LONG)g_object[rank * 6 + 1];
-		rect.right = g_object[rank * 6 + 4] + rect.left;
-		rect.bottom = g_object[rank * 6 + 2];
-		pos.x = pos.x + g_object[rank * 6 + 2];
-		num = (int)g_object[rank * 6 + 3];
+		if (g_nbIconPackObject <= rank) return;
+		rect.left = g_iconPackObject[rank].pos.x;
+		rect.top = g_iconPackObject[rank].pos.y;
+		rect.right = rect.left + g_iconPackObject[rank].size.x;
+		rect.bottom = rect.top + g_iconPackObject[rank].size.y;
+		pos.x += g_iconPackObject[rank].offset.x;
+		pos.y += g_iconPackObject[rank].offset.y;
 	}
 	else if (channel == CHELEMENT)
 	{
-		if (g_elementMax <= rank)
-		{
-			return;
-		}
-		num = rank * 12;
-		rect.left = (LONG)g_element[rank * 6];
-		rect.top = (LONG)g_element[rank * 6 + 1];
-		rect.right = g_element[rank * 6 + 4] + rect.left;
-		rect.bottom = g_element[rank * 6 + 5] + rect.top;
-		pos.x = pos.x + g_element[rank * 6 + 2];
-		num = (int)g_element[rank * 6 + 3];
+		if (g_nbIconPackElement <= rank) return;
+		rect.left = g_iconPackElement[rank].pos.x;
+		rect.top = g_iconPackElement[rank].pos.y;
+		rect.right = rect.left + g_iconPackElement[rank].size.x;
+		rect.bottom = rect.top + g_iconPackElement[rank].size.y;
+		pos.x += g_iconPackElement[rank].offset.x;
+		pos.y += g_iconPackElement[rank].offset.y;
 	}
-	else if ((((channel == CHBLUPI) || (channel == CHBLUPI1)) || (channel == CHBLUPI2)) || (channel == CHBLUPI3))
+	else if (IsBlupiChannel(channel))
 	{
-		if (g_blupiMax <= rank)
-		{
-			return;
-		}
-		num = rank * 12;
-		rect.left = (LONG)g_blupiCh[rank * 6];
-		rect.top = (LONG)g_blupiCh[rank * 6 + 1];
-		rect.right = g_blupiCh[rank * 6 + 4] + rect.left;
-		rect.bottom = g_blupiCh[rank * 6 + 5] + rect.top;
-		pos.x = pos.x + g_blupiCh[rank * 6 + 2];
-		num = (int)g_blupiCh[rank * 6 + 3];
+		if (g_nbIconPackBlupi <= rank) return;
+		rect.left = g_iconPackBlupi[rank].pos.x;
+		rect.top = g_iconPackBlupi[rank].pos.y;
+		rect.right = rect.left + g_iconPackBlupi[rank].size.x;
+		rect.bottom = rect.top + g_iconPackBlupi[rank].size.y;
+		pos.x += g_iconPackBlupi[rank].offset.x;
+		pos.y += g_iconPackBlupi[rank].offset.y;
+	}
+	else if (channel == CHEXPLO)
+	{
+		
+		if (g_nbIconPackExplo <= rank) return;
+		rect.left = g_iconPackExplo[rank].pos.x;
+		rect.top = g_iconPackExplo[rank].pos.y;
+		rect.right = rect.left + g_iconPackExplo[rank].size.x;
+		rect.bottom = rect.top + g_iconPackExplo[rank].size.y;
+		pos.x += g_iconPackExplo[rank].offset.x;
+		pos.y += g_iconPackExplo[rank].offset.y;
 	}
 	else
 	{
-		if (channel != CHEXPLO)
-		{
-			rect.right = m_iconDim[channel].x;
-			num = m_totalDim[channel].x / rect.right;
-			rect.bottom = m_iconDim[channel].y;
-			if (rank < 0)
-			{
-				return;
-			}
-			if ((m_totalDim[channel].y / rect.bottom) * num <= rank)
-			{
-				return;
-			}
-			rect.left = (rank % num) * rect.right;
-			rect.right = rect.left + rect.right;
-			rect.top = (rank / num) * rect.bottom;
-			rect.bottom = rect.top + rect.bottom;
-			goto LABEL_1;
-		}
-		if (g_exploMax <= rank)
+		rect.right = m_iconDim[channel].x;
+		num = m_totalDim[channel].x / rect.right;
+		rect.bottom = m_iconDim[channel].y;
+		if (rank < 0)
 		{
 			return;
 		}
-		rect.left = (LONG)g_explo[rank * 6];
-		rect.top = (LONG)g_explo[rank * 6 + 1];
-		rect.right = g_explo[rank * 6 + 4] + rect.left;
-		rect.bottom = g_explo[rank * 6 + 5] + rect.top;
-		pos.x = pos.x + g_explo[rank * 6 + 2];
-		num = (int)g_explo[rank * 6 + 3];
+		if ((m_totalDim[channel].y / rect.bottom) * num <= rank)
+		{
+			return;
+		}
+		rect.left = (rank % num) * rect.right;
+		rect.right = rect.left + rect.right;
+		rect.top = (rank / num) * rect.bottom;
+		rect.bottom = rect.top + rect.bottom;
 	}
-	pos.y = pos.y + num;
 
-LABEL_1:
 	num = m_clipRect.left;
 	if (pos.x < num)
 	{
@@ -1139,12 +1122,12 @@ BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor,
 
 int CPixmap::Benchmark()
 {
-	struct _timeb tstruct;
+	timeb tstruct;
 	int        i, j, t1, t2, time;
 	RECT    rect;
 	POINT    dest;
 
-	_ftime(&tstruct);
+	ftime(&tstruct);
 	t1 = tstruct.millitm;
 
 	for (j = 0; j < 10; j++)
@@ -1165,7 +1148,7 @@ int CPixmap::Benchmark()
 		}
 	}
 
-	_ftime(&tstruct);
+	ftime(&tstruct);
 	t2 = tstruct.millitm;
 
 	if (t1 > t2)  t2 += 1000;
@@ -1231,7 +1214,7 @@ void CPixmap::SetClipping(RECT clip)
 
 // Retourne la r�gion de clipping.
 
-RECT CPixmap::GetClipping(RECT* rect)
+RECT CPixmap::GetClipping()
 {
 	return m_clipRect;
 }
@@ -1256,7 +1239,7 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 
 	if (channel == CHOBJECT)
 	{
-		if (g_objectMax <= rank)
+		if (g_nbIconPackObject <= rank)
 		{
 			return FALSE;
 		}
@@ -1264,16 +1247,13 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 	}
 	else if (channel == CHELEMENT)
 	{
-		if (g_elementMax <= rank) {
+		if (g_nbIconPackElement <= rank) {
 			return FALSE;
 		}
 	}
-	else if (channel == CHBLUPI ||
-		channel == CHBLUPI1 ||
-		channel == CHBLUPI2 ||
-		channel == CHBLUPI3)
+	else if (IsBlupiChannel(channel))
 	{
-		if (g_blupiMax <= rank)
+		if (g_nbIconPackBlupi <= rank)
 		{
 			return FALSE;
 		}
@@ -1292,7 +1272,7 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 			if (rank < 0 || rank >= nbx * nby) return FALSE;
 		}
 	}
-	if (g_exploMax <= rank) return FALSE;
+	if (g_nbIconPackExplo <= rank) return FALSE;
 
 	if ( channel < 0 || channel >= MAXIMAGE )  return FALSE;
 	if (  m_lpDDSurface[channel] == NULL )     return FALSE;
@@ -1958,3 +1938,7 @@ void CPixmap::MouseHotSpot()
 }
 
 
+static inline BOOL IsBlupiChannel(int channel)
+{
+	return channel == CHBLUPI || channel == CHBLUPI1 || channel == CHBLUPI2 || channel == CHBLUPI3;
+}
