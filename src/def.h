@@ -1177,17 +1177,6 @@ namespace Object {
 #define CLE_GREEN (1 << 1)
 #define CLE_BLUE (1 << 2)
 
-typedef struct {
-	short x;
-	short y;
-} ShortPOINT;
-
-typedef struct {
-	ShortPOINT pos;
-	ShortPOINT offset;
-	ShortPOINT size;
-} IconPack;
-
 // helpers for POINT
 
 POINT operator+(POINT p, const POINT& a)

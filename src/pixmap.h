@@ -123,6 +123,7 @@ protected:
     POINT                  m_totalDim[MAXIMAGE];
     POINT                  m_iconDim[MAXIMAGE];
     DDBLTFX                m_DDbltfx;
+
 };
 
 static inline BOOL IsBlupiChannel(int channel);

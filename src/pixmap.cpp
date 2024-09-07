@@ -11,9 +11,8 @@
 #include "pixmap.h"
 #include "misc.h"
 #include "ddutil.h"
-#include "blupi.cpp"
+#include "pixtables.h"
 
-#pragma comment(lib, "ddraw.lib")
 #define DIRECTDRAW_VERSION 0x0500
 
 
@@ -315,44 +314,43 @@ void CPixmap::QuickIcon(int channel, int rank, POINT pos)
 
 	if (channel == CHOBJECT)
 	{
-		if (g_nbIconPackObject <= rank) return;
-		rect.left = g_iconPackObject[rank].pos.x;
-		rect.top = g_iconPackObject[rank].pos.y;
-		rect.right = rect.left + g_iconPackObject[rank].size.x;
-		rect.bottom = rect.top + g_iconPackObject[rank].size.y;
-		pos.x += g_iconPackObject[rank].offset.x;
-		pos.y += g_iconPackObject[rank].offset.y;
+		if (table_icon_object[0] <= rank) return;
+		rect.left = table_icon_object[rank * 6 + 0];
+		rect.top = table_icon_object[rank * 6 + 1];
+		rect.right = rect.left + table_icon_object[rank * 6 + 4];
+		rect.bottom = rect.top + table_icon_object[rank * 6 + 5];
+		pos.x += table_icon_object[rank * 6 + 2];
+		pos.y += table_icon_object[rank * 6 + 3];
 	}
 	else if (channel == CHELEMENT)
 	{
-		if (g_nbIconPackElement <= rank) return;
-		rect.left = g_iconPackElement[rank].pos.x;
-		rect.top = g_iconPackElement[rank].pos.y;
-		rect.right = rect.left + g_iconPackElement[rank].size.x;
-		rect.bottom = rect.top + g_iconPackElement[rank].size.y;
-		pos.x += g_iconPackElement[rank].offset.x;
-		pos.y += g_iconPackElement[rank].offset.y;
+		if (table_icon_element[0] <= rank) return;
+		rect.left = table_icon_element[rank * 6 + 0];
+		rect.top = table_icon_element[rank * 6 + 1];
+		rect.right = rect.left + table_icon_element[rank * 6 + 4];
+		rect.bottom = rect.top + table_icon_element[rank * 6 + 5];
+		pos.x += table_icon_element[rank * 6 + 2];
+		pos.y += table_icon_element[rank * 6 + 3];
 	}
 	else if (IsBlupiChannel(channel))
 	{
-		if (g_nbIconPackBlupi <= rank) return;
-		rect.left = g_iconPackBlupi[rank].pos.x;
-		rect.top = g_iconPackBlupi[rank].pos.y;
-		rect.right = rect.left + g_iconPackBlupi[rank].size.x;
-		rect.bottom = rect.top + g_iconPackBlupi[rank].size.y;
-		pos.x += g_iconPackBlupi[rank].offset.x;
-		pos.y += g_iconPackBlupi[rank].offset.y;
+		if (table_icon_blupi[0] <= rank) return;
+		rect.left = table_icon_blupi[rank * 6 + 0];
+		rect.top = table_icon_blupi[rank * 6 + 1];
+		rect.right = rect.left + table_icon_blupi[rank * 6 + 4];
+		rect.bottom = rect.top + table_icon_blupi[rank * 6 + 5];
+		pos.x += table_icon_blupi[rank * 6 + 2];
+		pos.y += table_icon_blupi[rank * 6 + 3];
 	}
 	else if (channel == CHEXPLO)
 	{
-		
-		if (g_nbIconPackExplo <= rank) return;
-		rect.left = g_iconPackExplo[rank].pos.x;
-		rect.top = g_iconPackExplo[rank].pos.y;
-		rect.right = rect.left + g_iconPackExplo[rank].size.x;
-		rect.bottom = rect.top + g_iconPackExplo[rank].size.y;
-		pos.x += g_iconPackExplo[rank].offset.x;
-		pos.y += g_iconPackExplo[rank].offset.y;
+		if (table_icon_explo[0] <= rank) return;
+		rect.left = table_icon_explo[rank * 6 + 0];
+		rect.top = table_icon_explo[rank * 6 + 1];
+		rect.right = rect.left + table_icon_explo[rank * 6 + 4];
+		rect.bottom = rect.top + table_icon_explo[rank * 6 + 5];
+		pos.x += table_icon_explo[rank * 6 + 2];
+		pos.y += table_icon_explo[rank * 6 + 3];
 	}
 	else
 	{
@@ -1239,7 +1237,7 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 
 	if (channel == CHOBJECT)
 	{
-		if (g_nbIconPackObject <= rank)
+		if (table_icon_object[0] <= rank)
 		{
 			return FALSE;
 		}
@@ -1247,13 +1245,13 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 	}
 	else if (channel == CHELEMENT)
 	{
-		if (g_nbIconPackElement <= rank) {
+		if (table_icon_element[0] <= rank) {
 			return FALSE;
 		}
 	}
 	else if (IsBlupiChannel(channel))
 	{
-		if (g_nbIconPackBlupi <= rank)
+		if (table_icon_blupi[0] <= rank)
 		{
 			return FALSE;
 		}
@@ -1272,7 +1270,7 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 			if (rank < 0 || rank >= nbx * nby) return FALSE;
 		}
 	}
-	if (g_nbIconPackExplo <= rank) return FALSE;
+	if (table_icon_explo[0] <= rank) return FALSE;
 
 	if ( channel < 0 || channel >= MAXIMAGE )  return FALSE;
 	if (  m_lpDDSurface[channel] == NULL )     return FALSE;

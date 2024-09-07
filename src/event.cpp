@@ -417,11 +417,10 @@ CEvent::CEvent()
 	m_demoTime = 0;
 	m_bCtrlDown = FALSE;
 	m_input = 0;
-
-	for (i != 0; i = 20; i++)
+	m_menuIndex = 0;
+	for (i = 0; i < 20; i++)
 	{
-		m_menuIndex = 0;
-		m_menuIndex++;
+		m_menuDecor[i] = 0;
 	}
 
 	m_menuDecor[10] = 1;
@@ -1565,7 +1564,7 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		if (EventButtons(message, wParam, lParam)) return TRUE;
 		if (m_phase == WM_PHASE_BUILD)
 		{
-			if (BuildDown(pos, fwKeys)) return TRUE;
+			//if (BuildDown(pos, fwKeys)) return TRUE;
 		}
 		if (m_phase == WM_PHASE_PLAY)
 		{
@@ -1832,6 +1831,11 @@ void CEvent::SetMission(int index)
 	return;
 }
 
+UINT CEvent::GetPhase()
+{
+	return m_phase;
+}
+
 void CEvent::TryInsert()
 {
 	if ( m_tryInsertCount == 0 )
@@ -1918,26 +1922,25 @@ BOOL CEvent::ChangePhase(UINT phase)
 	BOOL  bEnable, bHide;
 	char* playerName;
 
-	sprintf(filename, "CEvent::ChangePhase [Begin] --- % ", phase);
+	sprintf(filename, "CEvent::ChangePhase [Begin] --- %d\r\n", phase - WM_USER);
 	OutputNetDebug(filename);
 	if (phase == WM_PHASE_1588)
 	{
-	    PostMessageA(m_hWnd, 16, 0, 0);
+	    PostMessage(m_hWnd, WM_CLOSE, 0, 0);
 		return TRUE;
 	}
-	//m_pDecor->SetSpeedY(m_bDemoPlay);
-	if (m_mouseType == MOUSETYPEGRA && m_bFullScreen != 0)
+	m_pDecor->SetFieldD814(m_bDemoPlay);
+	if (m_mouseType == MOUSETYPEGRA && m_bFullScreen)
 	{
-		ShowCursor(FALSE);
 		m_bShowMouse = FALSE;
 	}
 	if (phase == WM_PHASE_1544)
 	{
-		//m_pDecor->CurrentRead(999, 1, m_gamer);
+		m_pDecor->CurrentRead(m_gamer, 999, TRUE);
 		phase = WM_PHASE_BUILD;
 	}
 
-	if (m_bDemoPlay == 0 &&
+	if (!m_bDemoPlay &&
 		phase == WM_PHASE_PLAY ||
 		m_phase == WM_PHASE_PLAY ||
 		phase == WM_PHASE_STOP ||
@@ -1952,7 +1955,8 @@ BOOL CEvent::ChangePhase(UINT phase)
 
 	m_textToolTips[0] = 0;
 	m_posToolTips.x = -1;
-	m_bPause = FALSE;
+	m_pDecor->SetPause(FALSE);
+	m_bHili = FALSE;
 	m_bCtrlDown = FALSE;
 	m_bMouseDown = FALSE;
 	m_bInfoHelp = FALSE;
@@ -1964,9 +1968,9 @@ BOOL CEvent::ChangePhase(UINT phase)
 	}
 	if (phase == WM_PHASE_PLAY)
 	{
-		if (((m_bDemoPlay == FALSE) && (mission = GetWorld(), 299 < mission)) && (mission = GetWorld(), mission < LXIMAGE / 2))
+		if (!m_bDemoPlay && GetWorld() > 299 && GetWorld() < 320)
 		{
-		DemoRecStart();
+			DemoRecStart();
 		}
 	}
 	else
@@ -1976,30 +1980,32 @@ BOOL CEvent::ChangePhase(UINT phase)
 
 	if (phase == WM_PHASE_DOQUIT)
 	{
-		if (m_bPrivate == FALSE)
+		if (!m_bPrivate)
 		{
-			mission = m_mission;
-			if (mission != 1)
+			if (!m_bMulti)
 			{
-				if (mission == 99 || mission % 10 == 0)
+				mission = m_mission;
+				if (mission != 1)
 				{
-					mission = 1;
+					if (mission == 99 || mission % 10 == 0)
+					{
+						mission = 1;
+					}
+					else
+					{
+						mission = (mission / 10) * 10;
+					}
+					SetMission(mission);
+					m_phase = WM_PHASE_PLAY;
+
+					return ChangePhase(WM_PHASE_PLAY);
 				}
-				else
-				{
-					mission = (mission / 10) * 10;
-				}
-				SetMission(m_mission);
-				m_phase = WM_PHASE_PLAY;
-				
-				return ChangePhase(WM_PHASE_PLAY);
 			}
-			return ChangePhase(WM_PHASE_GAMER);
 		}
-	}
-	else if (m_bMulti == 0)
-	{
-		return ChangePhase(WM_PHASE_INFO);
+		else if (!m_bMulti)
+		{
+			return ChangePhase(WM_PHASE_INFO);
+		}
 	}
 
 	CreateButtons();
@@ -2165,6 +2171,11 @@ void CEvent::StopMovie()
 BOOL CEvent::IsMovie()
 {
 	return m_bRunMovie;
+}
+
+BOOL CEvent::IsMouseRelease()
+{
+	return m_bMouseRelease;
 }
 
 BOOL CEvent::ReadLibelle(int world, BOOL bSchool, BOOL bHelp)

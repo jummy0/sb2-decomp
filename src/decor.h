@@ -220,7 +220,7 @@ public:
 	void	MoveObjectStepIcon(int i);
 	void	DynamiteStart(int i, int dx, int dy);
 	int		AscenseurDetect(RECT rect, POINT oldpos, POINT newpos);
-	void		AscenseurVertigo(int i, BOOL *pbVertigoLeft, BOOL *pbVertigoRight);
+	void	AscenseurVertigo(int i, BOOL *pbVertigoLeft, BOOL *pbVertigoRight);
 	BOOL	AscenseurShift(int i);
 	void	AscenseurSynchro(int i);
 	void	UpdateCaisse();
@@ -282,6 +282,8 @@ public:
 	void	OpenGoldsWin();
 	void	DoorsLost();
 
+	inline BOOL IsValidCel(POINT cel);
+	inline void MoveObjectCopy(MoveObject src, MoveObject dest);
 	inline void StopVehicleSound();
 
 protected:
@@ -430,6 +432,22 @@ protected:
 
 POINT GetCel(int x, int y);
 POINT GetCel(POINT cel, int x, int y);
-inline BOOL IsValidCel(POINT cel);
-inline void MoveObjectCopy(MoveObject src, MoveObject dest);
 POINT GetVector(int direct);
+
+inline BOOL CDecor::IsValidCel(POINT cel)
+{
+	return cel.x >= 0 && cel.x < MAXCELX && cel.y >= 0 && cel.y < MAXCELY;
+}
+
+inline void CDecor::MoveObjectCopy(MoveObject src, MoveObject dest)
+{
+	memcpy(&dest, &src, sizeof(dest));
+}
+
+inline void CDecor::StopVehicleSound()
+{
+	StopSound(SOUND_HELICOHIGH);
+	StopSound(SOUND_HELICOLOW);
+	StopSound(SOUND_JEEPHIGH);
+	StopSound(SOUND_JEEPLOW);
+}

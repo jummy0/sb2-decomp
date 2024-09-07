@@ -8,7 +8,6 @@
 
 #define MAXSESSION 100
 #define MAXPLAYERS 4
-#define _CRT_SECURE_NO_WARNINGS_GLOBALS
 
 typedef struct
 {

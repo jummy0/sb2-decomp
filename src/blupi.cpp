@@ -5,8 +5,6 @@
 
 #pragma once
 
-#pragma comment(lib, "winmm.lib")
-
 #include <windows.h>
 #include <windowsx.h>
 #include <stdlib.h>
@@ -14,7 +12,6 @@
 #include <mmsystem.h>
 #include <time.h>
 #include <sys/timeb.h>
-// #include <mmiscapi2.h>
 #include <WinBase.h>
 #include "def.h"
 #include "resource.h"
@@ -62,20 +59,12 @@ int 		g_benchmark;
 BOOL 		g_bBenchmarkSuccess;
 BOOL 		g_bTrueColorBack;
 BOOL 		g_bTrueColorDecor;
-BOOL		g_bCDAudio;
+BOOL		g_bCDAudio = FALSE;
 int			g_something;
 MMRESULT    g_updateTimer;			// timer général
 BOOL		g_bActive = TRUE;		// is application active ?
 BOOL		g_bTermInit = FALSE;	// initialisation en cours
 int			g_timer;
-int			g_nbIconPackObject;
-int			g_nbIconPackElement;
-int			g_nbIconPackBlupi;
-int			g_nbIconPackExplo;
-IconPack	g_iconPackObject[];
-IconPack	g_iconPackElement[];
-IconPack	g_iconPackBlupi[];
-IconPack	g_iconPackExplo[];
 
 UINT		g_lastPhase = 999;
 
@@ -687,7 +676,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	// Create a window.
 	if (g_bFullScreen)
 	{
-		g_hWnd = CreateWindowExA
+		g_hWnd = CreateWindowEx
 		(
 			WS_EX_TOPMOST,
 			NAME,
@@ -715,7 +704,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 		AdjustWindowRect(&WindowRect, WS_POPUPWINDOW | WS_CAPTION, TRUE);
 		WindowRect.top += GetSystemMetrics(SM_CYCAPTION);
 
-		g_hWnd = CreateWindowA
+		g_hWnd = CreateWindow
 		(
 			NAME,
 			TITLE,
@@ -772,9 +761,6 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	g_pSound->SetState(TRUE);
 	g_pSound->SetCDAudio(g_bCDAudio);
 
-	g_pNetwork = new CNetwork;
-	if (g_pNetwork == NULL) return InitFail("New network", TRUE);
-
 	g_pMovie = new CMovie;
 	if (g_pMovie == NULL) return InitFail("New movie", FALSE);
 
@@ -791,6 +777,11 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	g_pEvent->Create(hInstance, g_hWnd, g_pPixmap, g_pDecor, g_pSound, g_pNetwork, g_pMovie);
 	g_pEvent->SetFullScreen(g_bFullScreen);
 	g_pEvent->SetMouseType(g_mouseType);
+
+	g_pNetwork = new CNetwork;
+	if (g_pNetwork == NULL) return InitFail("New network", TRUE);
+	g_pNetwork->CreateProvider(0);
+
 #if _INTRO
 	g_pEvent->ChangePhase(WM_PHASE_INTRO1);
 #else

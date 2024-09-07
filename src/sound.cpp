@@ -3,14 +3,10 @@
 
 #include <dsound.h>
 #include <stdio.h>
-//#include <mciapi.h>
 #include "sound.h"
 #include "misc.h"
 #include "def.h"
 #include "resource.h"
-
-#pragma warning (disable : 4996)
-#pragma comment(lib, "dsound.lib")
 
 using namespace std;
 
@@ -683,3 +679,7 @@ void CSound::SetSuspendSkip(int nb)
 	m_nbSuspendSkip = nb;
 }
 
+void CSound::SetCDAudio(BOOL bCDAudio)
+{
+	m_bCDAudio = bCDAudio;
+}

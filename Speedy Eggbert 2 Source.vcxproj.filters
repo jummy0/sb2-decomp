@@ -127,62 +127,65 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\button.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ddutil.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\decor.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\dectables.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\def.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\event.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\jauge.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\menu.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\misc.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\movie.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\network.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\pixmap.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\sound.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\text.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\texttables.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="src\wave.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\resource.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\resource1.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="src\dectables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\decor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\def.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\event.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\jauge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\menu.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\misc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\movie.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\network.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\obstacle.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pixmap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\resource1.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\sound.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\texttables.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\text.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\wave.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ddutil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\pixtables.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

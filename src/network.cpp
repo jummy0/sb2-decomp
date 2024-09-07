@@ -50,8 +50,11 @@ BOOL CNetwork::EnumProviders()
 	*m_providers.list = (NamedGUID*)malloc(MAXSESSION * sizeof(NamedGUID));
 
 	if (!m_providers.list) return FALSE;
-
+#ifdef _UNICODE
+	if (DirectPlayEnumerate((LPDPENUMDPCALLBACK)EnumProvidersCallback, &m_providers) != DP_OK)
+#else
 	if (DirectPlayEnumerate((LPDPENUMDPCALLBACKA)EnumProvidersCallback, &m_providers) != DP_OK)
+#endif
 	{
 		FreeProviderList();
 		return FALSE;

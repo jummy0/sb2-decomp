@@ -89,21 +89,20 @@ int Random(int min, int max)
     return (int)n;
 }
 
-/*
+
 BOOL IntersectRect(RECT dst, RECT src1, RECT src2)
 {
     dst.left = max(src1.left, src2.left);
     dst.right = min(src1.right, src2.right);
     dst.top = max(src1.top, src2.top);
     dst.bottom = min(src1.bottom, src2.bottom);
-    return IsRectEmpty(dst);
+    return IsRectEmpty(&dst);
 }
 
 BOOL IsRectEmpty(RECT rect)
 {
     return rect.left >= rect.right || rect.top >= rect.bottom;
 }
-*/
 
 void GetCurrentDir(char *pName, int lg)
 {
