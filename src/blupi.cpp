@@ -52,7 +52,7 @@ CPixmap*	g_pPixmap = NULL;		// pixmap principal
 CSound*		g_pSound = NULL;		// sound principal
 CMovie*		g_pMovie = NULL;		// movie principal
 CDecor*		g_pDecor = NULL;
-CNetwork*   g_pNetwork;
+CNetwork*   g_pNetwork = NULL;
 char		g_CDPath[MAX_PATH];		// chemin d'accès au CD-Rom
 BOOL		g_bFullScreen = FALSE;	// FALSE si mode de test
 int			g_speedRate = 1;
