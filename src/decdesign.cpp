@@ -370,6 +370,7 @@ void CDecor::PlaceItemFromMenu6(POINT cel, int index, BYTE flags, int currentIco
 	case 10: // Moving bomb
 	case 11: // Heliported ennemy
 	case 12: // Motorized ennemy
+		break;
 	}
 }
 
@@ -604,6 +605,7 @@ void CDecor::PlaceItemFromMenu8(POINT cel, int index, BYTE flags, int currentIco
 	case 7: // Fragile bridge
 	case 8: // Wooden case
 	case 9: // Secret wooden case
+		break;
 	}
 }
 
@@ -621,6 +623,7 @@ void CDecor::PlaceItemFromMenu9(POINT cel, int index, BYTE flags, int currentIco
 	case 2: // Skateboard
 	case 3: // Jeep
 	case 4: // Glue tank
+		break;
 	}
 }
 
@@ -641,6 +644,7 @@ void CDecor::PlaceItemFromMenu10(POINT cel, int index, BYTE flags, int currentIc
 	case 5: // Door
 	case 6: // Level start
 	case 7: // Key
+		break;
 	}
 }
 

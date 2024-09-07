@@ -27,6 +27,11 @@ inline BOOL IsValidCel(POINT cel)
 	return cel.x >= 0 && cel.x < MAXCELX && cel.y >= 0 && cel.y < MAXCELY;
 }
 
+inline void MoveObjectCopy(MoveObject src, MoveObject dest)
+{
+	memcpy(&dest, &src, sizeof(dest));
+}
+
 inline void CDecor::StopVehicleSound()
 {
 	StopSound(SOUND_HELICOHIGH);

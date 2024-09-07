@@ -213,10 +213,11 @@ public:
 	int		SearchDistRight(POINT pos, POINT dir, int type);
 	void	StartSploutchGlu(POINT pos);
 	BOOL	ObjectStart(POINT pos, int type, int speed);
+	BOOL	ObjectStart(POINT pos, int type, int speed, BOOL bMulti);
 	BOOL	ObjectDelete(POINT pos, int type);
 	void	MoveObjectStep();
 	void	MoveObjectStepLine(int i);
-	void*	MoveObjectStepIcon(int i);
+	void	MoveObjectStepIcon(int i);
 	void	DynamiteStart(int i, int dx, int dy);
 	int		AscenseurDetect(RECT rect, POINT oldpos, POINT newpos);
 	void		AscenseurVertigo(int i, BOOL *pbVertigoLeft, BOOL *pbVertigoRight);
@@ -430,4 +431,5 @@ protected:
 POINT GetCel(int x, int y);
 POINT GetCel(POINT cel, int x, int y);
 inline BOOL IsValidCel(POINT cel);
+inline void MoveObjectCopy(MoveObject src, MoveObject dest);
 POINT GetVector(int direct);
