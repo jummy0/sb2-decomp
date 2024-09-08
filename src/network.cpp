@@ -94,7 +94,7 @@ BOOL CNetwork::CreateProvider(int index)
 
 void CNetwork::FreeProviderList()
 {
-	if (m_providers.list) free(m_providers.list);
+	if (m_providers.list) free(m_providers.list); // wrong
 
 	m_providers.nb = 0;
 	*m_providers.list = NULL;

@@ -27,7 +27,7 @@ CPixmap::CPixmap()
 	
 	m_bFullScreen  = FALSE;
 	m_bBenchmarkSuccess = TRUE;
-	m_bTrueColor   = FALSE;
+	m_bTrueColorBack   = FALSE;
 	m_bTrueColorDecor = FALSE;
 	m_mouseType    = MOUSETYPEGRA;
 	m_bDebug       = TRUE;
@@ -155,7 +155,7 @@ BOOL CPixmap::Create(HWND hwnd, POINT dim,
 	m_mouseType   = mouseType;
 	m_dim         = dim;
 	m_bTrueColorDecor = bTrueColorDecor;
-	m_bTrueColor = bTrueColor;
+	m_bTrueColorBack = bTrueColor;
 
 	if ( m_mouseType == MOUSETYPEGRA )
 	{
@@ -433,7 +433,7 @@ BOOL CPixmap::InitSysPalette()
 
 BOOL CPixmap::GetTrueColor()
 {
-	return m_bTrueColor;
+	return m_bTrueColorBack;
 }
 
 void CPixmap::SetBenchmarkSuccess(BOOL bSuccess)
@@ -443,7 +443,7 @@ void CPixmap::SetBenchmarkSuccess(BOOL bSuccess)
 
 void CPixmap::SetTrueColor(BOOL bTrueColor)
 {
-	m_bTrueColor = bTrueColor;
+	m_bTrueColorBack = bTrueColor;
 }
 
 void CPixmap::SetTrueColorDecor(BOOL bTrueColorDecor)
@@ -821,7 +821,7 @@ BOOL CPixmap::Cache2(int channel, LPCSTR pFilename, POINT totalDim, POINT iconDi
 		if ( m_bDebug ) OutputDebug("Use Palette\n");
 		if (m_lpDDPal != NULL)
 		{
-			if ( m_bDebug ) OutputDebug("Release palette");
+			if ( m_bDebug ) OutputDebug("Release palette\n");
 			m_lpDDPal->Release();
 			m_lpDDPal = NULL;
 		}
@@ -898,27 +898,17 @@ BOOL CPixmap::BackgroundCache(int channel, const char* pFilename, POINT totalDim
 		strstr(pFilename, "element") != pFilename &&
 		strstr(pFilename, "explo") != pFilename &&
 		strstr(pFilename, "object") != pFilename;
-	if ( bUsePalette )
+	if (!bUsePalette && (!decor || m_bTrueColorBack))
 	{
-		goto LABEL1;
-	}
-	if (decor)
-	{
-		if (m_bTrueColor == FALSE)
+		strcpy(file, "image16\\");
+		strcat(file, pFilename);
+		if (Cache2(channel, file, totalDim, iconDim, FALSE))
 		{
-			if (decor) goto LABEL1;
-			if (m_bTrueColorDecor == FALSE) goto LABEL1;
+			return TRUE;
 		}
 	}
-	strcpy(file, "image16\\");
-	strcat(file, pFilename);
-	if (Cache2(channel, file, totalDim, iconDim, FALSE) != FALSE)
-	{
-		return TRUE;
-	}
-LABEL1:
 	strcpy(file, "image08\\");
-	strcat(file, (char*)pFilename);
+	strcat(file, pFilename);
 	return Cache2(channel, file, totalDim, iconDim, bUsePalette);
 }
 
@@ -946,7 +936,7 @@ BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor,
 		delete this;
 		hWnd = m_hWnd;
 		bFullScreen = m_bFullScreen;
-		bTrueColor = m_bTrueColor;
+		bTrueColor = m_bTrueColorBack;
 		bTrueColorDecor = m_bTrueColorDecor;
 		mouseType = m_mouseType;
 	}

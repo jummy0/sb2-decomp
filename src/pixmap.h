@@ -87,7 +87,7 @@ protected:
 protected:
     BOOL                   m_bFullScreen;
     BOOL                   m_bBenchmarkSuccess;
-    BOOL                   m_bTrueColor;
+    BOOL                   m_bTrueColorBack;
     BOOL                   m_bTrueColorDecor;
     BOOL                   m_field5_0x14; //Need to figure out
     BOOL                   m_field5_0x18; //Need to figure out

@@ -602,18 +602,13 @@ void CEvent::FlushInput()
 
 BOOL CEvent::CreateButtons()
 {
-	int		i = 0, message, num = 0, size;
-	int		num3 = 0; 
+	int		message;
 	int*	iconMenu;
-	POINT	pos, toolTips;
+	POINT	pos;
 	BOOL	bMinimizeRedraw = FALSE;
-	CButton* button;
-
-	size = m_phase * sizeof(Phase);
-	button = m_buttons;
 
 	
-	while (table[m_index].buttons[i].message != 0)
+	for (int i = 0; table[m_index].buttons[i].message != 0; i++)
 	{
 		pos.x = table[m_index].buttons[i].x;
 		pos.y = table[m_index].buttons[i].y;
@@ -628,10 +623,9 @@ BOOL CEvent::CreateButtons()
 		{
 			iconMenu++;
 		}
-		m_buttons->SetIconMenu(table[m_index].buttons[i].iconMenu + 1, iconMenu[0]);
-		m_buttons->SetToolTips(table[m_index].buttons[i].toolTips + 1, table[m_index].buttons[i].toolTips[0]);
-		
-		i++;
+
+		m_buttons[i].SetIconMenu(&table[m_index].buttons[i].iconMenu[1], iconMenu[0]);
+		m_buttons[i].SetToolTips(&table[m_index].buttons[i].toolTips[1], table[m_index].buttons[i].toolTips[0]);
 	}
 	return TRUE;
 }
@@ -1072,6 +1066,11 @@ BOOL CEvent::DrawButtons()
 	if (m_phase == WM_PHASE_INIT)
 	{
 		DrawText(m_pPixmap, { 414, 446 }, "Version 2.2", FONTLITTLE);
+	}
+	
+	for (int i = 0; table[m_index].buttons[i].message != 0; i++)
+	{
+		m_buttons[i].Draw();
 	}
 
 	if (m_phase == WM_PHASE_GAMER)
