@@ -368,7 +368,7 @@ void CDecor::MoveStep()
 
 	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST) {
 		BlupiStep();
-		NetFUN_15d50();
+		NetAdjustToLift();
 		NotifStep();
 	}
 

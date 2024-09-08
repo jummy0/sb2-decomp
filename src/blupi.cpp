@@ -38,7 +38,7 @@
 #define TITLE		"Blupi"
 #endif
 
-#define MMTIMER     TRUE
+#define MMTIMER     FALSE
 #define THREAD		FALSE
 
 // Variables Globals
@@ -438,6 +438,10 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 	if (g_pEvent != NULL &&
 		g_pEvent->TreatEvent(message, wParam, lParam)) return 0;
 
+	char buf[25]; // DEBUG
+	sprintf(buf, "%d\n", message);
+	OutputDebug(buf);
+
 	switch (message)
 	{
 	case WM_TIMER:
@@ -584,14 +588,17 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 	return DefWindowProc(hWnd, message, wParam, lParam);
 }
 
-LPTIMECALLBACK TimerStep()
+void CALLBACK TimerStep(UINT wTimerID, UINT msg,
+	DWORD dwUser, DWORD dw1, DWORD dw2)
 {
+	char buf[20];
+	sprintf(buf, "%d", wTimerID);
+	OutputDebug(buf);
 	if (g_bActive && g_timer == 0)
 	{
 		g_timer = 1;
-		PostMessageA(g_hWnd, WM_UPDATE, 0, 0);
+		PostMessage(g_hWnd, WM_UPDATE, 0, 0);
 	}
-	return NULL;
 }
 
 // Erreur dans DoInit.
@@ -806,7 +813,7 @@ int WINAPI WinMain (HINSTANCE hInstance, HINSTANCE hPrevInstance,
 	Benchmark();
 	
 #if MMTIMER
-	g_updateTimer = timeSetEvent(g_timerInterval, g_timerInterval / 4, TimerStep(), NULL, TIME_PERIODIC);
+	g_updateTimer = timeSetEvent(g_timerInterval, g_timerInterval / 4, TimerStep, NULL, TIME_PERIODIC);
 #else
 	SetTimer(g_hWnd, 1, g_timerInterval, NULL);
 #endif

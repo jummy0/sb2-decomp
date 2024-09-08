@@ -118,11 +118,6 @@ public:
 
 	void	FlushInput();
 
-	BOOL	FlipObject();
-
-	void	Read(int message);
-	void	Write(int message);
-
 	void	SetSpeed(int speed);
 	int		GetSpeed();
 	BOOL	GetPause();
@@ -141,7 +136,7 @@ public:
 	BOOL	SaveState(int rank);
 	void	SomethingUserMissions(char* lpFilename, LPCSTR fileSomething);
 
-	
+	BOOL	ClearGamer(int gamer);
 
 protected:
 	void	DrawTextCenter(int res, int x, int y, int font=0);
@@ -151,11 +146,8 @@ protected:
 	int		SearchPhase(UINT phase);
 	void	DecorShift(int dx, int dy);
 
-	BOOL	PlayDown(POINT pos, int fwKeys);
-	BOOL	PlayMove(POINT pos, int fwKeys);
-	BOOL	PlayUp(POINT pos, int fwKeys);
 	void	ChangeButtons(int message);
-
+	
 	void	BuildFloor(POINT cel, int insIcon);
 	void	BuildWater(POINT cel, int insIcon);
 	BOOL	BuildDown(POINT pos, int fwKeys, BOOL bMix=TRUE);
@@ -203,7 +195,7 @@ protected:
 	char		m_gamerNameList[10][100];
 	void*		m_somethingJoystick;
 	int			m_menuIndex;
-	int			m_fileIndex;
+	int			m_choiceIndex;
 	int			m_saveIndex;
 	int			m_menuDecor[10];
 	BOOL		m_bMouseRelease;
@@ -299,6 +291,10 @@ protected:
 	HINSTANCE	m_hInstance;
 	char		m_chatZone[100][5];
 	char 		m_text[100];
+
+	int			m_choicePageOffset;
+	int			m_nbChoices;
+	int			m_6D30;
 };
 
 extern

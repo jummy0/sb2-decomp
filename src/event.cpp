@@ -263,7 +263,7 @@ static Phase table[] =
 		FALSE,
 		{
 			{
-				WM_PHASE_1562,
+				WM_PHASE_DONAMEGAMER,
 				0,{ 1, IC_BT_ACCEPT },
 				0xde, 0x146,
 				{ 1, 0xae }
@@ -283,7 +283,7 @@ static Phase table[] =
 		FALSE,
 		{
 			{
-				WM_PHASE_1563,
+				WM_PHASE_DONAMEDESIGN,
 				0,{ 1, IC_BT_ACCEPT },
 				0xde, 0x146,
 				{ 1, 0xb0 }
@@ -651,8 +651,8 @@ BOOL CEvent::CreateButtons()
 			{
 				iconMenu++;
 			}
-			m_buttons->SetSomethingMenu(table[m_index].buttons[i].iconMenu + i + 4, *(int*)iconMenu);
-			m_buttons->MenuToolTips(table[m_index].buttons[i].toolTips + i + 4, *(int*)table[m_index].buttons[i].toolTips + i);
+			m_buttons->SetIconMenu(table[m_index].buttons[i].iconMenu + i + 4, *(int*)iconMenu);
+			m_buttons->SetToolTips(table[m_index].buttons[i].toolTips + i + 4, *(int*)table[m_index].buttons[i].toolTips + i);
 		}
 
 	}
@@ -1432,132 +1432,72 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_KEYDOWN:
-		if (wParam >= 'A' && wParam <= 'Z')
-		{
-			if (m_posCheat == 0)
-			{
-				m_rankCheat = -1;
-				
-				for (i = 0; i < 9; i++)
-				{
-					if ((char)wParam == cheat_code[i][0])
-					{
-						m_rankCheat = i;
-						break;
-					}
-				}
-			}
-			if (m_rankCheat != -1)
-			{
-				c = cheat_code[m_rankCheat][m_posCheat];
-				if (m_posCheat != 0 && m_rankCheat == 0) c++;
-				if ((char)wParam == c)
-				{
-					m_posCheat++;
-
-				}
-			}
-
-			if (m_phase != WM_PHASE_PLAY)
-			{
-				ChangePhase(m_phase);
-			}
-			if (bEnable)
-			{
-				pos.x = 320;
-				pos.y = LYIMAGE / 2;
-				m_pSound->PlayImage(SOUND_JUMPEND, pos, -1);
-			}
-			else
-			{
-				pos.x = 320;
-				pos.y = LYIMAGE / 2;
-				m_pSound->PlayImage(SOUND_RESSORT, pos, -1);
-			}
-			m_rankCheat = -1;
-			m_posCheat = 1;
-		}
-		return TRUE;
-
-		if (m_phase == WM_PHASE_INIT)
-		{
-			ChangePhase(WM_PHASE_INIT);
-			return TRUE;
-		}
-
-		if (m_phase == WM_PHASE_BYE)
-		{
-			PostMessageA(m_hWnd, WM_CLOSE, 0, 0);
-		}
 
 		switch (wParam)
 		{
-			case VK_END:
-				DemoRecStop();
+		case VK_END:
+			DemoRecStop();
+			return TRUE;
+		case VK_ESCAPE:
+			if (m_bRunMovie)
+			{
+				StopMovie();
+				m_pSound->SetSuspendSkip(1);
 				return TRUE;
-			case VK_ESCAPE:
-				if (m_bRunMovie)
+			}
+			if (m_phase != WM_PHASE_PLAYTEST)
+			{
+				if (m_phase != WM_PHASE_SETUP)
 				{
-					StopMovie();
-					m_pSound->SetSuspendSkip(1);
-					return TRUE;
-				}
-				if (m_phase != WM_PHASE_PLAYTEST)
-				{
-					if (m_phase != WM_PHASE_SETUP)
+					if (m_phase != WM_PHASE_NAMEGAMER)
 					{
-						if (m_phase != WM_PHASE_NAMEGAMER)
+						if (m_phase == WM_PHASE_NAMEDESIGN)
 						{
-							if (m_phase == WM_PHASE_NAMEDESIGN)
+							m_pDecor->SetMissionTitle(m_textInput);
+							ChangePhase(WM_PHASE_INFO);
+							return TRUE;
+						}
+						if ((m_phase == WM_PHASE_INIT) || (m_phase == WM_PHASE_WINMULTI)) ChangePhase(WM_PHASE_GAMER); return TRUE;
+						if ((m_phase == WM_PHASE_BUILD) || ((m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_LOST))) ChangePhase(WM_PHASE_INFO); return TRUE;
+						if (((m_phase != WM_PHASE_INFO) && (m_phase != WM_PHASE_STOP)) && (m_phase != WM_PHASE_HELP))
+						{
+							if (m_phase == WM_PHASE_SERVICE)
 							{
-								m_pDecor->SetMissionTitle(m_textInput);
-								ChangePhase(WM_PHASE_INFO);
+								ChangePhase(WM_PHASE_DPLAY_DO_SERVICE);
 								return TRUE;
 							}
-							if ((m_phase == WM_PHASE_INIT) || (m_phase == WM_PHASE_WINMULTI)) ChangePhase(WM_PHASE_GAMER); return TRUE;
-							if ((m_phase == WM_PHASE_BUILD) || ((m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_LOST))) ChangePhase(WM_PHASE_INFO); return TRUE;
-							if (((m_phase != WM_PHASE_INFO) && (m_phase != WM_PHASE_STOP)) && (m_phase != WM_PHASE_HELP))
+							if (m_phase == WM_PHASE_CREATE)
 							{
-								if (m_phase == WM_PHASE_SERVICE)
-								{
-									ChangePhase(WM_PHASE_DPLAY_DO_SERVICE);
-									return TRUE;
-								}
-								if (m_phase == WM_PHASE_CREATE)
-								{
-									ChangePhase(WM_PHASE_DPLAY_CREATE);
-									return TRUE;
-								}
-								if (m_phase == WM_PHASE_MULTI)
-								{
-									ChatSend();
-									return TRUE;
-								}
-								if (((m_phase != WM_PHASE_GREAD) && (m_phase != WM_PHASE_GREADp)) || ((m_fileIndex < 0 || LoadState(m_fileIndex) == FALSE)))
-								{
-									if (m_phase != WM_PHASE_GWRITE) return TRUE;
-						
-									if (m_fileIndex < 0) return TRUE;
-			
-									if (SaveState(m_fileIndex) == FALSE) return TRUE;
-								}
+								ChangePhase(WM_PHASE_DPLAY_CREATE);
+								return TRUE;
+							}
+							if (m_phase == WM_PHASE_MULTI)
+							{
+								ChatSend();
+								return TRUE;
+							}
+							if (((m_phase != WM_PHASE_GREAD) && (m_phase != WM_PHASE_GREADp)) || ((m_choiceIndex < 0 || LoadState(m_choiceIndex) == FALSE)))
+							{
+								if (m_phase != WM_PHASE_GWRITE) return TRUE;
+
+								if (m_choiceIndex < 0) return TRUE;
+
+								if (SaveState(m_choiceIndex) == FALSE) return TRUE;
 							}
 						}
 					}
-					strcpy(m_gamerName, m_textInput);
 				}
+				strcpy(m_gamerName, m_textInput);
+			}
 		}
 
-	}
+		if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST)
+		{
+			return FALSE;
+		}
+		// Unknown Function
 
-	if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST)
-	{
-		return 0;
-	}
-	// Unknown Function
-
-	switch (wParam)
-	{
+	case WM_LBUTTONDOWN:
 	case WM_RBUTTONDOWN:
 		m_bMouseDown = TRUE;
 		MouseSprite(pos);
@@ -1568,8 +1508,277 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		if (m_phase == WM_PHASE_PLAY)
 		{
-		//	if (PlayDown(pos, fwKeys)) return TRUE;
+			//	if (PlayDown(pos, fwKeys)) return TRUE;
 		}
+		break;
+	case WM_MOUSEMOVE:
+		if (m_mouseType == MOUSETYPEGRA)
+		{
+			if (m_bShowMouse)
+			{
+				ShowCursor(FALSE);  // cache la souris
+				m_pPixmap->MouseShow(TRUE);  // montre sprite
+				m_bShowMouse = FALSE;
+			}
+		}
+		if (m_mouseType == MOUSETYPEWINPOS &&
+			(pos.x != m_oldMousePos.x ||
+				pos.y != m_oldMousePos.y))
+		{
+			m_oldMousePos = pos;
+			ClientToScreen(m_hWnd, &m_oldMousePos);
+			SetCursorPos(m_oldMousePos.x, m_oldMousePos.y);  // (*)
+		}
+		m_oldMousePos = pos;
+
+		MouseSprite(pos);
+		if (EventButtons(message, wParam, lParam))  return TRUE;
+		if (m_phase == WM_PHASE_BUILD)
+		{
+			//if (BuildMove(pos, fwKeys))  return TRUE;
+		}
+		if (m_phase == WM_PHASE_PLAY)
+		{
+			//if (PlayMove(pos, fwKeys))  return TRUE;
+		}
+		break;
+
+	case WM_NCMOUSEMOVE:
+		if (m_mouseType == MOUSETYPEGRA)
+		{
+			if (!m_bShowMouse)
+			{
+				ShowCursor(TRUE);  // montre la souris
+				m_pPixmap->MouseShow(FALSE);  // cache sprite
+				m_bShowMouse = TRUE;
+			}
+		}
+		break;
+
+	case WM_LBUTTONUP:
+	case WM_RBUTTONUP:
+		m_bMousePress = FALSE;
+		if (EventButtons(message, wParam, lParam))  return TRUE;
+		if (m_phase == WM_PHASE_BUILD)
+		{
+			//if (BuildUp(pos, fwKeys))  return TRUE;
+		}
+		if (m_phase == WM_PHASE_PLAY)
+		{
+			//if (PlayUp(pos, fwKeys))  return TRUE;
+		}
+		if (m_phase == WM_PHASE_BYE)
+		{
+			PostMessage(m_hWnd, WM_CLOSE, 0, 0);
+		}
+		break;
+	case WM_PHASE_INTRO1:
+	case WM_PHASE_INTRO2:
+	case WM_PHASE_INIT:
+	case WM_PHASE_PLAY:
+	case WM_PHASE_BUILD:
+	case WM_PHASE_NAMEGAMER:
+	case WM_PHASE_CLEARGAMER:
+	case WM_PHASE_INFO:
+	case WM_PHASE_PLAYTEST:
+	case WM_PHASE_SETUP:
+	case WM_PHASE_MUSIC:
+	case WM_PHASE_PLAYMOVIE:
+	case WM_PHASE_WINMOVIE:
+	case WM_PHASE_SETUPp:
+	case WM_PHASE_REGION:
+	case WM_PHASE_GAMER:
+	case WM_PHASE_WINMOVIEDESIGN:
+	case WM_PHASE_WINMOVIEMULTI:
+	case WM_PHASE_BYE:
+	case WM_PHASE_NAMEDESIGN:
+	case WM_PHASE_WRITEDESIGN:
+	case WM_PHASE_READDESIGN:
+	case WM_PHASE_CLEARDESIGN:
+	case WM_PHASE_SERVICE:
+	case WM_PHASE_DPLAY_DO_SERVICE:
+	case WM_PHASE_DPLAY_CANCEL_SERVICE:
+	case WM_PHASE_SESSION:
+	case WM_PHASE_1572:
+	case WM_PHASE_DPLAY_CREATE_LOBBY:
+	case WM_PHASE_DPLAY_REFRESH:
+	case WM_PHASE_DPLAY_CANCEL_SESSION:
+	case WM_PHASE_MULTI:
+	case WM_PHASE_DPLAY_START_GAME_2:
+	case WM_PHASE_DPLAY_CANCEL_MULTI:
+	case WM_PHASE_CREATE:
+	case WM_PHASE_DPLAY_CREATE:
+	case WM_PHASE_DPLAY_CANCEL_CREATE:
+	case WM_PHASE_STOP:
+	case WM_PHASE_HELP:
+	case WM_PHASE_GWRITE:
+	case WM_PHASE_GREADp:
+	case WM_PHASE_GREAD:
+	case WM_PHASE_DOQUIT:
+	case WM_PHASE_1588:
+		if (ChangePhase(message))  return TRUE;
+		break;
+	case WM_PHASE_DOPLAY:
+		//TODO
+		break;
+	case WM_PHASE_PRIVATE:
+		//
+		break;
+	case WM_PHASE_DEMO:
+		m_demoNumber = 0;
+		DemoPlayStart();
+		break;
+	case WM_PHASE_DONAMEGAMER:
+	case WM_PHASE_DOCLEARGAMER:
+	case WM_PHASE_DONAMEDESIGN:
+	case WM_PHASE_1565:
+	case WM_PHASE_1566:
+	case WM_PHASE_DOCLEARDESIGN:
+		ChangeButtons(message);
+		return FALSE;
+	case WM_PREV: // TODO: further is mostly copied from pb
+		if (m_bPrivate)
+		{
+			if (m_private > 0)
+			{
+				m_private--;
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
+		}
+		else if (m_bSchool)
+		{
+			if (m_exercice > 0)
+			{
+				m_exercice--;
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
+		}
+		else
+		{
+			if (m_mission > 0)
+			{
+				m_mission--;
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
+		}
+		break;
+
+	case WM_NEXT:
+		if (m_bPrivate)
+		{
+			if (m_private < 20 - 1)
+			{
+				m_private++;
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
+		}
+		else if (m_bSchool)
+		{
+			if (m_exercice < 99)
+			{
+				m_exercice++;
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
+		}
+		else
+		{
+			if (m_mission < 99)
+			{
+				m_mission++;
+				if (m_maxMission < m_mission)
+				{
+					m_maxMission = m_mission;
+				}
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
+		}
+		break;
+
+	case WM_DECOR1:
+		SetState(WM_DECOR1, 1);
+		SetState(WM_DECOR2, 0);
+		SetState(WM_DECOR3, 0);
+		SetState(WM_DECOR4, 0);
+		SetState(WM_DECOR5, 0);
+		break;
+
+	case WM_DECOR2:
+		SetState(WM_DECOR1, 0);
+		SetState(WM_DECOR2, 1);
+		SetState(WM_DECOR3, 0);
+		SetState(WM_DECOR4, 0);
+		SetState(WM_DECOR5, 0);
+		break;
+
+	case WM_DECOR3:
+		SetState(WM_DECOR1, 0);
+		SetState(WM_DECOR2, 0);
+		SetState(WM_DECOR3, 1);
+		SetState(WM_DECOR4, 0);
+		SetState(WM_DECOR5, 0);
+		break;
+
+	case WM_DECOR4:
+		SetState(WM_DECOR1, 0);
+		SetState(WM_DECOR2, 0);
+		SetState(WM_DECOR3, 0);
+		SetState(WM_DECOR4, 1);
+		SetState(WM_DECOR5, 0);
+		break;
+
+	case WM_DECOR5:
+		SetState(WM_DECOR1, 0);
+		SetState(WM_DECOR2, 0);
+		SetState(WM_DECOR3, 0);
+		SetState(WM_DECOR4, 0);
+		SetState(WM_DECOR5, 1);
+		break;
+
+	case WM_BUTTON0:
+	case WM_BUTTON1:
+	case WM_BUTTON2:
+	case WM_BUTTON3:
+	case WM_BUTTON4:
+	case WM_BUTTON5:
+	case WM_BUTTON6:
+	case WM_BUTTON7:
+	case WM_BUTTON8:
+	case WM_BUTTON9:
+	case WM_BUTTON10:
+	case WM_BUTTON11:
+	case WM_BUTTON12:
+	case WM_BUTTON13:
+	case WM_BUTTON14:
+	case WM_BUTTON15:
+	case WM_BUTTON16:
+	case WM_BUTTON17:
+	case WM_BUTTON18:
+	case WM_BUTTON19:
+	case WM_BUTTON20:
+	case WM_BUTTON21:
+	case WM_BUTTON22:
+	case WM_BUTTON23:
+	case WM_BUTTON24:
+	case WM_BUTTON25:
+	case WM_BUTTON26:
+	case WM_BUTTON27:
+	case WM_BUTTON28:
+	case WM_BUTTON29:
+	case WM_BUTTON30:
+	case WM_BUTTON31:
+	case WM_BUTTON32:
+	case WM_BUTTON33:
+	case WM_BUTTON34:
+	case WM_BUTTON35:
+	case WM_BUTTON36:
+	case WM_BUTTON37:
+	case WM_BUTTON38:
+	case WM_BUTTON39:
+		ChangeButtons(message);
+		break;
+	case WM_MOVIE:
+		StartMovie("movie\\essai.avi");
+		ChangePhase(WM_PHASE_INIT);
 		break;
 	}
 
@@ -1856,13 +2065,13 @@ void CEvent::ReadAll()
 	BOOL bPrivate;
 	BOOL bMission;
 
-	if ((-1 < m_fileIndex) && (*(int*)((int)(m_filenameBuffer + -1) + m_fileIndex * 4 + 216) != 0))
+	if ((-1 < m_choiceIndex) && (*(int*)((int)(m_filenameBuffer + -1) + m_choiceIndex * 4 + 216) != 0))
 	{
 		//mission = m_pDecor->MissionStart(m_gamer, 999, bUser);
 		
 		if (mission != FALSE)
 		{
-			read = m_pDecor->Read(m_gamer, m_fileIndex, &bMission, &bPrivate);
+			read = m_pDecor->Read(m_gamer, m_choiceIndex, &bMission, &bPrivate);
 			
 			if (read != FALSE)
 			{
@@ -2207,11 +2416,7 @@ void CEvent::SetLives(int lives)
 
 void CEvent::SetSpeed(int speed)
 {
-	int 	max;
-
-	if ( m_bSpeed ) max = 2;
-
-	if ( speed > max ) speed  = max;
+	if ( speed > 2 ) speed = 2;
 	
 	m_speed = speed;
 }
@@ -2540,3 +2745,190 @@ BOOL CEvent::ReadPlayer()
 	return TRUE;
 }
 
+void CEvent::ChangeButtons(int message)
+{
+	if (m_phase == WM_PHASE_GAMER && message >= WM_BUTTON1 && message <= WM_BUTTON10)
+	{
+		m_gamer = message - WM_BUTTON0;
+		for (int i = 0; i < 10; i++)
+		{
+			SetState(WM_BUTTON1 + i, i == m_gamer - 1);
+		}
+		ReadInfo(m_gamer);
+	}
+	if (m_phase == WM_PHASE_NAMEGAMER && message == WM_PHASE_DONAMEGAMER)
+	{
+		WriteInfo(m_gamer, m_textInput);
+		ChangePhase(WM_PHASE_GAMER);
+	}
+	if (m_phase == WM_PHASE_NAMEDESIGN && message == WM_PHASE_DONAMEDESIGN)
+	{
+		m_pDecor->SetMissionTitle(m_textInput);
+		ChangePhase(WM_PHASE_INFO);
+	}
+	if (m_phase == WM_PHASE_CLEARGAMER && message == WM_PHASE_DOCLEARGAMER)
+	{
+		ClearGamer(m_gamer);
+		ChangePhase(WM_PHASE_GAMER);
+	}
+	if (m_phase == WM_PHASE_CLEARDESIGN && message == WM_PHASE_DOCLEARDESIGN)
+	{
+		m_pDecor->SomethingMissionPath(m_gamer, GetWorld(), !m_bBuildOfficialMissions);
+		ChangePhase(WM_PHASE_INFO);
+	}
+	if (m_phase == WM_PHASE_MUSIC)
+	{
+		m_pDecor->SetMusic(message - WM_BUTTON0);
+		ChangePhase(m_phase);
+	}
+	if (m_phase == WM_PHASE_REGION)
+	{
+		if (message >= WM_BUTTON1 && message <= WM_BUTTON32)
+		{
+			m_pDecor->SetRegion(message - WM_BUTTON1);
+		}
+		if (message >= WM_DIMS1 && message <= WM_DIMS4)
+		{
+			SetState(WM_DIMS1, 0);
+			SetState(WM_DIMS2, 0);
+			SetState(WM_DIMS3, 0);
+			SetState(WM_DIMS4, 0);
+			SetState(message, 1);
+			if (message == WM_DIMS1) m_pDecor->SetDim({ MAXCELX, MAXCELY });
+			if (message == WM_DIMS2) m_pDecor->SetDim({ MAXCELX, 0 });
+			if (message == WM_DIMS3) m_pDecor->SetDim({ 0, MAXCELY });
+			if (message == WM_DIMS4) m_pDecor->SetDim({ 0, 0 });
+		}
+	}
+	if (m_phase == WM_PHASE_SERVICE)
+	{
+		if (message >= WM_BUTTON1 && message <= WM_BUTTON6)
+		{
+			m_choiceIndex = message - WM_BUTTON1 + m_choicePageOffset;
+		}
+		if (message == WM_BUTTON10)
+		{
+			m_choicePageOffset -= 6;
+			if (m_choicePageOffset < 0) m_choicePageOffset = 0;
+		}
+		if (message == WM_BUTTON11)
+		{
+			m_choicePageOffset += 6;
+		}
+		SetHide(WM_BUTTON10, m_choicePageOffset == 0);
+		SetHide(WM_BUTTON11, (m_nbChoices + 5) / 6 * 6 <= m_choicePageOffset + 6);
+		for (int i = 0; i < 6; i++)
+		{
+			if (m_choicePageOffset + i < m_nbChoices)
+			{
+				SetHide(WM_BUTTON1 + i, FALSE);
+				SetState(WM_BUTTON1 + i, m_choicePageOffset == m_choiceIndex);
+			}
+			else
+			{
+				SetHide(WM_BUTTON1 + i, TRUE);
+			}
+		}
+	}
+	if (m_phase == WM_PHASE_SESSION)
+	{
+		if (message >= WM_BUTTON1 && message <= WM_BUTTON6)
+		{
+			m_choiceIndex = message - WM_BUTTON1 + m_choicePageOffset;
+		}
+		if (message == WM_BUTTON10)
+		{
+			m_choicePageOffset -= 6;
+			if (m_choicePageOffset < 0) m_choicePageOffset = 0;
+		}
+		if (message == WM_BUTTON11)
+		{
+			m_choicePageOffset += 6;
+		}
+		SetHide(WM_BUTTON10, m_choicePageOffset == 0);
+		SetHide(WM_BUTTON11, (m_nbChoices + 5) / 6 * 6 <= m_choicePageOffset + 6);
+		for (int i = 0; i < 6; i++)
+		{
+			if (m_choicePageOffset + i < m_nbChoices)
+			{
+				SetHide(WM_BUTTON1 + i, FALSE);
+				SetState(WM_BUTTON1 + i, m_choicePageOffset == m_choiceIndex);
+			}
+			else
+			{
+				SetHide(WM_BUTTON1 + i, TRUE);
+			}
+		}
+	}
+	if (m_phase == WM_PHASE_MULTI)
+	{
+		if (message >= WM_BUTTON1 && message <= WM_BUTTON4)
+		{
+			if (m_pNetwork->m_players[message - WM_BUTTON1].team >= MAXNETPLAYER)
+			{
+				m_pNetwork->m_players[message - WM_BUTTON1].team = 0;
+			}
+
+			if (m_pNetwork->IsHost())
+			{
+				NetSendLobby();
+			}
+			else
+			{
+				//TODO
+				//m_pNetwork->Send(...
+			}
+			//DrawMap();
+			//NetAdjustLobbyButtons();
+		}
+		if (message >= WM_BUTTON11 && message <= WM_BUTTON14)
+		{
+			m_pNetwork->m_players[message - WM_BUTTON11].ready ^= 1; // toggle ready
+			if (m_pNetwork->IsHost())
+			{
+				NetSendLobby();
+			}
+			else
+			{
+				//TODO
+				//m_pNetwork->Send(...
+			}
+			//NetAdjustLobbyButtons();
+		}
+		if (message == WM_BUTTON20)
+		{
+			ChatSend();
+		}
+	}
+	if (m_phase == WM_PHASE_READDESIGN)
+	{
+		//TODO
+	}
+	if (m_phase == WM_PHASE_WRITEDESIGN)
+	{
+		//TODO
+	}
+	if (m_phase == WM_PHASE_GREAD || m_phase == WM_PHASE_GREADp)
+	{
+		//TODO
+	}
+	if (m_phase == WM_PHASE_GWRITE)
+	{
+		//TODO
+	}
+	if (m_phase == WM_PHASE_SETUP || m_phase == WM_PHASE_SETUPp)
+	{
+		//TODO
+	}
+}
+
+BOOL CEvent::ClearGamer(int gamer)
+{
+	char filename[260];
+
+	m_6D30 = 0;
+	sprintf(filename, "data\\info%.3d.blp", gamer);
+	AddUserPath(filename);
+	remove(filename);
+	return TRUE;
+}

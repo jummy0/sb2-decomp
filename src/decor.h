@@ -253,7 +253,7 @@ public:
 	void	NetFUN_155e0(BYTE _foo, short _bar);
 	void	TreatNetData();
 	void	DoNetSmooth(int player);
-	void	NetFUN_15d50();
+	void	NetAdjustToLift();
 	void	FUN_15da0(int rank, short step);
 	void	NetPlayerCollide(POINT pos, int *out);
 	void	NetMessageIndexFlush();
@@ -375,7 +375,7 @@ protected:
 	int			m_netIcons[MAXNETPLAYER];
 	int			m_netUnk1[MAXNETPLAYER];
 	int			m_netUnk2[MAXNETPLAYER];
-	int			m_netUnk3[MAXNETPLAYER];
+	int			m_netTransports[MAXNETPLAYER]; // index of lift ridden by each player, or -1
 	int			m_netPlayerPacketsReceived[MAXNETPLAYER];
 	int			m_netPlayerPacketsReceived2[MAXNETPLAYER];
 	int			m_netTimeSincePacket[MAXNETPLAYER];

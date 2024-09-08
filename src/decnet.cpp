@@ -53,7 +53,7 @@ void CDecor::NetDataFlush()
 		m_netIcons[i] = -1;
 		m_netUnk1[i] = 0;
 		m_netUnk2[i] = 0;
-		m_netUnk3[i] = 0;
+		m_netTransports[i] = 0;
 		m_netPlayerPacketsReceived[i] = 0;
 		m_netPlayerPacketsReceived2[i] = 0;
 		m_netTimeSincePacket[i] = 0;
@@ -87,9 +87,15 @@ void CDecor::DoNetSmooth(int player)
 
 }
 
-void CDecor::NetFUN_15d50()
+void CDecor::NetAdjustToLift()
 {
-
+	for (int i = 0; i < MAXNETPLAYER; i++)
+	{
+		if (m_netPos[i].x != -1 && m_netTransports[i] >= 0 && m_netTransports[i] < MAXMOVEOBJECT)
+		{
+			m_netPos[i].y = m_moveObject[m_netTransports[i]].posCurrent.y - 58;
+		}
+	}
 }
 
 void CDecor::FUN_15da0(int index, short step)
