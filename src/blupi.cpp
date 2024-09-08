@@ -423,6 +423,15 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 	static HINSTANCE   hInstance;
 	POINT 			   mousePos, totalDim, iconDim;
 
+#if 0
+	if (message != WM_TIMER)
+	{
+		char s[100];
+		sprintf(s, "message=%d,%d\n", message, wParam);
+		OutputDebug(s);
+	}
+#endif
+
 	// La touche F10 envoie un autre message pour activer
 	// le menu dans les applications Windows standard !
 	//[The F10 key sends another message to activate the menu in standard Windows apps!]
@@ -437,10 +446,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 
 	if (g_pEvent != NULL &&
 		g_pEvent->TreatEvent(message, wParam, lParam)) return 0;
-
-	char buf[25]; // DEBUG
-	sprintf(buf, "%d\n", message);
-	OutputDebug(buf);
 
 	switch (message)
 	{
@@ -487,7 +492,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 				g_pPixmap->SavePalette();
 				g_pPixmap->InitSysPalette();
 			}
-			SetWindowTextA(hWnd, "Blupi");
+			SetWindowText(hWnd, "Blupi");
 			if (g_pSound != NULL) g_pSound->RestartMusic();
 		}
 		else // désactive ?
@@ -496,7 +501,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 			{
 				FlushGame();
 			}
-			SetWindowTextA(hWnd, "Blupi -- stop");
+			SetWindowText(hWnd, "Blupi -- stop");
 			if (g_pSound != NULL) g_pSound->SuspendMusic();
 		}
 		return 0;
@@ -578,7 +583,11 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 		break;
 
 	case WM_DESTROY:
-		timeKillEvent((UINT)g_hWnd);
+#if MMTIMER
+		timeKillEvent((UINT)g_updateTimer);
+#else
+		KillTimer(g_hWnd, 1);
+#endif
 		FinishObjects();
 		PostQuitMessage(0);
 		break;

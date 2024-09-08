@@ -18,12 +18,12 @@ void CDecor::GetMissionPath(char* str, int user, int mission, BOOL bUser)
 	return;
 }
 
-BOOL CDecor::CurrentWrite(int gamer, int mission, BOOL bUser)
+BOOL CDecor::Write(int gamer, int mission, BOOL bUser)
 {
 	return FALSE; //TODO
 }
 
-BOOL CDecor::CurrentRead(int gamer, int mission, BOOL bUser)
+BOOL CDecor::Read(int gamer, int mission, BOOL bUser)
 {
 	return FALSE; //TODO
 }
@@ -38,12 +38,12 @@ BOOL CDecor::MissionStart(int gamer, int mission, BOOL bUser)
 	return FALSE; //TODO
 }
 
-BOOL CDecor::Read(int gamer, int mission, BOOL *pbMission, BOOL *pbPrivate)
+BOOL CDecor::CurrentRead(int gamer, int mission, BOOL *pbMission, BOOL *pbPrivate)
 {
 	return FALSE; //TODO
 }
 
-BOOL CDecor::Write(int gamer, int mission, char* param3)
+BOOL CDecor::CurrentWrite(int gamer, int mission, char* param3)
 {
 	return FALSE; //TODO
 }

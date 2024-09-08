@@ -156,7 +156,7 @@ protected:
 
 	void	PrivateLibelle();
 	BOOL	ReadLibelle(int world, BOOL bSchool, BOOL bHelp);
-	BOOL	WriteInfo(int gamer, char* playername);
+	BOOL	WriteInfo(int gamer);
 	BOOL	ReadInfo(int gamer);
 	BOOL	LoadState(BOOL save);
 	void	TryPhase();
@@ -186,6 +186,8 @@ protected:
 	void	MouseRelease();
 	void	MouseCapture();
 
+	BOOL	FUN_1fbd0();
+
 
 protected:
     int         m_speed;
@@ -197,7 +199,7 @@ protected:
 	int			m_menuIndex;
 	int			m_choiceIndex;
 	int			m_saveIndex;
-	int			m_menuDecor[10];
+	int			m_menuDecor[11];
 	BOOL		m_bMouseRelease;
     int         m_private;
     int         m_maxMission;
@@ -294,7 +296,11 @@ protected:
 
 	int			m_choicePageOffset;
 	int			m_nbChoices;
+	int			m_0008;
 	int			m_6D30;
+	BOOL		m_b6D34;
+	int			m_96B4;
+	int			m_nbVies;
 };
 
 extern

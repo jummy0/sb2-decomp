@@ -26,7 +26,7 @@ int GetOffset(char c)
 		0xEE, 0xF4, 0xF9, 0xFB, 0xE4, 0xF6, 0xE7
 	};
 
-	for ( i=0 ; i<15 ; i++ )
+	for (i = 0; i < 15; i++)
 	{
 		if ( (unsigned char)c == table_accents[i] )
 		{

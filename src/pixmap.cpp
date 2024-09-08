@@ -374,9 +374,9 @@ void CPixmap::QuickIcon(int channel, int rank, POINT pos)
 	num = m_clipRect.left;
 	if (pos.x < num)
 	{
-		num = num - pos.x;
+		num -= pos.x;
 		pos.x = m_clipRect.left;
-		rect.left = rect.left + num;
+		rect.left += num;
 	}
 	num = (m_clipRect.right + rect.left) - pos.x;
 	if (num < rect.right)
@@ -386,27 +386,23 @@ void CPixmap::QuickIcon(int channel, int rank, POINT pos)
 	num = m_clipRect.top;
 	if (pos.y < num)
 	{
-		num = num - pos.y;
+		num -= pos.y;
 		pos.y = m_clipRect.top;
-		rect.top = rect.top + num;
+		rect.top += num;
 	}
 	num = (m_clipRect.bottom + rect.top) - pos.y;
 	if (num < rect.bottom)
 	{
 		rect.bottom = num;
 	}
-	if ((rect.left < rect.right) && (rect.top < rect.bottom))
+	if (rect.left < rect.right && rect.top < rect.bottom)
 	{
-		while (num = (m_lpDDSBack->BltFast(pos.x, pos.y, m_lpDDSurface[channel], &rect, 1), num != 0))
+		while (TRUE)
 		{
-			if ((num == 0x7789FE3E) && (num = RestoreAll(), num != 0))
-			{
-				return;
-			}
-			if (num != 0x7789FE3E)
-			{
-				return;
-			}
+			num = m_lpDDSBack->BltFast(pos.x, pos.y, m_lpDDSurface[channel], &rect, 1);
+			if (num == DD_OK) return;
+			if (num == DDERR_SURFACELOST && RestoreAll() != DD_OK) return;
+			if (num != DDERR_WASSTILLDRAWING) return;
 		}
 	}
 	return;
@@ -1234,54 +1230,58 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 	RECT		rect;
 	HRESULT		ddrval;
 	COLORREF	oldColor1, oldColor2;
-
 	if (channel == CHOBJECT)
 	{
-		if (table_icon_object[0] <= rank)
-		{
-			return FALSE;
-		}
-
+		if (table_icon_object[0] <= rank) return FALSE;
+		rect.left = table_icon_object[rank * 6 + 0];
+		rect.top = table_icon_object[rank * 6 + 1];
+		rect.right = rect.left + table_icon_object[rank * 6 + 4];
+		rect.bottom = rect.top + table_icon_object[rank * 6 + 5];
+		pos.x += table_icon_object[rank * 6 + 2];
+		pos.y += table_icon_object[rank * 6 + 3];
 	}
 	else if (channel == CHELEMENT)
 	{
-		if (table_icon_element[0] <= rank) {
-			return FALSE;
-		}
+		if (table_icon_element[0] <= rank) return FALSE;
+		rect.left = table_icon_element[rank * 6 + 0];
+		rect.top = table_icon_element[rank * 6 + 1];
+		rect.right = rect.left + table_icon_element[rank * 6 + 4];
+		rect.bottom = rect.top + table_icon_element[rank * 6 + 5];
+		pos.x += table_icon_element[rank * 6 + 2];
+		pos.y += table_icon_element[rank * 6 + 3];
 	}
 	else if (IsBlupiChannel(channel))
 	{
-		if (table_icon_blupi[0] <= rank)
-		{
-			return FALSE;
-		}
+		if (table_icon_blupi[0] <= rank) return FALSE;
+		rect.left = table_icon_blupi[rank * 6 + 0];
+		rect.top = table_icon_blupi[rank * 6 + 1];
+		rect.right = rect.left + table_icon_blupi[rank * 6 + 4];
+		rect.bottom = rect.top + table_icon_blupi[rank * 6 + 5];
+		pos.x += table_icon_blupi[rank * 6 + 2];
+		pos.y += table_icon_blupi[rank * 6 + 3];
+	}
+	else if (channel == CHEXPLO)
+	{
+		if (table_icon_explo[0] <= rank) return FALSE;
+		rect.left = table_icon_explo[rank * 6 + 0];
+		rect.top = table_icon_explo[rank * 6 + 1];
+		rect.right = rect.left + table_icon_explo[rank * 6 + 4];
+		rect.bottom = rect.top + table_icon_explo[rank * 6 + 5];
+		pos.x += table_icon_explo[rank * 6 + 2];
+		pos.y += table_icon_explo[rank * 6 + 3];
 	}
 	else
 	{
-		if (channel != CHEXPLO)
-		{
-			nbx = m_totalDim[channel].x / m_iconDim[channel].x;
-			nby = m_totalDim[channel].y / m_iconDim[channel].y;
+		if (channel < 0 || channel >= MAXIMAGE) return FALSE;
+		if (m_lpDDSurface[channel] == NULL) return FALSE;
+		if (m_iconDim[channel].x == 0 ||
+			m_iconDim[channel].y == 0) return FALSE;
 
-			if (channel < 0 || channel >= MAXIMAGE) return FALSE;
-			if (m_lpDDSurface[channel] == NULL) return FALSE;
-			if (m_iconDim[channel].x == 0 ||
-				m_iconDim[channel].y == 0) return FALSE;
-			if (rank < 0 || rank >= nbx * nby) return FALSE;
-		}
+		nbx = m_totalDim[channel].x / m_iconDim[channel].x;
+		nby = m_totalDim[channel].y / m_iconDim[channel].y;
+
+		if (rank < 0 || rank >= nbx * nby) return FALSE;
 	}
-	if (table_icon_explo[0] <= rank) return FALSE;
-
-	if ( channel < 0 || channel >= MAXIMAGE )  return FALSE;
-	if (  m_lpDDSurface[channel] == NULL )     return FALSE;
-
-	if ( m_iconDim[channel].x == 0 ||
-		 m_iconDim[channel].y == 0 )  return FALSE;
-
-	nbx = m_totalDim[channel].x / m_iconDim[channel].x;
-	nby = m_totalDim[channel].y / m_iconDim[channel].y;
-
-	if ( rank < 0 || rank >= nbx*nby )  return FALSE;
 
 	rect.left   = (rank%nbx)*m_iconDim[channel].x;
 	rect.top    = (rank/nbx)*m_iconDim[channel].y;

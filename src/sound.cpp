@@ -552,31 +552,34 @@ BOOL CSound::PlayImage(int channel, POINT pos, int rank)
 // Uses MCI to play a MIDI file. The window procedure
 // is notified when playback is complete.
 
-BOOL CSound::PlayMusic(HWND hWnd, LPSTR lpszMIDIFilename)
+BOOL CSound::PlayMusic(HWND hWnd, int music)
 {
 	MCI_OPEN_PARMS	mciOpenParms;
 	MCI_PLAY_PARMS	mciPlayParms;
 	DWORD			dwReturn;
 	char			string[MAX_PATH];
+	char			buf[100];
+
+
+	if (m_bCDAudio)
+	{
+		return PlayCDAudio(hWnd, music);
+	}
 
 	if (!m_bEnable)  return TRUE;
 	if (m_midiVolume == 0)  return TRUE;
 	InitMidiVolume(m_midiVolume);
 	m_lastMidiVolume = m_midiVolume;
 
-	if (lpszMIDIFilename[1] == ':')  // nom complet "D:\REP..." ?
-	{
-		strcpy(string, lpszMIDIFilename);
-	}
-	else
-	{
-		GetCurrentDir(string, MAX_PATH - 30);
-		strcat(string, lpszMIDIFilename);
-	}
+	GetCurrentDir(string, MAX_PATH - 30);
+	sprintf(buf, "sound\\music%.3d.blp", music - 1);
+	strcat(string, buf);
 
 	// Open the device by specifying the device and filename.
 	// MCI will attempt to choose the MIDI mapper as the output port.
-	mciOpenParms.lpstrDeviceType = "sequencer";
+	mciOpenParms.dwCallback = 0;
+	mciOpenParms.wDeviceID = 0;
+	mciOpenParms.lpstrDeviceType = (LPSTR)MCI_DEVTYPE_SEQUENCER;
 	mciOpenParms.lpstrElementName = string;
 	dwReturn = mciSendCommand(NULL,
 		MCI_OPEN,
@@ -595,6 +598,8 @@ BOOL CSound::PlayMusic(HWND hWnd, LPSTR lpszMIDIFilename)
 	m_MidiDeviceID = mciOpenParms.wDeviceID;
 
 	// Begin playback. 
+	mciPlayParms.dwFrom = 0;
+	mciPlayParms.dwTo = 0;
 	mciPlayParms.dwCallback = (DWORD)hWnd;
 	dwReturn = mciSendCommand(m_MidiDeviceID,
 		MCI_PLAY,
@@ -603,13 +608,13 @@ BOOL CSound::PlayMusic(HWND hWnd, LPSTR lpszMIDIFilename)
 	if (dwReturn != 0)
 	{
 		OutputDebug("PlayMusic-2\n");
-		mciGetErrorStringA(dwReturn, string, 128);
+		mciGetErrorString(dwReturn, string, 128);
 		OutputDebug(string);
 		StopMusic();
 		return FALSE;
 	}
 
-	strcpy(m_MIDIFilename, lpszMIDIFilename);
+	m_music = music;
 
 	return TRUE;
 }
@@ -623,7 +628,7 @@ BOOL CSound::RestartMusic()
 	if (m_midiVolume == 0)  return TRUE;
 	if (m_MIDIFilename[0] == 0)  return FALSE;
 
-	return PlayMusic(m_hWnd, m_MIDIFilename);
+	return PlayMusic(m_hWnd, m_music);
 }
 
 // Shuts down the MIDI player.
@@ -682,4 +687,76 @@ void CSound::SetSuspendSkip(int nb)
 void CSound::SetCDAudio(BOOL bCDAudio)
 {
 	m_bCDAudio = bCDAudio;
+}
+
+BOOL CSound::PlayCDAudio(HWND hWnd, int track)
+{
+	MCIERROR dwReturn;
+	MCI_PLAY_PARMS mciPlayParms;
+	MCI_SET_PARMS mciSetParms;
+	MCI_OPEN_PARMS mciOpenParms;
+	char string[MAX_PATH];
+
+	if (!m_bEnable) return TRUE;
+	if (m_midiVolume == 0) return TRUE;
+	InitMidiVolume(m_midiVolume);
+	m_lastMidiVolume = m_midiVolume;
+	mciOpenParms.dwCallback = 0;
+	mciOpenParms.wDeviceID = 0;
+	mciOpenParms.lpstrAlias = NULL;
+	mciOpenParms.lpstrDeviceType = (LPSTR)MCI_DEVTYPE_CD_AUDIO;
+	dwReturn = mciSendCommand(0,
+		MCI_OPEN,
+		MCI_OPEN_TYPE_ID | MCI_OPEN_TYPE,
+		(DWORD)(LPVOID)&mciOpenParms);
+	if (dwReturn != 0)
+	{
+		OutputDebug("PlayCDAudio-1\n");
+		mciGetErrorString(dwReturn, string, 128);
+		OutputDebug(string);
+		// Failed to open device. Don't close it; just return error.
+		return FALSE;
+	}
+
+	// The device opened successfully; get the device ID.
+	m_MidiDeviceID = mciOpenParms.wDeviceID;
+
+	mciSetParms.dwCallback = 0;
+	mciSetParms.dwAudio = 0;
+	mciSetParms.dwTimeFormat = MCI_FORMAT_TMSF;
+
+	dwReturn = mciSendCommand(mciOpenParms.wDeviceID,
+		MCI_SET,
+		MCI_SET_TIME_FORMAT,
+		(DWORD)(LPVOID)&mciSetParms);
+
+	if (dwReturn != 0)
+	{
+		OutputDebug("PlayCDAudio-2\n");
+		mciGetErrorString(dwReturn, string, 128);
+		OutputDebug(string);
+		StopMusic();
+		return FALSE;
+	}
+
+	mciPlayParms.dwCallback = (DWORD)(LPVOID)hWnd;
+	mciPlayParms.dwFrom = track;
+	mciPlayParms.dwTo = track + 1;
+	dwReturn = mciSendCommand(m_MidiDeviceID,
+		MCI_PLAY,
+		MCI_TRACK | MCI_NOTIFY | MCI_WAIT,
+		(DWORD)(LPVOID)&mciPlayParms);
+
+	if (dwReturn != 0)
+	{
+		OutputDebug("PlayCDAudio-3\n");
+		mciGetErrorString(dwReturn, string, 128);
+		OutputDebug(string);
+		StopMusic();
+		return FALSE;
+	}
+
+	m_music = track;
+
+	return TRUE;
 }

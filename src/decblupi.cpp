@@ -4098,11 +4098,6 @@ BOOL CDecor::DecorDetect(RECT rect, BOOL bCaisse)
 	return FALSE;
 }
 
-BOOL CDecor::DecorDetect(RECT rect)
-{
-	return DecorDetect(rect, TRUE);
-}
-
 BOOL CDecor::TestPath(RECT rect, POINT start, POINT end)
 {
 	int num = abs(end.x - start.x);

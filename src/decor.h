@@ -64,6 +64,24 @@ typedef struct
 }
 NetMessage;
 
+typedef struct
+{
+	short majRev;
+	short minRev;
+	short reserve1[100];
+	POINT posDecor;
+	POINT dimDecor;
+	short world;
+	short music;
+	short region;
+	short reserve2[51];
+	POINT blupiPos[4];
+	int blupiDir[4];
+	char name[100];
+	short reserve3[196];
+}
+DescFile;
+
 class CDecor
 {
 public:
@@ -90,7 +108,7 @@ public:
 	POINT	DecorNextAction();
 	void	SetInput(int keys);
 	void	SetJoystickEnable(BOOL bJoystick);
-	void	SetFieldD814(BOOL param_1);
+	void	SetDemoPlay(BOOL param_1);
 	void	PlaySound(int sound, POINT pos, BOOL bLocal);
 	void	PlaySound(int sound, POINT pos); // hack
 	void	StopSound(int sound);
@@ -156,8 +174,7 @@ public:
 	BOOL	IsPassIcon(int icon);
 	BOOL	IsBlocIcon(int icon);
 	BOOL	IsVentillo(POINT pos);
-	void	ModifDecor(POINT pos, int icon, BOOL _foo);
-	void	ModifDecor(POINT pos, int icon); // hack
+	void	ModifDecor(POINT pos, int icon, BOOL bMulti=TRUE);
 	BOOL	IsRightBorder(POINT cel, POINT offset);
 	BOOL	IsFromage(POINT cel);
 	BOOL	IsGrotte(POINT cel);
@@ -193,8 +210,7 @@ public:
 	void	BlupiDead(int action, int action2);
 	POINT	GetPosDecor(POINT pos);
 	void	BlupiAddFifo(POINT pos);
-	BOOL	DecorDetect(RECT rect, BOOL bCaisse);
-	BOOL	DecorDetect(RECT rect); // hack
+	BOOL	DecorDetect(RECT rect, BOOL bCaisse=TRUE);
 	void	GetBlupiInfo(BOOL *pbHelico, BOOL *pbJeep, BOOL *pbSkate,
 		BOOL *pbNage);
 
@@ -266,12 +282,12 @@ public:
 
 	// DecIO.cpp
 	void	GetMissionPath(char *out, int gamer, int mission, BOOL bUser);
-	BOOL	CurrentWrite(int gamer, int mission, BOOL bUser);
-	BOOL	CurrentRead(int gamer, int mission, BOOL bUser);
+	BOOL	Write(int gamer, int mission, BOOL bUser);
+	BOOL	Read(int gamer, int mission, BOOL bUser);
 	BOOL	SomethingMissionPath(int gamer, int mission, BOOL bUser);
 	BOOL	MissionStart(int gamer, int mission, BOOL bUser);
-	BOOL	Read(int gamer, int mission, BOOL *pbMission, BOOL *pbPrivate);
-	BOOL	Write(int gamer, int mission, char* param3);
+	BOOL	CurrentRead(int gamer, int mission, BOOL *pbMission, BOOL *pbPrivate);
+	BOOL	CurrentWrite(int gamer, int mission, char* param3);
 
 	BOOL	SearchWorld(int world, POINT *blupi, int *dir);
 	BOOL	SearchDoor(int n, POINT *cel, POINT *blupi);

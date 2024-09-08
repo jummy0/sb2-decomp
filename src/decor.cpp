@@ -983,7 +983,7 @@ void CDecor::SetJoystickEnable(BOOL bJoystick)
 	m_bJoystick = bJoystick;
 }
 
-void CDecor::SetFieldD814(BOOL param)
+void CDecor::SetDemoPlay(BOOL param)
 {
 	m_bD814 = param;
 }

@@ -549,11 +549,6 @@ void CDecor::ModifDecor(POINT pos, int icon, BOOL bMulti)
 	m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon = icon;
 }
 
-void CDecor::ModifDecor(POINT pos, int icon)
-{
-	ModifDecor(pos, icon, TRUE);
-}
-
 BOOL CDecor::IsRightBorder(POINT pos, POINT offset)
 {
 	return FALSE; // TODO

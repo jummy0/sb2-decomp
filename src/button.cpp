@@ -46,7 +46,7 @@ CButton::~CButton()
 // Create a new Button
 
 BOOL CButton::Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
-	POINT pos, int type, int* pMenu, int nbMenu, int* pToolTips, int nbToolTips, BOOL bMinimizeRedraw, int region, UINT message)
+	POINT pos, int type, BOOL bMinimizeRedraw, UINT message)
 {
 	POINT iconDim;
 	int i, icon;
@@ -85,40 +85,22 @@ BOOL CButton::Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
 	return TRUE;
 }
 
-void CButton::SetIconMenu(int* icon, int iconMenu)
+void CButton::SetIconMenu(int* pIcons, int nbMenu)
 {
-	int i = iconMenu;
-	int* iconMenu2;
-
-	if (0 < iconMenu)
+	for (int i = 0; i < nbMenu; i++)
 	{
-		iconMenu2 = m_iconMenu;
-		for (i = 0; i < iconMenu; i++)
-		{
-			icon++;
-			m_iconMenu[i] = icon[i];
-		}
+		m_iconMenu[i] = pIcons[i];
 	}
-	m_nbMenu = iconMenu;
+	m_nbMenu = nbMenu;
 }
 
-void CButton::SetToolTips(int* menu, int menuTooltips)
+void CButton::SetToolTips(int* pToolTips, int nbToolTips)
 {
-	int toolTips;
-	int* menuTool;
-	int i;
-
-	if (0 < menuTooltips)
+	for (int i = 0; i < nbToolTips; i++)
 	{
-		menuTool = m_toolTips;
-		i = menuTooltips;
-		for (i = 0; i < menuTooltips; i++)
-		{
-			menu++;
-			m_toolTips[i] = menu[i];
-		}
+		m_toolTips[i] = pToolTips[i];
 	}
-	m_nbToolTips = menuTooltips;
+	m_nbToolTips = nbToolTips;
 }
 
 // Draw a button in its state
@@ -130,12 +112,11 @@ void CButton::Draw()
 	RECT		rect;
 
 	if (m_bMinimizeRedraw && !m_bRedraw) return;
-	m_bRedraw = FALSE, m_bSomething = FALSE;
+	m_bRedraw = FALSE;
 
 	if (m_bHide) // Hidden button
 	{
-		pos.y = m_pos.y;
-		pos.x = m_pos.x;
+		pos = m_pos;
 		return;
 	}
 
@@ -145,7 +126,7 @@ void CButton::Draw()
 	}
 	else
 	{
-		m_pPixmap->DrawIcon(-1, CHBUTTON + m_type, 4, m_pos);
+		m_pPixmap->DrawIcon(-1, CHBUTTON + m_type, m_bSomething ? 5 : 4, m_pos);
 	}
 
 	if (m_nbMenu == 0) return;

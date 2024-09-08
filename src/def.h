@@ -13,7 +13,7 @@
 #define _DEMO			FALSE	// TRUE=demo, FALSE=complet
 #define _EGAMES			FALSE	// TRUE version pour eGames
 #define _SE				FALSE	// TRUE eGames Special Edition
-#define _INTRO			!_EGAMES	// TRUE si images d'introduction
+#define _INTRO			FALSE	// TRUE si images d'introduction
 
 // additional flags
 #define _CD				FALSE	// whether to require the game CD
@@ -433,6 +433,12 @@ enum {
 	WM_DECOR3,
 	WM_DECOR4,
 	WM_DECOR5,
+	WM_DECOR6,
+	WM_DECOR7,
+	WM_DECOR8,
+	WM_DECOR9,
+	WM_DECOR10,
+	WM_DECOR11,
 
 	WM_BUTTON0 = WM_USER + 200,
 	WM_BUTTON1,
