@@ -315,42 +315,42 @@ void CPixmap::QuickIcon(int channel, int rank, POINT pos)
 	if (channel == CHOBJECT)
 	{
 		if (table_icon_object[0] <= rank) return;
-		rect.left = table_icon_object[rank * 6 + 0];
-		rect.top = table_icon_object[rank * 6 + 1];
-		rect.right = rect.left + table_icon_object[rank * 6 + 4];
-		rect.bottom = rect.top + table_icon_object[rank * 6 + 5];
-		pos.x += table_icon_object[rank * 6 + 2];
-		pos.y += table_icon_object[rank * 6 + 3];
+		rect.left = table_icon_object[rank * 6 + 0 + 1];
+		rect.top = table_icon_object[rank * 6 + 1 + 1];
+		rect.right = rect.left + table_icon_object[rank * 6 + 4 + 1];
+		rect.bottom = rect.top + table_icon_object[rank * 6 + 5 + 1];
+		pos.x += table_icon_object[rank * 6 + 2 + 1];
+		pos.y += table_icon_object[rank * 6 + 3 + 1];
 	}
 	else if (channel == CHELEMENT)
 	{
 		if (table_icon_element[0] <= rank) return;
-		rect.left = table_icon_element[rank * 6 + 0];
-		rect.top = table_icon_element[rank * 6 + 1];
-		rect.right = rect.left + table_icon_element[rank * 6 + 4];
-		rect.bottom = rect.top + table_icon_element[rank * 6 + 5];
-		pos.x += table_icon_element[rank * 6 + 2];
-		pos.y += table_icon_element[rank * 6 + 3];
+		rect.left = table_icon_element[rank * 6 + 0 + 1];
+		rect.top = table_icon_element[rank * 6 + 1 + 1];
+		rect.right = rect.left + table_icon_element[rank * 6 + 4 + 1];
+		rect.bottom = rect.top + table_icon_element[rank * 6 + 5 + 1];
+		pos.x += table_icon_element[rank * 6 + 2 + 1];
+		pos.y += table_icon_element[rank * 6 + 3 + 1];
 	}
 	else if (IsBlupiChannel(channel))
 	{
 		if (table_icon_blupi[0] <= rank) return;
-		rect.left = table_icon_blupi[rank * 6 + 0];
-		rect.top = table_icon_blupi[rank * 6 + 1];
-		rect.right = rect.left + table_icon_blupi[rank * 6 + 4];
-		rect.bottom = rect.top + table_icon_blupi[rank * 6 + 5];
-		pos.x += table_icon_blupi[rank * 6 + 2];
-		pos.y += table_icon_blupi[rank * 6 + 3];
+		rect.left = table_icon_blupi[rank * 6 + 0 + 1];
+		rect.top = table_icon_blupi[rank * 6 + 1 + 1];
+		rect.right = rect.left + table_icon_blupi[rank * 6 + 4 + 1];
+		rect.bottom = rect.top + table_icon_blupi[rank * 6 + 5 + 1];
+		pos.x += table_icon_blupi[rank * 6 + 2 + 1];
+		pos.y += table_icon_blupi[rank * 6 + 3 + 1];
 	}
 	else if (channel == CHEXPLO)
 	{
 		if (table_icon_explo[0] <= rank) return;
-		rect.left = table_icon_explo[rank * 6 + 0];
-		rect.top = table_icon_explo[rank * 6 + 1];
-		rect.right = rect.left + table_icon_explo[rank * 6 + 4];
-		rect.bottom = rect.top + table_icon_explo[rank * 6 + 5];
-		pos.x += table_icon_explo[rank * 6 + 2];
-		pos.y += table_icon_explo[rank * 6 + 3];
+		rect.left = table_icon_explo[rank * 6 + 0 + 1];
+		rect.top = table_icon_explo[rank * 6 + 1 + 1];
+		rect.right = rect.left + table_icon_explo[rank * 6 + 4 + 1];
+		rect.bottom = rect.top + table_icon_explo[rank * 6 + 5 + 1];
+		pos.x += table_icon_explo[rank * 6 + 2 + 1];
+		pos.y += table_icon_explo[rank * 6 + 3 + 1];
 	}
 	else
 	{
@@ -1223,42 +1223,42 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 	if (channel == CHOBJECT)
 	{
 		if (table_icon_object[0] <= rank) return FALSE;
-		rect.left = table_icon_object[rank * 6 + 0];
-		rect.top = table_icon_object[rank * 6 + 1];
-		rect.right = rect.left + table_icon_object[rank * 6 + 4];
-		rect.bottom = rect.top + table_icon_object[rank * 6 + 5];
-		pos.x += table_icon_object[rank * 6 + 2];
-		pos.y += table_icon_object[rank * 6 + 3];
+		rect.left = table_icon_object[rank * 6 + 0 + 1];
+		rect.top = table_icon_object[rank * 6 + 1 + 1];
+		rect.right = rect.left + table_icon_object[rank * 6 + 4 + 1];
+		rect.bottom = rect.top + table_icon_object[rank * 6 + 5 + 1];
+		pos.x += table_icon_object[rank * 6 + 2 + 1];
+		pos.y += table_icon_object[rank * 6 + 3 + 1];
 	}
 	else if (channel == CHELEMENT)
 	{
 		if (table_icon_element[0] <= rank) return FALSE;
-		rect.left = table_icon_element[rank * 6 + 0];
-		rect.top = table_icon_element[rank * 6 + 1];
-		rect.right = rect.left + table_icon_element[rank * 6 + 4];
-		rect.bottom = rect.top + table_icon_element[rank * 6 + 5];
-		pos.x += table_icon_element[rank * 6 + 2];
-		pos.y += table_icon_element[rank * 6 + 3];
+		rect.left = table_icon_element[rank * 6 + 0 + 1];
+		rect.top = table_icon_element[rank * 6 + 1 + 1];
+		rect.right = rect.left + table_icon_element[rank * 6 + 4 + 1];
+		rect.bottom = rect.top + table_icon_element[rank * 6 + 5 + 1];
+		pos.x += table_icon_element[rank * 6 + 2 + 1];
+		pos.y += table_icon_element[rank * 6 + 3 + 1];
 	}
 	else if (IsBlupiChannel(channel))
 	{
 		if (table_icon_blupi[0] <= rank) return FALSE;
-		rect.left = table_icon_blupi[rank * 6 + 0];
-		rect.top = table_icon_blupi[rank * 6 + 1];
-		rect.right = rect.left + table_icon_blupi[rank * 6 + 4];
-		rect.bottom = rect.top + table_icon_blupi[rank * 6 + 5];
-		pos.x += table_icon_blupi[rank * 6 + 2];
-		pos.y += table_icon_blupi[rank * 6 + 3];
+		rect.left = table_icon_blupi[rank * 6 + 0 + 1];
+		rect.top = table_icon_blupi[rank * 6 + 1 + 1];
+		rect.right = rect.left + table_icon_blupi[rank * 6 + 4 + 1];
+		rect.bottom = rect.top + table_icon_blupi[rank * 6 + 5 + 1];
+		pos.x += table_icon_blupi[rank * 6 + 2 + 1];
+		pos.y += table_icon_blupi[rank * 6 + 3 + 1];
 	}
 	else if (channel == CHEXPLO)
 	{
 		if (table_icon_explo[0] <= rank) return FALSE;
-		rect.left = table_icon_explo[rank * 6 + 0];
-		rect.top = table_icon_explo[rank * 6 + 1];
-		rect.right = rect.left + table_icon_explo[rank * 6 + 4];
-		rect.bottom = rect.top + table_icon_explo[rank * 6 + 5];
-		pos.x += table_icon_explo[rank * 6 + 2];
-		pos.y += table_icon_explo[rank * 6 + 3];
+		rect.left = table_icon_explo[rank * 6 + 0 + 1];
+		rect.top = table_icon_explo[rank * 6 + 1 + 1];
+		rect.right = rect.left + table_icon_explo[rank * 6 + 4 + 1];
+		rect.bottom = rect.top + table_icon_explo[rank * 6 + 5 + 1];
+		pos.x += table_icon_explo[rank * 6 + 2 + 1];
+		pos.y += table_icon_explo[rank * 6 + 3 + 1];
 	}
 	else
 	{
