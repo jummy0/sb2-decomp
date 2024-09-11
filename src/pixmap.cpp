@@ -1574,7 +1574,7 @@ void CPixmap::MouseUpdate()
 {
 	RECT	oldRect, newRect, rcRect;
 
-	if ( m_lpDDSurface[CHBLUPI] == NULL )  return;
+	if ( m_lpDDSurface[CHELEMENT] == NULL )  return;
 	if ( m_mouseType != MOUSETYPEGRA )  return;
 	if ( m_mouseSprite == SPRITE_EMPTY )  return;
 	if ( !m_bMouseShow )  return;
@@ -1681,22 +1681,22 @@ void CPixmap::MouseBackDraw()
 		rcRect.left -= dst.x;
 		dst.x = 0;
 	}
-	if ( dst.x+DIMBLUPIX > LXIMAGE )
+	if ( dst.x + rcRect.right - rcRect.left > LXIMAGE )
 	{
-		rcRect.right -= (dst.x+DIMBLUPIX)-LXIMAGE;
+		rcRect.right -= (dst.x + rcRect.right - rcRect.left)-LXIMAGE;
 	}
 	if ( dst.y < 0 )
 	{
 		rcRect.top -= dst.y;
 		dst.y = 0;
 	}
-	if ( dst.y+DIMBLUPIY > LYIMAGE )
+	if ( dst.y + rcRect.bottom - rcRect.top > LYIMAGE )
 	{
-		rcRect.bottom -= (dst.y+DIMBLUPIY)-LYIMAGE;
+		rcRect.bottom -= (dst.y + rcRect.bottom - rcRect.top)-LYIMAGE;
 	}
 
 	// Dessine le lutin dans m_lpDDSBack.
-	BltFast(m_lpDDSBack, CHELEMENT, dst, rcRect, 0);
+	BltFast(m_lpDDSBack, CHELEMENT, dst, rcRect, 1);
 }
 
 // Sauve le fond sous la souris.
@@ -1708,7 +1708,7 @@ void CPixmap::MouseBackSave()
 	POINT		dst;
 	RECT		rcRect;
 
-	if ( m_lpDDSurface[CHBLUPI] == NULL )  return;
+	if ( m_lpDDSurface[CHELEMENT] == NULL )  return;
 	if ( m_mouseType != MOUSETYPEGRA )  return;
 	if ( m_mouseSprite == SPRITE_EMPTY )  return;
 	if ( !m_bMouseShow )  return;
@@ -1770,7 +1770,7 @@ void CPixmap::MouseBackRestore()
 	POINT		dst;
 	RECT		rcRect;
 
-	if ( m_lpDDSurface[CHBLUPI] == NULL )  return;
+	if ( m_lpDDSurface[CHELEMENT] == NULL )  return;
 	if ( !m_bMouseBack )  return;
 
 	dst.x = m_mouseBackPos.x;
