@@ -78,7 +78,7 @@ protected:
 	void	MouseBackSave();
 	void	MouseBackRestore();
 	void	MouseBackDebug();
-	RECT	MouseRectSprite();
+	void	MouseRectSprite(RECT *rect, POINT *offset);
 	void	MouseHotSpot();
     BOOL    GetTrueColor();
 

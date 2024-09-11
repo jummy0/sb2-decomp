@@ -1665,7 +1665,7 @@ void CPixmap::MouseBackDraw()
 	POINT	dst;
 	RECT	rcRect;
 
-	if ( m_lpDDSurface[CHBLUPI] == NULL )  return;
+	if ( m_lpDDSurface[CHELEMENT] == NULL )  return;
 	if ( m_mouseType != MOUSETYPEGRA )  return;
 	if ( m_mouseSprite == SPRITE_EMPTY )  return;
 	if ( !m_bMouseShow )  return;
@@ -1674,7 +1674,7 @@ void CPixmap::MouseBackDraw()
 
 	dst.x  = m_mousePos.x - m_mouseHotSpot.x;
 	dst.y  = m_mousePos.y - m_mouseHotSpot.y;
-	rcRect = MouseRectSprite();
+	MouseRectSprite(&rcRect, &dst);
 
 	if ( dst.x < 0 )
 	{
@@ -1696,7 +1696,7 @@ void CPixmap::MouseBackDraw()
 	}
 
 	// Dessine le lutin dans m_lpDDSBack.
-	BltFast(m_lpDDSBack, CHBLUPI, dst, rcRect, 0);
+	BltFast(m_lpDDSBack, CHELEMENT, dst, rcRect, 0);
 }
 
 // Sauve le fond sous la souris.
@@ -1856,34 +1856,23 @@ void CPixmap::MouseBackDebug()
 // Retourne le rectangle correspondant au sprite
 // de la souris dans CHBLUPI.
 
-RECT CPixmap::MouseRectSprite()
+void CPixmap::MouseRectSprite(RECT *rect, POINT *offset)
 {
 	int		rank, nbx;
 	RECT	rcRect;
 
-	rank = 348;
-	if ( m_mouseSprite == SPRITE_ARROW   )  rank = 348;
-	if ( m_mouseSprite == SPRITE_POINTER )  rank = 349;
-	if ( m_mouseSprite == SPRITE_MAP     )  rank = 350;
-	if ( m_mouseSprite == SPRITE_WAIT    )  rank = 351;
-	if ( m_mouseSprite == SPRITE_FILL    )  rank = 352;
-	if ( m_mouseSprite == SPRITE_ARROWL  )  rank = 353;
-	if ( m_mouseSprite == SPRITE_ARROWR  )  rank = 354;
-	if ( m_mouseSprite == SPRITE_ARROWU  )  rank = 355;
-	if ( m_mouseSprite == SPRITE_ARROWD  )  rank = 356;
-	if ( m_mouseSprite == SPRITE_ARROWDL )  rank = 357;
-	if ( m_mouseSprite == SPRITE_ARROWDR )  rank = 358;
-	if ( m_mouseSprite == SPRITE_ARROWUL )  rank = 359;
-	if ( m_mouseSprite == SPRITE_ARROWUR )  rank = 360;
+	rank = 37;
+	if ( m_mouseSprite == SPRITE_POINTER )  rank = 38;
+	if ( m_mouseSprite == 11 )  rank = 39;
 
-	nbx = m_totalDim[CHBLUPI].x / m_iconDim[CHBLUPI].x;
+	rect->left = table_icon_element[rank * 6 + 0 + 1];
+	rect->right = rect->left + table_icon_element[rank * 6 + 4 + 1];
+	rect->top = table_icon_element[rank * 6 + 1 + 1];
+	rect->bottom = rect->top + table_icon_element[rank * 6 + 5 + 1];
+	offset->x += table_icon_element[rank * 6 + 2 + 1];
+	offset->y += table_icon_element[rank * 6 + 3 + 1];
 
-	rcRect.left   = (rank%nbx)*m_iconDim[CHBLUPI].x;
-	rcRect.top    = (rank/nbx)*m_iconDim[CHBLUPI].y;
-	rcRect.right  = rcRect.left+m_iconDim[CHBLUPI].x;
-	rcRect.bottom = rcRect.top +m_iconDim[CHBLUPI].y;
-
-	return rcRect;
+	return;
 }
 
 // Initialise le hot spot selon le sprite en cours.
