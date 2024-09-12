@@ -310,7 +310,7 @@ void CDecor::BlupiStep()
 	int m_blupiSpeedX = 0; //
 	int m_blupiSpeedY = 0; // lol. lmao even
 	POINT tinyPoint;
-	POINT tinyPoint2;
+	POINT tinyPoint2 = m_blupiPos; // = m_blupiPos ?
 	BlupiAdjust();
 	//m_blupiLastPos = m_blupiPos;
 	POINT tinyPoint3 = m_blupiPos;
@@ -386,7 +386,7 @@ void CDecor::BlupiStep()
 	rect.bottom = tinyPoint3.y + 20;
 	BOOL flag5 = DecorDetect(rect);
 	int detectIcon = m_detectIcon;
-	if (!m_blupiAir && !m_blupiHelico && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiJeep && !m_blupiTank && !m_blupiNage && !m_blupiSurf && !m_blupiSuspend && flag4 && m_blupiFocus)
+	if (!m_blupiAir && !m_blupiHelico && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiJeep && !m_blupiTank && !m_blupiNage && !m_blupiSurf && !m_blupiSuspend && flag5 && m_blupiFocus)
 	{
 		if (m_blupiFocus)
 		{
@@ -2220,7 +2220,7 @@ void CDecor::BlupiStep()
 			PlaySound(35, tinyPoint3);
 		}
 	}
-	if ( !m_blupiHelico && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiTank && !m_blupiJeep && !m_blupiSkate && !flag4 && m_blupiTransport == -1 && m_blupiFocus)
+	if ( !m_blupiHelico && !m_blupiOver && !m_blupiBalloon && !m_blupiEcrase && !m_blupiTank && !m_blupiJeep && !m_blupiSkate /*&& !flag4*/ && m_blupiTransport == -1 && m_blupiFocus)
 	{
 		if (m_blupiDynamite > 0)
 		{
@@ -4066,7 +4066,7 @@ BOOL CDecor::DecorDetect(RECT rect, BOOL bCaisse)
 						src.top = i * 16;
 						src.bottom = src.top + 16;
 						RECT tinyRect;
-						if (IntersectRect(tinyRect, src, rect))
+						if (IntersectRect(&tinyRect, &src, &rect))
 						{
 							m_detectIcon = icon;
 							return TRUE;
@@ -4089,7 +4089,7 @@ BOOL CDecor::DecorDetect(RECT rect, BOOL bCaisse)
 		src.top = m_moveObject[num8].posCurrent.y;
 		src.bottom = m_moveObject[num8].posCurrent.y + 64;
 		RECT tinyRect;
-		if (IntersectRect(tinyRect, src, rect))
+		if (IntersectRect(&tinyRect, &src, &rect))
 		{
 			m_detectIcon = m_moveObject[num8].icon;
 			return TRUE;

@@ -186,7 +186,9 @@ protected:
 	void	MouseRelease();
 	void	MouseCapture();
 
-	BOOL	FUN_1fbd0();
+	void	DrawMap();
+	BOOL	CheckCDForWorld1();
+	void	NetAdjustLobbyButtons();
 
 
 protected:
@@ -274,7 +276,7 @@ protected:
 	BOOL		m_bDemoPlay;
 	DemoEvent*	m_pDemoBuffer;
 	int			m_demoTime;
-    int         m_input;
+    int         m_keyPress;
 	int			m_demoIndex;
 	int			m_demoEnd;
 	int			m_demoNumber;

@@ -1696,7 +1696,7 @@ void CPixmap::MouseBackDraw()
 	}
 
 	// Dessine le lutin dans m_lpDDSBack.
-	BltFast(m_lpDDSBack, CHELEMENT, dst, rcRect, 1);
+	BltFast(m_lpDDSBack, CHELEMENT, dst, rcRect, 0);
 }
 
 // Sauve le fond sous la souris.
@@ -1786,18 +1786,18 @@ void CPixmap::MouseBackRestore()
 		rcRect.left -= dst.x;
 		dst.x = 0;
 	}
-	if ( dst.x+DIMBLUPIX > LXIMAGE )
+	if ( dst.x+ rcRect.right - rcRect.left > LXIMAGE )
 	{
-		rcRect.right -= (dst.x+DIMBLUPIX)-LXIMAGE;
+		rcRect.right -= (dst.x+ rcRect.right - rcRect.left)-LXIMAGE;
 	}
 	if ( dst.y < 0 )
 	{
 		rcRect.top -= dst.y;
 		dst.y = 0;
 	}
-	if ( dst.y+DIMBLUPIY > LYIMAGE )
+	if ( dst.y+ rcRect.top - rcRect.bottom > LYIMAGE )
 	{
-		rcRect.bottom -= (dst.y+DIMBLUPIY)-LYIMAGE;
+		rcRect.bottom -= (dst.y+ rcRect.top - rcRect.bottom)-LYIMAGE;
 	}
 
     while( TRUE )

@@ -13,8 +13,6 @@ extern POINT ConvLongToPos(LPARAM lParam);
 
 extern void InitRandom();
 extern int  Random(int min, int max);
-extern BOOL IntersectRect(RECT dst, RECT src1, RECT src2);
-extern BOOL IsRectEmpty(RECT rect);
 
 extern void GetCurrentDir(char *pName, int lg);
 extern void AddCDPath(char *pFilename);

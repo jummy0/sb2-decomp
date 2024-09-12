@@ -579,7 +579,7 @@ BOOL CSound::PlayMusic(HWND hWnd, int music)
 	// MCI will attempt to choose the MIDI mapper as the output port.
 	mciOpenParms.dwCallback = 0;
 	mciOpenParms.wDeviceID = 0;
-	mciOpenParms.lpstrDeviceType = (LPSTR)MCI_DEVTYPE_SEQUENCER;
+	mciOpenParms.lpstrDeviceType = "sequencer";
 	mciOpenParms.lpstrElementName = string;
 	dwReturn = mciSendCommand(NULL,
 		MCI_OPEN,
@@ -704,7 +704,7 @@ BOOL CSound::PlayCDAudio(HWND hWnd, int track)
 	mciOpenParms.dwCallback = 0;
 	mciOpenParms.wDeviceID = 0;
 	mciOpenParms.lpstrAlias = NULL;
-	mciOpenParms.lpstrDeviceType = (LPSTR)MCI_DEVTYPE_CD_AUDIO;
+	mciOpenParms.lpstrDeviceType = "cdaudio";
 	dwReturn = mciSendCommand(0,
 		MCI_OPEN,
 		MCI_OPEN_TYPE_ID | MCI_OPEN_TYPE,
