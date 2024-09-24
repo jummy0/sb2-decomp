@@ -2838,9 +2838,10 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 							ChangePhase(WM_PHASE_INFO);
 							return TRUE;
 						}
-						if ((m_phase == WM_PHASE_INIT) || (m_phase == WM_PHASE_WINMULTI)) ChangePhase(WM_PHASE_GAMER); return TRUE;
-						if ((m_phase == WM_PHASE_BUILD) || ((m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_LOST))) ChangePhase(WM_PHASE_INFO); return TRUE;
-						if (((m_phase != WM_PHASE_INFO) && (m_phase != WM_PHASE_STOP)) && (m_phase != WM_PHASE_HELP))
+
+						if (m_phase == WM_PHASE_INIT || m_phase == WM_PHASE_WINMULTI) ChangePhase(WM_PHASE_GAMER); return TRUE;
+						if (m_phase == WM_PHASE_BUILD || m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_LOST) ChangePhase(WM_PHASE_INFO); return TRUE;
+						if (m_phase != WM_PHASE_INFO && m_phase != WM_PHASE_STOP && m_phase != WM_PHASE_HELP)
 						{
 							if (m_phase == WM_PHASE_SERVICE)
 							{
@@ -2857,13 +2858,13 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 								ChatSend();
 								return TRUE;
 							}
-							if (((m_phase != WM_PHASE_GREAD) && (m_phase != WM_PHASE_GREADp)) || ((m_choiceIndex < 0 || LoadState(m_choiceIndex) == FALSE)))
+							if ((m_phase != WM_PHASE_GREAD && m_phase != WM_PHASE_GREADp) || m_choiceIndex < 0 || !LoadState(m_choiceIndex))
 							{
 								if (m_phase != WM_PHASE_GWRITE) return TRUE;
 
 								if (m_choiceIndex < 0) return TRUE;
 
-								if (SaveState(m_choiceIndex) == FALSE) return TRUE;
+								if (!SaveState(m_choiceIndex)) return TRUE;
 							}
 						}
 					}
@@ -4864,4 +4865,44 @@ void CEvent::DrawMap()
 void CEvent::NetAdjustLobbyButtons()
 {
 	//TODO
+}
+
+BOOL CEvent::CopyMission(char *srcFileName, char *dstFileName)
+{
+	FILE *srcFile = NULL;
+	FILE *destFile = NULL;
+	size_t num;
+	BOOL bOK = TRUE;
+	void *buffer = malloc(2560);
+
+	if (buffer)
+	{
+		srcFile = fopen(srcFileName, "rb");
+		if (!srcFile) goto die;
+		destFile = fopen(dstFileName, "wb");
+		if (destFile)
+		{
+			do
+			{
+				num = fread(buffer, 1, 2560, srcFile);
+				if (ferror(srcFile)) break; // *
+				if (num <= 0)
+				{
+					bOK = FALSE;
+					break;
+				}
+				fwrite(buffer, 1, num, destFile);
+			} while (!ferror(destFile)); // *
+		}
+	}
+	if (srcFile) fclose(srcFile);
+die:
+	if (destFile) fclose(destFile);
+	if (buffer) free(buffer);
+	return bOK;
+
+	// *
+	// original code relies on undefined behavior specific to older msvc :
+	// if (srcFile->_flag & _IOERR)
+	// while (!(destFile->_flag & _IOERR))
 }

@@ -215,7 +215,7 @@ public:
 		BOOL *pbNage);
 
 	// DecMove.cpp
-	BOOL	TestPath(RECT rect, POINT start, POINT end);
+	BOOL	TestPath(RECT rect, POINT start, POINT *end);
 	void	MoveObjectPollution();
 	void	MoveObjectPlouf(POINT pos);
 	void	MoveObjectTiplouf(POINT pos);

@@ -31,7 +31,7 @@ NamedGUID;
 typedef struct
 {
 	int nb;
-	NamedGUID* list[MAXSESSION];
+	NamedGUID (*pList)[MAXSESSION];
 }
 NamedGUIDList;
 
@@ -48,9 +48,9 @@ public:
 	void FreeProviderList();
 	BOOL EnumSessions();
 	char* GetSessionName(int index);
-	BOOL JoinSession(int index);
+	BOOL JoinSession(int index, char* pPlayerName);
 	void FreeSessionList();
-	BOOL CreateSession(char* pName);
+	BOOL CreateSession(char* pSessionName, char* pPlayerName);
 	BOOL Send(LPVOID lpData, DWORD dwDataSize, DWORD dwFlags);
 	BOOL Receive(LPVOID pDest, DWORD dwDataSize, LPDWORD lpdwPlayer);
 	BOOL Close();

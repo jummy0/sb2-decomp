@@ -189,6 +189,7 @@ protected:
 	void	DrawMap();
 	BOOL	CheckCDForWorld1();
 	void	NetAdjustLobbyButtons();
+	BOOL	CopyMission(char *srcFileName, char *dstFileName);
 
 
 protected:

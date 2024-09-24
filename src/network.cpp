@@ -16,11 +16,11 @@ CNetwork::CNetwork()
 	m_dpid = 0;
 	m_bHost = FALSE;
 	m_providers.nb = 0;
-	*m_providers.list = NULL;
+	m_providers.pList = NULL;
 	m_sessions.nb = 0;
-	*m_sessions.list = NULL;
+	m_sessions.pList = NULL;
 	m_unknown.nb = 0;
-	*m_unknown.list = NULL;
+	m_unknown.pList = NULL;
 }
 
 CNetwork::~CNetwork()
@@ -36,8 +36,8 @@ static BOOL EnumProvidersCallback(LPGUID lpguidSP, LPSTR lpSPName,
 {
 	if (lpContext->nb < MAXSESSION)
 	{
-		lpContext->list[lpContext->nb]->guid = *lpguidSP;
-		strcpy(lpContext->list[lpContext->nb]->name, lpSPName);
+		lpContext->pList[lpContext->nb]->guid = *lpguidSP;
+		strcpy(lpContext->pList[lpContext->nb]->name, lpSPName);
 		lpContext->nb++;
 	}
 	return TRUE;
@@ -47,9 +47,9 @@ BOOL CNetwork::EnumProviders()
 {
 	FreeProviderList();
 	m_providers.nb = 0;
-	*m_providers.list = (NamedGUID*)malloc(MAXSESSION * sizeof(NamedGUID));
+	m_providers.pList = (NamedGUID(*)[MAXSESSION]) malloc(MAXSESSION * sizeof(NamedGUID));
 
-	if (!m_providers.list) return FALSE;
+	if (!m_providers.pList) return FALSE;
 #ifdef _UNICODE
 	if (DirectPlayEnumerate((LPDPENUMDPCALLBACK)EnumProvidersCallback, &m_providers) != DP_OK)
 #else
@@ -70,7 +70,7 @@ int CNetwork::GetNbProviders()
 char* CNetwork::GetProviderName(int index)
 {
 	if (index >= m_providers.nb) return NULL;
-	return m_providers.list[index]->name;
+	return m_providers.pList[index]->name;
 }
 
 BOOL CNetwork::CreateProvider(int index)
@@ -80,7 +80,7 @@ BOOL CNetwork::CreateProvider(int index)
 
 	if (index >= m_providers.nb) return FALSE;
 
-	if (DirectPlayCreate(&m_providers.list[index]->guid, &lpDP, 0) == DP_OK)
+	if (DirectPlayCreate(&m_providers.pList[index]->guid, &lpDP, 0) == DP_OK)
 	{
 		if (lpDP->QueryInterface(IID_IDirectPlay2A, (LPVOID*)&m_pDP) == DP_OK)
 		{
@@ -88,16 +88,16 @@ BOOL CNetwork::CreateProvider(int index)
 		}
 	}
 
-	if (lpDP != NULL) lpDP->Release();
+	if (lpDP) lpDP->Release();
 	return FALSE;
 }
 
 void CNetwork::FreeProviderList()
 {
-	if (m_providers.list) free(m_providers.list); // wrong
+	if (m_providers.pList) free(m_providers.pList); // wrong
 
 	m_providers.nb = 0;
-	*m_providers.list = NULL;
+	m_providers.pList = NULL;
 }
 
 
@@ -108,8 +108,8 @@ static BOOL EnumSessionsCallback(LPDPSESSIONDESC2 lpThisSD,
 
 	if (lpContext->nb < MAXSESSION)
 	{
-		lpContext->list[lpContext->nb]->guid = lpThisSD->guidInstance;
-		strcpy(lpContext->list[lpContext->nb]->name, lpThisSD->lpszSessionNameA);
+		lpContext->pList[lpContext->nb]->guid = lpThisSD->guidInstance;
+		strcpy(lpContext->pList[lpContext->nb]->name, lpThisSD->lpszSessionNameA);
 		lpContext->nb++;
 	}
 	return TRUE;
@@ -121,9 +121,9 @@ BOOL CNetwork::EnumSessions()
 
 	FreeSessionList();
 	m_sessions.nb = 0;
-	*m_sessions.list = (NamedGUID*)malloc(MAXSESSION * sizeof(NamedGUID));
+	m_sessions.pList = (NamedGUID(*)[MAXSESSION]) malloc(MAXSESSION * sizeof(NamedGUID));
 
-	if (!m_sessions.list) return FALSE;
+	if (!m_sessions.pList) return FALSE;
 
 	ZeroMemory(&desc, sizeof(desc));
 
@@ -142,10 +142,10 @@ BOOL CNetwork::EnumSessions()
 char* CNetwork::GetSessionName(int index)
 {
 	if (index >= m_sessions.nb) return NULL;
-	return m_sessions.list[index]->name;
+	return m_sessions.pList[index]->name;
 }
 
-BOOL CNetwork::JoinSession(int index)
+BOOL CNetwork::JoinSession(int index, char* pPlayerName)
 {
 	DPNAME name;
 	DPSESSIONDESC2 desc;
@@ -155,7 +155,7 @@ BOOL CNetwork::JoinSession(int index)
 
 	ZeroMemory(&desc, sizeof(desc));
 
-	desc.guidInstance = m_sessions.list[index]->guid;
+	desc.guidInstance = m_sessions.pList[index]->guid;
 
 	hr = m_pDP->Open(&desc, DPOPEN_OPENSESSION);
 	if (hr != DP_OK)
@@ -164,10 +164,10 @@ BOOL CNetwork::JoinSession(int index)
 		return FALSE;
 	}
 
+	name.dwSize = 16;
 	name.dwFlags = 0;
-	name.dwSize = sizeof(name);
+	name.lpszShortNameA = pPlayerName;
 	name.lpszLongNameA = NULL;
-
 	hr = m_pDP->CreatePlayer(&m_dpid, &name, NULL, NULL, 0, 0);
 	if (hr != DP_OK)
 	{
@@ -184,21 +184,22 @@ BOOL CNetwork::JoinSession(int index)
 
 void CNetwork::FreeSessionList()
 {
-	if (m_sessions.list) free(m_sessions.list);
+	if (m_sessions.pList) free(m_sessions.pList);
 
 	m_sessions.nb = 0;
-	*m_sessions.list = NULL;
+	m_sessions.pList = NULL;
 }
 
-BOOL CNetwork::CreateSession(char* pName)
+BOOL CNetwork::CreateSession(char* pSessionName, char* pPlayerName)
 {
+	DPNAME name;
 	DPSESSIONDESC2 desc;
 	HRESULT hr;
 
 	ZeroMemory(&desc, sizeof(desc));
 
 	desc.guidApplication = APP_GUID;
-	desc.lpszSessionNameA = pName;
+	desc.lpszSessionNameA = pSessionName;
 	desc.dwSize = sizeof(desc);
 	desc.dwFlags = DPSESSION_KEEPALIVE | DPSESSION_MIGRATEHOST;
 	desc.dwMaxPlayers = MAXPLAYERS;
@@ -207,13 +208,26 @@ BOOL CNetwork::CreateSession(char* pName)
 	if (hr != DP_OK)
 	{
 		TraceErrorDP(hr);
-		m_pDP->Close();
 		return FALSE;
 	}
 	else
 	{
-		m_bHost = TRUE;
-		return TRUE;
+		name.dwSize = 16;
+		name.dwFlags = 0;
+		name.lpszShortNameA = pPlayerName;
+		name.lpszLongNameA = NULL;
+		hr = m_pDP->CreatePlayer(&m_dpid, &name, NULL, NULL, 0, 0);
+		if (hr != DP_OK)
+		{
+			TraceErrorDP(hr);
+			m_pDP->Close();
+			return FALSE;
+		}
+		else
+		{
+			m_bHost = TRUE;
+			return TRUE;
+		}
 	}
 }
 
@@ -266,10 +280,10 @@ BOOL CNetwork::Close()
 
 void CNetwork::FreeUnknownList()
 {
-	if (m_unknown.list) free(m_unknown.list);
+	if (m_unknown.pList) free(m_unknown.pList);
 
 	m_unknown.nb = 0;
-	*m_unknown.list = NULL;
+	m_unknown.pList = NULL;
 }
 
 BOOL CNetwork::IsHost()
