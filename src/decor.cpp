@@ -1,13 +1,13 @@
 // Decor.cpp
 //
 
-#include <windows.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+//#include <windows.h>
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <math.h>
 #include <ddraw.h>
 #include "def.h"
-#include "resource.h"
+//#include "resource.h"
 #include "pixmap.h"
 #include "sound.h"
 #include "decor.h"
@@ -16,9 +16,7 @@
 #include "event.h"
 #include "dectables.h"
 #include "jauge.h"
-#include "network.h"
-
-
+//#include "network.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 

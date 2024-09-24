@@ -1,40 +1,30 @@
 // Event.cpp
 //
 
-#pragma once
-
-using namespace std;
-
 #include <windows.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <ddraw.h>
+//#include <ddraw.h>
 #include <direct.h>
 #include <io.h>
-#include <mbstring.h>
 #include "def.h"
 #include "resource.h"
-#include "pixmap.h"
-#include "sound.h"
+//#include "pixmap.h"
+//#include "sound.h"
 #include "decor.h"
 #include "movie.h"
-#include "button.h"
-#include "menu.h"
-#include "jauge.h"
+//#include "button.h"
+//#include "menu.h"
+//#include "jauge.h"
 #include "event.h"
 #include "text.h"
 #include "misc.h"
 #include "network.h"
 
-#pragma warning (disable : 4996)
-#pragma warning (disable : 4700)
-
 #define DEF_TIME_HELP  10000
 #define DEF_TIME_DEMO  1000
 #define MAXDEMO        2000
 #define MAXINDEX	   20
-
-
 
 typedef struct
 {
@@ -2500,7 +2490,7 @@ BOOL CEvent::DrawButtons()
 
 	if (m_phase == WM_PHASE_INIT)
 	{
-		DrawText(m_pPixmap, { 414, 446 }, (char*)"Version 2.2", FONTLITTLE);
+		DrawText(m_pPixmap, { 414, 446 }, "Version 2.2", FONTLITTLE);
 	}
 	
 	for (int i = 0; table[m_index].buttons[i].message != 0; i++)
@@ -2782,8 +2772,8 @@ BOOL CEvent::DrawButtons()
 			SetEnable(WM_BUTTON6, 0);
 			SetEnable(WM_BUTTON14, 0);
 		}
-		SetState(WM_BUTTON5, (m_pPixmap->GetTrueColor() == FALSE));
-		SetState(WM_BUTTON6, (m_pPixmap->GetTrueColor() != FALSE));
+		SetState(WM_BUTTON5, (m_pPixmap->GetTrueColorBack() == FALSE));
+		SetState(WM_BUTTON6, (m_pPixmap->GetTrueColorBack() != FALSE));
 		SetState(WM_BUTTON13, (m_jauges->GetHide() == FALSE));
 		SetState(WM_BUTTON14, (m_jauges->GetHide() != FALSE));
 		for (int j = 0; j < 6; j++)
@@ -3217,12 +3207,12 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 						{
 							if (m_phase == WM_PHASE_SERVICE)
 							{
-								ChangePhase(WM_PHASE_DPLAY_DO_SERVICE);
+								ChangePhase(WM_PHASE_DP_DOSERVICE);
 								return TRUE;
 							}
 							if (m_phase == WM_PHASE_CREATE)
 							{
-								ChangePhase(WM_PHASE_DPLAY_CREATE);
+								ChangePhase(WM_PHASE_DP_DOCREATE);
 								return TRUE;
 							}
 							if (m_phase == WM_PHASE_MULTI)
@@ -3443,8 +3433,8 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 			m_multi -= i;
 			if (m_multi < 1) m_multi = 1;
 
-			m_b6D34 = m_pDecor->Read(m_gamer, m_multi + 200, FALSE);
-			if (m_b6D34) DrawMap();
+			m_bDrawMap = m_pDecor->Read(m_gamer, m_multi + 200, FALSE);
+			if (m_bDrawMap) DrawMap();
 
 			NetSendLobby();
 			NetAdjustLobbyButtons();
@@ -3473,8 +3463,8 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 			m_multi += i;
 			if (m_multi > 12) m_multi = 12;
 
-			m_b6D34 = m_pDecor->Read(m_gamer, m_multi + 200, FALSE);
-			if (m_b6D34) DrawMap();
+			m_bDrawMap = m_pDecor->Read(m_gamer, m_multi + 200, FALSE);
+			if (m_bDrawMap) DrawMap();
 
 			NetSendLobby();
 			NetAdjustLobbyButtons();
@@ -3496,10 +3486,6 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 			return ChangePhase(WM_PHASE_INFO);
 		}
 		break;
-	case WM_MOVIE:
-		StartMovie("movie\\essai.avi");
-		ChangePhase(WM_PHASE_INIT);
-		return FALSE;
 	case WM_DECOR1:
 		SetState(WM_DECOR1, 1);
 		SetState(WM_DECOR2, 0);
@@ -4122,7 +4108,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 	{
 		m_bShowMouse = FALSE;
 	}
-	if (phase == WM_PHASE_1544)
+	if (phase == WM_PHASE_QUITPLAYTEST)
 	{
 		m_pDecor->Read(m_gamer, 999, TRUE);
 		phase = WM_PHASE_BUILD;
@@ -4166,7 +4152,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 		DemoRecStop();
 	}
 
-	if (phase == WM_PHASE_DOQUIT)
+	if (phase == WM_PHASE_QUITPLAY)
 	{
 		if (!m_bPrivate)
 		{
@@ -4443,7 +4429,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 				m_bNamesExist[i] = TRUE;
 				strcpy(m_gamerNameList[i], m_gamerName);
 			
-				m_pDecor->InitalizeDoors(door);
+				m_pDecor->InitializeDoors(door);
 				int num = 0;
 				for (j = 0; j < 200; j++)
 				{
@@ -5527,15 +5513,15 @@ void CEvent::ChangeButtons(int message)
 				m_pSound->SuspendMusic();
 			}
 		}
-		if (message == WM_BUTTON5 && m_pPixmap->GetTrueColor())
+		if (message == WM_BUTTON5 && m_pPixmap->GetTrueColorBack())
 		{
-			m_pPixmap->SetTrueColor(0);
+			m_pPixmap->SetTrueColorBack(0);
 			SetState(WM_BUTTON5, 1);
 			SetState(WM_BUTTON6, 0);
 		}
-		if (message == WM_BUTTON6 && !m_pPixmap->GetTrueColor())
+		if (message == WM_BUTTON6 && !m_pPixmap->GetTrueColorBack())
 		{
-			m_pPixmap->SetTrueColor(1);
+			m_pPixmap->SetTrueColorBack(1);
 			SetState(WM_BUTTON5, 0);
 			SetState(WM_BUTTON6, 1);
 		}
@@ -5658,4 +5644,14 @@ die:
 	// original code relies on undefined behavior specific to older msvc :
 	// if (srcFile->_flag & _IOERR)
 	// while (!(destFile->_flag & _IOERR))
+}
+
+void CEvent::DrawMap()
+{
+	// TODO
+}
+
+void CEvent::NetAdjustLobbyButtons()
+{
+	// TODO
 }

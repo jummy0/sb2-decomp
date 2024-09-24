@@ -3,7 +3,8 @@
 
 #pragma once
 
-#include <Windows.h>
+#include <windows.h>
+#include <WinDef.h>
 
 // prevent WinAPI from overriding our functions
 #undef PlaySound

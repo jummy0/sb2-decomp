@@ -7,94 +7,7 @@
 #include "dectables.h"
 
 
-BOOL CDecor::TestPath(RECT rect, POINT start, POINT end)
-{
-	int num = abs(end.x - start.x);
-	int num2 = abs(end.y - start.y);
 
-	POINT tinyPoint = start;
-	if (num > num2)
-	{
-		RECT rect2;
-		if (end.x > start.x)
-		{
-			for (int i = 0; i <= num; i++)
-			{
-				int j = i * (end.y - start.y) / num;
-				rect2.left = rect.left + i;
-				rect2.right = rect.right + i;
-				rect2.top = rect.top + j;
-				rect2.bottom = rect.bottom + j;
-				if (DecorDetect(rect2))
-				{
-					end = tinyPoint;
-					return FALSE;
-				}
-				tinyPoint.x = start.x + i;
-				tinyPoint.y = start.y + j;
-			}
-		}
-		if (end.x < start.x)
-		{
-			for (int i = 0; i >= -num; i--)
-			{
-				int j = i * (start.y - end.y) / num;
-				rect2.left = rect.left + i;
-				rect2.right = rect.right + i;
-				rect2.top = rect.top + j;
-				rect2.bottom = rect.bottom + j;
-				if (DecorDetect(rect2))
-				{
-					end = tinyPoint;
-					return FALSE;
-				}
-				tinyPoint.x = start.x + i;
-				tinyPoint.y = start.y + j;
-			}
-		}
-	}
-	else
-	{
-		RECT rect2;
-		if (end.y > start.y)
-		{
-			for (int j = 0; j <= num2; j++)
-			{
-				int i = j * (end.x - start.x) / num2;
-				rect2.left = rect.left + i;
-				rect2.right = rect.right + i;
-				rect2.top = rect.top + j;
-				rect2.bottom = rect.bottom + j;
-				if (DecorDetect(rect2))
-				{
-					end = tinyPoint;
-					return FALSE;
-				}
-				tinyPoint.x = start.x + i;
-				tinyPoint.y = start.y + j;
-			}
-		}
-		if (end.y < start.y)
-		{
-			for (int j = 0; j >= -num2; j--)
-			{
-				int i = j * (start.x - end.x) / num2;
-				rect2.left = rect.left + i;
-				rect2.right = rect.right + i;
-				rect2.top = rect.top + j;
-				rect2.bottom = rect.bottom + j;
-				if (DecorDetect(rect2))
-				{
-					end = tinyPoint;
-					return FALSE;
-				}
-				tinyPoint.x = start.x + i;
-				tinyPoint.y = start.y + j;
-			}
-		}
-	}
-	return TRUE;
-}
 
 
 void CDecor::MoveObjectPollution()
@@ -490,7 +403,7 @@ void CDecor::MoveObjectStepLine(int i)
 		tinyRect.top = m_moveObject[i].posCurrent.y;
 		tinyRect.bottom = m_moveObject[i].posCurrent.y + 16;
 		RECT tinyRect2;
-		flag = IntersectRect(tinyRect2, tinyRect, src);
+		flag = IntersectRect(&tinyRect2, &tinyRect, &src);
 		tinyPoint = m_moveObject[i].posCurrent;
 	}
 	POINT posCurrent;
@@ -517,7 +430,7 @@ void CDecor::MoveObjectStepLine(int i)
 		tinyRect.right = posCurrent.x + 60 - 10;
 		tinyRect.top = posCurrent.y + 10;
 		tinyRect.bottom = posCurrent.y + 60 - 10;
-		if (TestPath(tinyRect, m_moveObject[i].posCurrent, posCurrent))
+		if (TestPath(tinyRect, m_moveObject[i].posCurrent, &posCurrent))
 		{
 			m_moveObject[i].posCurrent = posCurrent;
 			m_moveObject[i].posStart = posCurrent;
@@ -1550,7 +1463,7 @@ void CDecor::DynamiteStart(int i, int dx, int dy)
 			src2.top = m_moveObject[i].posCurrent.y;
 			src2.bottom = m_moveObject[i].posCurrent.y + 20;
 			RECT tinyRect;
-			if (IntersectRect(tinyRect, src2, src))
+			if (IntersectRect(&tinyRect, &src2, &src))
 			{
 				if (m_moveObject[i].type == 12)
 				{
@@ -1614,7 +1527,7 @@ int CDecor::AscenseurDetect(RECT rect, POINT oldpos, POINT newpos)
 			if (num < 30)
 			{
 				RECT tinyRect;
-				if (IntersectRect(tinyRect, src, rect))
+				if (IntersectRect(&tinyRect, &src, &rect))
 				{
 					return i;
 				}
@@ -1627,7 +1540,7 @@ int CDecor::AscenseurDetect(RECT rect, POINT oldpos, POINT newpos)
 				for (int j = 0; j <= num / 30; j++)
 				{
 					RECT tinyRect;
-					if (IntersectRect(tinyRect, src, src2))
+					if (IntersectRect(&tinyRect, &src, &src2))
 					{
 						return i;
 					}
@@ -1769,7 +1682,7 @@ void CDecor::SearchLinkCaisse(int rank, BOOL bPop)
 						src2.right = src2.left + 64 + 1;
 						src2.bottom = src2.top + 64 + 1;
 						RECT tinyRect;
-						if (IntersectRect(tinyRect, src2, src) && AddLinkCaisse(num2))
+						if (IntersectRect(&tinyRect, &src2, &src) && AddLinkCaisse(num2))
 						{
 							flag = TRUE;
 						}
@@ -1892,7 +1805,7 @@ int CDecor::MockeryDetect(POINT pos)
 			src2.top = m_moveObject[i].posCurrent.y + 36;
 			src2.bottom = m_moveObject[i].posCurrent.y + 60;
 			RECT tinyRect;
-			if (IntersectRect(tinyRect, src2, src))
+			if (IntersectRect(&tinyRect, &src2, &src))
 			{
 				if (m_moveObject[i].type == 54)
 				{
@@ -1945,7 +1858,7 @@ BOOL CDecor::BlupiElectro(POINT pos)
 	src2.top = m_blupiPos.y + 11 - 40;
 	src2.bottom = m_blupiPos.y + 60 - 2 + 40;
 	RECT tinyRect;
-	return IntersectRect(tinyRect, src, src2);
+	return IntersectRect(&tinyRect, &src, &src2);
 }
 
 void CDecor::MoveObjectFollow(POINT pos)
@@ -1967,7 +1880,7 @@ void CDecor::MoveObjectFollow(POINT pos)
 			src2.top = m_moveObject[i].posCurrent.y - 100;
 			src2.bottom = m_moveObject[i].posCurrent.y + 60 + 100;
 			RECT tinyRect;
-			if (IntersectRect(tinyRect, src2, src))
+			if (IntersectRect(&tinyRect, &src2, &src))
 			{
 				m_moveObject[i].type = 97;
 				PlaySound(92, m_moveObject[i].posCurrent);
@@ -2028,7 +1941,7 @@ int CDecor::MoveAscenseurDetect(POINT pos, int height)
 			src2.top = m_moveObject[i].posCurrent.y;
 			src2.bottom = m_moveObject[i].posCurrent.y + 16;
 			RECT tinyRect;
-			if (IntersectRect(tinyRect, src2, src))
+			if (IntersectRect(&tinyRect, &src2, &src))
 			{
 				return i;
 			}
@@ -2054,7 +1967,7 @@ int CDecor::MoveChargeDetect(POINT pos)
 			src2.top = m_moveObject[i].posCurrent.y + 36;
 			src2.bottom = m_moveObject[i].posCurrent.y + 60;
 			RECT tinyRect;
-			if (IntersectRect(tinyRect, src2, src))
+			if (IntersectRect(&tinyRect, &src2, &src))
 			{
 				return i;
 			}
@@ -2080,7 +1993,7 @@ int CDecor::MovePersoDetect(POINT pos)
 			src2.top = m_moveObject[i].posCurrent.y + 36;
 			src2.bottom = m_moveObject[i].posCurrent.y + 60;
 			RECT tinyRect;
-			if (IntersectRect(tinyRect, src2, src))
+			if (IntersectRect(&tinyRect, &src2, &src))
 			{
 				return i;
 			}

@@ -1,18 +1,15 @@
 // Text.cpp
 
-#include <windows.h>
-#include <stdlib.h>
-#include <stdio.h>
+//#include <windows.h>
+//#include <stdlib.h>
+//#include <stdio.h>
 #include <ddraw.h>
 #include "def.h"
 #include "pixmap.h"
 #include "text.h"
 #include "texttables.h"
 
-#pragma warning (disable: 4996)
-
 /////////////////////////////////////////////////////////////////////////////
-
 
 // Retourne l'offset pour un caract�re donn�.
 

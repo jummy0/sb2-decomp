@@ -1,10 +1,10 @@
 // DecBlupi.cpp
 //
 
-#include "DEF.H"
-#include "DECOR.H"
-#include "MISC.H"
-#include "RESOURCE.H"
+#include "misc.h"
+#include "decor.h"
+#include "misc.h"
+//#include "resource.h"
 #include "dectables.h"
 
 int CDecor::GetBlupiChannelStandard()

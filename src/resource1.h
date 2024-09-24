@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by Eggbert2.rc
 //
+#pragma once
 #define IDS_STRING101                   101
 #define IDS_STRING102                   102
 #define IDC_CURSOR1                     102

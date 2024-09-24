@@ -2,6 +2,8 @@
 // Microsoft Visual C++ generated include file.
 // Used by Eggbert 2.rc
 //
+#pragma once
+
 #define TX_ACTION_GO                    1
 #define TX_ACTION_STOP                  2
 #define TX_ACTION_MANGE                 3
@@ -37,7 +39,6 @@
 #define TX_ACTION_REPEAT                33
 #define TX_ACTION_QARMURE               34
 #define TX_ACTION_FABARMURE             35
-<<<<<<<< HEAD:src/resource.h
 #define TX_IONAMEEX						100
 #define TX_IOFREE						101
 #define TX_OWNMISSION					102
@@ -116,8 +117,6 @@
 #define TX_SAVE_CGAME					270
 #define TX_GAMESAVED					288
 #define TX_NOTINDEMO					289
-
-========
 #define TX_IONAMEEX                     100
 #define TX_IOFREE                       101
 #define TX_OWNMISSION                   102
@@ -247,7 +246,6 @@
 #define TX_MISSIONFREE                  272
 #define TX_GAMESAVED                    288
 #define TX_NOTINDEMO                    289
->>>>>>>> upstream/Overhaul:resource.h
 #define TX_REPEAT_CULTIVE               500
 #define TX_REPEAT_FLEUR                 501
 #define TX_REPEAT_FLEURQ                502

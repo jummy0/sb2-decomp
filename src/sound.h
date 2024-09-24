@@ -1,12 +1,10 @@
 // sound.h
 //
 
-using namespace std;
-
 #pragma once
 
-#include <windef.h>
-//
+//#include <windef.h>
+
 #include "dsound.h"
 #include <stdio.h>
 

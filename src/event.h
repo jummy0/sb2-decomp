@@ -1,7 +1,5 @@
 // Event.h
 
-
-
 /////////////////////////////////////////////////////////////////////////////
 
 #pragma once
@@ -9,7 +7,7 @@
 #include "movie.h"
 #include "menu.h"
 #include "button.h"
-
+#include "text.h"
 
 typedef struct
 {

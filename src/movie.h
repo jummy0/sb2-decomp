@@ -3,8 +3,6 @@
 
 #pragma once
 
-// #include <mciapi.h>
-
 class CMovie
 {
 public:

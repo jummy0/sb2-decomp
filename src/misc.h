@@ -1,12 +1,13 @@
 // misc.h
 //
-#pragma once
 
-// #include <minwindef.h>
+#include <WTypes.h>
+
+#pragma once
 
 extern void InitHInstance(HINSTANCE hInstance);
 extern void OutputDebug(const char *pMessage);
-extern void LoadString(UINT nID, char *pBuffer, int lgBuffer);
+extern void LoadString(unsigned nID, char *pBuffer, int lgBuffer);
 extern void ChangeSprite(int sprite);
 
 extern POINT ConvLongToPos(LPARAM lParam);

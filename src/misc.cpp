@@ -29,13 +29,13 @@ void InitHInstance(HINSTANCE hInstance)
 void OutputDebug(const char *pMessage)
 {
 #ifdef _DEBUG
-    OutputDebugStringA(pMessage);
+    OutputDebugString(pMessage);
 #endif
 }
 
 void LoadString(UINT nID, char *pBuffer, int lgBuffer)
 {
-    LoadStringA(g_hInstance, nID, pBuffer, lgBuffer);
+    LoadString(g_hInstance, nID, pBuffer, lgBuffer);
 }
 
 void ChangeSprite(int sprite)

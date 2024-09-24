@@ -1,10 +1,6 @@
 // movie.cpp
 //
 
-using namespace std;
-
-#pragma once
-
 #include <windows.h>
 #include <windowsx.h>
 #include <commdlg.h>
@@ -18,8 +14,6 @@ using namespace std;
 #include "def.h"
 #include "movie.h"
 #include "misc.h"
-
-#pragma warning (disable : 4996)
 
 //----------------------------------------------------------------------------
 

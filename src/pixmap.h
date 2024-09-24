@@ -63,9 +63,9 @@ public:
 	void	MouseBackClear();
 	void	MouseBackDraw();
     void    SetBenchmarkSuccess(BOOL bSuccess);
-    void    SetTrueColor(BOOL bTrueColor);
+    void    SetTrueColorBack(BOOL bTrueColor);
     void    SetTrueColorDecor(BOOL bTrueColorDecor);
-    BOOL    GetTrueColor();
+    BOOL    GetTrueColorBack();
     BOOL    GetTrueColorDecor();
 
 protected:

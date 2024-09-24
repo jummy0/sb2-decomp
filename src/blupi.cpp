@@ -3,10 +3,9 @@
 
 #define WIN32_LEAN_AND_MEAN
 
-#pragma once
-
 #include <windows.h>
 #include <windowsx.h>
+#include <WTypes.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <mmsystem.h>
@@ -26,8 +25,6 @@
 #include "event.h"
 #include "misc.h"
 #include "network.h"
-
-#pragma warning (disable : 4996)
 
 // Define Globals
 

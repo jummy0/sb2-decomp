@@ -2,9 +2,9 @@
 #pragma once
 
 #include "DEF.H"
-#include "JAUGE.H"
-#include "SOUND.H"
-#include "PIXMAP.H"
+#include "jauge.h"
+#include "sound.h"
+#include "pixmap.h"
 #include "network.h"
 
 /////////////////////////////////////////////////////////////////////////////
@@ -81,6 +81,124 @@ typedef struct
 	short reserve3[196];
 }
 DescFile;
+
+typedef struct
+{
+	int lg;
+	int majRev;
+	int minRev;
+	int reserve1[50];
+	short decor[100][100];
+	short bigDecor[100][100];
+	char balleTraj[100][13];
+	char moveTraj[100][13];
+	MoveObject moveObject[200];
+	int reserve2[50];
+	POINT posDecor;
+	POINT dimDecor;
+	int phase;
+	int term;
+	int music;
+	int region;
+	int time;
+	char missionTitle[100];
+	int reserve3[50];
+	int nbRankCaisse;
+	int rankCaisse[200];
+	int nbLinkCaisse;
+	int linkCaisse[200];
+	int reserve4[50];
+	POINT blupiPos;
+	POINT blupiValidPos;
+	int blupiAction;
+	int blupiDir;
+	int blupiPhase;
+	POINT blupiVitesse;
+	int blupiIcon;
+	int blupiSec;
+	int blupiChannel;
+	POINT blupiVector;
+	int blupiTransport;
+	BOOL blupiFocus;
+	BOOL blupiAir;
+	BOOL blupiHelico;
+	BOOL blupiJeep;
+	BOOL blupiTank;
+	BOOL blupiSkate;
+	BOOL blupiNage;
+	BOOL blupiSurf;
+	BOOL blupiVent;
+	BOOL blupiSuspend;
+	BOOL blupiJumpAie;
+	BOOL blupiShield;
+	BOOL blupiPower;
+	BOOL blupiCloud;
+	BOOL blupiHide;
+	POINT blupiPosHelico;
+	POINT blupiPosMagic;
+	BOOL blupiRestart;
+	BOOL blupiFront;
+	int blupiBullet;
+	int blupiCle;
+	int blupiPerso;
+	int blupiNoBarre;
+	int blupiTimeShield;
+	int blupiTimeFire;
+	int blupiTimeOuf;
+	int blupiActionOuf;
+	int blupiFifoNb;
+	POINT blupiFifoPos[10];
+	BOOL blupiInvert;
+	BOOL blupiBalloon;
+	BOOL blupiOver;
+	BOOL blupiEcrase;
+	int blupiTimeNoAsc;
+	int blupiDynamite;
+	int reserve5[41];
+	POINT blupiStartPos[4];
+	int blupiStartDir[4];
+	int reserve6[50];
+	BOOL jaugeHide[2];
+	BOOL jaugeType[2];
+	BOOL jaugeLevel[2];
+	int blupiLevel;
+	int energyUnused;
+	int reserve7[50];
+	BOOL bHelicoMarch;
+	BOOL bHelicoStop;
+	BOOL bJeepMarch;
+	BOOL bJeepStop;
+	int reserve8[50];
+	BOOL bFoundCle;
+	BOOL bPrivate;
+	BOOL bCheatDoors;
+	BOOL bSuperBlupi;
+	BOOL bDrawSecret;
+	BOOL bJoystick;
+	int idklol;
+	int mission;
+	char doors[200];
+	int nbVies;
+	int nbTresor;
+	int totalTresor;
+	int goalPhase;
+	int reserve9[50];
+	int d8f8;
+	POINT scrollPoint;
+	POINT scrollAdd;
+	int reserve10[50];
+	int voyageIcon;
+	int voyageChannel;
+	int voyagePhase;
+	int voyageTotal;
+	POINT voyageStart;
+	POINT voyageEnd;
+	int reserve11[50];
+	int decorAction;
+	int decorPhase;
+	int reserve12[50];
+}
+DescSave;
 
 class CDecor
 {
@@ -297,6 +415,8 @@ public:
 	void	OpenDoorsWin();
 	void	OpenGoldsWin();
 	void	DoorsLost();
+
+	BOOL DeleteMission(int user, int mission, BOOL bUser);
 
 	inline BOOL IsValidCel(POINT cel);
 	inline void MoveObjectCopy(MoveObject src, MoveObject dest);

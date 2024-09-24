@@ -9,8 +9,6 @@
 
 #define DIRECTDRAW_VERSION 0x0500
 
-using namespace std;
-
 #pragma once
 #include <ddraw.h>
 

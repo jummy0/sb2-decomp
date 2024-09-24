@@ -15,7 +15,6 @@
 
 #define DIRECTDRAW_VERSION 0x0500
 
-
 /////////////////////////////////////////////////////////////////////////////
 
 
@@ -431,9 +430,14 @@ BOOL CPixmap::InitSysPalette()
 	return TRUE;
 }
 
-BOOL CPixmap::GetTrueColor()
+BOOL CPixmap::GetTrueColorBack()
 {
 	return m_bTrueColorBack;
+}
+
+BOOL CPixmap::GetTrueColorDecor()
+{
+	return m_bTrueColorDecor;
 }
 
 void CPixmap::SetBenchmarkSuccess(BOOL bSuccess)
@@ -441,7 +445,7 @@ void CPixmap::SetBenchmarkSuccess(BOOL bSuccess)
 	m_bBenchmarkSuccess = bSuccess;
 }
 
-void CPixmap::SetTrueColor(BOOL bTrueColor)
+void CPixmap::SetTrueColorBack(BOOL bTrueColor)
 {
 	m_bTrueColorBack = bTrueColor;
 }
@@ -801,7 +805,7 @@ BOOL CPixmap::Cache(int channel, char *pFilename, POINT totalDim, POINT iconDim,
 
 // Cache une image globale.
 
-BOOL CPixmap::Cache2(int channel, LPCSTR pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette)
+BOOL CPixmap::Cache(int channel, char* pFilename, POINT totalDim, POINT iconDim, BOOL bUsePalette)
 {
 	HRESULT		hErr;
 
@@ -902,14 +906,14 @@ BOOL CPixmap::BackgroundCache(int channel, const char* pFilename, POINT totalDim
 	{
 		strcpy(file, "image16\\");
 		strcat(file, pFilename);
-		if (Cache2(channel, file, totalDim, iconDim, FALSE))
+		if (Cache(channel, file, totalDim, iconDim, FALSE))
 		{
 			return TRUE;
 		}
 	}
 	strcpy(file, "image08\\");
 	strcat(file, pFilename);
-	return Cache2(channel, file, totalDim, iconDim, bUsePalette);
+	return Cache(channel, file, totalDim, iconDim, bUsePalette);
 }
 
 BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor, BOOL bTrueColorDecor, int mouseType, const char* pFilename, int region)

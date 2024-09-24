@@ -1,20 +1,18 @@
 // Button.cpp
 //
 
-#include <windows.h>
-#include <stdlib.h>
-#include <stdio.h>
-#include <ddraw.h>
+//#include <windows.h>
+//#include <stdlib.h>
+//#include <stdio.h>
+//#include <ddraw.h>
 
-#include <windef.h>
+//#include <windef.h>
+
+#include "button.h"
+#include "misc.h"
 #include "def.h"
 #include "pixmap.h"
 #include "sound.h"
-#include "decor.h"
-#include "button.h"
-#include "misc.h"
-
-using namespace std;
 
 //////////////////////////////////////////////////////////
 
