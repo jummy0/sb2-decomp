@@ -191,7 +191,10 @@ protected:
 	void	MouseCapture();
 	int		GameSave(int save);
 
-	BOOL	FUN_1fbd0();
+	void	DrawMap();
+	BOOL	CheckCDForWorld1();
+	void	NetAdjustLobbyButtons();
+	BOOL	CopyMission(char *srcFileName, char *dstFileName);
 
 
 protected:

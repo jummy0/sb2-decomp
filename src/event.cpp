@@ -100,34 +100,46 @@ static char cheat_code[25][60] =
 static Phase table[] =
 {
 	{
-		1552,
+		WM_PHASE_TESTCD,
 		"init.blp",
 		FALSE,
 		FALSE,
-		{
-			{ 0 }
-		},
+		{ 0 }
 	},
 	{
-		1524,
+		WM_PHASE_INTRO1,
+		"intro1.blp",
+		FALSE,
+		FALSE,
+		{ 0 }
+	},
+	{
+		WM_PHASE_INTRO2,
+		"intro2.blp",
+		FALSE,
+		FALSE,
+		{ 0 }
+	},
+	{
+		WM_PHASE_INIT,
 		"init.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1545,
+				WM_PHASE_GAMER,
 				0,{ 1, 48 },
 				86, 410,
 				{ 1, 109 }
 			},
 			{
-				1557,
+				WM_PHASE_DEMO,
 				0,{ 1, 84 },
 				128, 410,
 				{ 1, 212 }
 			},
 			{
-				1556,
+				WM_PHASE_BYE,
 				0,{ 1, 6 },
 				540, 410,
 				{ 1, 106 }
@@ -136,103 +148,103 @@ static Phase table[] =
 		},
 	},
 	{
-		1545,
+		WM_PHASE_GAMER,
 		"gamer.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 0 },
 				60, 58,
 				{ 1, 117 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 0 },
 				60, 98,
 				{ 1, 117 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 0 },
 				60, 138,
 				{ 1, 117 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 0 },
 				60, 178,
 				{ 1, 117 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 0 },
 				60, 218,
 				{ 1, 117 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 0 },
 				60, 258,
 				{ 1, 117 }
 			},
 			{
-				1231,
+				WM_BUTTON7,
 				0,{ 0 },
 				60, 298,
 				{ 1, 117 }
 			},
 			{
-				1232,
+				WM_BUTTON8,
 				0,{ 0 },
 				60, 338,
 				{ 1, 117 }
 			},
 			{
-				1527,
+				WM_PHASE_NAMEGAMER,
 				0,{ 1, 46 },
 				546, 178,
 				{ 1, 118 }
 			},
 			{
-				1528,
+				WM_PHASE_CLEARGAMER,
 				0,{ 1, 36 },
 				546, 220,
 				{ 1, 127 }
 			},
 			{
-				1539,
+				WM_PHASE_DOPLAY,
 				0,{ 1, 48 },
 				65, 414,
 				{ 1, 195 }
 			},
 			{
-				1568,
+				WM_PHASE_SERVICE,
 				0,{ 1, 83 },
 				107, 414,
 				{ 1, 196 }
 			},
 			{
-				1554,
+				WM_PHASE_PRIVATE,
 				0,{ 1, 49 },
 				149, 414,
 				{ 1, 188 }
 			},
 			{
-				1586,
+				WM_PHASE_GREAD,
 				0,{ 1, 52 },
 				191, 414,
 				{ 1, 264 }
 			},
 			{
-				1534,
+				WM_PHASE_SETUP,
 				0,{ 1, 47 },
 				330, 414,
 				{ 1, 128 }
 			},
 			{
-				1524,
+				WM_PHASE_INIT,
 				0,{ 1, 40 },
 				540, 414,
 				{ 1, 111 }
@@ -241,19 +253,19 @@ static Phase table[] =
 		},
 	},
 	{
-		1527,
+		WM_PHASE_NAMEGAMER,
 		"name.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1562,
+				WM_PHASE_DONAMEGAMER,
 				0,{ 1, 18 },
 				222, 326,
 				{ 1, 174 }
 			},
 			{
-				1545,
+				WM_PHASE_GAMER,
 				0,{ 1, 36 },
 				378, 326,
 				{ 1, 175 }
@@ -262,19 +274,19 @@ static Phase table[] =
 		},
 	},
 	{
-		1528,
+		WM_PHASE_CLEARGAMER,
 		"clear.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1563,
+				WM_PHASE_DOCLEARGAMER,
 				0,{ 1, 18 },
 				222, 326,
 				{ 1, 176 }
 			},
 			{
-				1545,
+				WM_PHASE_GAMER,
 				0,{ 1, 36 },
 				378, 326,
 				{ 1, 177 }
@@ -283,67 +295,67 @@ static Phase table[] =
 		},
 	},
 	{
-		1568,
+		WM_PHASE_SERVICE,
 		"service.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 1, 51 },
 				140, 110,
 				{ 0 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 1, 51 },
 				140, 150,
 				{ 0 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 1, 51 },
 				140, 190,
 				{ 0 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 1, 51 },
 				140, 230,
 				{ 0 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 1, 51 },
 				140, 270,
 				{ 0 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 1, 51 },
 				140, 310,
 				{ 0 }
 			},
 			{
-				1234,
+				WM_BUTTON10,
 				0,{ 1, 72 },
 				466, 110,
 				{ 1, 242 }
 			},
 			{
-				1235,
+				WM_BUTTON11,
 				0,{ 1, 73 },
 				466, 310,
 				{ 1, 241 }
 			},
 			{
-				1569,
+				WM_PHASE_DP_DOSERVICE,
 				0,{ 1, 18 },
 				222, 389,
 				{ 1, 174 }
 			},
 			{
-				1570,
+				WM_PHASE_DP_CANCELSERVICE,
 				0,{ 1, 36 },
 				380, 389,
 				{ 1, 175 }
@@ -352,79 +364,79 @@ static Phase table[] =
 		},
 	},
 	{
-		1571,
+		WM_PHASE_SESSION,
 		"session.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 1, 51 },
 				120, 110,
 				{ 0 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 1, 51 },
 				120, 150,
 				{ 0 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 1, 51 },
 				120, 190,
 				{ 0 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 1, 51 },
 				120, 230,
 				{ 0 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 1, 51 },
 				120, 270,
 				{ 0 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 1, 51 },
 				120, 310,
 				{ 0 }
 			},
 			{
-				1234,
+				WM_BUTTON10,
 				0,{ 1, 72 },
 				490, 110,
 				{ 1, 246 }
 			},
 			{
-				1235,
+				WM_BUTTON11,
 				0,{ 1, 73 },
 				490, 310,
 				{ 1, 245 }
 			},
 			{
-				1572,
+				WM_PHASE_DP_JOIN,
 				0,{ 1, 45 },
 				120, 389,
 				{ 1, 247 }
 			},
 			{
-				1573,
+				WM_PHASE_DP_CREATELOBBY,
 				0,{ 1, 43 },
 				162, 389,
 				{ 1, 248 }
 			},
 			{
-				1574,
+				WM_PHASE_DP_REFRESH,
 				0,{ 1, 72 },
 				260, 389,
 				{ 1, 249 }
 			},
 			{
-				1575,
+				WM_PHASE_DP_CANCELSESSION,
 				0,{ 1, 36 },
 				485, 389,
 				{ 1, 175 }
@@ -433,19 +445,19 @@ static Phase table[] =
 		},
 	},
 	{
-		1579,
+		WM_PHASE_CREATE,
 		"create.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1580,
+				WM_PHASE_DP_DOCREATE,
 				0,{ 1, 18 },
 				222, 326,
 				{ 1, 174 }
 			},
 			{
-				1581,
+				WM_PHASE_DP_CANCELCREATE,
 				0,{ 1, 36 },
 				378, 326,
 				{ 1, 175 }
@@ -454,85 +466,85 @@ static Phase table[] =
 		},
 	},
 	{
-		1576,
+		WM_PHASE_MULTI,
 		"multi.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 0 },
 				80, 98,
 				{ 1, 207 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 0 },
 				80, 140,
 				{ 1, 207 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 0 },
 				80, 182,
 				{ 1, 207 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 0 },
 				80, 224,
 				{ 1, 207 }
 			},
 			{
-				1235,
+				WM_BUTTON11,
 				0,{ 1, 36 },
 				288, 98,
 				{ 1, 208 }
 			},
 			{
-				1236,
+				WM_BUTTON12,
 				0,{ 1, 36 },
 				288, 140,
 				{ 1, 208 }
 			},
 			{
-				1237,
+				WM_BUTTON13,
 				0,{ 1, 36 },
 				288, 182,
 				{ 1, 208 }
 			},
 			{
-				1238,
+				WM_BUTTON14,
 				0,{ 1, 36 },
 				288, 224,
 				{ 1, 208 }
 			},
 			{
-				1244,
+				WM_BUTTON20,
 				0,{ 1, 94 },
 				404, 388,
 				{ 1, 262 }
 			},
 			{
-				1624,
+				WM_PREV,
 				0,{ 1, 50 },
 				438, 249,
 				{ 1, 107 }
 			},
 			{
-				1625,
+				WM_NEXT,
 				0,{ 1, 51 },
 				480, 249,
 				{ 1, 108 }
 			},
 			{
-				1577,
+				WM_PHASE_DP_STARTMULTI,
 				0,{ 1, 48 },
 				508, 389,
 				{ 1, 252 }
 			},
 			{
-				1578,
+				WM_PHASE_DP_CANCELMULTI,
 				0,{ 1, 36 },
 				508, 330,
 				{ 1, 175 }
@@ -541,73 +553,73 @@ static Phase table[] =
 		},
 	},
 	{
-		1529,
+		WM_PHASE_INFO,
 		"info.blp",
 		FALSE,
 		TRUE,
 		{
 			{
-				1559,
+				WM_PHASE_WRITEDESIGN,
 				0,{ 1, 53 },
 				188, 306,
 				{ 1, 113 }
 			},
 			{
-				1560,
+				WM_PHASE_READDESIGN,
 				0,{ 1, 52 },
 				232, 306,
 				{ 1, 112 }
 			},
 			{
-				1561,
+				WM_PHASE_CLEARDESIGN,
 				0,{ 1, 36 },
 				276, 306,
 				{ 1, 183 }
 			},
 			{
-				1624,
+				WM_PREV,
 				0,{ 1, 50 },
 				188, 398,
 				{ 1, 107 }
 			},
 			{
-				1536,
+				WM_PHASE_PLAYMOVIE,
 				0,{ 1, 48 },
 				232, 398,
 				{ 1, 109 }
 			},
 			{
-				1625,
+				WM_NEXT,
 				0,{ 1, 51 },
 				276, 398,
 				{ 1, 108 }
 			},
 			{
-				1526,
+				WM_PHASE_BUILD,
 				0,{ 1, 49 },
 				422, 98,
 				{ 1, 110 }
 			},
 			{
-				1542,
+				WM_PHASE_REGION,
 				0,{ 1, 22 },
 				422, 195,
 				{ 1, 144 }
 			},
 			{
-				1558,
+				WM_PHASE_NAMEDESIGN,
 				0,{ 1, 46 },
 				422, 239,
 				{ 1, 185 }
 			},
 			{
-				1535,
+				WM_PHASE_MUSIC,
 				0,{ 1, 44 },
 				422, 283,
 				{ 1, 129 }
 			},
 			{
-				1545,
+				WM_PHASE_GAMER,
 				0,{ 1, 40 },
 				422, 398,
 				{ 1, 111 }
@@ -616,7 +628,7 @@ static Phase table[] =
 		},
 	},
 	{
-		1525,
+		WM_PHASE_PLAY,
 		"",
 		FALSE,
 		FALSE,
@@ -625,7 +637,7 @@ static Phase table[] =
 		},
 	},
 	{
-		1530,
+		WM_PHASE_PLAYTEST,
 		"",
 		FALSE,
 		FALSE,
@@ -634,43 +646,43 @@ static Phase table[] =
 		},
 	},
 	{
-		1582,
+		WM_PHASE_STOP,
 		"stop.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1584,
+				WM_PHASE_GWRITE,
 				0,{ 1, 53 },
 				187, 178,
 				{ 1, 263 }
 			},
 			{
-				1585,
+				WM_PHASE_GREADp,
 				0,{ 1, 52 },
 				187, 296,
 				{ 1, 264 }
 			},
 			{
-				1541,
+				WM_PHASE_SETUPp,
 				0,{ 1, 47 },
 				350, 156,
 				{ 1, 128 }
 			},
 			{
-				1583,
+				WM_PHASE_HELP,
 				0,{ 1, 86 },
 				391, 156,
 				{ 1, 267 }
 			},
 			{
-				1587,
+				WM_PHASE_QUITPLAY,
 				0,{ 1, 78 },
 				413, 262,
 				{ 1, 266 }
 			},
 			{
-				1525,
+				WM_PHASE_PLAY,
 				0,{ 1, 77 },
 				413, 323,
 				{ 1, 265 }
@@ -679,13 +691,13 @@ static Phase table[] =
 		},
 	},
 	{
-		1583,
+		WM_PHASE_HELP,
 		"help.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1525,
+				WM_PHASE_PLAY,
 				0,{ 1, 18 },
 				442, 358,
 				{ 1, 174 }
@@ -694,55 +706,55 @@ static Phase table[] =
 		},
 	},
 	{
-		1586,
+		WM_PHASE_GREAD,
 		"gread.blp",
 		FALSE,
 		TRUE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 0 },
 				280, 110,
 				{ 0 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 0 },
 				280, 150,
 				{ 0 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 0 },
 				280, 190,
 				{ 0 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 0 },
 				280, 230,
 				{ 0 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 0 },
 				280, 270,
 				{ 0 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 0 },
 				280, 310,
 				{ 0 }
 			},
 			{
-				1244,
+				WM_BUTTON20,
 				0,{ 1, 18 },
 				330, 387,
 				{ 1, 174 }
 			},
 			{
-				1545,
+				WM_PHASE_GAMER,
 				0,{ 1, 36 },
 				458, 387,
 				{ 1, 175 }
@@ -751,55 +763,55 @@ static Phase table[] =
 		},
 	},
 	{
-		1585,
+		WM_PHASE_GREADp,
 		"gread.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 0 },
 				280, 110,
 				{ 0 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 0 },
 				280, 150,
 				{ 0 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 0 },
 				280, 190,
 				{ 0 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 0 },
 				280, 230,
 				{ 0 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 0 },
 				280, 270,
 				{ 0 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 0 },
 				280, 310,
 				{ 0 }
 			},
 			{
-				1244,
+				WM_BUTTON20,
 				0,{ 1, 18 },
 				330, 387,
 				{ 1, 174 }
 			},
 			{
-				1582,
+				WM_PHASE_STOP,
 				0,{ 1, 36 },
 				458, 387,
 				{ 1, 175 }
@@ -808,55 +820,55 @@ static Phase table[] =
 		},
 	},
 	{
-		1584,
+		WM_PHASE_GWRITE,
 		"gwrite.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 0 },
 				280, 110,
 				{ 0 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 0 },
 				280, 150,
 				{ 0 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 0 },
 				280, 190,
 				{ 0 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 0 },
 				280, 230,
 				{ 0 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 0 },
 				280, 270,
 				{ 0 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 0 },
 				280, 310,
 				{ 0 }
 			},
 			{
-				1244,
+				WM_BUTTON20,
 				0,{ 1, 18 },
 				330, 387,
 				{ 1, 174 }
 			},
 			{
-				1582,
+				WM_PHASE_STOP,
 				0,{ 1, 36 },
 				458, 387,
 				{ 1, 175 }
@@ -865,97 +877,97 @@ static Phase table[] =
 		},
 	},
 	{
-		1534,
+		WM_PHASE_SETUP,
 		"setup.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 1, 50 },
 				70, 110,
 				{ 1, 130 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 1, 51 },
 				110, 110,
 				{ 1, 131 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 1, 50 },
 				70, 220,
 				{ 1, 132 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 1, 51 },
 				110, 220,
 				{ 1, 133 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 1, 133 },
 				70, 330,
 				{ 1, 154 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 1, 134 },
 				110, 330,
 				{ 1, 155 }
 			},
 			{
-				1237,
+				WM_BUTTON13,
 				0,{ 1, 135 },
 				170, 330,
 				{ 1, 305 }
 			},
 			{
-				1238,
+				WM_BUTTON14,
 				0,{ 1, 136 },
 				210, 330,
 				{ 1, 306 }
 			},
 			{
-				1231,
+				WM_BUTTON7,
 				0,{ 0 },
 				370, 110,
 				{ 1, 156 }
 			},
 			{
-				1232,
+				WM_BUTTON8,
 				0,{ 0 },
 				370, 150,
 				{ 1, 157 }
 			},
 			{
-				1233,
+				WM_BUTTON9,
 				0,{ 0 },
 				370, 190,
 				{ 1, 157 }
 			},
 			{
-				1234,
+				WM_BUTTON10,
 				0,{ 0 },
 				370, 230,
 				{ 1, 157 }
 			},
 			{
-				1235,
+				WM_BUTTON11,
 				0,{ 0 },
 				370, 270,
 				{ 1, 157 }
 			},
 			{
-				1236,
+				WM_BUTTON12,
 				0,{ 0 },
 				370, 310,
 				{ 1, 157 }
 			},
 			{
-				1545,
+				WM_PHASE_GAMER,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -964,97 +976,97 @@ static Phase table[] =
 		},
 	},
 	{
-		1541,
+		WM_PHASE_SETUPp,
 		"setup.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 1, 50 },
 				70, 110,
 				{ 1, 130 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 1, 51 },
 				110, 110,
 				{ 1, 131 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 1, 50 },
 				70, 220,
 				{ 1, 132 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 1, 51 },
 				110, 220,
 				{ 1, 133 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 1, 133 },
 				70, 330,
 				{ 1, 154 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 1, 134 },
 				110, 330,
 				{ 1, 155 }
 			},
 			{
-				1237,
+				WM_BUTTON13,
 				0,{ 1, 135 },
 				170, 330,
 				{ 1, 305 }
 			},
 			{
-				1238,
+				WM_BUTTON14,
 				0,{ 1, 136 },
 				210, 330,
 				{ 1, 306 }
 			},
 			{
-				1231,
+				WM_BUTTON7,
 				0,{ 0 },
 				370, 110,
 				{ 1, 156 }
 			},
 			{
-				1232,
+				WM_BUTTON8,
 				0,{ 0 },
 				370, 150,
 				{ 1, 157 }
 			},
 			{
-				1233,
+				WM_BUTTON9,
 				0,{ 0 },
 				370, 190,
 				{ 1, 157 }
 			},
 			{
-				1234,
+				WM_BUTTON10,
 				0,{ 0 },
 				370, 230,
 				{ 1, 157 }
 			},
 			{
-				1235,
+				WM_BUTTON11,
 				0,{ 0 },
 				370, 270,
 				{ 1, 157 }
 			},
 			{
-				1236,
+				WM_BUTTON12,
 				0,{ 0 },
 				370, 310,
 				{ 1, 157 }
 			},
 			{
-				1525,
+				WM_PHASE_PLAY,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1063,13 +1075,13 @@ static Phase table[] =
 		},
 	},
 	{
-		1533,
+		WM_PHASE_LOST,
 		"lost.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1525,
+				WM_PHASE_PLAY,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1078,13 +1090,13 @@ static Phase table[] =
 		},
 	},
 	{
-		1547,
+		WM_PHASE_LOSTDESIGN,
 		"lost.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1529,
+				WM_PHASE_INFO,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1093,13 +1105,13 @@ static Phase table[] =
 		},
 	},
 	{
-		1549,
+		WM_PHASE_LOSTMULTI,
 		"lost.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1545,
+				WM_PHASE_GAMER,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1108,13 +1120,13 @@ static Phase table[] =
 		},
 	},
 	{
-		1532,
+		WM_PHASE_WIN,
 		"win.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1545,
+				WM_PHASE_GAMER,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1123,13 +1135,13 @@ static Phase table[] =
 		},
 	},
 	{
-		1546,
+		WM_PHASE_WINDESIGN,
 		"win.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1529,
+				WM_PHASE_INFO,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1138,13 +1150,13 @@ static Phase table[] =
 		},
 	},
 	{
-		1550,
+		WM_PHASE_WINMULTI,
 		"win.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1545,
+				WM_PHASE_GAMER,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1153,85 +1165,85 @@ static Phase table[] =
 		},
 	},
 	{
-		1526,
+		WM_PHASE_BUILD,
 		"",
 		FALSE,
 		FALSE,
 		{
 			{
-				1044,
+				WM_DECOR1,
 				0,{ 1, 6 },
 				11, 11,
 				{ 1, 1000 }
 			},
 			{
-				1045,
+				WM_DECOR2,
 				0,{ 11, 31, 29, 32, 69, 33, 37, 82, 130, 139, 30, 142 },
 				11, 53,
 				{ 11, 2030, 1023, 2072, 1042, 2047, 1026, 1049, 1076, 1080, 1021, 1082 }
 			},
 			{
-				1046,
+				WM_DECOR3,
 				0,{ 8, 0, 1, 2, 27, 34, 35, 67, 106 },
 				11, 95,
 				{ 8, 1001, 1002, 1003, 1020, 1024, 1025, 1038, 1062 }
 			},
 			{
-				1047,
+				WM_DECOR4,
 				0,{ 10, 22, 59, 68, 118, 127, 100, 128, 129, 39, 38 },
 				11, 137,
 				{ 10, 2033, 1032, 1037, 1067, 1075, 1061, 1074, 1076, 2038, 2041 }
 			},
 			{
-				1048,
+				WM_DECOR5,
 				0,{ 10, 137, 138, 65, 66, 112, 58, 23, 80, 81, 79 },
 				11, 179,
 				{ 10, 1079, 1080, 1039, 1040, 1065, 1031, 1015, 1047, 1048, 1022 }
 			},
 			{
-				1049,
+				WM_DECOR6,
 				0,{ 12, 8, 9, 107, 26, 42, 41, 131, 143, 132, 101, 120, 122 },
 				11, 221,
 				{ 12, 1006, 1007, 1063, 1018, 1028, 1027, 1077, 1083, 1078, 1064, 1069, 1071 }
 			},
 			{
-				1050,
+				WM_DECOR7,
 				0,{ 13, 21, 20, 19, 28, 121, 16, 55, 60, 113, 140, 54, 95, 99 },
 				11, 263,
 				{ 13, 1009, 1010, 1011, 1019, 1070, 1012, 1030, 1033, 1066, 1081, 1029, 1059, 1060 }
 			},
 			{
-				1051,
+				WM_DECOR8,
 				0,{ 9, 7, 10, 75, 74, 89, 88, 93, 92, 87 },
 				11, 305,
 				{ 9, 1004, 1005, 1046, 1045, 1052, 1051, 1054, 1053, 2007 }
 			},
 			{
-				1052,
+				WM_DECOR9,
 				0,{ 10, 125, 126, 144, 124, 56, 70, 123, 141, 17, 76 },
 				11, 347,
 				{ 10, 1036, 1035, 1084, 1073, 1041, 1043, 1072, 2044, 1013, 1014 }
 			},
 			{
-				1053,
+				WM_DECOR10,
 				0,{ 5, 119, 24, 71, 57, 85 },
 				11, 389,
 				{ 5, 1068, 1016, 1044, 2004, 1050 }
 			},
 			{
-				1054,
+				WM_DECOR11,
 				0,{ 8, 11, 5, 96, 97, 98, 63, 62, 64 },
 				11, 431,
 				{ 8, 1008, 1055, 1056, 1057, 1058, 1035, 1034, 1036 }
 			},
 			{
-				1530,
+				WM_PHASE_PLAYTEST,
 				0,{ 1, 48 },
 				544, 431,
 				{ 1, 124 }
 			},
 			{
-				1529,
+				WM_PHASE_INFO,
 				0,{ 1, 40 },
 				586, 431,
 				{ 1, 119 }
@@ -1240,79 +1252,79 @@ static Phase table[] =
 		},
 	},
 	{
-		1535,
+		WM_PHASE_MUSIC,
 		"music.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 1, 40 },
 				200, 130,
 				{ 1, 134 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 1, 44 },
 				290, 130,
 				{ 1, 135 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 1, 44 },
 				290, 170,
 				{ 1, 136 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 1, 44 },
 				290, 210,
 				{ 1, 137 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 1, 44 },
 				290, 250,
 				{ 1, 138 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 1, 44 },
 				290, 290,
 				{ 1, 139 }
 			},
 			{
-				1231,
+				WM_BUTTON7,
 				0,{ 1, 44 },
 				350, 130,
 				{ 1, 140 }
 			},
 			{
-				1232,
+				WM_BUTTON8,
 				0,{ 1, 44 },
 				350, 170,
 				{ 1, 141 }
 			},
 			{
-				1233,
+				WM_BUTTON9,
 				0,{ 1, 44 },
 				350, 210,
 				{ 1, 142 }
 			},
 			{
-				1234,
+				WM_BUTTON10,
 				0,{ 1, 44 },
 				350, 250,
 				{ 1, 143 }
 			},
 			{
-				1235,
+				WM_BUTTON11,
 				0,{ 1, 44 },
 				350, 290,
 				{ 1, 171 }
 			},
 			{
-				1529,
+				WM_PHASE_INFO,
 				0,{ 1, 18 },
 				540, 410,
 				{ 1, 174 }
@@ -1321,229 +1333,229 @@ static Phase table[] =
 		},
 	},
 	{
-		1542,
+		WM_PHASE_REGION,
 		"region.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 0 },
 				48, 58,
 				{ 1, 217 }
 			},
 			{
-				1252,
+				WM_BUTTON28,
 				0,{ 0 },
 				48, 98,
 				{ 1, 300 }
 			},
 			{
-				1246,
+				WM_BUTTON22,
 				0,{ 0 },
 				48, 138,
 				{ 1, 236 }
 			},
 			{
-				1243,
+				WM_BUTTON19,
 				0,{ 0 },
 				48, 178,
 				{ 1, 233 }
 			},
 			{
-				1245,
+				WM_BUTTON21,
 				0,{ 0 },
 				48, 218,
 				{ 1, 235 }
 			},
 			{
-				1244,
+				WM_BUTTON20,
 				0,{ 0 },
 				48, 258,
 				{ 1, 234 }
 			},
 			{
-				1231,
+				WM_BUTTON7,
 				0,{ 0 },
 				48, 298,
 				{ 1, 221 }
 			},
 			{
-				1234,
+				WM_BUTTON10,
 				0,{ 0 },
 				48, 338,
 				{ 1, 224 }
 			},
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 0 },
 				148, 58,
 				{ 1, 215 }
 			},
 			{
-				1239,
+				WM_BUTTON15,
 				0,{ 0 },
 				148, 98,
 				{ 1, 229 }
 			},
 			{
-				1238,
+				WM_BUTTON14,
 				0,{ 0 },
 				148, 138,
 				{ 1, 228 }
 			},
 			{
-				1235,
+				WM_BUTTON11,
 				0,{ 0 },
 				148, 178,
 				{ 1, 225 }
 			},
 			{
-				1232,
+				WM_BUTTON8,
 				0,{ 0 },
 				148, 218,
 				{ 1, 222 }
 			},
 			{
-				1247,
+				WM_BUTTON23,
 				0,{ 0 },
 				148, 258,
 				{ 1, 237 }
 			},
 			{
-				1237,
+				WM_BUTTON13,
 				0,{ 0 },
 				148, 298,
 				{ 1, 227 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 0 },
 				148, 338,
 				{ 1, 220 }
 			},
 			{
-				1241,
+				WM_BUTTON17,
 				0,{ 0 },
 				248, 58,
 				{ 1, 231 }
 			},
 			{
-				1242,
+				WM_BUTTON18,
 				0,{ 0 },
 				248, 98,
 				{ 1, 232 }
 			},
 			{
-				1236,
+				WM_BUTTON12,
 				0,{ 0 },
 				248, 138,
 				{ 1, 226 }
 			},
 			{
-				1251,
+				WM_BUTTON27,
 				0,{ 0 },
 				248, 178,
 				{ 1, 299 }
 			},
 			{
-				1240,
+				WM_BUTTON16,
 				0,{ 0 },
 				248, 218,
 				{ 1, 230 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 0 },
 				248, 258,
 				{ 1, 216 }
 			},
 			{
-				1254,
+				WM_BUTTON30,
 				0,{ 0 },
 				248, 298,
 				{ 1, 302 }
 			},
 			{
-				1253,
+				WM_BUTTON29,
 				0,{ 0 },
 				248, 338,
 				{ 1, 301 }
 			},
 			{
-				1256,
+				WM_BUTTON32,
 				0,{ 0 },
 				348, 58,
 				{ 1, 304 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 0 },
 				348, 98,
 				{ 1, 219 }
 			},
 			{
-				1233,
+				WM_BUTTON9,
 				0,{ 0 },
 				348, 138,
 				{ 1, 223 }
 			},
 			{
-				1255,
+				WM_BUTTON31,
 				0,{ 0 },
 				348, 178,
 				{ 1, 303 }
 			},
 			{
-				1250,
+				WM_BUTTON26,
 				0,{ 0 },
 				348, 218,
 				{ 1, 298 }
 			},
 			{
-				1248,
+				WM_BUTTON24,
 				0,{ 0 },
 				348, 258,
 				{ 1, 238 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 0 },
 				348, 298,
 				{ 1, 218 }
 			},
 			{
-				1249,
+				WM_BUTTON25,
 				0,{ 0 },
 				348, 338,
 				{ 1, 297 }
 			},
 			{
-				1265,
+				WM_DIMS1,
 				0,{ 1, 15 },
 				521, 135,
 				{ 1, 121 }
 			},
 			{
-				1266,
+				WM_DIMS2,
 				0,{ 1, 13 },
 				521, 175,
 				{ 1, 122 }
 			},
 			{
-				1267,
+				WM_DIMS3,
 				0,{ 1, 14 },
 				521, 215,
 				{ 1, 123 }
 			},
 			{
-				1268,
+				WM_DIMS4,
 				0,{ 1, 61 },
 				521, 255,
 				{ 1, 126 }
 			},
 			{
-				1529,
+				WM_PHASE_INFO,
 				0,{ 1, 18 },
 				540, 411,
 				{ 1, 174 }
@@ -1552,19 +1564,19 @@ static Phase table[] =
 		},
 	},
 	{
-		1558,
+		WM_PHASE_NAMEDESIGN,
 		"name.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1564,
+				WM_PHASE_DONAMEDESIGN,
 				0,{ 1, 18 },
 				222, 326,
 				{ 1, 174 }
 			},
 			{
-				1529,
+				WM_PHASE_INFO,
 				0,{ 1, 36 },
 				378, 326,
 				{ 1, 175 }
@@ -1573,31 +1585,31 @@ static Phase table[] =
 		},
 	},
 	{
-		1559,
+		WM_PHASE_WRITEDESIGN,
 		"write.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1234,
+				WM_BUTTON10,
 				0,{ 1, 72 },
 				420, 112,
 				{ 1, 193 }
 			},
 			{
-				1235,
+				WM_BUTTON11,
 				0,{ 1, 73 },
 				420, 252,
 				{ 1, 192 }
 			},
 			{
-				1565,
+				WM_PHASE_DOWRITEDESIGN,
 				0,{ 1, 18 },
 				222, 387,
 				{ 1, 174 }
 			},
 			{
-				1529,
+				WM_PHASE_INFO,
 				0,{ 1, 36 },
 				380, 387,
 				{ 1, 175 }
@@ -1606,67 +1618,67 @@ static Phase table[] =
 		},
 	},
 	{
-		1560,
+		WM_PHASE_READDESIGN,
 		"read.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1225,
+				WM_BUTTON1,
 				0,{ 1, 51 },
 				190, 110,
 				{ 0 }
 			},
 			{
-				1226,
+				WM_BUTTON2,
 				0,{ 1, 51 },
 				190, 150,
 				{ 0 }
 			},
 			{
-				1227,
+				WM_BUTTON3,
 				0,{ 1, 51 },
 				190, 190,
 				{ 0 }
 			},
 			{
-				1228,
+				WM_BUTTON4,
 				0,{ 1, 51 },
 				190, 230,
 				{ 0 }
 			},
 			{
-				1229,
+				WM_BUTTON5,
 				0,{ 1, 51 },
 				190, 270,
 				{ 0 }
 			},
 			{
-				1230,
+				WM_BUTTON6,
 				0,{ 1, 51 },
 				190, 310,
 				{ 0 }
 			},
 			{
-				1234,
+				WM_BUTTON10,
 				0,{ 1, 72 },
 				420, 110,
 				{ 1, 193 }
 			},
 			{
-				1235,
+				WM_BUTTON11,
 				0,{ 1, 73 },
 				420, 310,
 				{ 1, 192 }
 			},
 			{
-				1566,
+				WM_PHASE_DOREADDESIGN,
 				0,{ 1, 18 },
 				222, 387,
 				{ 1, 174 }
 			},
 			{
-				1529,
+				WM_PHASE_INFO,
 				0,{ 1, 36 },
 				380, 387,
 				{ 1, 175 }
@@ -1675,19 +1687,19 @@ static Phase table[] =
 		},
 	},
 	{
-		1561,
+		WM_PHASE_CLEARDESIGN,
 		"clear.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1567,
+				WM_PHASE_DOCLEARDESIGN,
 				0,{ 1, 18 },
 				222, 326,
 				{ 1, 176 }
 			},
 			{
-				1529,
+				WM_PHASE_INFO,
 				0,{ 1, 36 },
 				378, 326,
 				{ 1, 177 }
@@ -1696,7 +1708,7 @@ static Phase table[] =
 		},
 	},
 	{
-		1536,
+		WM_PHASE_PLAYMOVIE,
 		"movie.blp",
 		FALSE,
 		FALSE,
@@ -1705,7 +1717,7 @@ static Phase table[] =
 		},
 	},
 	{
-		1537,
+		WM_PHASE_PLAYMOVIE,
 		"movie.blp",
 		FALSE,
 		FALSE,
@@ -1714,7 +1726,7 @@ static Phase table[] =
 		},
 	},
 	{
-		1548,
+		WM_PHASE_WINMOVIEDESIGN,
 		"movie.blp",
 		FALSE,
 		FALSE,
@@ -1723,7 +1735,7 @@ static Phase table[] =
 		},
 	},
 	{
-		1551,
+		WM_PHASE_WINMOVIEMULTI,
 		"movie.blp",
 		FALSE,
 		FALSE,
@@ -1732,7 +1744,7 @@ static Phase table[] =
 		},
 	},
 	{
-		1556,
+		WM_PHASE_BYE,
 		"bye.blp",
 		FALSE,
 		FALSE,
@@ -1741,13 +1753,13 @@ static Phase table[] =
 		},
 	},
 	{
-		1543,
+		WM_PHASE_INSERT,
 		"insert.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				1545,
+				WM_PHASE_GAMER,
 				0,{ 1, 40 },
 				16, 424,
 				{ 1, 106 }
@@ -1757,6 +1769,7 @@ static Phase table[] =
 	},
 	{ 0 }
 };
+
 
 // Constructor
 
@@ -3370,121 +3383,140 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PHASE_READDESIGN:
 	case WM_PHASE_CLEARDESIGN:
 	case WM_PHASE_SERVICE:
-	case WM_PHASE_DPLAY_DO_SERVICE:
-	case WM_PHASE_DPLAY_CANCEL_SERVICE:
+	case WM_PHASE_DP_DOSERVICE:
+	case WM_PHASE_DP_CANCELSERVICE:
 	case WM_PHASE_SESSION:
-	case WM_PHASE_1572:
-	case WM_PHASE_DPLAY_CREATE_LOBBY:
-	case WM_PHASE_DPLAY_REFRESH:
-	case WM_PHASE_DPLAY_CANCEL_SESSION:
+	case WM_PHASE_DP_JOIN:
+	case WM_PHASE_DP_CREATELOBBY:
+	case WM_PHASE_DP_REFRESH:
+	case WM_PHASE_DP_CANCELSESSION:
 	case WM_PHASE_MULTI:
-	case WM_PHASE_DPLAY_START_GAME_2:
-	case WM_PHASE_DPLAY_CANCEL_MULTI:
+	case WM_PHASE_DP_STARTMULTI:
+	case WM_PHASE_DP_CANCELMULTI:
 	case WM_PHASE_CREATE:
-	case WM_PHASE_DPLAY_CREATE:
-	case WM_PHASE_DPLAY_CANCEL_CREATE:
+	case WM_PHASE_DP_DOCREATE:
+	case WM_PHASE_DP_CANCELCREATE:
 	case WM_PHASE_STOP:
 	case WM_PHASE_HELP:
 	case WM_PHASE_GWRITE:
 	case WM_PHASE_GREADp:
 	case WM_PHASE_GREAD:
-	case WM_PHASE_DOQUIT:
+	case WM_PHASE_QUITPLAY:
 	case WM_PHASE_1588:
 		if (ChangePhase(message))  return TRUE;
 		break;
 	case WM_PHASE_DOPLAY:
-		if (!m_bPrivate && !m_bMulti)
+		m_bPrivate = FALSE;
+		m_mission = 1;
+		if (CheckCDForWorld1())
 		{
-			if (m_mission == 1)
-				return ChangePhase(WM_PHASE_GAMER);
-			if (!(m_mission % 10) && m_mission != 10)
-			{
-				SetMission(1);
-				m_phase = WM_PHASE_PLAY;
-				return ChangePhase(WM_PHASE_PLAY);
-			}
+			return ChangePhase(WM_PHASE_PLAY);
+		}
+		else
+		{
+			m_tryInsertCount = 40;
+			m_tryPhase = WM_PHASE_PLAY;
+			return ChangePhase(WM_PHASE_INSERT);
 		}
 		break;
 	case WM_PHASE_PRIVATE:
-		m_bPrivate = TRUE;
+		m_bPrivate = true;
 		return ChangePhase(WM_PHASE_INFO);
 		break;
 	case WM_PHASE_DEMO:
 		m_demoNumber = 0;
 		DemoPlayStart();
+		return FALSE;
 		break;
 	case WM_PHASE_DONAMEGAMER:
 	case WM_PHASE_DOCLEARGAMER:
 	case WM_PHASE_DONAMEDESIGN:
-	case WM_PHASE_1565:
+	case WM_PHASE_DOWRITEDESIGN:
 	case WM_PHASE_DOREADDESIGN:
 	case WM_PHASE_DOCLEARDESIGN:
 		ChangeButtons(message);
 		return FALSE;
-	case WM_PREV: // TODO: further is mostly copied from pb
+	case WM_PREV:
+		i = (m_keyPress & KEY_JUMP) ? 10 : 1;
+		if (m_phase == WM_PHASE_MULTI)
+		{
+			m_multi -= i;
+			if (m_multi < 1) m_multi = 1;
+
+			m_b6D34 = m_pDecor->Read(m_gamer, m_multi + 200, FALSE);
+			if (m_b6D34) DrawMap();
+
+			NetSendLobby();
+			NetAdjustLobbyButtons();
+			return TRUE;
+		}
+
 		if (m_bPrivate)
 		{
-			if (m_private > 0)
-			{
-				m_private--;
-				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
-			}
-		}
-		else if (m_bSchool)
-		{
-			if (m_exercice > 0)
-			{
-				m_exercice--;
-				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
-			}
+			m_private -= i;
+			if (m_private < 1) m_private = 1;
+
+			return ChangePhase(WM_PHASE_INFO);
 		}
 		else
 		{
-			if (m_mission > 0)
-			{
-				m_mission--;
-				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
-			}
+			m_mission -= i;
+			if (m_mission < 1) m_mission = 1;
+
+			return ChangePhase(WM_PHASE_INFO);
 		}
 		break;
-
 	case WM_NEXT:
-		if (m_bPrivate)
+		i = (m_keyPress & KEY_JUMP) ? 10 : 1;
+		if (m_phase == WM_PHASE_MULTI)
 		{
-			if (m_private < 20 - 1)
-			{
-				m_private++;
-				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
-			}
+			m_multi += i;
+			if (m_multi > 12) m_multi = 12;
+
+			m_b6D34 = m_pDecor->Read(m_gamer, m_multi + 200, FALSE);
+			if (m_b6D34) DrawMap();
+
+			NetSendLobby();
+			NetAdjustLobbyButtons();
+			return TRUE;
 		}
-		else if (m_bSchool)
+
+		if (m_bPrivate || !m_bBuildOfficialMissions)
 		{
-			if (m_exercice < 99)
-			{
-				m_exercice++;
-				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
-			}
+			m_private += i;
+			if (m_private > 20) m_private = 20;
+
+			return ChangePhase(WM_PHASE_INFO);
 		}
 		else
 		{
-			if (m_mission < 99)
-			{
-				m_mission++;
-				if (m_maxMission < m_mission)
-				{
-					m_maxMission = m_mission;
-				}
-				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
-			}
+			m_mission += i;
+			if (m_mission > 320) m_mission = 320;
+
+			return ChangePhase(WM_PHASE_INFO);
 		}
 		break;
-
+	case WM_MOVIE:
+		StartMovie("movie\\essai.avi");
+		ChangePhase(WM_PHASE_INIT);
+		return FALSE;
 	case WM_DECOR1:
 		SetState(WM_DECOR1, 1);
 		SetState(WM_DECOR2, 0);
 		SetState(WM_DECOR3, 0);
 		SetState(WM_DECOR4, 0);
 		SetState(WM_DECOR5, 0);
+		SetState(WM_DECOR6, 0);
+		SetState(WM_DECOR7, 0);
+		SetState(WM_DECOR8, 0);
+		SetState(WM_DECOR9, 0);
+		SetState(WM_DECOR10, 0);
+		SetState(WM_DECOR11, 0);
+
+		i = GetMenu(WM_DECOR1);
+		m_pDecor->SetFieldCC38AndStuff(1, i);
+		m_menuIndex = 0;
+		m_menuDecor[0] = i;
 		break;
 
 	case WM_DECOR2:
@@ -3493,6 +3525,17 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		SetState(WM_DECOR3, 0);
 		SetState(WM_DECOR4, 0);
 		SetState(WM_DECOR5, 0);
+		SetState(WM_DECOR6, 0);
+		SetState(WM_DECOR7, 0);
+		SetState(WM_DECOR8, 0);
+		SetState(WM_DECOR9, 0);
+		SetState(WM_DECOR10, 0);
+		SetState(WM_DECOR11, 0);
+
+		i = GetMenu(WM_DECOR2);
+		m_pDecor->SetFieldCC38AndStuff(2, i);
+		m_menuIndex = 1;
+		m_menuDecor[1] = i;
 		break;
 
 	case WM_DECOR3:
@@ -3501,6 +3544,17 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		SetState(WM_DECOR3, 1);
 		SetState(WM_DECOR4, 0);
 		SetState(WM_DECOR5, 0);
+		SetState(WM_DECOR6, 0);
+		SetState(WM_DECOR7, 0);
+		SetState(WM_DECOR8, 0);
+		SetState(WM_DECOR9, 0);
+		SetState(WM_DECOR10, 0);
+		SetState(WM_DECOR11, 0);
+
+		i = GetMenu(WM_DECOR3);
+		m_pDecor->SetFieldCC38AndStuff(3, i);
+		m_menuIndex = 2;
+		m_menuDecor[2] = i;
 		break;
 
 	case WM_DECOR4:
@@ -3509,6 +3563,17 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		SetState(WM_DECOR3, 0);
 		SetState(WM_DECOR4, 1);
 		SetState(WM_DECOR5, 0);
+		SetState(WM_DECOR6, 0);
+		SetState(WM_DECOR7, 0);
+		SetState(WM_DECOR8, 0);
+		SetState(WM_DECOR9, 0);
+		SetState(WM_DECOR10, 0);
+		SetState(WM_DECOR11, 0);
+
+		i = GetMenu(WM_DECOR4);
+		m_pDecor->SetFieldCC38AndStuff(4, i);
+		m_menuIndex = 3;
+		m_menuDecor[3] = i;
 		break;
 
 	case WM_DECOR5:
@@ -3517,6 +3582,131 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		SetState(WM_DECOR3, 0);
 		SetState(WM_DECOR4, 0);
 		SetState(WM_DECOR5, 1);
+		SetState(WM_DECOR6, 0);
+		SetState(WM_DECOR7, 0);
+		SetState(WM_DECOR8, 0);
+		SetState(WM_DECOR9, 0);
+		SetState(WM_DECOR10, 0);
+		SetState(WM_DECOR11, 0);
+
+		i = GetMenu(WM_DECOR5);
+		m_pDecor->SetFieldCC38AndStuff(5, i);
+		m_menuIndex = 4;
+		m_menuDecor[4] = i;
+		break;
+
+	case WM_DECOR6:
+		SetState(WM_DECOR1, 0);
+		SetState(WM_DECOR2, 0);
+		SetState(WM_DECOR3, 0);
+		SetState(WM_DECOR4, 0);
+		SetState(WM_DECOR5, 0);
+		SetState(WM_DECOR6, 1);
+		SetState(WM_DECOR7, 0);
+		SetState(WM_DECOR8, 0);
+		SetState(WM_DECOR9, 0);
+		SetState(WM_DECOR10, 0);
+		SetState(WM_DECOR11, 0);
+
+		i = GetMenu(WM_DECOR6);
+		m_pDecor->SetFieldCC38AndStuff(6, i);
+		m_menuIndex = 5;
+		m_menuDecor[5] = i;
+		break;
+
+	case WM_DECOR7:
+		SetState(WM_DECOR1, 0);
+		SetState(WM_DECOR2, 0);
+		SetState(WM_DECOR3, 0);
+		SetState(WM_DECOR4, 0);
+		SetState(WM_DECOR5, 0);
+		SetState(WM_DECOR6, 0);
+		SetState(WM_DECOR7, 1);
+		SetState(WM_DECOR8, 0);
+		SetState(WM_DECOR9, 0);
+		SetState(WM_DECOR10, 0);
+		SetState(WM_DECOR11, 0);
+
+		i = GetMenu(WM_DECOR7);
+		m_pDecor->SetFieldCC38AndStuff(7, i);
+		m_menuIndex = 6;
+		m_menuDecor[6] = i;
+		break;
+
+	case WM_DECOR8:
+		SetState(WM_DECOR1, 0);
+		SetState(WM_DECOR2, 0);
+		SetState(WM_DECOR3, 0);
+		SetState(WM_DECOR4, 0);
+		SetState(WM_DECOR5, 0);
+		SetState(WM_DECOR6, 0);
+		SetState(WM_DECOR7, 0);
+		SetState(WM_DECOR8, 1);
+		SetState(WM_DECOR9, 0);
+		SetState(WM_DECOR10, 0);
+		SetState(WM_DECOR11, 0);
+
+		i = GetMenu(WM_DECOR8);
+		m_pDecor->SetFieldCC38AndStuff(8, i);
+		m_menuIndex = 7;
+		m_menuDecor[7] = i;
+		break;
+
+	case WM_DECOR9:
+		SetState(WM_DECOR1, 0);
+		SetState(WM_DECOR2, 0);
+		SetState(WM_DECOR3, 0);
+		SetState(WM_DECOR4, 0);
+		SetState(WM_DECOR5, 0);
+		SetState(WM_DECOR6, 0);
+		SetState(WM_DECOR7, 0);
+		SetState(WM_DECOR8, 0);
+		SetState(WM_DECOR9, 1);
+		SetState(WM_DECOR10, 0);
+		SetState(WM_DECOR11, 0);
+
+		i = GetMenu(WM_DECOR9);
+		m_pDecor->SetFieldCC38AndStuff(9, i);
+		m_menuIndex = 8;
+		m_menuDecor[8] = i;
+		break;
+
+	case WM_DECOR10:
+		SetState(WM_DECOR1, 0);
+		SetState(WM_DECOR2, 0);
+		SetState(WM_DECOR3, 0);
+		SetState(WM_DECOR4, 0);
+		SetState(WM_DECOR5, 0);
+		SetState(WM_DECOR6, 0);
+		SetState(WM_DECOR7, 0);
+		SetState(WM_DECOR8, 0);
+		SetState(WM_DECOR9, 0);
+		SetState(WM_DECOR10, 1);
+		SetState(WM_DECOR11, 0);
+
+		i = GetMenu(WM_DECOR10);
+		m_pDecor->SetFieldCC38AndStuff(10, i);
+		m_menuIndex = 9;
+		m_menuDecor[9] = i;
+		break;
+
+	case WM_DECOR11:
+		SetState(WM_DECOR1, 0);
+		SetState(WM_DECOR2, 0);
+		SetState(WM_DECOR3, 0);
+		SetState(WM_DECOR4, 0);
+		SetState(WM_DECOR5, 0);
+		SetState(WM_DECOR6, 0);
+		SetState(WM_DECOR7, 0);
+		SetState(WM_DECOR8, 0);
+		SetState(WM_DECOR9, 0);
+		SetState(WM_DECOR10, 0);
+		SetState(WM_DECOR11, 1);
+
+		i = GetMenu(WM_DECOR11);
+		m_pDecor->SetFieldCC38AndStuff(11, i);
+		m_menuIndex = 10;
+		m_menuDecor[10] = i; 
 		break;
 
 	case WM_BUTTON0:
@@ -4005,43 +4195,43 @@ BOOL CEvent::ChangePhase(UINT phase)
 			return ChangePhase(WM_PHASE_INFO);
 		}
 	}
-	if (phase == WM_PHASE_DPLAY_DO_SERVICE)
+	if (phase == WM_PHASE_DP_DOSERVICE)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DPLAY_CANCEL_SERVICE)
+	if (phase == WM_PHASE_DP_CANCELSERVICE)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_1572)
+	if (phase == WM_PHASE_DP_JOIN)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DPLAY_CREATE_LOBBY)
+	if (phase == WM_PHASE_DP_CREATELOBBY)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DPLAY_REFRESH)
+	if (phase == WM_PHASE_DP_REFRESH)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DPLAY_CANCEL_SESSION)
+	if (phase == WM_PHASE_DP_CANCELSESSION)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DPLAY_CREATE)
+	if (phase == WM_PHASE_DP_DOCREATE)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DPLAY_CANCEL_CREATE)
+	if (phase == WM_PHASE_DP_CANCELCREATE)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DPLAY_START_GAME_2)
+	if (phase == WM_PHASE_DP_STARTMULTI)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DPLAY_CANCEL_MULTI)
+	if (phase == WM_PHASE_DP_CANCELMULTI)
 	{
 		// ...
 	}
@@ -4068,7 +4258,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 	
 	m_phase = phase;
 	m_index = SearchPhase(phase);
-	if (table[m_index].bUnk && !FUN_1fbd0())
+	if (table[m_index].bUnk && !CheckCDForWorld1())
 	{
 		m_tryInsertCount = 40;
 		m_tryPhase = m_phase;
@@ -5410,7 +5600,7 @@ BOOL CEvent::ClearGamer(int gamer)
 	return TRUE;
 }
 
-BOOL CEvent::FUN_1fbd0()
+BOOL CEvent::CheckCDForWorld1()
 {
 	// TODO
 	return TRUE;
@@ -5428,4 +5618,44 @@ int CEvent::GameSave(int save)
 		return 1;
 	}
 	return m_pDecor->MissionStart(m_gamer, save, TRUE);
+}
+
+BOOL CEvent::CopyMission(char *srcFileName, char *dstFileName)
+{
+	FILE *srcFile = NULL;
+	FILE *destFile = NULL;
+	size_t num;
+	BOOL bOK = TRUE;
+	void *buffer = malloc(2560);
+
+	if (buffer)
+	{
+		srcFile = fopen(srcFileName, "rb");
+		if (!srcFile) goto die;
+		destFile = fopen(dstFileName, "wb");
+		if (destFile)
+		{
+			do
+			{
+				num = fread(buffer, 1, 2560, srcFile);
+				if (ferror(srcFile)) break; // *
+				if (num <= 0)
+				{
+					bOK = FALSE;
+					break;
+				}
+				fwrite(buffer, 1, num, destFile);
+			} while (!ferror(destFile)); // *
+		}
+	}
+	if (srcFile) fclose(srcFile);
+die:
+	if (destFile) fclose(destFile);
+	if (buffer) free(buffer);
+	return bOK;
+
+	// *
+	// original code relies on undefined behavior specific to older msvc :
+	// if (srcFile->_flag & _IOERR)
+	// while (!(destFile->_flag & _IOERR))
 }
