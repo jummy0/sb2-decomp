@@ -65,6 +65,8 @@ public:
     void    SetBenchmarkSuccess(BOOL bSuccess);
     void    SetTrueColor(BOOL bTrueColor);
     void    SetTrueColorDecor(BOOL bTrueColorDecor);
+    BOOL    GetTrueColor();
+    BOOL    GetTrueColorDecor();
 
 protected:
 	HRESULT	RestoreAll();
@@ -79,7 +81,6 @@ protected:
 	void	MouseBackDebug();
 	void	MouseRectSprite(RECT *rect, POINT *offset);
 	void	MouseHotSpot();
-    BOOL    GetTrueColor();
 
    
 

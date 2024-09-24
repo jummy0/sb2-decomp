@@ -10,6 +10,8 @@ using namespace std;
 #include <stdio.h>
 #include <ddraw.h>
 #include <direct.h>
+#include <io.h>
+#include <mbstring.h>
 #include "def.h"
 #include "resource.h"
 #include "pixmap.h"
@@ -33,6 +35,7 @@ using namespace std;
 #define MAXINDEX	   20
 
 
+
 typedef struct
 {
 	short majRev;
@@ -54,6 +57,8 @@ typedef struct
 	BYTE doors[200];
 }
 DescInfo;
+
+
 
 // Toutes les premi�res lettres doivent
 // �tre diff�rentes !
@@ -91,49 +96,38 @@ static char cheat_code[25][60] =
 
 /////////////////////////////////////////////////////////////////////////////
 
+
 static Phase table[] =
 {
 	{
-		WM_PHASE_TESTCD,
+		1552,
 		"init.blp",
 		FALSE,
 		FALSE,
-		{ 0 }
+		{
+			{ 0 }
+		},
 	},
 	{
-		WM_PHASE_INTRO1,
-		"intro1.blp",
-		FALSE,
-		FALSE,
-		{ 0 }
-	},
-	{
-		WM_PHASE_INTRO2,
-		"intro2.blp",
-		FALSE,
-		FALSE,
-		{ 0 }
-	},
-	{
-		WM_PHASE_INIT,
+		1524,
 		"init.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_GAMER,
+				1545,
 				0,{ 1, 48 },
 				86, 410,
 				{ 1, 109 }
 			},
 			{
-				WM_PHASE_DEMO,
+				1557,
 				0,{ 1, 84 },
 				128, 410,
 				{ 1, 212 }
 			},
 			{
-				WM_PHASE_BYE,
+				1556,
 				0,{ 1, 6 },
 				540, 410,
 				{ 1, 106 }
@@ -142,103 +136,103 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_GAMER,
+		1545,
 		"gamer.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 0 },
 				60, 58,
 				{ 1, 117 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 0 },
 				60, 98,
 				{ 1, 117 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 0 },
 				60, 138,
 				{ 1, 117 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 0 },
 				60, 178,
 				{ 1, 117 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 0 },
 				60, 218,
 				{ 1, 117 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 0 },
 				60, 258,
 				{ 1, 117 }
 			},
 			{
-				WM_BUTTON7,
+				1231,
 				0,{ 0 },
 				60, 298,
 				{ 1, 117 }
 			},
 			{
-				WM_BUTTON8,
+				1232,
 				0,{ 0 },
 				60, 338,
 				{ 1, 117 }
 			},
 			{
-				WM_PHASE_NAMEGAMER,
+				1527,
 				0,{ 1, 46 },
 				546, 178,
 				{ 1, 118 }
 			},
 			{
-				WM_PHASE_CLEARGAMER,
+				1528,
 				0,{ 1, 36 },
 				546, 220,
 				{ 1, 127 }
 			},
 			{
-				WM_PHASE_DOPLAY,
+				1539,
 				0,{ 1, 48 },
 				65, 414,
 				{ 1, 195 }
 			},
 			{
-				WM_PHASE_SERVICE,
+				1568,
 				0,{ 1, 83 },
 				107, 414,
 				{ 1, 196 }
 			},
 			{
-				WM_PHASE_PRIVATE,
+				1554,
 				0,{ 1, 49 },
 				149, 414,
 				{ 1, 188 }
 			},
 			{
-				WM_PHASE_GREAD,
+				1586,
 				0,{ 1, 52 },
 				191, 414,
 				{ 1, 264 }
 			},
 			{
-				WM_PHASE_SETUP,
+				1534,
 				0,{ 1, 47 },
 				330, 414,
 				{ 1, 128 }
 			},
 			{
-				WM_PHASE_INIT,
+				1524,
 				0,{ 1, 40 },
 				540, 414,
 				{ 1, 111 }
@@ -247,19 +241,19 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_NAMEGAMER,
+		1527,
 		"name.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_DONAMEGAMER,
+				1562,
 				0,{ 1, 18 },
 				222, 326,
 				{ 1, 174 }
 			},
 			{
-				WM_PHASE_GAMER,
+				1545,
 				0,{ 1, 36 },
 				378, 326,
 				{ 1, 175 }
@@ -268,19 +262,19 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_CLEARGAMER,
+		1528,
 		"clear.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_DOCLEARGAMER,
+				1563,
 				0,{ 1, 18 },
 				222, 326,
 				{ 1, 176 }
 			},
 			{
-				WM_PHASE_GAMER,
+				1545,
 				0,{ 1, 36 },
 				378, 326,
 				{ 1, 177 }
@@ -289,67 +283,67 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_SERVICE,
+		1568,
 		"service.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 1, 51 },
 				140, 110,
 				{ 0 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 1, 51 },
 				140, 150,
 				{ 0 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 1, 51 },
 				140, 190,
 				{ 0 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 1, 51 },
 				140, 230,
 				{ 0 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 1, 51 },
 				140, 270,
 				{ 0 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 1, 51 },
 				140, 310,
 				{ 0 }
 			},
 			{
-				WM_BUTTON10,
+				1234,
 				0,{ 1, 72 },
 				466, 110,
 				{ 1, 242 }
 			},
 			{
-				WM_BUTTON11,
+				1235,
 				0,{ 1, 73 },
 				466, 310,
 				{ 1, 241 }
 			},
 			{
-				WM_PHASE_DP_DOSERVICE,
+				1569,
 				0,{ 1, 18 },
 				222, 389,
 				{ 1, 174 }
 			},
 			{
-				WM_PHASE_DP_CANCELSERVICE,
+				1570,
 				0,{ 1, 36 },
 				380, 389,
 				{ 1, 175 }
@@ -358,79 +352,79 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_SESSION,
+		1571,
 		"session.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 1, 51 },
 				120, 110,
 				{ 0 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 1, 51 },
 				120, 150,
 				{ 0 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 1, 51 },
 				120, 190,
 				{ 0 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 1, 51 },
 				120, 230,
 				{ 0 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 1, 51 },
 				120, 270,
 				{ 0 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 1, 51 },
 				120, 310,
 				{ 0 }
 			},
 			{
-				WM_BUTTON10,
+				1234,
 				0,{ 1, 72 },
 				490, 110,
 				{ 1, 246 }
 			},
 			{
-				WM_BUTTON11,
+				1235,
 				0,{ 1, 73 },
 				490, 310,
 				{ 1, 245 }
 			},
 			{
-				WM_PHASE_DP_JOIN,
+				1572,
 				0,{ 1, 45 },
 				120, 389,
 				{ 1, 247 }
 			},
 			{
-				WM_PHASE_DP_CREATELOBBY,
+				1573,
 				0,{ 1, 43 },
 				162, 389,
 				{ 1, 248 }
 			},
 			{
-				WM_PHASE_DP_REFRESH,
+				1574,
 				0,{ 1, 72 },
 				260, 389,
 				{ 1, 249 }
 			},
 			{
-				WM_PHASE_DP_CANCELSESSION,
+				1575,
 				0,{ 1, 36 },
 				485, 389,
 				{ 1, 175 }
@@ -439,19 +433,19 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_CREATE,
+		1579,
 		"create.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_DP_DOCREATE,
+				1580,
 				0,{ 1, 18 },
 				222, 326,
 				{ 1, 174 }
 			},
 			{
-				WM_PHASE_DP_CANCELCREATE,
+				1581,
 				0,{ 1, 36 },
 				378, 326,
 				{ 1, 175 }
@@ -460,85 +454,85 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_MULTI,
+		1576,
 		"multi.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 0 },
 				80, 98,
 				{ 1, 207 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 0 },
 				80, 140,
 				{ 1, 207 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 0 },
 				80, 182,
 				{ 1, 207 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 0 },
 				80, 224,
 				{ 1, 207 }
 			},
 			{
-				WM_BUTTON11,
+				1235,
 				0,{ 1, 36 },
 				288, 98,
 				{ 1, 208 }
 			},
 			{
-				WM_BUTTON12,
+				1236,
 				0,{ 1, 36 },
 				288, 140,
 				{ 1, 208 }
 			},
 			{
-				WM_BUTTON13,
+				1237,
 				0,{ 1, 36 },
 				288, 182,
 				{ 1, 208 }
 			},
 			{
-				WM_BUTTON14,
+				1238,
 				0,{ 1, 36 },
 				288, 224,
 				{ 1, 208 }
 			},
 			{
-				WM_BUTTON20,
+				1244,
 				0,{ 1, 94 },
 				404, 388,
 				{ 1, 262 }
 			},
 			{
-				WM_PREV,
+				1624,
 				0,{ 1, 50 },
 				438, 249,
 				{ 1, 107 }
 			},
 			{
-				WM_NEXT,
+				1625,
 				0,{ 1, 51 },
 				480, 249,
 				{ 1, 108 }
 			},
 			{
-				WM_PHASE_DP_STARTMULTI,
+				1577,
 				0,{ 1, 48 },
 				508, 389,
 				{ 1, 252 }
 			},
 			{
-				WM_PHASE_DP_CANCELMULTI,
+				1578,
 				0,{ 1, 36 },
 				508, 330,
 				{ 1, 175 }
@@ -547,73 +541,73 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_INFO,
+		1529,
 		"info.blp",
 		FALSE,
 		TRUE,
 		{
 			{
-				WM_PHASE_WRITEDESIGN,
+				1559,
 				0,{ 1, 53 },
 				188, 306,
 				{ 1, 113 }
 			},
 			{
-				WM_PHASE_READDESIGN,
+				1560,
 				0,{ 1, 52 },
 				232, 306,
 				{ 1, 112 }
 			},
 			{
-				WM_PHASE_CLEARDESIGN,
+				1561,
 				0,{ 1, 36 },
 				276, 306,
 				{ 1, 183 }
 			},
 			{
-				WM_PREV,
+				1624,
 				0,{ 1, 50 },
 				188, 398,
 				{ 1, 107 }
 			},
 			{
-				WM_PHASE_PLAYMOVIE,
+				1536,
 				0,{ 1, 48 },
 				232, 398,
 				{ 1, 109 }
 			},
 			{
-				WM_NEXT,
+				1625,
 				0,{ 1, 51 },
 				276, 398,
 				{ 1, 108 }
 			},
 			{
-				WM_PHASE_BUILD,
+				1526,
 				0,{ 1, 49 },
 				422, 98,
 				{ 1, 110 }
 			},
 			{
-				WM_PHASE_REGION,
+				1542,
 				0,{ 1, 22 },
 				422, 195,
 				{ 1, 144 }
 			},
 			{
-				WM_PHASE_NAMEDESIGN,
+				1558,
 				0,{ 1, 46 },
 				422, 239,
 				{ 1, 185 }
 			},
 			{
-				WM_PHASE_MUSIC,
+				1535,
 				0,{ 1, 44 },
 				422, 283,
 				{ 1, 129 }
 			},
 			{
-				WM_PHASE_GAMER,
+				1545,
 				0,{ 1, 40 },
 				422, 398,
 				{ 1, 111 }
@@ -622,7 +616,7 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_PLAY,
+		1525,
 		"",
 		FALSE,
 		FALSE,
@@ -631,7 +625,7 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_PLAYTEST,
+		1530,
 		"",
 		FALSE,
 		FALSE,
@@ -640,43 +634,43 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_STOP,
+		1582,
 		"stop.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_GWRITE,
+				1584,
 				0,{ 1, 53 },
 				187, 178,
 				{ 1, 263 }
 			},
 			{
-				WM_PHASE_GREADp,
+				1585,
 				0,{ 1, 52 },
 				187, 296,
 				{ 1, 264 }
 			},
 			{
-				WM_PHASE_SETUPp,
+				1541,
 				0,{ 1, 47 },
 				350, 156,
 				{ 1, 128 }
 			},
 			{
-				WM_PHASE_HELP,
+				1583,
 				0,{ 1, 86 },
 				391, 156,
 				{ 1, 267 }
 			},
 			{
-				WM_PHASE_QUITPLAY,
+				1587,
 				0,{ 1, 78 },
 				413, 262,
 				{ 1, 266 }
 			},
 			{
-				WM_PHASE_PLAY,
+				1525,
 				0,{ 1, 77 },
 				413, 323,
 				{ 1, 265 }
@@ -685,13 +679,13 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_HELP,
+		1583,
 		"help.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_PLAY,
+				1525,
 				0,{ 1, 18 },
 				442, 358,
 				{ 1, 174 }
@@ -700,55 +694,55 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_GREAD,
+		1586,
 		"gread.blp",
 		FALSE,
 		TRUE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 0 },
 				280, 110,
 				{ 0 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 0 },
 				280, 150,
 				{ 0 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 0 },
 				280, 190,
 				{ 0 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 0 },
 				280, 230,
 				{ 0 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 0 },
 				280, 270,
 				{ 0 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 0 },
 				280, 310,
 				{ 0 }
 			},
 			{
-				WM_BUTTON20,
+				1244,
 				0,{ 1, 18 },
 				330, 387,
 				{ 1, 174 }
 			},
 			{
-				WM_PHASE_GAMER,
+				1545,
 				0,{ 1, 36 },
 				458, 387,
 				{ 1, 175 }
@@ -757,55 +751,55 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_GREADp,
+		1585,
 		"gread.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 0 },
 				280, 110,
 				{ 0 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 0 },
 				280, 150,
 				{ 0 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 0 },
 				280, 190,
 				{ 0 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 0 },
 				280, 230,
 				{ 0 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 0 },
 				280, 270,
 				{ 0 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 0 },
 				280, 310,
 				{ 0 }
 			},
 			{
-				WM_BUTTON20,
+				1244,
 				0,{ 1, 18 },
 				330, 387,
 				{ 1, 174 }
 			},
 			{
-				WM_PHASE_STOP,
+				1582,
 				0,{ 1, 36 },
 				458, 387,
 				{ 1, 175 }
@@ -814,55 +808,55 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_GWRITE,
+		1584,
 		"gwrite.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 0 },
 				280, 110,
 				{ 0 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 0 },
 				280, 150,
 				{ 0 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 0 },
 				280, 190,
 				{ 0 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 0 },
 				280, 230,
 				{ 0 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 0 },
 				280, 270,
 				{ 0 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 0 },
 				280, 310,
 				{ 0 }
 			},
 			{
-				WM_BUTTON20,
+				1244,
 				0,{ 1, 18 },
 				330, 387,
 				{ 1, 174 }
 			},
 			{
-				WM_PHASE_STOP,
+				1582,
 				0,{ 1, 36 },
 				458, 387,
 				{ 1, 175 }
@@ -871,97 +865,97 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_SETUP,
+		1534,
 		"setup.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 1, 50 },
 				70, 110,
 				{ 1, 130 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 1, 51 },
 				110, 110,
 				{ 1, 131 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 1, 50 },
 				70, 220,
 				{ 1, 132 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 1, 51 },
 				110, 220,
 				{ 1, 133 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 1, 133 },
 				70, 330,
 				{ 1, 154 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 1, 134 },
 				110, 330,
 				{ 1, 155 }
 			},
 			{
-				WM_BUTTON13,
+				1237,
 				0,{ 1, 135 },
 				170, 330,
 				{ 1, 305 }
 			},
 			{
-				WM_BUTTON14,
+				1238,
 				0,{ 1, 136 },
 				210, 330,
 				{ 1, 306 }
 			},
 			{
-				WM_BUTTON7,
+				1231,
 				0,{ 0 },
 				370, 110,
 				{ 1, 156 }
 			},
 			{
-				WM_BUTTON8,
+				1232,
 				0,{ 0 },
 				370, 150,
 				{ 1, 157 }
 			},
 			{
-				WM_BUTTON9,
+				1233,
 				0,{ 0 },
 				370, 190,
 				{ 1, 157 }
 			},
 			{
-				WM_BUTTON10,
+				1234,
 				0,{ 0 },
 				370, 230,
 				{ 1, 157 }
 			},
 			{
-				WM_BUTTON11,
+				1235,
 				0,{ 0 },
 				370, 270,
 				{ 1, 157 }
 			},
 			{
-				WM_BUTTON12,
+				1236,
 				0,{ 0 },
 				370, 310,
 				{ 1, 157 }
 			},
 			{
-				WM_PHASE_GAMER,
+				1545,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -970,97 +964,97 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_SETUPp,
+		1541,
 		"setup.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 1, 50 },
 				70, 110,
 				{ 1, 130 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 1, 51 },
 				110, 110,
 				{ 1, 131 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 1, 50 },
 				70, 220,
 				{ 1, 132 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 1, 51 },
 				110, 220,
 				{ 1, 133 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 1, 133 },
 				70, 330,
 				{ 1, 154 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 1, 134 },
 				110, 330,
 				{ 1, 155 }
 			},
 			{
-				WM_BUTTON13,
+				1237,
 				0,{ 1, 135 },
 				170, 330,
 				{ 1, 305 }
 			},
 			{
-				WM_BUTTON14,
+				1238,
 				0,{ 1, 136 },
 				210, 330,
 				{ 1, 306 }
 			},
 			{
-				WM_BUTTON7,
+				1231,
 				0,{ 0 },
 				370, 110,
 				{ 1, 156 }
 			},
 			{
-				WM_BUTTON8,
+				1232,
 				0,{ 0 },
 				370, 150,
 				{ 1, 157 }
 			},
 			{
-				WM_BUTTON9,
+				1233,
 				0,{ 0 },
 				370, 190,
 				{ 1, 157 }
 			},
 			{
-				WM_BUTTON10,
+				1234,
 				0,{ 0 },
 				370, 230,
 				{ 1, 157 }
 			},
 			{
-				WM_BUTTON11,
+				1235,
 				0,{ 0 },
 				370, 270,
 				{ 1, 157 }
 			},
 			{
-				WM_BUTTON12,
+				1236,
 				0,{ 0 },
 				370, 310,
 				{ 1, 157 }
 			},
 			{
-				WM_PHASE_PLAY,
+				1525,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1069,13 +1063,13 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_LOST,
+		1533,
 		"lost.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_PLAY,
+				1525,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1084,13 +1078,13 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_LOSTDESIGN,
+		1547,
 		"lost.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_INFO,
+				1529,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1099,13 +1093,13 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_LOSTMULTI,
+		1549,
 		"lost.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_GAMER,
+				1545,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1114,13 +1108,13 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_WIN,
+		1532,
 		"win.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_GAMER,
+				1545,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1129,13 +1123,13 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_WINDESIGN,
+		1546,
 		"win.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_INFO,
+				1529,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1144,13 +1138,13 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_WINMULTI,
+		1550,
 		"win.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_GAMER,
+				1545,
 				0,{ 1, 18 },
 				541, 411,
 				{ 1, 174 }
@@ -1159,85 +1153,85 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_BUILD,
+		1526,
 		"",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_DECOR1,
+				1044,
 				0,{ 1, 6 },
 				11, 11,
 				{ 1, 1000 }
 			},
 			{
-				WM_DECOR2,
+				1045,
 				0,{ 11, 31, 29, 32, 69, 33, 37, 82, 130, 139, 30, 142 },
 				11, 53,
 				{ 11, 2030, 1023, 2072, 1042, 2047, 1026, 1049, 1076, 1080, 1021, 1082 }
 			},
 			{
-				WM_DECOR3,
+				1046,
 				0,{ 8, 0, 1, 2, 27, 34, 35, 67, 106 },
 				11, 95,
 				{ 8, 1001, 1002, 1003, 1020, 1024, 1025, 1038, 1062 }
 			},
 			{
-				WM_DECOR4,
+				1047,
 				0,{ 10, 22, 59, 68, 118, 127, 100, 128, 129, 39, 38 },
 				11, 137,
 				{ 10, 2033, 1032, 1037, 1067, 1075, 1061, 1074, 1076, 2038, 2041 }
 			},
 			{
-				WM_DECOR5,
+				1048,
 				0,{ 10, 137, 138, 65, 66, 112, 58, 23, 80, 81, 79 },
 				11, 179,
 				{ 10, 1079, 1080, 1039, 1040, 1065, 1031, 1015, 1047, 1048, 1022 }
 			},
 			{
-				WM_DECOR6,
+				1049,
 				0,{ 12, 8, 9, 107, 26, 42, 41, 131, 143, 132, 101, 120, 122 },
 				11, 221,
 				{ 12, 1006, 1007, 1063, 1018, 1028, 1027, 1077, 1083, 1078, 1064, 1069, 1071 }
 			},
 			{
-				WM_DECOR7,
+				1050,
 				0,{ 13, 21, 20, 19, 28, 121, 16, 55, 60, 113, 140, 54, 95, 99 },
 				11, 263,
 				{ 13, 1009, 1010, 1011, 1019, 1070, 1012, 1030, 1033, 1066, 1081, 1029, 1059, 1060 }
 			},
 			{
-				WM_DECOR8,
+				1051,
 				0,{ 9, 7, 10, 75, 74, 89, 88, 93, 92, 87 },
 				11, 305,
 				{ 9, 1004, 1005, 1046, 1045, 1052, 1051, 1054, 1053, 2007 }
 			},
 			{
-				WM_DECOR9,
+				1052,
 				0,{ 10, 125, 126, 144, 124, 56, 70, 123, 141, 17, 76 },
 				11, 347,
 				{ 10, 1036, 1035, 1084, 1073, 1041, 1043, 1072, 2044, 1013, 1014 }
 			},
 			{
-				WM_DECOR10,
+				1053,
 				0,{ 5, 119, 24, 71, 57, 85 },
 				11, 389,
 				{ 5, 1068, 1016, 1044, 2004, 1050 }
 			},
 			{
-				WM_DECOR11,
+				1054,
 				0,{ 8, 11, 5, 96, 97, 98, 63, 62, 64 },
 				11, 431,
 				{ 8, 1008, 1055, 1056, 1057, 1058, 1035, 1034, 1036 }
 			},
 			{
-				WM_PHASE_PLAYTEST,
+				1530,
 				0,{ 1, 48 },
 				544, 431,
 				{ 1, 124 }
 			},
 			{
-				WM_PHASE_INFO,
+				1529,
 				0,{ 1, 40 },
 				586, 431,
 				{ 1, 119 }
@@ -1246,79 +1240,79 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_MUSIC,
+		1535,
 		"music.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 1, 40 },
 				200, 130,
 				{ 1, 134 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 1, 44 },
 				290, 130,
 				{ 1, 135 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 1, 44 },
 				290, 170,
 				{ 1, 136 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 1, 44 },
 				290, 210,
 				{ 1, 137 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 1, 44 },
 				290, 250,
 				{ 1, 138 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 1, 44 },
 				290, 290,
 				{ 1, 139 }
 			},
 			{
-				WM_BUTTON7,
+				1231,
 				0,{ 1, 44 },
 				350, 130,
 				{ 1, 140 }
 			},
 			{
-				WM_BUTTON8,
+				1232,
 				0,{ 1, 44 },
 				350, 170,
 				{ 1, 141 }
 			},
 			{
-				WM_BUTTON9,
+				1233,
 				0,{ 1, 44 },
 				350, 210,
 				{ 1, 142 }
 			},
 			{
-				WM_BUTTON10,
+				1234,
 				0,{ 1, 44 },
 				350, 250,
 				{ 1, 143 }
 			},
 			{
-				WM_BUTTON11,
+				1235,
 				0,{ 1, 44 },
 				350, 290,
 				{ 1, 171 }
 			},
 			{
-				WM_PHASE_INFO,
+				1529,
 				0,{ 1, 18 },
 				540, 410,
 				{ 1, 174 }
@@ -1327,229 +1321,229 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_REGION,
+		1542,
 		"region.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 0 },
 				48, 58,
 				{ 1, 217 }
 			},
 			{
-				WM_BUTTON28,
+				1252,
 				0,{ 0 },
 				48, 98,
 				{ 1, 300 }
 			},
 			{
-				WM_BUTTON22,
+				1246,
 				0,{ 0 },
 				48, 138,
 				{ 1, 236 }
 			},
 			{
-				WM_BUTTON19,
+				1243,
 				0,{ 0 },
 				48, 178,
 				{ 1, 233 }
 			},
 			{
-				WM_BUTTON21,
+				1245,
 				0,{ 0 },
 				48, 218,
 				{ 1, 235 }
 			},
 			{
-				WM_BUTTON20,
+				1244,
 				0,{ 0 },
 				48, 258,
 				{ 1, 234 }
 			},
 			{
-				WM_BUTTON7,
+				1231,
 				0,{ 0 },
 				48, 298,
 				{ 1, 221 }
 			},
 			{
-				WM_BUTTON10,
+				1234,
 				0,{ 0 },
 				48, 338,
 				{ 1, 224 }
 			},
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 0 },
 				148, 58,
 				{ 1, 215 }
 			},
 			{
-				WM_BUTTON15,
+				1239,
 				0,{ 0 },
 				148, 98,
 				{ 1, 229 }
 			},
 			{
-				WM_BUTTON14,
+				1238,
 				0,{ 0 },
 				148, 138,
 				{ 1, 228 }
 			},
 			{
-				WM_BUTTON11,
+				1235,
 				0,{ 0 },
 				148, 178,
 				{ 1, 225 }
 			},
 			{
-				WM_BUTTON8,
+				1232,
 				0,{ 0 },
 				148, 218,
 				{ 1, 222 }
 			},
 			{
-				WM_BUTTON23,
+				1247,
 				0,{ 0 },
 				148, 258,
 				{ 1, 237 }
 			},
 			{
-				WM_BUTTON13,
+				1237,
 				0,{ 0 },
 				148, 298,
 				{ 1, 227 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 0 },
 				148, 338,
 				{ 1, 220 }
 			},
 			{
-				WM_BUTTON17,
+				1241,
 				0,{ 0 },
 				248, 58,
 				{ 1, 231 }
 			},
 			{
-				WM_BUTTON18,
+				1242,
 				0,{ 0 },
 				248, 98,
 				{ 1, 232 }
 			},
 			{
-				WM_BUTTON12,
+				1236,
 				0,{ 0 },
 				248, 138,
 				{ 1, 226 }
 			},
 			{
-				WM_BUTTON27,
+				1251,
 				0,{ 0 },
 				248, 178,
 				{ 1, 299 }
 			},
 			{
-				WM_BUTTON16,
+				1240,
 				0,{ 0 },
 				248, 218,
 				{ 1, 230 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 0 },
 				248, 258,
 				{ 1, 216 }
 			},
 			{
-				WM_BUTTON30,
+				1254,
 				0,{ 0 },
 				248, 298,
 				{ 1, 302 }
 			},
 			{
-				WM_BUTTON29,
+				1253,
 				0,{ 0 },
 				248, 338,
 				{ 1, 301 }
 			},
 			{
-				WM_BUTTON32,
+				1256,
 				0,{ 0 },
 				348, 58,
 				{ 1, 304 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 0 },
 				348, 98,
 				{ 1, 219 }
 			},
 			{
-				WM_BUTTON9,
+				1233,
 				0,{ 0 },
 				348, 138,
 				{ 1, 223 }
 			},
 			{
-				WM_BUTTON31,
+				1255,
 				0,{ 0 },
 				348, 178,
 				{ 1, 303 }
 			},
 			{
-				WM_BUTTON26,
+				1250,
 				0,{ 0 },
 				348, 218,
 				{ 1, 298 }
 			},
 			{
-				WM_BUTTON24,
+				1248,
 				0,{ 0 },
 				348, 258,
 				{ 1, 238 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 0 },
 				348, 298,
 				{ 1, 218 }
 			},
 			{
-				WM_BUTTON25,
+				1249,
 				0,{ 0 },
 				348, 338,
 				{ 1, 297 }
 			},
 			{
-				WM_DIMS1,
+				1265,
 				0,{ 1, 15 },
 				521, 135,
 				{ 1, 121 }
 			},
 			{
-				WM_DIMS2,
+				1266,
 				0,{ 1, 13 },
 				521, 175,
 				{ 1, 122 }
 			},
 			{
-				WM_DIMS3,
+				1267,
 				0,{ 1, 14 },
 				521, 215,
 				{ 1, 123 }
 			},
 			{
-				WM_DIMS4,
+				1268,
 				0,{ 1, 61 },
 				521, 255,
 				{ 1, 126 }
 			},
 			{
-				WM_PHASE_INFO,
+				1529,
 				0,{ 1, 18 },
 				540, 411,
 				{ 1, 174 }
@@ -1558,19 +1552,19 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_NAMEDESIGN,
+		1558,
 		"name.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_DONAMEDESIGN,
+				1564,
 				0,{ 1, 18 },
 				222, 326,
 				{ 1, 174 }
 			},
 			{
-				WM_PHASE_INFO,
+				1529,
 				0,{ 1, 36 },
 				378, 326,
 				{ 1, 175 }
@@ -1579,31 +1573,31 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_WRITEDESIGN,
+		1559,
 		"write.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON10,
+				1234,
 				0,{ 1, 72 },
 				420, 112,
 				{ 1, 193 }
 			},
 			{
-				WM_BUTTON11,
+				1235,
 				0,{ 1, 73 },
 				420, 252,
 				{ 1, 192 }
 			},
 			{
-				WM_PHASE_DOWRITEDESIGN,
+				1565,
 				0,{ 1, 18 },
 				222, 387,
 				{ 1, 174 }
 			},
 			{
-				WM_PHASE_INFO,
+				1529,
 				0,{ 1, 36 },
 				380, 387,
 				{ 1, 175 }
@@ -1612,67 +1606,67 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_READDESIGN,
+		1560,
 		"read.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_BUTTON1,
+				1225,
 				0,{ 1, 51 },
 				190, 110,
 				{ 0 }
 			},
 			{
-				WM_BUTTON2,
+				1226,
 				0,{ 1, 51 },
 				190, 150,
 				{ 0 }
 			},
 			{
-				WM_BUTTON3,
+				1227,
 				0,{ 1, 51 },
 				190, 190,
 				{ 0 }
 			},
 			{
-				WM_BUTTON4,
+				1228,
 				0,{ 1, 51 },
 				190, 230,
 				{ 0 }
 			},
 			{
-				WM_BUTTON5,
+				1229,
 				0,{ 1, 51 },
 				190, 270,
 				{ 0 }
 			},
 			{
-				WM_BUTTON6,
+				1230,
 				0,{ 1, 51 },
 				190, 310,
 				{ 0 }
 			},
 			{
-				WM_BUTTON10,
+				1234,
 				0,{ 1, 72 },
 				420, 110,
 				{ 1, 193 }
 			},
 			{
-				WM_BUTTON11,
+				1235,
 				0,{ 1, 73 },
 				420, 310,
 				{ 1, 192 }
 			},
 			{
-				WM_PHASE_DOREADDESIGN,
+				1566,
 				0,{ 1, 18 },
 				222, 387,
 				{ 1, 174 }
 			},
 			{
-				WM_PHASE_INFO,
+				1529,
 				0,{ 1, 36 },
 				380, 387,
 				{ 1, 175 }
@@ -1681,19 +1675,19 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_CLEARDESIGN,
+		1561,
 		"clear.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_DOCLEARDESIGN,
+				1567,
 				0,{ 1, 18 },
 				222, 326,
 				{ 1, 176 }
 			},
 			{
-				WM_PHASE_INFO,
+				1529,
 				0,{ 1, 36 },
 				378, 326,
 				{ 1, 177 }
@@ -1702,7 +1696,7 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_PLAYMOVIE,
+		1536,
 		"movie.blp",
 		FALSE,
 		FALSE,
@@ -1711,7 +1705,7 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_PLAYMOVIE,
+		1537,
 		"movie.blp",
 		FALSE,
 		FALSE,
@@ -1720,7 +1714,7 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_WINMOVIEDESIGN,
+		1548,
 		"movie.blp",
 		FALSE,
 		FALSE,
@@ -1729,7 +1723,7 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_WINMOVIEMULTI,
+		1551,
 		"movie.blp",
 		FALSE,
 		FALSE,
@@ -1738,7 +1732,7 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_BYE,
+		1556,
 		"bye.blp",
 		FALSE,
 		FALSE,
@@ -1747,13 +1741,13 @@ static Phase table[] =
 		},
 	},
 	{
-		WM_PHASE_INSERT,
+		1543,
 		"insert.blp",
 		FALSE,
 		FALSE,
 		{
 			{
-				WM_PHASE_GAMER,
+				1545,
 				0,{ 1, 40 },
 				16, 424,
 				{ 1, 106 }
@@ -1776,13 +1770,16 @@ CEvent::CEvent()
 	m_mouseType = MOUSETYPEGRA;
 	m_index = -1;
 	m_exercice = 0;
-	m_mission = 1;
-	m_private = 1;
+	m_mission = 0;
+	m_private = 0;
 	m_maxMission = 0;
+	m_fileIndex = 0;
+	m_fileTime[10] = 0;
+	m_fileWorld[10] = 0;
 	m_phase = 0;
 	m_bSchool = FALSE;
 	m_bPrivate = FALSE;
-	m_bBuildOfficialMissions = FALSE;
+	m_bBuildOfficialMissions = TRUE;
 	m_bRunMovie = FALSE;
 	m_bBuildModify = FALSE;
 	m_bMousePress = FALSE;
@@ -1814,6 +1811,14 @@ CEvent::CEvent()
 	m_bDemoRec = FALSE;
 	m_bDemoPlay = FALSE;
 	m_pDemoBuffer = NULL;
+	m_bDrawMap = NULL;
+	m_choiceIndex = NULL;
+	m_saveIndex = NULL;
+	m_bMulti = NULL;
+	m_phaseAfterMovie = NULL;
+	m_choicePageOffset = NULL;
+	m_nbChoices = NULL;
+	//m_bNamesExist = NULL;
 	m_demoTime = 0;
 	m_bCtrlDown = FALSE;
 	m_keyPress = 0;
@@ -2033,6 +2038,16 @@ BOOL CEvent::CreateButtons()
 		m_buttons[i].SetToolTips(&table[m_index].buttons[i].toolTips[1], table[m_index].buttons[i].toolTips[0]);
 	}
 	return TRUE;
+}
+
+BOOL CEvent::LoadImageFromDisc()
+{
+	char res[100];
+
+	strcpy(res, table[m_index].backName);
+	if (res[0] && table[m_index].bCDrom)
+		AddCDPath(res);
+	return m_pPixmap->CacheAll(FALSE, m_hWnd, TRUE, TRUE, TRUE, 1, res, m_pDecor->GetRegion());
 }
 
 void CEvent::ReadInput()
@@ -2264,7 +2279,7 @@ void CEvent::NetDraw()
 	int player;
 
 	player = NetSearchPlayer(m_pNetwork->m_dpid);
-	//m_pDecor->DrawMap(TRUE, player);
+	m_pDecor->DrawMap(TRUE, player);
 	return;
 }
 
@@ -2416,7 +2431,7 @@ BOOL CEvent::DrawButtons()
     char        res[100];
 	char		textLeft[24];
     char        text[100];
-	char		pText[100];
+	char		(*pText)[100];
     POINT       pos;
     RECT        rect;
     BOOL        bEnable;
@@ -2466,11 +2481,13 @@ BOOL CEvent::DrawButtons()
 		pos.y = 2;
 		m_pPixmap->DrawPart(-1, 0, pos, rect, 1, FALSE);
 	}
+	pos.x = 2;
+	pos.y = 2;
 	DrawTextLeft(m_pPixmap, pos, text, FONTLITTLE);
 
 	if (m_phase == WM_PHASE_INIT)
 	{
-		DrawText(m_pPixmap, { 414, 446 }, "Version 2.2", FONTLITTLE);
+		DrawText(m_pPixmap, { 414, 446 }, (char*)"Version 2.2", FONTLITTLE);
 	}
 	
 	for (int i = 0; table[m_index].buttons[i].message != 0; i++)
@@ -2485,19 +2502,54 @@ BOOL CEvent::DrawButtons()
 		pos.y = 26;
 		pos.x = LXIMAGE / 2 - lg / 2;
 		DrawTextLeft(m_pPixmap, pos, res, 1);
-		*(char*)pText = m_gamerNameList[10][100];
-		lg = 8;
+		int num;
+		pText = m_gamerNameList;
 		nice = 69;
-		do
+		for (num = 0; num < 8; num++)
 		{
-			pos.y = 69;
 			pos.x = 110;
-			DrawText(m_pPixmap, pos, pText, 0);
-			nice = 69 + 40;
-			*(char*)pText += 100;
-			lg--;
-		} while (lg != 0);
-		SetEnable(WM_PHASE_CLEARGAMER, (int)(m_filenameBuffer + -1) + m_gamer * 4 + 212);
+			pos.y = nice;
+			DrawText(m_pPixmap, pos, *pText, 0);
+			nice += 40;
+			pText++;
+		}
+		SetEnable(WM_PHASE_CLEARGAMER, (int)(m_filenameBuffer - 1) + m_gamer * 4 + 212);
+	}
+
+
+
+	if (m_phase == WM_PHASE_NAMEGAMER)
+	{
+		LoadString(TX_CHOOSEGAMER, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.x = 320 - lg / 2;
+		pos.y = 102;
+		DrawTextLeft(m_pPixmap, pos, res, 1);
+		LoadString(TX_WRITENAME, res, 100);
+		lg = GetTextWidth(res, 100);
+		pos.x = 320 - lg / 2;
+		pos.y = 190;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+		pos.x = 320;
+		pos.y = 232;
+		PutTextInputBox(pos);
+	}
+
+	if (m_phase == WM_PHASE_NAMEDESIGN)
+	{
+		LoadString(TX_DESIGNMISSION, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.x = 320 - lg / 2;
+		pos.y = 103;
+		DrawTextLeft(m_pPixmap, pos, res, 1);
+		LoadString(TX_NAMEOFMISSION, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.x = 320 - lg / 2;
+		pos.y = 190;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+		pos.x = 320;
+		pos.y = 232;
+		PutTextInputBox(pos);
 	}
 
 	if (m_phase == WM_PHASE_PLAY && m_phase == WM_PHASE_PLAYTEST && m_phase == WM_PHASE_BUILD)
@@ -2587,7 +2639,28 @@ BOOL CEvent::DrawButtons()
 	}
 	if (m_phase == WM_PHASE_READDESIGN)
 	{
-
+		char buff[100];
+		LoadString(TX_OPENMISS, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.x = 320 - lg / 2;
+		pos.y = 31;
+		DrawTextLeft(m_pPixmap, pos, res, 1);
+		LoadString(TX_CONTENT, res, 100);
+		pos.x = 190;
+		pos.y = 79;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+	
+		pos.x = 240;
+		pos.y = 122;
+		for (i=0; i < m_nbChoices; i++)
+		{
+			if (i >= 6) break;
+			if (m_choicePageOffset + i >= m_nbChoices) break;
+			strncpy(text, m_filenameBuffer[m_choicePageOffset + i], 100);
+			strcpy(text + 26, "...");
+			DrawText(m_pPixmap, pos, text, m_choiceIndex == m_choicePageOffset + i ? 0 : 2);
+			pos.y += 40;
+		}
 	}
 	if (m_phase == WM_PHASE_GREAD || m_phase == WM_PHASE_GREADp || m_phase == WM_PHASE_GWRITE)
 	{
@@ -2640,10 +2713,15 @@ BOOL CEvent::DrawButtons()
 		DrawTextLeft(m_pPixmap, pos, (char*)res, 1);
 		LoadString(TX_DISCARDGAME, res, 100);
 		lg = GetTextWidth(res, 0);
-		strcpy(text, (const char*)m_gamerName);
+		pos.x = 320 - lg / 2;
+		pos.y = 210;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+		strcpy(text, m_gamerName);
 		strcat(text, "?");
 		lg = GetTextWidth(text, 0);
-		DrawTextLeft(m_pPixmap, pos, res, 0);
+		pos.x = 320 - lg / 2;
+		pos.y = 230;
+		DrawTextLeft(m_pPixmap, pos, text, 0);
 	}
 	if (m_phase == WM_PHASE_CLEARDESIGN)
 	{
@@ -2653,13 +2731,12 @@ BOOL CEvent::DrawButtons()
 		pos.x = 320 - lg / 2;
 		DrawTextLeft(m_pPixmap, pos, res, 1);
 		LoadString(TX_DELETEMISSION, res, 100);
-		GetWorld();
-		sprintf(text, res);
+		sprintf(text, res, GetWorld());
 		lg = GetTextWidth(text, 0);
 		pos.y = 210;
 		pos.x = 320 - lg / 2;
 		DrawTextLeft(m_pPixmap, pos, text, 0);
-		strcpy(text, (char*)m_pDecor->GetMissionTitle());
+		strcpy(text, m_pDecor->GetMissionTitle());
 		
 		if (text[0] == '\0')
 		{
@@ -2671,6 +2748,37 @@ BOOL CEvent::DrawButtons()
 		pos.x = 320 - lg / 2;
 		DrawTextLeft(m_pPixmap, pos, res, 0);
 	}
+
+	if ((m_phase == WM_PHASE_SETUP) || (m_phase == WM_PHASE_SETUPp))
+	{
+		lg = m_pSound->GetAudioVolume();
+		i = 1;
+		if ((lg == 0) || (m_pSound->GetEnable() == FALSE)) i = 0;
+		SetEnable(WM_BUTTON1, i);
+		i = 1;
+		if ((19 < lg) || (m_pSound->GetEnable() == FALSE)) i = 0;
+		SetEnable(WM_BUTTON2, i);
+		lg = m_pSound->GetMidiVolume();
+		i = 1;
+		if ((lg == 0) || (m_pSound->GetEnable() == FALSE)) i = 0;
+		SetEnable(WM_BUTTON3, i);
+		if ((19 < lg) || (m_pSound->GetEnable() == FALSE)) i = 0;
+		SetEnable(WM_BUTTON4, i);
+		if (m_pSound->GetEnable())
+		{
+			SetEnable(WM_BUTTON6, 0);
+			SetEnable(WM_BUTTON14, 0);
+		}
+		SetState(WM_BUTTON5, (m_pPixmap->GetTrueColor() == FALSE));
+		SetState(WM_BUTTON6, (m_pPixmap->GetTrueColor() != FALSE));
+		SetState(WM_BUTTON13, (m_jauges->GetHide() == FALSE));
+		SetState(WM_BUTTON14, (m_jauges->GetHide() != FALSE));
+		for (int j = 0; j < 6; j++)
+		{
+			SetState(j + WM_BUTTON7, ((int)m_somethingJoystick == j));
+		}
+	}
+
 	if (m_phase == WM_PHASE_INFO)
 	{
 		LoadString(TX_DESIGNMISSION, res, 100);
@@ -2678,17 +2786,24 @@ BOOL CEvent::DrawButtons()
 		pos.y = 37;
 		pos.x = 320 - lg / 2;
 		DrawTextLeft(m_pPixmap, pos, res, 0);
-		// Unknown Field
-		// DrawIcon
-		// End of if function
-		LoadString(TX_MISSIONNUM, res, 100);
-		sprintf(text, res);
+		if (m_bDrawMap != FALSE)
+		{
+			pos.x = 148;
+			pos.y = 96;
+			m_pPixmap->DrawIcon(-1, 8, 0, pos, 0, FALSE);
+		}
+		LoadString(TX_MISSNUM, res, 100);
+		if (m_bPrivate)
+			m_private = m_private;
+		else
+			m_private = m_mission;
+		sprintf(text, res, m_private);
 		lg = GetTextWidth(text, 0);
 		pos.y = 106;
 		pos.x = 250 - lg / 2;
 		DrawTextLeft(m_pPixmap, pos, text, 1);
-		strcpy(text, (char*)m_pDecor->GetMissionTitle());
-		if (res[0] == '\0')
+		strcpy(text, m_pDecor->GetMissionTitle());
+		if (text[0] == '\0')
 		{
 			LoadString(TX_NONAME, res, 100);
 		}
@@ -2697,7 +2812,115 @@ BOOL CEvent::DrawButtons()
 		pos.x = 250 - lg / 2;
 		DrawTextLeft(m_pPixmap, pos, res, 0);
 	}
+
+	if (m_phase == WM_PHASE_HELP)
+	{
+		LoadString(TX_HELP, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.x = LXIMAGE / 2 - lg / 2;
+		pos.y = 65;
+		DrawTextLeft(m_pPixmap, pos, res, 1);
+		lg = 140;
+		UINT j;
+		for (j = 601; j < 625; j+= 3)
+		{
+			if (m_somethingJoystick == NULL)
+			{
+				pos.y = j - 1;
+			}
+			else
+			{
+				pos.y = j;
+			}
+			LoadString(pos.y, res, 100);
+			pos.x = 110;
+			pos.y = lg;
+			DrawTextLeft(m_pPixmap, pos, res, 1);
+			LoadString(j + 1, res, 100);
+			pos.x = 230;
+			pos.y = lg;
+			DrawTextLeft(m_pPixmap, pos, res, 0);
+			lg += 20;
+		}
+	}
+	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
+	{
+		if (m_pDecor->GetPause())
+		{
+			if (m_pDecor->GetTime() % 20 < 15)
+				DrawTextCenter(TX_PAUSE, 320, 240, 0);
+		}
+		else
+		{
+			if (m_bDemoRec)
+			{
+				LoadString(TX_DEMOREC, res, 100);
+				pos.x = 10;
+				pos.y = 10;
+				DrawTextLeft(m_pPixmap, pos, res, 1);
+			}
+			if (m_bDemoPlay)
+			{
+				LoadString(TX_DEMOPLAY, res, 100);
+				pos.x = 10;
+				pos.y = 10;
+				DrawTextLeft(m_pPixmap, pos, res, 1);
+			}
+		}
+		if (m_speed > 1)
+		{
+			sprintf(res, "x%d", m_speed);
+			pos.x = 64;
+			pos.y = 465;
+			DrawTextLeft(m_pPixmap, pos, res, 0);
+		}
+	}
+	if (m_phase == WM_PHASE_REGION)
+	{
+		LoadString(TX_REGION, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.x = 320 - lg / 2;
+		pos.y = 26;
+		DrawTextLeft(m_pPixmap, pos, res, 1);
+	}
+
+	if (m_phase == WM_PHASE_STOP)
+	{
+		LoadString(TX_GAMEPAUSE, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.x = 319 - lg / 2;
+		pos.y = 103;
+		DrawTextLeft(m_pPixmap, pos, res, 1);
+	}
 	
+	if (m_phase == WM_PHASE_LOST || m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_LOSTMULTI)
+	{
+		LoadString(GetWorld() % 5 + 3100, res, 100);
+		pos.x = 50;
+		pos.y = 424;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+	}
+	if (m_phase == WM_PHASE_WIN || m_phase == WM_PHASE_WINDESIGN || m_phase == WM_PHASE_WINMULTI)
+	{
+		LoadString(GetWorld() % 5 + 3000, res, 100);
+		pos.x = 50;
+		pos.y = 424;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+	}
+	if (m_phase == WM_PHASE_LASTWIN)
+	{
+		int string;
+
+		if (m_bPrivate)
+			string = 3202;
+		else
+			string = 3201;
+		LoadString(string, res, 100);
+		pos.x = 60;
+		pos.y = 443;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+	}
+
 	return TRUE;
 }
 
@@ -2713,39 +2936,45 @@ void CEvent::PutTextInputBox(POINT pos)
 
 	text = GetTextWidth(m_textInput, 0);
 	posD = pos.x - text / 2;
-	textHili = m_textHiliStart;
+	
 
-	if (0 < (int)textHili)
+	if (0 < m_textHiliStart)
 	{
-		memcpy(textInput, textConst, textHili);
-		pPixmap = m_pPixmap;
-		textInput[textHili] = 0;
-		DrawTextLeft(pPixmap, pos, textInput, 0);
-		text += GetTextWidth(textInput, 0);
+		memcpy(textInput, (void*)text, m_textHiliStart);
+		textInput[m_textHiliStart] = 0;
+		pos.x = posD;
+		pos.y = pos.y;
+		DrawTextLeft(m_pPixmap, pos, textInput, 0);
+		text = GetTextWidth(textInput, 0);
+		posD += text;
 	}
 	if (m_textHiliStart < m_textHiliEnd)
 	{
-		textHili = m_textHiliEnd - m_textHiliStart;
+		textHili = m_textHiliEnd -= m_textHiliStart;
 		memcpy(textInput, m_textInput + m_textHiliStart, text);
-		pPixmap = m_pPixmap;
 		textInput[textHili] = 0;
-		DrawTextLeft(pPixmap, pos, textInput, 2);
+		pos.x = posD;
+		pos.y = pos.y;
+		DrawTextLeft(m_pPixmap, pos, textInput, 2);
 		text += GetTextWidth(textInput, 0);
 	}
-	if (m_textCursorIndex % 16 < 8)
+	textHili = m_textCursorIndex >> 31;
+	if ((((m_textCursorIndex ^ textHili) - textHili & 15 ^ textHili) - textHili) < 8)
 	{
-		pPixmap = m_pPixmap;
-		DrawTextLeft(pPixmap, pos, (char*)"|", 0);
+		pos.x = posD;
+		pos.y = pos.y;
+		DrawTextLeft(m_pPixmap, pos, (char*)"|", 0);
 	}
-	num = m_textCursorIndex;
+	num = m_textHiliEnd;
 
-	if (num < (int)strlen((const char*)m_textInput))
+	if (num < (int)strlen(m_textInput))
 	{
-		pPixmap = m_pPixmap;
-		strcpy(textInput, num + m_textInput);
-		DrawTextLeft(pPixmap, pos, textInput, 0);
+		pos.x = posD;
+		pos.y = pos.y;
+		strcpy(textInput, m_textInput + num);
+		DrawTextLeft(m_pPixmap, pos, textInput, 0);
 	}
-	m_textCursorIndex = m_textCursorIndex + 1;
+	m_textCursorIndex++;
 	return;
 }
 
@@ -2813,6 +3042,137 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 	switch (message)
 	{
 	case WM_KEYDOWN:
+		if (wParam >= 'A' && wParam <= 'Z')
+		{
+			if (m_posCheat == 0)
+			{
+				m_rankCheat = -1;
+				for (i = 0; i < 25; i++)
+				{
+					if ((char)wParam == cheat_code[i][0])
+					{
+						m_rankCheat = i;
+						break;
+					}
+				}
+			}
+			if (m_rankCheat != -1)
+			{
+				c = cheat_code[m_rankCheat][m_posCheat];
+				if (m_posCheat != 0 && m_rankCheat == 1) c++;
+				if ((char)wParam == c)
+				{
+					m_posCheat++;
+					if (cheat_code[m_rankCheat][m_posCheat] == 0)
+					{
+						bEnable = TRUE;
+						if (m_rankCheat == 0)
+						{
+							m_bBuildModify = FALSE;
+							m_pDecor->SetBuildOfficialMissions(m_bBuildOfficialMissions);
+						}
+						if (m_rankCheat == 1)
+						{
+							m_bAllMissions = !m_bAllMissions;
+							m_pDecor->SetAllMissions(m_bAllMissions);
+							bEnable = m_bAllMissions;
+						}
+						if (m_rankCheat == 2 ||
+							m_rankCheat == 6 ||
+							m_rankCheat == 7 ||
+							m_rankCheat == 8 ||
+							m_rankCheat == 9 ||
+							m_rankCheat == 10 ||
+							m_rankCheat == 12 ||
+							m_rankCheat == 13 ||
+							m_rankCheat == 14 ||
+							m_rankCheat == 15 ||
+							m_rankCheat == 16 ||
+							m_rankCheat == 17 ||
+							m_rankCheat == 18 ||
+							m_rankCheat == 22 ||
+							m_rankCheat == 23 ||
+							m_rankCheat == 24)
+						{
+							if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
+							{
+								m_pDecor->CheatAction(m_rankCheat);
+								bEnable = TRUE;
+							}
+						}
+						if (m_rankCheat == 3)
+						{
+							m_pDecor->SetSuperBlupi(!m_pDecor->GetSuperBlupi());
+							bEnable = m_pDecor->GetSuperBlupi();
+						}
+						if (m_rankCheat == 4)
+						{
+							if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
+							{
+								m_pDecor->SetNbVies(10);
+							}
+							else
+							{
+								if (m_nbVies >= 10)
+									break;
+								m_nbVies++;
+							}
+							bEnable = TRUE;
+						}
+						if (m_rankCheat == 5)
+						{
+							if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
+							{
+								if (m_pDecor->GetNbVies() > 0)
+								{
+									m_pDecor->SetNbVies(m_pDecor->GetNbVies() - 1);
+									bEnable = TRUE;
+									break;
+								}
+							}
+							else
+							{
+								if (m_nbVies > 0)
+								{
+									m_nbVies--;
+									bEnable = TRUE;
+								}
+							}
+						}
+						if (m_rankCheat == 11)
+						{
+							m_pDecor->SetDrawSecret(!m_pDecor->GetDrawSecret());
+							bEnable = m_pDecor->GetDrawSecret();
+						}
+						if (m_rankCheat == 19)
+						{
+							// Add NetPacked
+						}
+						if (m_rankCheat == 20)
+						{
+							// Add Net Debug
+						}
+						if (m_rankCheat == 21)
+						{
+							// Add NetMovePredict
+						}
+						if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST)
+						{
+							ChangePhase(m_phase);
+						}
+						pos.x = LXIMAGE / 2;
+						pos.y = LYIMAGE / 2;
+						if (bEnable)
+							m_pSound->PlayImage(SOUND_RESSORT, pos, -1);
+						else
+							m_pSound->PlayImage(SOUND_JUMPEND, pos, -1);
+						m_rankCheat = -1;
+						m_posCheat = 0;
+					}
+					return TRUE;
+				}
+			}
+		}
 
 		switch (wParam)
 		{
@@ -2838,19 +3198,18 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 							ChangePhase(WM_PHASE_INFO);
 							return TRUE;
 						}
-
-						if (m_phase == WM_PHASE_INIT || m_phase == WM_PHASE_WINMULTI) ChangePhase(WM_PHASE_GAMER); return TRUE;
-						if (m_phase == WM_PHASE_BUILD || m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_LOST) ChangePhase(WM_PHASE_INFO); return TRUE;
-						if (m_phase != WM_PHASE_INFO && m_phase != WM_PHASE_STOP && m_phase != WM_PHASE_HELP)
+						if ((m_phase == WM_PHASE_INIT) || (m_phase == WM_PHASE_WINMULTI)) ChangePhase(WM_PHASE_GAMER); return TRUE;
+						if ((m_phase == WM_PHASE_BUILD) || ((m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_LOST))) ChangePhase(WM_PHASE_INFO); return TRUE;
+						if (((m_phase != WM_PHASE_INFO) && (m_phase != WM_PHASE_STOP)) && (m_phase != WM_PHASE_HELP))
 						{
 							if (m_phase == WM_PHASE_SERVICE)
 							{
-								ChangePhase(WM_PHASE_DP_DOSERVICE);
+								ChangePhase(WM_PHASE_DPLAY_DO_SERVICE);
 								return TRUE;
 							}
 							if (m_phase == WM_PHASE_CREATE)
 							{
-								ChangePhase(WM_PHASE_DP_DOCREATE);
+								ChangePhase(WM_PHASE_DPLAY_CREATE);
 								return TRUE;
 							}
 							if (m_phase == WM_PHASE_MULTI)
@@ -2858,19 +3217,52 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 								ChatSend();
 								return TRUE;
 							}
-							if ((m_phase != WM_PHASE_GREAD && m_phase != WM_PHASE_GREADp) || m_choiceIndex < 0 || !LoadState(m_choiceIndex))
+							if (((m_phase != WM_PHASE_GREAD) && (m_phase != WM_PHASE_GREADp)) || ((m_choiceIndex < 0 || LoadState(m_choiceIndex) == FALSE)))
 							{
 								if (m_phase != WM_PHASE_GWRITE) return TRUE;
 
 								if (m_choiceIndex < 0) return TRUE;
 
-								if (!SaveState(m_choiceIndex)) return TRUE;
+								if (SaveState(m_choiceIndex) == FALSE) return TRUE;
 							}
 						}
 					}
 				}
 				strcpy(m_gamerName, m_textInput);
+
 			}
+		case VK_SHIFT:
+			m_keyPress | KEY_FIRE;
+			break;
+		case VK_LEFT:
+			m_keyPress | KEY_LEFT;
+			break;
+		case VK_UP:
+			m_keyPress | KEY_UP;
+			break;
+		case VK_RIGHT:
+			m_keyPress | KEY_RIGHT;
+			break;
+		case VK_DOWN:
+			m_keyPress | KEY_DOWN;
+			break;
+		case VK_HOME:
+			return TRUE;
+		case VK_SPACE:
+			if (m_bRunMovie)
+			{
+				StopMovie();
+				m_pSound->SetSuspendSkip(1);
+				return TRUE;
+			}
+		case VK_PAUSE:
+			m_bPause = !m_bPause;
+			NetSetPause((m_pDecor->GetPause()), m_bPause);
+			return TRUE;
+		case VK_CONTROL:
+			m_keyPress | KEY_JUMP;
+			break;
+
 		}
 
 		if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST)
@@ -2943,7 +3335,7 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		if (EventButtons(message, wParam, lParam))  return TRUE;
 		if (m_phase == WM_PHASE_BUILD)
 		{
-			//if (BuildUp(pos, fwKeys))  return TRUE;
+			if (BuildUp(pos, fwKeys))  return TRUE;
 		}
 		if (m_phase == WM_PHASE_PLAY)
 		{
@@ -2978,140 +3370,121 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PHASE_READDESIGN:
 	case WM_PHASE_CLEARDESIGN:
 	case WM_PHASE_SERVICE:
-	case WM_PHASE_DP_DOSERVICE:
-	case WM_PHASE_DP_CANCELSERVICE:
+	case WM_PHASE_DPLAY_DO_SERVICE:
+	case WM_PHASE_DPLAY_CANCEL_SERVICE:
 	case WM_PHASE_SESSION:
-	case WM_PHASE_DP_JOIN:
-	case WM_PHASE_DP_CREATELOBBY:
-	case WM_PHASE_DP_REFRESH:
-	case WM_PHASE_DP_CANCELSESSION:
+	case WM_PHASE_1572:
+	case WM_PHASE_DPLAY_CREATE_LOBBY:
+	case WM_PHASE_DPLAY_REFRESH:
+	case WM_PHASE_DPLAY_CANCEL_SESSION:
 	case WM_PHASE_MULTI:
-	case WM_PHASE_DP_STARTMULTI:
-	case WM_PHASE_DP_CANCELMULTI:
+	case WM_PHASE_DPLAY_START_GAME_2:
+	case WM_PHASE_DPLAY_CANCEL_MULTI:
 	case WM_PHASE_CREATE:
-	case WM_PHASE_DP_DOCREATE:
-	case WM_PHASE_DP_CANCELCREATE:
+	case WM_PHASE_DPLAY_CREATE:
+	case WM_PHASE_DPLAY_CANCEL_CREATE:
 	case WM_PHASE_STOP:
 	case WM_PHASE_HELP:
 	case WM_PHASE_GWRITE:
 	case WM_PHASE_GREADp:
 	case WM_PHASE_GREAD:
-	case WM_PHASE_QUITPLAY:
+	case WM_PHASE_DOQUIT:
 	case WM_PHASE_1588:
 		if (ChangePhase(message))  return TRUE;
 		break;
 	case WM_PHASE_DOPLAY:
-		m_bPrivate = FALSE;
-		m_mission = 1;
-		if (CheckCDForWorld1())
+		if (!m_bPrivate && !m_bMulti)
 		{
-			return ChangePhase(WM_PHASE_PLAY);
-		}
-		else
-		{
-			m_tryInsertCount = 40;
-			m_tryPhase = WM_PHASE_PLAY;
-			return ChangePhase(WM_PHASE_INSERT);
+			if (m_mission == 1)
+				return ChangePhase(WM_PHASE_GAMER);
+			if (!(m_mission % 10) && m_mission != 10)
+			{
+				SetMission(1);
+				m_phase = WM_PHASE_PLAY;
+				return ChangePhase(WM_PHASE_PLAY);
+			}
 		}
 		break;
 	case WM_PHASE_PRIVATE:
-		m_bPrivate = true;
+		m_bPrivate = TRUE;
 		return ChangePhase(WM_PHASE_INFO);
 		break;
 	case WM_PHASE_DEMO:
 		m_demoNumber = 0;
 		DemoPlayStart();
-		return FALSE;
 		break;
 	case WM_PHASE_DONAMEGAMER:
 	case WM_PHASE_DOCLEARGAMER:
 	case WM_PHASE_DONAMEDESIGN:
-	case WM_PHASE_DOWRITEDESIGN:
+	case WM_PHASE_1565:
 	case WM_PHASE_DOREADDESIGN:
 	case WM_PHASE_DOCLEARDESIGN:
 		ChangeButtons(message);
 		return FALSE;
-	case WM_PREV:
-		i = (m_keyPress & KEY_JUMP) ? 10 : 1;
-		if (m_phase == WM_PHASE_MULTI)
-		{
-			m_multi -= i;
-			if (m_multi < 1) m_multi = 1;
-
-			m_b6D34 = m_pDecor->Read(m_gamer, m_multi + 200, FALSE);
-			if (m_b6D34) DrawMap();
-
-			NetSendLobby();
-			NetAdjustLobbyButtons();
-			return TRUE;
-		}
-		
+	case WM_PREV: // TODO: further is mostly copied from pb
 		if (m_bPrivate)
 		{
-			m_private -= i;
-			if (m_private < 1) m_private = 1;
-
-			return ChangePhase(WM_PHASE_INFO);
+			if (m_private > 0)
+			{
+				m_private--;
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
+		}
+		else if (m_bSchool)
+		{
+			if (m_exercice > 0)
+			{
+				m_exercice--;
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
 		}
 		else
 		{
-			m_mission -= i;
-			if (m_mission < 1) m_mission = 1;
-
-			return ChangePhase(WM_PHASE_INFO);
+			if (m_mission > 0)
+			{
+				m_mission--;
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
 		}
 		break;
+
 	case WM_NEXT:
-		i = (m_keyPress & KEY_JUMP) ? 10 : 1;
-		if (m_phase == WM_PHASE_MULTI)
+		if (m_bPrivate)
 		{
-			m_multi += i;
-			if (m_multi > 12) m_multi = 12;
-
-			m_b6D34 = m_pDecor->Read(m_gamer, m_multi + 200, FALSE);
-			if (m_b6D34) DrawMap();
-
-			NetSendLobby();
-			NetAdjustLobbyButtons();
-			return TRUE;
+			if (m_private < 20 - 1)
+			{
+				m_private++;
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
 		}
-
-		if (m_bPrivate || !m_bBuildOfficialMissions)
+		else if (m_bSchool)
 		{
-			m_private += i;
-			if (m_private > 20) m_private = 20;
-
-			return ChangePhase(WM_PHASE_INFO);
+			if (m_exercice < 99)
+			{
+				m_exercice++;
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
 		}
 		else
 		{
-			m_mission += i;
-			if (m_mission > 320) m_mission = 320;
-
-			return ChangePhase(WM_PHASE_INFO);
+			if (m_mission < 99)
+			{
+				m_mission++;
+				if (m_maxMission < m_mission)
+				{
+					m_maxMission = m_mission;
+				}
+				if (ChangePhase(WM_PHASE_INFO))  return TRUE;
+			}
 		}
 		break;
-	case WM_MOVIE:
-		StartMovie("movie\\essai.avi");
-		ChangePhase(WM_PHASE_INIT);
-		return FALSE;
+
 	case WM_DECOR1:
 		SetState(WM_DECOR1, 1);
 		SetState(WM_DECOR2, 0);
 		SetState(WM_DECOR3, 0);
 		SetState(WM_DECOR4, 0);
 		SetState(WM_DECOR5, 0);
-		SetState(WM_DECOR6, 0);
-		SetState(WM_DECOR7, 0);
-		SetState(WM_DECOR8, 0);
-		SetState(WM_DECOR9, 0);
-		SetState(WM_DECOR10, 0);
-		SetState(WM_DECOR11, 0);
-
-		i = GetMenu(WM_DECOR1);
-		m_pDecor->SetFieldCC38AndStuff(1, i);
-		m_menuIndex = 0;
-		m_menuDecor[0] = i;
 		break;
 
 	case WM_DECOR2:
@@ -3120,17 +3493,6 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		SetState(WM_DECOR3, 0);
 		SetState(WM_DECOR4, 0);
 		SetState(WM_DECOR5, 0);
-		SetState(WM_DECOR6, 0);
-		SetState(WM_DECOR7, 0);
-		SetState(WM_DECOR8, 0);
-		SetState(WM_DECOR9, 0);
-		SetState(WM_DECOR10, 0);
-		SetState(WM_DECOR11, 0);
-
-		i = GetMenu(WM_DECOR2);
-		m_pDecor->SetFieldCC38AndStuff(2, i);
-		m_menuIndex = 1;
-		m_menuDecor[1] = i;
 		break;
 
 	case WM_DECOR3:
@@ -3139,17 +3501,6 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		SetState(WM_DECOR3, 1);
 		SetState(WM_DECOR4, 0);
 		SetState(WM_DECOR5, 0);
-		SetState(WM_DECOR6, 0);
-		SetState(WM_DECOR7, 0);
-		SetState(WM_DECOR8, 0);
-		SetState(WM_DECOR9, 0);
-		SetState(WM_DECOR10, 0);
-		SetState(WM_DECOR11, 0);
-
-		i = GetMenu(WM_DECOR3);
-		m_pDecor->SetFieldCC38AndStuff(3, i);
-		m_menuIndex = 2;
-		m_menuDecor[2] = i;
 		break;
 
 	case WM_DECOR4:
@@ -3158,17 +3509,6 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		SetState(WM_DECOR3, 0);
 		SetState(WM_DECOR4, 1);
 		SetState(WM_DECOR5, 0);
-		SetState(WM_DECOR6, 0);
-		SetState(WM_DECOR7, 0);
-		SetState(WM_DECOR8, 0);
-		SetState(WM_DECOR9, 0);
-		SetState(WM_DECOR10, 0);
-		SetState(WM_DECOR11, 0);
-
-		i = GetMenu(WM_DECOR4);
-		m_pDecor->SetFieldCC38AndStuff(4, i);
-		m_menuIndex = 3;
-		m_menuDecor[3] = i;
 		break;
 
 	case WM_DECOR5:
@@ -3177,131 +3517,6 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		SetState(WM_DECOR3, 0);
 		SetState(WM_DECOR4, 0);
 		SetState(WM_DECOR5, 1);
-		SetState(WM_DECOR6, 0);
-		SetState(WM_DECOR7, 0);
-		SetState(WM_DECOR8, 0);
-		SetState(WM_DECOR9, 0);
-		SetState(WM_DECOR10, 0);
-		SetState(WM_DECOR11, 0);
-
-		i = GetMenu(WM_DECOR5);
-		m_pDecor->SetFieldCC38AndStuff(5, i);
-		m_menuIndex = 4;
-		m_menuDecor[4] = i;
-		break;
-
-	case WM_DECOR6:
-		SetState(WM_DECOR1, 0);
-		SetState(WM_DECOR2, 0);
-		SetState(WM_DECOR3, 0);
-		SetState(WM_DECOR4, 0);
-		SetState(WM_DECOR5, 0);
-		SetState(WM_DECOR6, 1);
-		SetState(WM_DECOR7, 0);
-		SetState(WM_DECOR8, 0);
-		SetState(WM_DECOR9, 0);
-		SetState(WM_DECOR10, 0);
-		SetState(WM_DECOR11, 0);
-
-		i = GetMenu(WM_DECOR6);
-		m_pDecor->SetFieldCC38AndStuff(6, i);
-		m_menuIndex = 5;
-		m_menuDecor[5] = i;
-		break;
-
-	case WM_DECOR7:
-		SetState(WM_DECOR1, 0);
-		SetState(WM_DECOR2, 0);
-		SetState(WM_DECOR3, 0);
-		SetState(WM_DECOR4, 0);
-		SetState(WM_DECOR5, 0);
-		SetState(WM_DECOR6, 0);
-		SetState(WM_DECOR7, 1);
-		SetState(WM_DECOR8, 0);
-		SetState(WM_DECOR9, 0);
-		SetState(WM_DECOR10, 0);
-		SetState(WM_DECOR11, 0);
-
-		i = GetMenu(WM_DECOR7);
-		m_pDecor->SetFieldCC38AndStuff(7, i);
-		m_menuIndex = 6;
-		m_menuDecor[6] = i;
-		break;
-
-	case WM_DECOR8:
-		SetState(WM_DECOR1, 0);
-		SetState(WM_DECOR2, 0);
-		SetState(WM_DECOR3, 0);
-		SetState(WM_DECOR4, 0);
-		SetState(WM_DECOR5, 0);
-		SetState(WM_DECOR6, 0);
-		SetState(WM_DECOR7, 0);
-		SetState(WM_DECOR8, 1);
-		SetState(WM_DECOR9, 0);
-		SetState(WM_DECOR10, 0);
-		SetState(WM_DECOR11, 0);
-
-		i = GetMenu(WM_DECOR8);
-		m_pDecor->SetFieldCC38AndStuff(8, i);
-		m_menuIndex = 7;
-		m_menuDecor[7] = i;
-		break;
-
-	case WM_DECOR9:
-		SetState(WM_DECOR1, 0);
-		SetState(WM_DECOR2, 0);
-		SetState(WM_DECOR3, 0);
-		SetState(WM_DECOR4, 0);
-		SetState(WM_DECOR5, 0);
-		SetState(WM_DECOR6, 0);
-		SetState(WM_DECOR7, 0);
-		SetState(WM_DECOR8, 0);
-		SetState(WM_DECOR9, 1);
-		SetState(WM_DECOR10, 0);
-		SetState(WM_DECOR11, 0);
-
-		i = GetMenu(WM_DECOR9);
-		m_pDecor->SetFieldCC38AndStuff(9, i);
-		m_menuIndex = 8;
-		m_menuDecor[8] = i;
-		break;
-
-	case WM_DECOR10:
-		SetState(WM_DECOR1, 0);
-		SetState(WM_DECOR2, 0);
-		SetState(WM_DECOR3, 0);
-		SetState(WM_DECOR4, 0);
-		SetState(WM_DECOR5, 0);
-		SetState(WM_DECOR6, 0);
-		SetState(WM_DECOR7, 0);
-		SetState(WM_DECOR8, 0);
-		SetState(WM_DECOR9, 0);
-		SetState(WM_DECOR10, 1);
-		SetState(WM_DECOR11, 0);
-
-		i = GetMenu(WM_DECOR10);
-		m_pDecor->SetFieldCC38AndStuff(10, i);
-		m_menuIndex = 9;
-		m_menuDecor[9] = i;
-		break;
-
-	case WM_DECOR11:
-		SetState(WM_DECOR1, 0);
-		SetState(WM_DECOR2, 0);
-		SetState(WM_DECOR3, 0);
-		SetState(WM_DECOR4, 0);
-		SetState(WM_DECOR5, 0);
-		SetState(WM_DECOR6, 0);
-		SetState(WM_DECOR7, 0);
-		SetState(WM_DECOR8, 0);
-		SetState(WM_DECOR9, 0);
-		SetState(WM_DECOR10, 0);
-		SetState(WM_DECOR11, 1);
-
-		i = GetMenu(WM_DECOR11);
-		m_pDecor->SetFieldCC38AndStuff(11, i);
-		m_menuIndex = 10;
-		m_menuDecor[10] = i;
 		break;
 
 	case WM_BUTTON0:
@@ -3346,6 +3561,12 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_BUTTON39:
 		ChangeButtons(message);
 		break;
+	case WM_MOVIE:
+		StartMovie((char*)"movie\\essai.avi");
+		ChangePhase(WM_PHASE_INIT);
+		break;
+		m_pDecor->SetInput(m_keyPress);
+		return TRUE;
 	}
 
 	return FALSE;
@@ -3554,7 +3775,7 @@ int CEvent::SearchPhase(UINT phase)
 int CEvent::GetWorld()
 {
 	//m_mission = mission;
-	if (m_bPrivate) return m_bPrivate;
+	if (m_bPrivate) return m_private;
 	if (m_bMulti)	return m_multi+200;
 	else			return m_mission;
 }
@@ -3631,9 +3852,11 @@ void CEvent::ReadAll()
 	BOOL bPrivate;
 	BOOL bMission;
 
+	bUser = FALSE;
+
 	if ((-1 < m_choiceIndex) && (*(int*)((int)(m_filenameBuffer + -1) + m_choiceIndex * 4 + 216) != 0))
 	{
-		//mission = m_pDecor->MissionStart(m_gamer, 999, bUser);
+		mission = m_pDecor->MissionStart(m_gamer, 999, bUser);
 		
 		if (mission != FALSE)
 		{
@@ -3641,7 +3864,7 @@ void CEvent::ReadAll()
 			
 			if (read != FALSE)
 			{
-				//m_pDecor->DrawMap(FALSE, -1);
+				m_pDecor->DrawMap(FALSE, -1);
 			}
 			m_pDecor->CurrentRead(m_gamer, 999, &bMission, &bPrivate);
 		}
@@ -3652,10 +3875,10 @@ void CEvent::ReadAll()
 BOOL CEvent::SaveState(int rank)
 {
 	BOOL bMission;
-	BOOL bUser;
+	BOOL bUser = FALSE;
 	char str[100];
 
-	//bMission = m_pDecor->MissionStart(m_gamer, rank, bUser);
+	bMission = m_pDecor->MissionStart(m_gamer, rank, bUser);
 
 	if (bMission == FALSE)
 	{
@@ -3669,19 +3892,15 @@ BOOL CEvent::SaveState(int rank)
 
 void CEvent::SomethingUserMissions(char* lpFilename, LPCSTR fileSomething)
 {
-	UINT buffer;
-	char* folderName;
+	char* str;
 
-	mkdir("\\User");
+	_mkdir("\\User");
 	strcpy(lpFilename, "\\User\\");
 	strcat(lpFilename, fileSomething);
-
-	if ((folderName = strstr(folderName, ".xch")) || ((buffer = 0, folderName - lpFilename != strlen(lpFilename) - 4)))
-	{
-		buffer = 0;
+	str = strstr(lpFilename, ".xch");
+	if (!str || str - lpFilename != strlen(lpFilename) - 4)
 		strcat(lpFilename, ".xch");
-	}
-	return;
+
 }
 
 // Add SomethingHubWorld once figured out.
@@ -3693,9 +3912,13 @@ BOOL CEvent::ChangePhase(UINT phase)
 	int	  index, world, time, total, music, i, max, mission;
 	POINT totalDim, iconDim;
 	char  str[MAX_PATH];
+	char  text[100];
+	char  res[100];
 	char* pButtonExist;
 	BOOL  bEnable, bHide;
 	char* playerName;
+
+	text[0] = 0;
 
 	sprintf(str, "CEvent::ChangePhase [Begin] --- %d\r\n", phase - WM_USER);
 	OutputNetDebug(str);
@@ -3709,21 +3932,21 @@ BOOL CEvent::ChangePhase(UINT phase)
 	{
 		m_bShowMouse = FALSE;
 	}
-	if (phase == WM_PHASE_QUITPLAYTEST)
+	if (phase == WM_PHASE_1544)
 	{
 		m_pDecor->Read(m_gamer, 999, TRUE);
 		phase = WM_PHASE_BUILD;
 	}
 
 	if (!m_bDemoPlay &&
-		phase == WM_PHASE_PLAY ||
-		m_phase == WM_PHASE_PLAY ||
-		phase == WM_PHASE_STOP ||
-		phase == WM_PHASE_SETUP ||
-		phase == WM_PHASE_HELP ||
-		phase == WM_PHASE_GREAD ||
-		phase == WM_PHASE_GREADp ||
-		phase == WM_PHASE_GWRITE)
+		phase != WM_PHASE_PLAY ||
+		m_phase != WM_PHASE_PLAY ||
+		phase != WM_PHASE_STOP ||
+		phase != WM_PHASE_SETUP ||
+		phase != WM_PHASE_HELP ||
+		phase != WM_PHASE_GREAD ||
+		phase != WM_PHASE_GREADp ||
+		phase != WM_PHASE_GWRITE)
 	{
 		m_pSound->StopMusic();
 	}
@@ -3753,7 +3976,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 		DemoRecStop();
 	}
 
-	if (phase == WM_PHASE_QUITPLAY)
+	if (phase == WM_PHASE_DOQUIT)
 	{
 		if (!m_bPrivate)
 		{
@@ -3782,43 +4005,43 @@ BOOL CEvent::ChangePhase(UINT phase)
 			return ChangePhase(WM_PHASE_INFO);
 		}
 	}
-	if (phase == WM_PHASE_DP_DOSERVICE)
+	if (phase == WM_PHASE_DPLAY_DO_SERVICE)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DP_CANCELSERVICE)
+	if (phase == WM_PHASE_DPLAY_CANCEL_SERVICE)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DP_JOIN)
+	if (phase == WM_PHASE_1572)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DP_CREATELOBBY)
+	if (phase == WM_PHASE_DPLAY_CREATE_LOBBY)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DP_REFRESH)
+	if (phase == WM_PHASE_DPLAY_REFRESH)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DP_CANCELSESSION)
+	if (phase == WM_PHASE_DPLAY_CANCEL_SESSION)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DP_DOCREATE)
+	if (phase == WM_PHASE_DPLAY_CREATE)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DP_CANCELCREATE)
+	if (phase == WM_PHASE_DPLAY_CANCEL_CREATE)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DP_STARTMULTI)
+	if (phase == WM_PHASE_DPLAY_START_GAME_2)
 	{
 		// ...
 	}
-	if (phase == WM_PHASE_DP_CANCELMULTI)
+	if (phase == WM_PHASE_DPLAY_CANCEL_MULTI)
 	{
 		// ...
 	}
@@ -3845,7 +4068,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 	
 	m_phase = phase;
 	m_index = SearchPhase(phase);
-	if (table[m_index].bUnk && !CheckCDForWorld1())
+	if (table[m_index].bUnk && !FUN_1fbd0())
 	{
 		m_tryInsertCount = 40;
 		m_tryPhase = m_phase;
@@ -3893,13 +4116,24 @@ BOOL CEvent::ChangePhase(UINT phase)
 		m_pDecor->DrawMap(TRUE, -1);
 	}
 
-	if (m_phase == WM_PHASE_INFO && m_bPrivate)
+	if (m_phase != WM_PHASE_PLAY || m_bPrivate)
 	{
-		m_b6D34 = m_pDecor->Read(m_gamer, GetWorld(), !m_bBuildOfficialMissions);
-		if (m_b6D34)
+		m_bDrawMap = m_pDecor->Read(m_gamer, GetWorld(), !m_bBuildOfficialMissions);
+		if (m_bDrawMap)
 		{
 			m_pDecor->DrawMap(TRUE, -1);
 		}
+	}
+
+	if (m_phase == WM_PHASE_INFO && m_bPrivate)
+	{
+		
+		m_bDrawMap = m_pDecor->Read(m_gamer, GetWorld(), !m_bBuildOfficialMissions);
+		if (m_bDrawMap)
+		{
+			m_pDecor->DrawMap(TRUE, -1);
+		}
+	
 	}
 
 	if ((m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST) &&
@@ -3962,6 +4196,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 	m_menu.Delete();
 	if (m_phase == WM_PHASE_BUILD)
 	{
+		
 		SetState(m_menuIndex + WM_DECOR1, 1);
 		SetMenu(WM_DECOR1, m_menuDecor[0]);
 		SetMenu(WM_DECOR2, m_menuDecor[1]);
@@ -3983,33 +4218,85 @@ BOOL CEvent::ChangePhase(UINT phase)
 	}
 	if (m_phase == WM_PHASE_INFO)
 	{
-		SetEnable(WM_PREV, GetWorld() != 1);
-		if (m_bBuildOfficialMissions)
+		bEnable = TRUE;
+		int world = 1;
+		if (GetWorld() == 0)
 		{
-			SetEnable(WM_NEXT, GetWorld() < 319);
+			bEnable = FALSE;
 		}
-		else
+		SetEnable(WM_PREV, bEnable);
+		if (GetWorld() >= 320)
 		{
-			SetEnable(WM_NEXT, GetWorld() < 20);
+			bEnable = FALSE;
 		}
+		if (m_bPrivate)
+		{
+			bEnable = GetWorld() < 20 - 1;
+		}
+		SetEnable(WM_NEXT, bEnable);
 		SetHide(WM_PHASE_BUILD, FALSE);
-		SetEnable(WM_PHASE_WRITEDESIGN, m_b6D34);
-		SetEnable(WM_PHASE_READDESIGN, !m_b6D34);
-		SetEnable(WM_PHASE_CLEARDESIGN, m_b6D34);
-		SetEnable(WM_PHASE_PLAYMOVIE, m_b6D34);
+		SetEnable(WM_PHASE_WRITEDESIGN, m_bDrawMap);
+		SetEnable(WM_PHASE_READDESIGN, !m_bDrawMap);
+		SetEnable(WM_PHASE_CLEARDESIGN, m_bDrawMap);
+		SetEnable(WM_PHASE_PLAYMOVIE, m_bDrawMap);
 	}
 	if (m_phase == WM_PHASE_GAMER)
 	{
 		WriteInfo(m_gamer);
-		// ...
+		BYTE door[200];
+		int i, j;
+		for (i = 0; i < 8; i++)
+		{
+			m_gamerNameList;
+			if (ReadInfo(i + 1))
+			{
+				m_bNamesExist[i] = TRUE;
+				strcpy(m_gamerNameList[i], m_gamerName);
+			
+				m_pDecor->InitalizeDoors(door);
+				int num = 0;
+				for (j = 0; j < 200; j++)
+				{
+					if (door[j] == 0)
+					{
+						num++;
+					}
+				}
+				if (num == 1)
+				{
+					LoadString(TX_NUMDOOROPEN, res, 100);
+					sprintf(text, res, num);
+					strcat(m_gamerNameList[i], text);
+				}
+				if (1 < num)
+				{
+					LoadString(TX_NUMDOORSOPEN, res, 100);
+					sprintf(text, res, num);
+					strcat(m_gamerNameList[i], text);
+				}
+			}
+			else
+			{
+				m_bNamesExist[i] = FALSE;
+				LoadString(TX_PLAYERFREE, m_gamerNameList[i], 100);
+			}
+			SetState(WM_BUTTON1 + i, m_gamer - 1 == i ? 1 : 0);
+		}
+		ReadInfo(m_gamer);
 	}
 	if (m_phase == WM_PHASE_NAMEGAMER)
 	{
-		// ...
+		strcpy(m_textInput, m_gamerName);
+		m_textHiliStart = 0;
+		m_textCursorIndex = 0;
+		m_textHiliEnd = strlen(m_textInput);
 	}
 	if (m_phase == WM_PHASE_NAMEDESIGN)
 	{
-		// ...
+		strcpy(m_textInput, m_pDecor->GetMissionTitle());
+		m_textHiliStart = 0;
+		m_textCursorIndex = 0;
+		m_textHiliEnd = strlen(m_textInput);
 	}
 	if (m_phase == WM_PHASE_MUSIC)
 	{
@@ -4078,7 +4365,10 @@ BOOL CEvent::ChangePhase(UINT phase)
 	}
 	if (m_phase == WM_PHASE_CREATE)
 	{
-		// ...
+		m_textHiliStart = 0;
+		m_textInput[0] = 0;
+		m_textCursorIndex = 0;
+		m_textHiliEnd = strlen(m_textInput);
 	}
 	if (m_phase == WM_PHASE_STOP && m_bMulti)
 	{
@@ -4087,24 +4377,128 @@ BOOL CEvent::ChangePhase(UINT phase)
 	}
 	if (m_phase == WM_PHASE_WRITEDESIGN || m_phase == WM_PHASE_READDESIGN)
 	{
-		// ...
+		long hFile;
+		struct _finddata_t fBuffer;
+		BOOL bDo;
+		char temp[_MAX_FNAME];
+		char* buff;
+
+		m_nbChoices = 0;
+		hFile = _findfirst("\\User\\*.xch", &fBuffer);
+		if (hFile != -1)
+		{
+			do
+			{
+				strcpy(m_filenameBuffer[m_nbChoices++], fBuffer.name);
+			} while (_findnext(hFile, &fBuffer) == 0 &&
+				m_nbChoices < 100);
+		}
+			int f, n;
+		do
+		{
+			bDo = FALSE;
+
+			for (i = 0; i < m_nbChoices - 1; i++)
+			{
+				if (strcmp(m_filenameBuffer[i], m_filenameBuffer[i + 1]) > 0)
+				{
+					strcpy(temp, m_filenameBuffer[i]);
+					strcpy(m_filenameBuffer[i], m_filenameBuffer[i + 1]);
+					strcpy(m_filenameBuffer[i + 1], temp);
+					bDo = TRUE;
+				}
+			}
+			
+		} while (bDo);
+		m_choicePageOffset = 0;
+		m_choiceIndex = 0;
 	}
 	if (m_phase == WM_PHASE_READDESIGN)
 	{
-		// ...
+		SetHide(WM_BUTTON10, m_choicePageOffset == 0);
+		SetHide(WM_BUTTON11, (((m_nbChoices + 5) /6 ) * 6 <= m_choicePageOffset + 6));
+		for (i = 0; i < 6; i++)
+		{
+			if (i + m_choicePageOffset < m_nbChoices)
+			{
+				SetHide(WM_BUTTON1 + i, FALSE);
+				SetState(WM_BUTTON1 + i, i + m_choicePageOffset == m_choiceIndex);
+			}
+			else
+			{
+				SetHide(WM_BUTTON1 + i, TRUE);
+			}
+		}
+		SetEnable(WM_PHASE_DOREADDESIGN, m_nbChoices != 0);
 	}
 	if (m_phase == WM_PHASE_WRITEDESIGN)
 	{
-		// ...
+		SetHide(WM_BUTTON10, m_choicePageOffset == 0);
+		SetHide(WM_BUTTON11, m_choicePageOffset + 12 >= 12 * ((m_nbChoices + 11) / 12));
+		strcpy(m_textInput, m_pDecor->GetMissionTitle());
+		if (!m_textInput[0])
+		{
+			LoadString(TX_MISSION2D, res, 100);
+			sprintf(m_textInput, res, GetWorld());
+		}
+		m_textHiliStart = 0;
+		m_textHiliEnd = strlen(m_textInput);
+		memcpy(&m_textInput[strlen(m_textInput)], ".xch", strlen(".xch") + 1);
+		m_textCursorIndex = 0;
 	}
 	if (m_phase == WM_PHASE_GWRITE || m_phase == WM_PHASE_GREADp || m_phase == WM_PHASE_GREAD)
 	{
-		// ...
+		m_fileIndex = m_saveIndex;
+
+		for (i = 0; i < 6; i++)
+		{
+			SetState(WM_BUTTON1 + i, i == m_fileIndex);
+			if (m_pDecor->Write(m_gamer, i, TRUE))
+			{
+				*m_bNamesExist = NULL;
+				LoadString(TX_MISSIONFREE, *m_filenameBuffer, 50);
+				if ((m_phase == WM_PHASE_GREAD) || (m_phase == WM_PHASE_GREADp))
+				{
+				SetEnable(WM_BUTTON1 + i, 0);
+				}
+			}
+			else
+			{
+				*m_bNamesExist = TRUE;
+
+			}
+		}
+			ReadAll();
+			if (m_fileIndex < 0)
+			{
+				i = 0;
+			}
+			else
+			{
+				i = (int)m_filenameBuffer - 1 + m_fileIndex * 4 + 216;
+			}
+			SetEnable(WM_BUTTON20, i);
 	}
 	if (m_phase == WM_PHASE_SETUP || m_phase == WM_PHASE_SETUPp)
 	{
 		m_0008 = 0;
-		// ...
+		int numDevs;
+		char pBuff[400];
+		DescInfo* info;
+		numDevs = joyGetNumDevs();
+		/*
+		if (numDevs > 0)
+		{
+			for (i = 0; i < numDevs; i++)
+			{
+				memset(pBuff, 0, sizeof(404));
+				if (!joyGetDevCapsA(i, (LPJOYCAPSA)pBuff, 404))
+				{
+					info->reserve1[3][4 * m_0008 + 220] = i;
+				}
+			}
+		}
+		*/
 	}
 	if ((m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST || m_phase == WM_PHASE_MUSIC) && !m_bDemoPlay)
 	{
@@ -4215,6 +4609,31 @@ BOOL CEvent::NetEnumSessions()
 BOOL CEvent::BuildUp(POINT pos, int fwKeys)
 {
 	return TRUE;
+}
+
+int CEvent::PlaceBuildItem(POINT cel, int flags, int currentIcon)
+{
+	if (cel.x > 640)
+		return 0;
+	if (cel.y > 480)
+		return 0;
+	if ((flags & 2) != 0)
+	{
+		m_pDecor->DeleteCel(m_pDecor->ScreenPosToCelPos(cel));
+		return 1;
+	}
+	else
+	{
+		if (GetState(WM_DECOR1) == 1)
+		{
+			m_pDecor->DeleteCel(m_pDecor->ScreenPosToCelPos(cel));
+		}
+		if (GetState(WM_DECOR2) == 1)
+		{
+			m_pDecor->PlaceItemFromMenu1(cel, GetMenu(WM_DECOR2), flags, currentIcon);
+		}
+	}
+	return 1;
 }
 
 /*
@@ -4562,8 +4981,10 @@ BOOL CEvent::WriteInfo(int gamer)
 	int			doors;
 	char		text[100];
 
+	if (m_playerIndex = 0) return TRUE;
 	sprintf(filename, "data\\info%.3d.blp", gamer);
 	AddUserPath(filename);
+
 	file = fopen(filename, "wb");
 	if (file == NULL) goto error;
 
@@ -4594,6 +5015,7 @@ BOOL CEvent::WriteInfo(int gamer)
 error:
 	if (file != NULL) fclose(file);
 	return FALSE;
+
 }
 
 BOOL CEvent::ReadInfo(int gamer)
@@ -4602,12 +5024,13 @@ BOOL CEvent::ReadInfo(int gamer)
 	FILE*	 file = NULL;
 	DescInfo info;
 	int		 nb;
+	int		 i;
 	BYTE	 doors[200];
 	char	 buffer[100];
 
-
+	m_playerIndex = 1;
 	m_pDecor->InitGamer();
-	m_lives = 3;
+	m_nbVies = 3;
 	m_mission = 1;
 	m_private = 1;
 	m_multi = 1;
@@ -4624,10 +5047,11 @@ BOOL CEvent::ReadInfo(int gamer)
 	nb = fread(&info, sizeof(DescInfo), 1, file);
 	if (nb < 1) goto error;
 
-	if ((BYTE*)m_gamerName)
-	{
-		strcpy((char*)m_gamerName, buffer);
-	}
+	i = 0;
+
+	if (m_gamerName[i] != '\0')
+		strcpy(buffer, m_gamerName);
+	
 
 	info.majRev = 1;
 	m_private = info.prive;
@@ -4651,20 +5075,9 @@ error:
 	return FALSE;
 }
 
-BOOL CEvent::ReadPlayer()
-{
-	char filename[MAX_PATH];
-
-	m_playerIndex = 0;
-
-	strcpy(filename, "data\\info%.3d.blp");
-	AddUserPath(filename);
-	remove(filename);
-	return TRUE;
-}
-
 void CEvent::ChangeButtons(int message)
 {
+	int choice;
 	if (m_phase == WM_PHASE_GAMER && message >= WM_BUTTON1 && message <= WM_BUTTON10)
 	{
 		m_gamer = message - WM_BUTTON0;
@@ -4676,6 +5089,7 @@ void CEvent::ChangeButtons(int message)
 	}
 	if (m_phase == WM_PHASE_NAMEGAMER && message == WM_PHASE_DONAMEGAMER)
 	{
+		strcpy(m_gamerName, m_textInput);
 		WriteInfo(m_gamer);
 		ChangePhase(WM_PHASE_GAMER);
 	}
@@ -4691,7 +5105,7 @@ void CEvent::ChangeButtons(int message)
 	}
 	if (m_phase == WM_PHASE_CLEARDESIGN && message == WM_PHASE_DOCLEARDESIGN)
 	{
-		m_pDecor->SomethingMissionPath(m_gamer, GetWorld(), !m_bBuildOfficialMissions);
+		m_pDecor->DeleteMission(m_gamer, GetWorld(), !m_bBuildOfficialMissions);
 		ChangePhase(WM_PHASE_INFO);
 	}
 	if (m_phase == WM_PHASE_MUSIC)
@@ -4704,6 +5118,7 @@ void CEvent::ChangeButtons(int message)
 		if (message >= WM_BUTTON1 && message <= WM_BUTTON32)
 		{
 			m_pDecor->SetRegion(message - WM_BUTTON1);
+			ChangePhase(m_phase);
 		}
 		if (message >= WM_DIMS1 && message <= WM_DIMS4)
 		{
@@ -4820,7 +5235,44 @@ void CEvent::ChangeButtons(int message)
 	}
 	if (m_phase == WM_PHASE_READDESIGN)
 	{
-		//TODO
+		BOOL bBuild;
+		char out[100];
+		char file[256];
+		if (message >= WM_BUTTON1 && message <= WM_BUTTON6)
+		{
+			m_choiceIndex = m_choicePageOffset + message - WM_BUTTON1;
+		}
+		if (message == WM_BUTTON10)
+		{
+			choice = m_choicePageOffset;
+			m_choicePageOffset = choice - 6;
+			if (choice - 6 < 0)
+				m_choicePageOffset = 0;
+		}
+		if (message == WM_BUTTON11)
+			m_choicePageOffset += 6;
+		if (message == WM_PHASE_DOREADDESIGN)
+		{
+			SomethingUserMissions(file, m_filenameBuffer[m_choiceIndex]);
+			bBuild = !m_bBuildOfficialMissions;
+			m_pDecor->GetMissionPath(out, m_gamer, GetWorld(), bBuild);
+			OpenMission(file, out);
+			ChangePhase(WM_PHASE_INFO);
+		}
+		SetHide(WM_BUTTON10, m_choicePageOffset == 0);
+		SetHide(WM_BUTTON11, m_choicePageOffset + 6 >= 6 * (m_nbChoices + 5) / 6);
+		for (int k = 0; k < 6; k++)
+		{
+			if (m_choicePageOffset + k >= m_nbChoices)
+			{
+				SetHide(k + WM_BUTTON1, 1);
+			}
+			else
+			{
+				SetHide(k + WM_BUTTON1, 0);
+				SetState(k + WM_BUTTON1, m_choicePageOffset + k == m_choiceIndex);
+			}
+		}
 	}
 	if (m_phase == WM_PHASE_WRITEDESIGN)
 	{
@@ -4828,81 +5280,152 @@ void CEvent::ChangeButtons(int message)
 	}
 	if (m_phase == WM_PHASE_GREAD || m_phase == WM_PHASE_GREADp)
 	{
-		//TODO
+		if (message >= WM_BUTTON1 && message <= WM_BUTTON6)
+		{
+			m_choiceIndex = message - WM_BUTTON1;
+			ReadAll();
+			for (int n = 0; n < 6; n++)
+			{
+				SetState(n + WM_BUTTON1, n == m_choiceIndex);
+			}
+			SetEnable(WM_BUTTON20, GetState(m_choiceIndex + WM_BUTTON1));
+		}
+		if (message == WM_BUTTON20 && GameSave(m_choiceIndex))
+			ChangePhase(WM_PHASE_PLAY);
 	}
 	if (m_phase == WM_PHASE_GWRITE)
 	{
-		//TODO
+		if (message == WM_BUTTON1 && WM_BUTTON6)
+		{
+			m_choiceIndex = message - WM_BUTTON1;
+			ReadAll();
+			for (int n = 0; n < 6; n++)
+			{
+				SetState((n + WM_BUTTON1), n == m_choiceIndex);
+			}
+			SetEnable(WM_BUTTON20, GetState(m_choiceIndex + WM_BUTTON1));
+		}
+		//if (message == WM_BUTTON20 && )
 	}
 	if (m_phase == WM_PHASE_SETUP || m_phase == WM_PHASE_SETUPp)
 	{
-		//TODO
+		int volume = m_pSound->GetAudioVolume();
+		int midi = m_pSound->GetMidiVolume();
+		if (message == WM_BUTTON1)
+		{
+			if (volume > 0)
+				m_pSound->SetAudioVolume(volume - 1);
+		}
+		if (message == WM_BUTTON2)
+		{
+			if (volume < 20)
+				m_pSound->SetAudioVolume(volume + 1);
+		}
+		if (message == WM_BUTTON3)
+		{
+			if (midi > 0)
+			{
+				m_pSound->SetMidiVolume(midi - 1);
+				m_pSound->SuspendMusic();
+			}
+		}
+		if (message == WM_BUTTON4)
+		{
+			if (midi < 20)
+			{
+				m_pSound->SetMidiVolume(volume + 1);
+				m_pSound->SuspendMusic();
+			}
+		}
+		if (message == WM_BUTTON5 && m_pPixmap->GetTrueColor())
+		{
+			m_pPixmap->SetTrueColor(0);
+			SetState(WM_BUTTON5, 1);
+			SetState(WM_BUTTON6, 0);
+		}
+		if (message == WM_BUTTON6 && !m_pPixmap->GetTrueColor())
+		{
+			m_pPixmap->SetTrueColor(1);
+			SetState(WM_BUTTON5, 0);
+			SetState(WM_BUTTON6, 1);
+		}
+		if (message == WM_BUTTON13 && m_pPixmap->GetTrueColorDecor())
+		{
+			m_pPixmap->SetTrueColorDecor(0);
+			SetState(WM_BUTTON13, 1);
+			SetState(WM_BUTTON14, 0);
+		}
+		if (message == WM_BUTTON14 && !m_pPixmap->GetTrueColorDecor())
+		{
+			m_pPixmap->SetTrueColorDecor(1);
+			SetState(WM_BUTTON13, 0);
+			SetState(WM_BUTTON14, 1);
+		}
 	}
+}
+
+BOOL CEvent::OpenMission(char* pMission, char* pFile)
+{	
+	FILE* file;
+	FILE* file2;
+	UINT  nmemb;
+	int   nb;
+	char* pBuffer = NULL;
+	BOOL  bMission = TRUE;
+
+	pBuffer = (char*)malloc(sizeof(2560));
+	if (pBuffer == NULL) goto error;
+
+	file = fopen(pMission, "rb");
+	if (file == NULL) goto error;
+
+	file2 = fopen(pFile, "wb");
+	if (file2 == NULL) goto error;
+
+	do
+	{
+		nb = fread(pBuffer, 1, sizeof(2560), file);
+		if (pBuffer[nb] & 32 != 0) break;
+		if (nb <= 0)
+			bMission = FALSE;
+		break;
+		fwrite(pBuffer, 1, nb, file2);
+	} while (pBuffer[nb] & 32 != 0);
+	return bMission;
+
+error:
+	if (file == NULL) free(file);
+	if (file2 == NULL) free(file2);
+	return bMission;
 }
 
 BOOL CEvent::ClearGamer(int gamer)
 {
 	char filename[260];
 
-	m_6D30 = 0;
+	m_playerIndex = 0;
 	sprintf(filename, "data\\info%.3d.blp", gamer);
 	AddUserPath(filename);
 	remove(filename);
 	return TRUE;
 }
 
-BOOL CEvent::CheckCDForWorld1()
+BOOL CEvent::FUN_1fbd0()
 {
 	// TODO
 	return TRUE;
 }
 
-void CEvent::DrawMap()
+int CEvent::GameSave(int save)
 {
-	//TODO
-}
+	char buffer[100];
 
-void CEvent::NetAdjustLobbyButtons()
-{
-	//TODO
-}
-
-BOOL CEvent::CopyMission(char *srcFileName, char *dstFileName)
-{
-	FILE *srcFile = NULL;
-	FILE *destFile = NULL;
-	size_t num;
-	BOOL bOK = TRUE;
-	void *buffer = malloc(2560);
-
-	if (buffer)
+	if (m_pDecor->MissionStart(m_gamer, save, TRUE))
 	{
-		srcFile = fopen(srcFileName, "rb");
-		if (!srcFile) goto die;
-		destFile = fopen(dstFileName, "wb");
-		if (destFile)
-		{
-			do
-			{
-				num = fread(buffer, 1, 2560, srcFile);
-				if (ferror(srcFile)) break; // *
-				if (num <= 0)
-				{
-					bOK = FALSE;
-					break;
-				}
-				fwrite(buffer, 1, num, destFile);
-			} while (!ferror(destFile)); // *
-		}
+		//LoadString()
+		m_pDecor->NotifPush(buffer);
+		m_quicksaveIndex = save;
+		return 1;
 	}
-	if (srcFile) fclose(srcFile);
-die:
-	if (destFile) fclose(destFile);
-	if (buffer) free(buffer);
-	return bOK;
-
-	// *
-	// original code relies on undefined behavior specific to older msvc :
-	// if (srcFile->_flag & _IOERR)
-	// while (!(destFile->_flag & _IOERR))
+	return m_pDecor->MissionStart(m_gamer, save, TRUE);
 }

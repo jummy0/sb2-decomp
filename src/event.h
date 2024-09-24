@@ -53,6 +53,7 @@ typedef struct
 }
 DemoEvent;
 
+
 class CEvent
 {
 public:
@@ -72,16 +73,19 @@ public:
 	int		GetImageWorld();
 	BOOL	IsHelpHide();
 	BOOL	ChangePhase(UINT phase);
+	BOOL	LoadImageFromDisc();
 	UINT    GetPhase();
 	void	MovieToStart();
 	BOOL	NetworkNuggets(int fuck);
 	void	HandleInputs();
 	void	ReadInput();
 	void	TryInsert();
-	void	SomethingUserMissions(LPCSTR lpFileName, LPCSTR thing);
+	//void	SomethingUserMissions(LPCSTR lpFileName, LPCSTR thing);
+	BOOL	OpenMission(char* pMission, char* pFile);
 	void	RestoreGame();
 	int		MissionBack();
 	void	TableSomething();
+	int		PlaceBuildItem(POINT cel, int flags, int currentIcon);
 
 	int		GetButtonIndex(int button);
 	int		GetState(int button);
@@ -185,19 +189,18 @@ protected:
 
 	void	MouseRelease();
 	void	MouseCapture();
+	int		GameSave(int save);
 
-	void	DrawMap();
-	BOOL	CheckCDForWorld1();
-	void	NetAdjustLobbyButtons();
-	BOOL	CopyMission(char *srcFileName, char *dstFileName);
+	BOOL	FUN_1fbd0();
 
 
 protected:
     int         m_speed;
     int         m_exercice;
+	int			m_quicksaveIndex;
     int         m_mission;
 	char		m_gamerName[100];
-	char		m_gamerNameList[10][100];
+	char		m_gamerNameList[8][100];
 	void*		m_somethingJoystick;
 	int			m_menuIndex;
 	int			m_choiceIndex;
@@ -205,12 +208,15 @@ protected:
 	int			m_menuDecor[11];
 	BOOL		m_bMouseRelease;
     int         m_private;
+	int 		m_bNamesExist[8];
+	int			m_fileIndex;
     int         m_maxMission;
     int         m_phase;
     int         m_index;
 	int			m_playerIndex;
     BOOL        m_bSchool;
     BOOL        m_bPrivate;
+	BOOL		m_bDrawMap;
 	BOOL 		m_bMulti;
     BOOL        m_bBuildOfficialMissions;
     BOOL        m_bFullScreen;
@@ -277,7 +283,6 @@ protected:
 	BOOL		m_bDemoPlay;
 	DemoEvent*	m_pDemoBuffer;
 	int			m_demoTime;
-    int         m_keyPress;
 	int			m_demoIndex;
 	int			m_demoEnd;
 	int			m_demoNumber;
@@ -296,14 +301,17 @@ protected:
 	HINSTANCE	m_hInstance;
 	char		m_chatZone[100][5];
 	char 		m_text[100];
+	int			m_keyPress;
 
 	int			m_choicePageOffset;
 	int			m_nbChoices;
 	int			m_0008;
 	int			m_6D30;
-	BOOL		m_b6D34;
+	//BOOL		m_b6D34;
 	int			m_96B4;
 	int			m_nbVies;
+public:
+    int         m_input;
 };
 
 extern
