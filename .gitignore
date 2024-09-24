@@ -3,11 +3,13 @@
 ################################################################################
 
 /.vs
-/Release
 /Debug
-/x64
+/Release
 /Speedy E.e424a3cb
-/DATA
-/IMAGE*
-/MOVIE
+/x64
+/IMAGE08
+/IMAGE16
 /SOUND
+/MOVIE
+/DATA
+Speedy Eggbert 2 Source.vcxproj.user
