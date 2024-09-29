@@ -3,7 +3,7 @@
 #pragma once
 
 #define FONTWHITE  0
-#define FONTRED    1
+#define FONTGOLD    1
 #define FONTSLIM   2
 #define FONTLITTLE 10
 

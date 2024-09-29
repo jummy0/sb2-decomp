@@ -684,7 +684,7 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	wc.hbrBackground = GetStockBrush(BLACK_BRUSH);
 	wc.lpszMenuName = NAME;
 	wc.lpszClassName = NAME;
-	RegisterClassA(&wc);
+	RegisterClass(&wc);
 
 	// Create a window.
 	if (g_bFullScreen)
@@ -714,8 +714,9 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 
 		SetRect(&WindowRect, (sx - LXIMAGE) / 2, (sy - LYIMAGE) / 2,
 			(sx + LXIMAGE) / 2, (sy + LYIMAGE) / 2);
-		AdjustWindowRect(&WindowRect, WS_POPUPWINDOW | WS_CAPTION, TRUE);
-		WindowRect.top += GetSystemMetrics(SM_CYCAPTION);
+		//AdjustWindowRect(&WindowRect, WS_POPUPWINDOW | WS_CAPTION, TRUE); // old faulty behavior
+		//WindowRect.top += GetSystemMetrics(SM_CYCAPTION);
+		AdjustWindowRect(&WindowRect, WS_POPUPWINDOW | WS_CAPTION, FALSE); // fixed behavior
 
 		g_hWnd = CreateWindow
 		(

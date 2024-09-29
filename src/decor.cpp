@@ -425,29 +425,30 @@ void CDecor::Build(RECT rect)
 	m_pPixmap->SetClipping(rect);
 
 	POINT posDecor = DecorNextAction();
-	POINT pos = { posDecor.x * 2 / 3 % LXIMAGE, posDecor.y * 2 };
+	POINT pos = { posDecor.x * 2 / 3 % LXIMAGE, posDecor.y * 2 / 3 % LYIMAGE };
 	//TODO: more^
 
-	for (int i = 0; i < 3; i++)
+	for (int i = 0; i < 2; i++)
 	{
 		tinyPoint.y = 0;
+		rect.top = pos.y;
 		for (int j = 0; j < 2; j++)
 		{
-			rect.top = pos.y / 3 % LYIMAGE;
 			rect.left = pos.x;
 			rect.right = LXIMAGE;
 			rect.bottom = LYIMAGE;
-			m_pPixmap->DrawPart(-1, 3, tinyPoint, rect, 1, 0);
-			tinyPoint.y += LYIMAGE - rect.top;
+			m_pPixmap->DrawPart(-1, CHDECOR, tinyPoint, rect, 1, FALSE);
+			tinyPoint.y += LYIMAGE - pos.y;
+			rect.top = 0;
 		}
 		tinyPoint.x += LXIMAGE - pos.x;
 		pos.x = 0;
 	}
 
-	tinyPoint.x = -posDecor.x % 64 - 64;
-	for (int i = posDecor.x / 64 - 1; i < posDecor.x / 64 + LXIMAGE / 64 + 3; i++) {
-		tinyPoint.y = -posDecor.y % 64 + 2 - 64;
-		for (int j = posDecor.y / 64 - 1; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
+	tinyPoint.x = -posDecor.x % DIMOBJX - DIMOBJX;
+	for (int i = posDecor.x / DIMOBJX - 1; i < posDecor.x / DIMOBJX + LXIMAGE / DIMOBJX + 3; i++) {
+		tinyPoint.y = -posDecor.y % DIMOBJY + 2 - DIMOBJY;
+		for (int j = posDecor.y / DIMOBJY - 1; j < posDecor.y / DIMOBJY + LYIMAGE / DIMOBJY + 2; j++)
 		{
 			if (i >= 0 && i < MAXCELX && j >= 0 && j < MAXCELY)
 			{
@@ -472,16 +473,16 @@ void CDecor::Build(RECT rect)
 					m_pPixmap->QuickIcon(channel, num2, pos);
 				}
 			}
-			tinyPoint.y += 64;
+			tinyPoint.y += DIMOBJY;
 		}
-		tinyPoint.x += 64;
+		tinyPoint.x += DIMOBJX;
 	}
 
-	tinyPoint.x = -posDecor.x % 64;
-	for (int i = posDecor.x / 64; i < posDecor.x / 64 + LXIMAGE / 64 + 2; i++)
+	tinyPoint.x = -posDecor.x % DIMOBJX;
+	for (int i = posDecor.x / DIMOBJX; i < posDecor.x / DIMOBJX + LXIMAGE / DIMOBJX + 2; i++)
 	{
-		tinyPoint.y = -posDecor.y % 64;
-		for (int j = posDecor.y / 64; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
+		tinyPoint.y = -posDecor.y % DIMOBJY;
+		for (int j = posDecor.y / DIMOBJY; j < posDecor.y / DIMOBJY + LYIMAGE / DIMOBJY + 2; j++)
 		{
 			if (i >= 0 && i < MAXCELX && j >= 0 && j < MAXCELY && m_decor[i][j].icon != -1)
 			{
@@ -491,9 +492,9 @@ void CDecor::Build(RECT rect)
 					m_pPixmap->QuickIcon(CHOBJECT, num2, tinyPoint);
 				}
 			}
-			tinyPoint.y += 64;
+			tinyPoint.y += DIMOBJY;
 		}
-		tinyPoint.x += 64;
+		tinyPoint.x += DIMOBJX;
 	}
 
 	if (m_phase == WM_PHASE_BUILD)

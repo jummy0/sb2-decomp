@@ -6,10 +6,6 @@
 #include "misc.h"
 #include "dectables.h"
 
-
-
-
-
 void CDecor::MoveObjectPollution()
 {
 }

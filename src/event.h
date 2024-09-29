@@ -202,6 +202,7 @@ protected:
     int         m_mission;
 	char		m_gamerName[100];
 	char		m_gamerNameList[8][100];
+	BOOL		m_gamerExist[8];
 	void*		m_somethingJoystick;
 	int			m_menuIndex;
 	int			m_choiceIndex;
@@ -311,8 +312,6 @@ protected:
 	//BOOL		m_b6D34;
 	int			m_96B4;
 	int			m_nbVies;
-public:
-    int         m_input;
 };
 
 extern
