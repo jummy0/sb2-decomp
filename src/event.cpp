@@ -5722,6 +5722,22 @@ BOOL CEvent::CopyMission(char *srcFileName, char *dstFileName)
 		destFile = fopen(dstFileName, "wb");
 		if (destFile)
 		{
+
+#if _LEGACY and defined(_IOERR)
+			// original code relies on implementation-specific behavior.
+			// incompatible with modern toolsets.
+			do
+			{
+				num = fread(buffer, 1, 2560, srcFile);
+				if (srcFile->_flag & _IOERR) break;
+				if (num <= 0)
+				{
+					bOK = FALSE;
+					break;
+				}
+				fwrite(buffer, 1, num, destFile);
+			} while (!(destFile->_flag & _IOERR));
+#else
 			do
 			{
 				num = fread(buffer, 1, 2560, srcFile);
@@ -5733,6 +5749,8 @@ BOOL CEvent::CopyMission(char *srcFileName, char *dstFileName)
 				}
 				fwrite(buffer, 1, num, destFile);
 			} while (!ferror(destFile)); // *
+#endif // _LEGACY
+
 		}
 	}
 	if (srcFile) fclose(srcFile);
@@ -5740,11 +5758,7 @@ die:
 	if (destFile) fclose(destFile);
 	if (buffer) free(buffer);
 	return bOK;
-
-	// *
-	// original code relies on undefined behavior specific to older msvc :
-	// if (srcFile->_flag & _IOERR)
-	// while (!(destFile->_flag & _IOERR))
+	
 }
 
 void CEvent::DrawMap()

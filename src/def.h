@@ -17,8 +17,9 @@
 #define _INTRO			FALSE	// TRUE si images d'introduction
 
 // additional flags
-#define _CD				FALSE	// whether to require the game CD
-#define _BYE			!_EGAMES // whether to show exit image (like _INTRO)
+#define _CD				FALSE	// if TRUE, require the game CD
+#define _BYE			!_EGAMES // if TRUE, show exit image (like _INTRO)
+#define _LEGACY			FALSE	// if TRUE, keep broken/quirky legacy code
 
 #define MAXGAMER		8
 

@@ -714,9 +714,15 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 
 		SetRect(&WindowRect, (sx - LXIMAGE) / 2, (sy - LYIMAGE) / 2,
 			(sx + LXIMAGE) / 2, (sy + LYIMAGE) / 2);
-		//AdjustWindowRect(&WindowRect, WS_POPUPWINDOW | WS_CAPTION, TRUE); // old faulty behavior
-		//WindowRect.top += GetSystemMetrics(SM_CYCAPTION);
-		AdjustWindowRect(&WindowRect, WS_POPUPWINDOW | WS_CAPTION, FALSE); // fixed behavior
+
+#if _LEGACY
+		// Old behavior is semantically incorrect.
+		// The game window becomes too short on modern versions of Windows.
+		AdjustWindowRect(&WindowRect, WS_POPUPWINDOW | WS_CAPTION, TRUE);
+		WindowRect.top += GetSystemMetrics(SM_CYCAPTION);
+#else
+		AdjustWindowRect(&WindowRect, WS_POPUPWINDOW | WS_CAPTION, FALSE);
+#endif
 
 		g_hWnd = CreateWindow
 		(

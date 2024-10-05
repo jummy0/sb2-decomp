@@ -16,10 +16,6 @@
 #include "ddutil.h"
 #include "misc.h"
 
-using namespace std;
-
-#define DIRECTDRAW_VERSION 0x0500
-
 BOOL g_bDebug = TRUE;
 
 void DDSetDebug(BOOL bDebug)

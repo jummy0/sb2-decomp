@@ -97,8 +97,6 @@ protected:
     HWND                   m_hWnd;
     POINT                  m_dim;
     RECT                   m_clipRect;
-    double                 originX;
-    double                 originY;
 
     POINT                  m_mousePos;
     int                    m_mouseSprite;
