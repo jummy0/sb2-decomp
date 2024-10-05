@@ -90,7 +90,7 @@ public:
 	void	SetState(int button, int state);
 	BOOL	GetEnable(int button);
 	void	SetEnable(int button, int bEnable);
-	void	SetSomething(int button, int bSomething);
+	void	SetIconMenu(int button, int bSomething);
 	BOOL	GetHide(int button);
 	void	SetHide(int button, BOOL bHide);
 	int		GetMenu(int button);

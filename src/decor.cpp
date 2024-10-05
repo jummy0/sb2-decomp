@@ -297,12 +297,12 @@ void CDecor::PlayPrepare(BOOL bTest)
 			m_moveObject[i].type = 0;
 		}
 
-		if ((m_bMulti) &&
-			(m_moveObject[i].type == TYPE_CAISSE) ||
-			(m_moveObject[i].type == TYPE_GOAL) ||
-			(m_moveObject[i].type == TYPE_CLE) ||
-			(m_moveObject[i].type == TYPE_BLUPIHELICO) ||
-			(m_moveObject[i].type == TYPE_BLUPITANK))
+		if (m_bMulti &&
+			(m_moveObject[i].type == TYPE_CAISSE ||
+			m_moveObject[i].type == TYPE_GOAL ||
+			m_moveObject[i].type == TYPE_CLE ||
+			m_moveObject[i].type == TYPE_BLUPIHELICO ||
+			m_moveObject[i].type == TYPE_BLUPITANK))
 		{
 			m_moveObject[i].type = 0;
 		}
@@ -388,16 +388,16 @@ void CDecor::MoveStep()
 		}
 		if (m_keyPress & KEY_DOWN) {
 			m_posDecor.y += 50;
-			int max = (m_dimDecor.y > 0) ? (m_dimDecor.y - LYIMAGE) : 0;
+			int max = (m_dimDecor.y > 0) ? (MAXCELY * DIMOBJY - LYIMAGE) : 0;
 			if (m_posDecor.y > max) {
 				m_posDecor.y = max;
 			}
 			m_posCelHili.x = -1;
 		}
 		if (m_keyPress & KEY_UP) {
-			m_posDecor.x -= 50;
-			if (m_posDecor.x < 0) {
-				m_posDecor.x = 0;
+			m_posDecor.y -= 50;
+			if (m_posDecor.y < 0) {
+				m_posDecor.y = 0;
 			}
 			m_posCelHili.x = -1;
 		}
@@ -1666,6 +1666,8 @@ void CDecor::DoorsLost()
 	m_nbVies = 3;
 	// more...
 }
+
+
 
 // Winphone functions, likely unnecessary
 /*

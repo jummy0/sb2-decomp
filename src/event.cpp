@@ -2440,6 +2440,8 @@ BOOL CEvent::DrawButtons()
     BOOL        bEnable;
 	int     	phase;
 
+	
+
 	if (m_phase != WM_PHASE_INSERT && m_phase != WM_PHASE_BYE)
 	{
 		m_bChangeCheat = FALSE;
@@ -2528,6 +2530,38 @@ BOOL CEvent::DrawButtons()
 
 		PutTextInputBox({ 320, 232 });
 	}
+	/*
+	// TEMP DEBUG
+	if (m_keyPress & KEY_LEFT)
+	{
+		DrawTextLeft(m_pPixmap, { LXIMAGE - 30, 15 }, "<", 0);
+	}
+	if (m_keyPress & KEY_RIGHT)
+	{
+		DrawTextLeft(m_pPixmap, { LXIMAGE - 10, 15 }, ">", 0);
+	}
+	if (m_keyPress & KEY_UP)
+	{
+		DrawTextLeft(m_pPixmap, { LXIMAGE - 20, 5 }, "^", 0);
+	}
+	if (m_keyPress & KEY_DOWN)
+	{
+		DrawTextLeft(m_pPixmap, { LXIMAGE - 20, 15 }, "v", 0);
+	}
+	if (m_keyPress & KEY_FIRE)
+	{
+		DrawTextLeft(m_pPixmap, { LXIMAGE - 60, 15 }, "F", 0);
+	}
+	if (m_keyPress & KEY_JUMP)
+	{
+		DrawTextLeft(m_pPixmap, { LXIMAGE - 50, 15 }, "J", 0);
+	}
+	sprintf(res, "%d", m_keyPress);
+	DrawTextLeft(m_pPixmap, { LXIMAGE - 60, 30 }, res, 0);
+	sprintf(res, "demoTime %d", m_demoTime);
+	DrawTextLeft(m_pPixmap, { 60, 0 }, res, m_demoTime % 20 < 10 ? FONTGOLD : FONTWHITE);
+	if (m_demoTime % 20 == 0 && m_demoTime > 0) m_pSound->PlayImage(93, { 320, 240 });
+	*/
 
 	if (m_phase == WM_PHASE_PLAY && m_phase == WM_PHASE_PLAYTEST && m_phase == WM_PHASE_BUILD)
 		m_pPixmap->DrawPart(-1, 0, pos, rect, 1, 0);

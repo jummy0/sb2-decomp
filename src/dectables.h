@@ -23,30 +23,33 @@ extern int table_vitesse_surf[]
 	0, 2, 5, 8, 3, 0
 };
 
-extern int table_bulldozer_left[8]{ 66, 66, 67, 67, 66, 66, 65, 65 };
+extern int table_bulldozer_left[]{ 8, 66, 66, 67, 67, 66, 66, 65, 65 };
 
-extern int table_bulldozer_right[8]{ 58, 58, 57, 57, 58, 58, 59, 59 };
+extern int table_bulldozer_right[]{ 8, 58, 58, 57, 57, 58, 58, 59, 59 };
 
-extern int table_bulldozer_turn2l[22]
+extern int table_bulldozer_turn2l[]
 {
+	22,
 	58, 59, 59, 59, 60, 60, 60, 61, 61, 62,
 	62, 63, 63, 64, 64, 64, 65, 65, 65, 66,
 	66, 66
 };
 
-extern int table_bulldozer_turn2r[22]
+extern int table_bulldozer_turn2r[]
 {
+	22,
 	66, 65, 65, 65, 64, 64, 64, 63, 63, 62,
 	62, 61, 61, 60, 60, 60, 59, 59, 59, 58,
 	58, 58
 };
 
-extern int table_poisson_left[8]{ 82, 82, 81, 81, 82, 82, 83, 83 };
+extern int table_poisson_left[]{ 8, 82, 82, 81, 81, 82, 82, 83, 83 };
 
-extern int table_poisson_right[8]{ 79, 79, 78, 78, 79, 79, 80, 80 };
+extern int table_poisson_right[]{ 8, 79, 79, 78, 78, 79, 79, 80, 80 };
 
-extern int table_poisson_turn2l[48]
+extern int table_poisson_turn2l[]
 {
+	48,
 	79, 79, 80, 80, 84, 84, 85, 85, 86, 86,
 	87, 87, 88, 88, 83, 83, 82, 82, 83, 83,
 	88, 88, 87, 87, 86, 86, 85, 85, 84, 84,
@@ -54,8 +57,9 @@ extern int table_poisson_turn2l[48]
 	86, 86, 87, 87, 88, 88, 83, 83
 };
 
-extern int table_poisson_turn2r[48]
+extern int table_poisson_turn2r[]
 {
+	48,
 	82, 82, 83, 83, 88, 88, 87, 87, 86, 86,
 	85, 85, 84, 84, 79, 79, 79, 79, 80, 80,
 	84, 84, 85, 85, 86, 86, 87, 87, 88, 88,
@@ -63,28 +67,29 @@ extern int table_poisson_turn2r[48]
 	86, 86, 85, 85, 84, 84, 79, 79
 };
 
-extern int table_oiseau_left[8]{ 98, 99, 100, 101, 102, 103, 104, 105 };
+extern int table_oiseau_left[]{ 8, 98, 99, 100, 101, 102, 103, 104, 105 };
 
-extern int table_oiseau_right[8]{ 90, 91, 92, 93, 94, 95, 96, 97 };
+extern int table_oiseau_right[]{ 8, 90, 91, 92, 93, 94, 95, 96, 97 };
 
-extern int table_oiseau_turn2l[10]{ 106, 107, 108, 109, 110, 111, 112, 113, 105, 105 };
+extern int table_oiseau_turn2l[]{ 10, 106, 107, 108, 109, 110, 111, 112, 113, 105, 105 };
 
-extern int table_oiseau_turn2r[10]{ 114, 115, 116, 117, 118, 119, 120, 121, 97, 97 };
+extern int table_oiseau_turn2r[]{ 10, 114, 115, 116, 117, 118, 119, 120, 121, 97, 97 };
 
-extern int table_guepe_left[6]{ 195, 196, 197, 198, 197, 196 };
+extern int table_guepe_left[]{ 6, 195, 196, 197, 198, 197, 196 };
 
-extern int table_guepe_right[6]{ 199, 200, 201, 202, 201, 200 };
+extern int table_guepe_right[]{ 6, 199, 200, 201, 202, 201, 200 };
 
-extern int table_guepe_turn2l[5]{ 207, 206, 205, 204, 203 };
+extern int table_guepe_turn2l[]{ 5, 207, 206, 205, 204, 203 };
 
-extern int table_guepe_turn2r[5]{ 203, 204, 205, 206, 207 };
+extern int table_guepe_turn2r[]{ 5, 203, 204, 205, 206, 207 };
 
-extern int table_creature_left[8]{ 247, 248, 249, 250, 251, 250, 249, 248 };
+extern int table_creature_left[]{ 8, 247, 248, 249, 250, 251, 250, 249, 248 };
 
-extern int table_creature_right[8]{ 247, 248, 249, 250, 251, 250, 249, 248 };
+extern int table_creature_right[]{ 8, 247, 248, 249, 250, 251, 250, 249, 248 };
 
-extern int table_creature_turn2[152]
+extern int table_creature_turn2[]
 {
+	152,
 	244, 244, 244, 244, 244, 244, 244, 244, 243, 243,
 	242, 242, 242, 242, 242, 242, 242, 242, 243, 243,
 	244, 244, 245, 245, 246, 246, 246, 246, 246, 246,
@@ -103,74 +108,83 @@ extern int table_creature_turn2[152]
 	244, 244
 };
 
-extern int table_blupih_left[8]{ 66, 67, 68, 67, 66, 69, 70, 69 };
+extern int table_blupih_left[]{ 8, 66, 67, 68, 67, 66, 69, 70, 69 };
 
-extern int table_blupih_right[8]{ 61, 62, 63, 62, 61, 64, 65, 64 };
+extern int table_blupih_right[]{ 8, 61, 62, 63, 62, 61, 64, 65, 64 };
 
-extern int table_blupih_turn2l[26]
+extern int table_blupih_turn2l[]
 {
+	26,
 	71, 71, 72, 72, 73, 73, 74, 74, 75, 75,
 	68, 68, 275, 275, 271, 271, 271, 271, 272, 272,
 	273, 273, 273, 273, 275, 275
 };
 
-extern int table_blupih_turn2r[26]
+extern int table_blupih_turn2r[]
 {
+	26,
 	75, 75, 74, 74, 73, 73, 72, 72, 71, 71,
 	63, 63, 274, 274, 271, 271, 271, 271, 272, 272,
 	273, 273, 273, 273, 274, 274
 };
 
-extern int table_blupit_left[8]{ 249, 249, 250, 250, 249, 249, 248, 248 };
+extern int table_blupit_left[]{ 8, 249, 249, 250, 250, 249, 249, 248, 248 };
 
-extern int table_blupit_right[8]{ 238, 238, 237, 237, 238, 238, 239, 239 };
+extern int table_blupit_right[]{ 8, 238, 238, 237, 237, 238, 238, 239, 239 };
 
-extern int table_blupit_turn2l[24]
+extern int table_blupit_turn2l[]
 {
+	24,
 	238, 238, 251, 251, 238, 238, 238, 239, 240, 241,
 	242, 243, 244, 245, 246, 247, 248, 249, 249, 249,
 	252, 252, 249, 249
 };
 
-extern int table_blupit_turn2r[24]
+extern int table_blupit_turn2r[]
 {
+	24,
 	249, 249, 252, 252, 249, 249, 249, 248, 247, 246,
 	245, 244, 243, 242, 241, 240, 239, 238, 238, 238,
 	251, 251, 238, 238
 };
 
-extern int table_explo1[39]
+extern int table_explo1[]
 {
+	39,
 	0, 0, 1, 1, 2, 2, 3, 3, 4, 3,
 	4, 4, 3, 4, 3, 3, 4, 4, 5, 5,
 	4, 5, 6, 5, 6, 6, 5, 5, 6, 7,
 	7, 8, 8, 9, 9, 10, 10, 11, 11
 };
 
-extern int table_explo2[20]
+extern int table_explo2[]
 {
+	20,
 	12, -1, 13, 14, -1, 15, 13, -1, 14, 15,
 	12, -1, 13, 15, 14, 14, -1, 14, 15, 13
 };
 
-extern int table_explo3[20]
+extern int table_explo3[]
 {
+	20,
 	32, 32, 34, 34, 32, 32, 34, 34, 32, 32,
 	34, 34, 32, 32, 35, 35, 32, 32, 35, 35
 };
 
-extern int table_explo4[9]{ 12, 13, 14, 15, 7, 8, 9, 10, 11 };
+extern int table_explo4[]{ 9, 12, 13, 14, 15, 7, 8, 9, 10, 11 };
 
-extern int table_explo5[12]
+extern int table_explo5[]
 {
+	12,
 	54, -1, 55, -1, 56, -1, 57, -1, 58, -1,
 	59, -1
 };
 
-extern int table_explo6[6]{ 54, 55, 56, 57, 58, 59 };
+extern int table_explo6[]{ 6, 54, 55, 56, 57, 58, 59 };
 
-extern int table_explo7[128]
+extern int table_explo7[]
 {
+	128,
 	60, 61, -1, 63, 64, 65, 62, 64, 62, 60,
 	62, -1, 65, -1, 60, 65, 63, 61, 62, -1,
 	64, 65, -1, 62, 64, 61, 62, 63, -1, 65,
@@ -186,24 +200,27 @@ extern int table_explo7[128]
 	-1, 61, -1, -1, -1, 60, -1, -1
 };
 
-extern int table_explo8[5]{ 7, 8, 9, 10, 11 };
+extern int table_explo8[]{ 5, 7, 8, 9, 10, 11 };
 
-extern int table_sploutch1[10]{ 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 };
+extern int table_sploutch1[]{ 10, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99 };
 
-extern int table_sploutch2[13]
+extern int table_sploutch2[]
 {
+	13,
 	-1, -1, -1, 90, 91, 92, 93, 94, 95, 96,
 	97, 98, 99
 };
 
-extern int table_sploutch3[18]
+extern int table_sploutch3[]
 {
+	18,
 	-1, -1, -1, -1, -1, -1, -1, -1, 90, 91,
 	92, 93, 94, 95, 96, 97, 98, 99
 };
 
-extern int table_tentacule[45]
+extern int table_tentacule[]
 {
+	45,
 	86, 85, 84, 83, 84, 85, 86, -1, 86, 85,
 	84, 83, 82, 81, 80, 79, 78, 77, 76, 75,
 	74, 73, 72, 71, 70, 70, 70, 70, 71, 72,
@@ -211,8 +228,9 @@ extern int table_tentacule[45]
 	83, 84, 85, 86, -1
 };
 
-extern int table_bridge[157]
+extern int table_bridge[]
 {
+	157,
 	365, 366, 365, 366, 365, 366, 365, 366, 365, 366,
 	365, 366, 365, 366, 365, 366, 367, 367, 368, 368,
 	369, 369, 370, 370, 371, 371, 372, 372, -1, -1,
@@ -231,51 +249,57 @@ extern int table_bridge[157]
 	367, 367, 366, 366, 365, 365, 364
 };
 
-extern int table_pollution[8]{ 179, 180, 181, 182, 183, 184, 185, 186 };
+extern int table_pollution[]{ 8, 179, 180, 181, 182, 183, 184, 185, 186 };
 
-extern int table_invertstart[8]{ 179, 180, 181, 182, 183, 184, 185, 186 };
+extern int table_invertstart[]{ 8, 179, 180, 181, 182, 183, 184, 185, 186 };
 
-extern int table_invertstop[8]{ 186, 185, 184, 183, 182, 181, 180, 179 };
+extern int table_invertstop[]{ 8, 186, 185, 184, 183, 182, 181, 180, 179 };
 
-extern int table_invertpanel[8]{ 187, 188, 189, 190, 191, 192, 193, 194 };
+extern int table_invertpanel[]{ 8, 187, 188, 189, 190, 191, 192, 193, 194 };
 
-extern int table_plouf[7]{ 99, 100, 101, 102, 101, 100, 99 };
+extern int table_plouf[]{ 7, 99, 100, 101, 102, 101, 100, 99 };
 
-extern int table_tiplouf[3]{ 244, 99, 244 };
+extern int table_tiplouf[]{ 3, 244, 99, 244 };
 
-extern int table_blup[20]
+extern int table_blup[]
 {
+	20,
 	103, 104, 105, 106, 104, 103, 106, 105, 103, 104,
 	103, 105, 106, 103, 105, 106, 103, 104, 106, 105
 };
 
-extern int table_follow1[26]
+extern int table_follow1[]
 {
+	26,
 	256, 256, 256, 257, 257, 258, 259, 260, 261, 262,
 	263, 264, 264, 265, 265, 265, 264, 264, 263, 262,
 	261, 260, 259, 258, 257, 257
 };
 
-extern int table_follow2[5]{ 256, 258, 260, 262, 264 };
+extern int table_follow2[]{ 5, 256, 258, 260, 262, 264 };
 
-extern int table_cle[12]
+extern int table_cle[]
 {
+	12,
 	122, 123, 124, 125, 126, 127, 128, 127, 126, 125,
 	124, 123
 };
 
-extern int table_cle1[12]
+extern int table_cle1[]
 {
+	12,
 	209, 210, 211, 212, 213, 214, 215, 214, 213, 212, 211, 210
 };
 
-extern int table_cle2[12]
+extern int table_cle2[]
 {
+	12,
 	220, 221, 222, 221, 220, 219, 218, 217, 216, 217, 218, 219
 };
 
-extern int table_cle3[12]
+extern int table_cle3[]
 {
+	12,
 	229, 228, 227, 226, 225, 224, 223, 224, 225, 226, 227, 228 
 };
 
@@ -315,8 +339,9 @@ extern int table_decor_action[]
 	0
 };
 
-extern int table_dynamitef[100]
+extern int table_dynamitef[]
 {
+	100,
 	253, 252, 254, 252, 252, 255, 252, 254, 253, 252,
 	253, 254, 255, 252, 255, 253, 252, 254, 252, 255,
 	253, 254, 252, 253, 255, 254, 255, 252, 253, 254,
@@ -329,23 +354,26 @@ extern int table_dynamitef[100]
 	255, 253, 253, 254, 255, 254, 252, 253, 254, 255
 };
 
-extern int table_skate[34]
+extern int table_skate[]
 {
+	34,
 	129, 129, 129, 129, 130, 130, 130, 131, 131, 132,
 	132, 133, 133, 134, 134, 134, 135, 135, 135, 135,
 	134, 134, 134, 133, 133, 132, 132, 131, 131, 131,
 	130, 130, 130, 130
 };
 
-extern int table_glu[25]
+extern int table_glu[]
 {
+	25,
 	168, 168, 169, 169, 170, 170, 171, 171, 170, 170,
 	169, 169, 168, 168, 169, 169, 169, 168, 168, 169,
 	169, 170, 170, 169, 168
 };
 
-extern int table_clear[70]
+extern int table_clear[]
 {
+	70,
 	40, 40, 40, 40, 41, 41, 41, 41, 40, 40,
 	40, 40, 40, 40, 40, 41, 41, 41, 40, 40,
 	40, 40, 40, 40, 40, 41, 41, 41, 40, 40,
@@ -355,8 +383,9 @@ extern int table_clear[70]
 	47, 47, 46, 46, 47, 47, 46, 46, 47, 47
 };
 
-extern int table_electro[90]
+extern int table_electro[]
 {
+	90,
 	266, 267, 266, 267, 266, 267, 266, 267, 266, 267,
 	266, 267, 266, 267, 266, 267, 266, 267, 266, 267,
 	266, 267, 266, 267, 266, 267, 266, 267, 266, 267,
@@ -368,11 +397,11 @@ extern int table_electro[90]
 	46, 46, 47, 47, 46, 46, 47, 47, 46, 46
 };
 
-extern int table_chenille[6]{ 311, 312, 313, 314, 315, 316 };
+extern int table_chenille[]{ 6, 311, 312, 313, 314, 315, 316 };
 
-extern int table_chenillei[6]{ 316, 315, 314, 313, 312, 311 };
+extern int table_chenillei[]{ 6, 316, 315, 314, 313, 312, 311 };
 
-extern int table_adapt_decor[144]
+extern int table_adapt_decor[]
 {
 	153, 147, 148, 146, 40, 151, 150, 144, 39, 152,
 	149, 145, 38, 36, 37, 35, 153, 147, 148, 146,
@@ -391,8 +420,9 @@ extern int table_adapt_decor[144]
 	251, 250, 256, 250
 };
 
-extern int table_adapt_fromage[32]
+extern int table_adapt_fromage[]
 {
+	32
 	-1, 265, 264, 268, 267, 273, 271, 275, 266, 272,
 	270, 274, 269, 277, 276, 278, -1, 286, 285, 289,
 	288, 294, 292, 296, 287, 293, 291, 295, 290, 298,

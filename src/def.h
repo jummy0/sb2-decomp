@@ -114,42 +114,42 @@ enum {
 
 // Actions :
 
-#define ACTION_STOP 1
-#define ACTION_MARCH 2
+#define ACTION_STOP 1 // stand still
+#define ACTION_MARCH 2 // walk
 #define ACTION_TURN 3
-#define ACTION_JUMP 4
+#define ACTION_JUMP 4 // beginning to jump
 #define ACTION_AIR 5
-#define ACTION_DOWN 6
-#define ACTION_UP 7
-#define ACTION_VERTIGO 8
-#define ACTION_RECEDE 9
-#define ACTION_ADVANCE 10
+#define ACTION_DOWN 6 // look down
+#define ACTION_UP 7 // look up
+#define ACTION_VERTIGO 8 // "whoops"
+#define ACTION_RECEDE 9 // back away from edge
+#define ACTION_ADVANCE 10 // walk forward away from edge
 #define ACTION_CLEAR1 11
 #define ACTION_SET 12
 #define ACTION_WIN 13
-#define ACTION_PUSH 14
+#define ACTION_PUSH 14 // pushing a case
 #define ACTION_STOPHELICO 15
 #define ACTION_MARCHHELICO 16
 #define ACTION_TURNHELICO 17
-#define ACTION_STOPNAGE 18
-#define ACTION_MARCHNAGE 19
-#define ACTION_TURNNAGE 20
-#define ACTION_STOPSURF 21
-#define ACTION_MARCHSURF 22
-#define ACTION_TURNSURF 23
+#define ACTION_STOPNAGE 18 // stopped in deep water
+#define ACTION_MARCHNAGE 19 // swimming in deep water
+#define ACTION_TURNNAGE 20 // turning in deep water
+#define ACTION_STOPSURF 21 // stopped on water surface
+#define ACTION_MARCHSURF 22 // swimming at water surface
+#define ACTION_TURNSURF 23 // turning at water surface
 #define ACTION_DROWN 24
 #define ACTION_STOPJEEP 25
 #define ACTION_MARCHJEEP 26
 #define ACTION_TURNJEEP 27
-#define ACTION_STOPPOP 28
-#define ACTION_POP 29
-#define ACTION_BYE 30
-#define ACTION_STOPSUSPEND 31
-#define ACTION_MARCHSUSPEND 32
-#define ACTION_TURNSUSPEND 33
-#define ACTION_JUMPSUSPEND 34
-#define ACTION_HIDE 35
-#define ACTION_JUMPAIE 36
+#define ACTION_STOPPOP 28 // pulling a case, stopped
+#define ACTION_POP 29 // pulling a case
+#define ACTION_BYE 30 // "au au"
+#define ACTION_STOPSUSPEND 31 // stopped on bars
+#define ACTION_MARCHSUSPEND 32 // moving on bars
+#define ACTION_TURNSUSPEND 33 // turning on bars
+#define ACTION_JUMPSUSPEND 34 // pulling up from bars
+#define ACTION_HIDE 35 // invisible
+#define ACTION_JUMPAIE 36 // headache
 #define ACTION_STOPSKATE 37
 #define ACTION_MARCHSKATE 38
 #define ACTION_TURNSKATE 39
@@ -160,14 +160,14 @@ enum {
 #define ACTION_OUF1a 44
 #define ACTION_OUF1b 45
 #define ACTION_OUF2 46
-#define ACTION_OUF3 47
+#define ACTION_OUF3 47 // stop moving case "gahh...!"
 #define ACTION_OUF4 48
-#define ACTION_SUCETTE 49
+#define ACTION_SUCETTE 49 // eating lollipop
 #define ACTION_STOPTANK 50
 #define ACTION_MARCHTANK 51
 #define ACTION_TURNTANK 52
 #define ACTION_FIRETANK 53
-#define ACTION_GLU 54
+#define ACTION_GLU 54 // glued
 #define ACTION_DRINK 55
 #define ACTION_CHARGE 56
 #define ACTION_ELECTRO 57
@@ -179,10 +179,10 @@ enum {
 #define ACTION_MOCKERY 63
 #define ACTION_MOCKERYi 64
 #define ACTION_OUF5 65
-#define ACTION_BALLOON 66
-#define ACTION_STOPOVER 67
-#define ACTION_MARCHOVER 68
-#define ACTION_TURNOVER 69
+#define ACTION_BALLOON 66 // stung by wasp
+#define ACTION_STOPOVER 67 // stopped in hovercraft
+#define ACTION_MARCHOVER 68 // moving in hovercraft
+#define ACTION_TURNOVER 69 // turning in hovercraft
 #define ACTION_RECEDEq 70
 #define ACTION_ADVANCEq 71
 #define ACTION_STOPECRASE 72
@@ -197,7 +197,7 @@ enum {
 #define ACTION_CLEAR8 81
 #define ACTION_SWITCH 82
 #define ACTION_MOCKERYp 83
-#define ACTION_NON 84
+#define ACTION_NON 84 // can't place personal bomb
 #define ACTION_SLOWDOWNSKATE 85
 #define ACTION_TAKEDYNAMITE 86
 #define ACTION_PUTDYNAMITE 87
@@ -213,9 +213,9 @@ enum {
 
 // Types :
 
-#define TYPE_ASCENSEUR 1
-#define TYPE_BOMBEDOWN 2
-#define TYPE_BOMBEUP 3
+#define TYPE_ASCENSEUR 1 // lift
+#define TYPE_BOMBEDOWN 2 // floor bomb
+#define TYPE_BOMBEUP 3 // hanging bomb
 #define TYPE_BULLDOZER 4
 #define TYPE_TRESOR 5
 #define TYPE_EGG 6
@@ -229,61 +229,61 @@ enum {
 #define TYPE_PLOUF 14
 #define TYPE_BLUP 15
 #define TYPE_BOMBEMOVE 16
-#define TYPE_POISSON 17
+#define TYPE_POISSON 17 // fish
 #define TYPE_TOMATES 18 // unused
 #define TYPE_JEEP 19
-#define TYPE_OISEAU 20
-#define TYPE_CLE 21
+#define TYPE_OISEAU 20 // bird
+#define TYPE_CLE 21 // gold key
 #define TYPE_DOOR 22
-#define TYPE_BALLE 23
+#define TYPE_BALLE 23 // glue ball
 #define TYPE_SKATE 24
 #define TYPE_SHIELD 25
-#define TYPE_POWER 26
-#define TYPE_MAGICTRACK 27
+#define TYPE_POWER 26 // lollipop
+#define TYPE_MAGICTRACK 27 // sparkles
 #define TYPE_TANK 28
 #define TYPE_BULLET 29
 #define TYPE_DRINK 30
-#define TYPE_CHARGE 31
+#define TYPE_CHARGE 31 // charging device
 #define TYPE_BLUPIHELICO 32
 #define TYPE_BLUPITANK 33
 #define TYPE_GLU 34
 #define TYPE_TIPLOUF 35
 #define TYPE_POLLUTION 36
-#define TYPE_CLEAR 37
-#define TYPE_ELECTRO 38
-#define TYPE_TRESORTRACK 39
+#define TYPE_CLEAR 37 // burned blupi
+#define TYPE_ELECTRO 38 // shocked blupi
+#define TYPE_TRESORTRACK 39 // sparkles
 #define TYPE_INVERT 40
 #define TYPE_INVERTSTART 41
 #define TYPE_INVERTSTOP 42
-#define TYPE_GUEPE 44
-#define TYPE_OVER 46
-#define TYPE_ASCENSEURs 47
-#define TYPE_ASCENSEURsi 48
-#define TYPE_CLE1 49
-#define TYPE_CLE2 50
-#define TYPE_CLE3 51
-#define TYPE_BRIDGE 52
-#define TYPE_TENTACULE 53
-#define TYPE_CREATURE 54
+#define TYPE_GUEPE 44 // wasp
+#define TYPE_OVER 46 // hovercraft
+#define TYPE_ASCENSEURs 47 // conveyor belt right
+#define TYPE_ASCENSEURsi 48 // conveyor belt left
+#define TYPE_CLE1 49 // red key
+#define TYPE_CLE2 50 // green key
+#define TYPE_CLE3 51 // blue key
+#define TYPE_BRIDGE 52 // fragile bridge
+#define TYPE_TENTACULE 53 // slime tentacle effect
+#define TYPE_CREATURE 54 // moving slime creature
 #define TYPE_DYNAMITE 55
-#define TYPE_DYNAMITEf 56
-#define TYPE_SHIELDTRACK 57
-#define TYPE_HIDETRACK 58
+#define TYPE_DYNAMITEf 56 // lit dynamite
+#define TYPE_SHIELDTRACK 57 // particles
+#define TYPE_HIDETRACK 58 // particles
 #define TYPE_EXPLO5 90
 #define TYPE_EXPLO6 91
 #define TYPE_EXPLO7 92
 #define TYPE_EXPLO8 93
 #define TYPE_EXPLO9 94
 #define TYPE_EXPLO10 95
-#define TYPE_BOMBEFOLLOW1 96
-#define TYPE_BOMBEFOLLOW2 97
-#define TYPE_SPLOUTCH1 98
-#define TYPE_SPLOUTCH2 99
-#define TYPE_SPLOUTCH3 100
-#define TYPE_BOMBEPERSO1 200
-#define TYPE_BOMBEPERSO2 201
-#define TYPE_BOMBEPERSO3 202
-#define TYPE_BOMBEPERSO4 203
+#define TYPE_BOMBEFOLLOW1 96 // homing bomb, stopped
+#define TYPE_BOMBEFOLLOW2 97 // homing bomb, moving
+#define TYPE_SPLOUTCH1 98 // particles
+#define TYPE_SPLOUTCH2 99 // particles
+#define TYPE_SPLOUTCH3 100 // particles
+#define TYPE_BOMBEPERSO1 200 // player 1 personal bomb (yellow)
+#define TYPE_BOMBEPERSO2 201 // player 2 personal bomb (orange)
+#define TYPE_BOMBEPERSO3 202 // player 3 personal bomb (blue)
+#define TYPE_BOMBEPERSO4 203 // player 4 personal bomb (green)
 
 // Steps :
 
@@ -297,15 +297,15 @@ enum {
 // Sons :
 
 #define SOUND_CLICK 0
-#define SOUND_JUMP1 1
-#define SOUND_JUMP2 2
-#define SOUND_JUMPEND 3
-#define SOUND_JUMPTOC 4
+#define SOUND_JUMP1 1 // medium jump
+#define SOUND_JUMP2 2 // high jump
+#define SOUND_JUMPEND 3 // step on stone
+#define SOUND_JUMPTOC 4 // hit stone
 #define SOUND_TURN 5
-#define SOUND_VERTIGO 6
-#define SOUND_DOWN 7
+#define SOUND_VERTIGO 6 // "whoops"
+#define SOUND_DOWN 7 // look down
 #define SOUND_FALL 8
-#define SOUND_NEW 9
+#define SOUND_NEW 9 // respawn
 #define SOUND_BOUM 10
 #define SOUND_TRESOR 11
 #define SOUND_EGG 12
@@ -316,79 +316,79 @@ enum {
 #define SOUND_HELICOSTOP 17
 #define SOUND_HELICOLOW 18
 #define SOUND_LASTTRESOR 19
-#define SOUND_UP 20
+#define SOUND_UP 20 // partially unused sound when pressing left+right+down
 #define SOUND_LOOKUP 21
-#define SOUND_JUMP0 22
+#define SOUND_JUMP0 22 // low jump
 #define SOUND_PLOUF 23
 #define SOUND_BLUP 24
-#define SOUND_SURF 25
+#define SOUND_SURF 25 // inhale
 #define SOUND_DROWN 26
 #define SOUND_ERROR 27
 #define SOUND_JEEPSTART 28
 #define SOUND_JEEPHIGH 29
 #define SOUND_JEEPSTOP 30
 #define SOUND_JEEPLOW 31
-#define SOUND_BYE 32
-#define SOUND_DOOR 33
-#define SOUND_SUSPENDTOC 34
-#define SOUND_SUSPENDJUMP 35
+#define SOUND_BYE 32 // "au au"
+#define SOUND_DOOR 33 // door creak
+#define SOUND_SUSPENDTOC 34 // grab bar
+#define SOUND_SUSPENDJUMP 35 // pull up from bar
 #define SOUND_SINGE 36
 #define SOUND_PATIENT 37
-#define SOUND_PUSH 38
-#define SOUND_POP 39
-#define SOUND_JUMPAIE 40
-#define SOUND_RESSORT 41
+#define SOUND_PUSH 38 // pushing crate
+#define SOUND_POP 39 // pulling crate
+#define SOUND_JUMPAIE 40 // headache "aie"
+#define SOUND_RESSORT 41 // spring
 #define SOUND_STARTSHIELD 42
 #define SOUND_STOPSHIELD 43
-#define SOUND_STARTPOWER 44
-#define SOUND_STOPPOWER 45
-#define SOUND_OUF1 46
-#define SOUND_OUF2 47
-#define SOUND_OUF3 48
-#define SOUND_OUF4 49
-#define SOUND_SUCETTE 50
-#define SOUND_GLU 51
-#define SOUND_FIREOK 52
-#define SOUND_FIREKO 53
+#define SOUND_STARTPOWER 44 // lollipop activate
+#define SOUND_STOPPOWER 45 // lollipop deactivate
+#define SOUND_OUF1 46 // exit water "phew"
+#define SOUND_OUF2 47 // scared "huaaaahhhhh--!"
+#define SOUND_OUF3 48 // stop moving case "gahh...!"
+#define SOUND_OUF4 49 // shriek, heartbeat
+#define SOUND_SUCETTE 50 // lick lollipop
+#define SOUND_GLU 51 // buaaaaaaaaaaaah
+#define SOUND_FIREOK 52 
+#define SOUND_FIREKO 53 // ratchet
 #define SOUND_TAKEGLU 54
 #define SOUND_STARTCLOUD 55
 #define SOUND_STOPCLOUD 56
 #define SOUND_DRINK 57
 #define SOUND_CHARGE 58
 #define SOUND_ELECTRO 59
-#define SOUND_PERSOTAKE 60
-#define SOUND_PERSOPOSE 61
+#define SOUND_PERSOTAKE 60 // "wow!"
+#define SOUND_PERSOPOSE 61 // *evil laugh*
 #define SOUND_STARTHIDE 62
 #define SOUND_STOPHIDE 63
-#define SOUND_TIPLOUF 64
+#define SOUND_TIPLOUF 64 // light splash
 #define SOUND_MOCKERY 65
 #define SOUND_INVERTSTART 66
 #define SOUND_INVERTSTOP 67
-#define SOUND_OVERSTOP 68
-#define SOUND_BLITZ 69
+#define SOUND_OVERSTOP 68 // hovercraft stall
+#define SOUND_BLITZ 69 // lightning buzz
 #define SOUND_ECRASE 70
 #define SOUND_TELEPORTE 71
-#define SOUND_BRIDGE1 72
-#define SOUND_BRIDGE2 73
-#define SOUND_ANGEL 74
-#define SOUND_SCIE 75
+#define SOUND_BRIDGE1 72 // bridge fall
+#define SOUND_BRIDGE2 73 // bridge appear
+#define SOUND_ANGEL 74 // "uie uie uie, aie aie aie"
+#define SOUND_SCIE 75 // saw
 #define SOUND_SWITCHOFF 76
 #define SOUND_SWITCHON 77
-#define SOUND_JUMPENDb 78
-#define SOUND_JUMPTOCb 79
-#define SOUND_JUMPENDm 80
-#define SOUND_JUMPTOCm 81
-#define SOUND_JUMPENDg 82
-#define SOUND_JUMPTOCg 83
-#define SOUND_JUMPENDo 84
-#define SOUND_JUMPTOCo 85
-#define SOUND_JUMPENDk 86
-#define SOUND_JUMPTOCk 87
-#define SOUND_JUMPENDf 88
-#define SOUND_JUMPTOCf 89
-#define SOUND_JUMPENDh 90
-#define SOUND_JUMPTOCh 91
-#define SOUND_FOLLOW 92
+#define SOUND_JUMPENDb 78 // step on wood
+#define SOUND_JUMPTOCb 79 // hit wood
+#define SOUND_JUMPENDm 80 // step on metal
+#define SOUND_JUMPTOCm 81 // hit metal
+#define SOUND_JUMPENDg 82 // step on cave
+#define SOUND_JUMPTOCg 83 // hit cave
+#define SOUND_JUMPENDo 84 // step on slime
+#define SOUND_JUMPTOCo 85 // hit slime
+#define SOUND_JUMPENDk 86 // step on plastic
+#define SOUND_JUMPTOCk 87 // hit plastic
+#define SOUND_JUMPENDf 88 // step on cheese
+#define SOUND_JUMPTOCf 89 // hit cheese
+#define SOUND_JUMPENDh 90 // step on grass
+#define SOUND_JUMPTOCh 91 // hit grass
+#define SOUND_FOLLOW 92 // homing bomb "be-be-beep"
 #define SOUND_MOVIE 99
 
 // 
@@ -1189,6 +1189,9 @@ namespace Object {
 #define CLE_RED (1 << 0)
 #define CLE_GREEN (1 << 1)
 #define CLE_BLUE (1 << 2)
+
+#define JAUGE_AIR 0
+#define JAUGE_POWER 1
 
 // helpers for POINT
 

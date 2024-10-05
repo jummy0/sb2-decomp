@@ -10,161 +10,208 @@
 // a0f94abe-11c3-d111-be62-0040f6944838
 #define APP_GUID { 0xbe4af9a0, 0xc311, 0x11d1, { 0xbe, 0x62, 0x00, 0x40, 0xf6, 0x94, 0x48, 0x38 } };
 
-extern "C" {
-	CNetwork::CNetwork()
+CNetwork::CNetwork()
+{
+	m_pDP = NULL;
+	m_dpid = 0;
+	m_bHost = FALSE;
+	m_providers.nb = 0;
+	m_providers.pList = NULL;
+	m_sessions.nb = 0;
+	m_sessions.pList = NULL;
+	m_unknown.nb = 0;
+	m_unknown.pList = NULL;
+}
+
+CNetwork::~CNetwork()
+{
+	FreeProviderList();
+	FreeSessionList();
+	FreeUnknownList();
+	if (m_pDP) m_pDP->Release();
+}
+
+static BOOL EnumProvidersCallback(LPGUID lpguidSP, LPSTR lpSPName,
+	DWORD dwMajorVersion, DWORD dwMinorVersion, NamedGUIDList* lpContext)
+{
+	if (lpContext->nb < MAXSESSION)
 	{
-		m_pDP = NULL;
-		m_dpid = 0;
-		m_bHost = FALSE;
-		m_providers.nb = 0;
-		m_providers.pList = NULL;
-		m_sessions.nb = 0;
-		m_sessions.pList = NULL;
-		m_unknown.nb = 0;
-		m_unknown.pList = NULL;
+		lpContext->pList[lpContext->nb]->guid = *lpguidSP;
+		strcpy(lpContext->pList[lpContext->nb]->name, lpSPName);
+		lpContext->nb++;
 	}
+	return TRUE;
+}
 
-	CNetwork::~CNetwork()
-	{
-		FreeProviderList();
-		FreeSessionList();
-		FreeUnknownList();
-		if (m_pDP) m_pDP->Release();
-	}
+BOOL CNetwork::EnumProviders()
+{
+	FreeProviderList();
+	m_providers.nb = 0;
+	m_providers.pList = (NamedGUID(*)[MAXSESSION]) malloc(MAXSESSION * sizeof(NamedGUID));
 
-	static BOOL EnumProvidersCallback(LPGUID lpguidSP, LPSTR lpSPName,
-		DWORD dwMajorVersion, DWORD dwMinorVersion, NamedGUIDList* lpContext)
-	{
-		if (lpContext->nb < MAXSESSION)
-		{
-			lpContext->pList[lpContext->nb]->guid = *lpguidSP;
-			strcpy(lpContext->pList[lpContext->nb]->name, lpSPName);
-			lpContext->nb++;
-		}
-		return TRUE;
-	}
-
-	BOOL CNetwork::EnumProviders()
-	{
-		FreeProviderList();
-		m_providers.nb = 0;
-		m_providers.pList = (NamedGUID(*)[MAXSESSION]) malloc(MAXSESSION * sizeof(NamedGUID));
-
-		if (!m_providers.pList) return FALSE;
+	if (!m_providers.pList) return FALSE;
 #ifdef _UNICODE
-		if (DirectPlayEnumerate((LPDPENUMDPCALLBACK)EnumProvidersCallback, &m_providers) != DP_OK)
+	if (DirectPlayEnumerate((LPDPENUMDPCALLBACK)EnumProvidersCallback, &m_providers) != DP_OK)
 #else
-		if (DirectPlayEnumerate((LPDPENUMDPCALLBACKA)EnumProvidersCallback, &m_providers) != DP_OK)
+	if (DirectPlayEnumerate((LPDPENUMDPCALLBACKA)EnumProvidersCallback, &m_providers) != DP_OK)
 #endif
+	{
+		FreeProviderList();
+		return FALSE;
+	}
+	return TRUE;
+}
+
+int CNetwork::GetNbProviders()
+{
+	return m_providers.nb;
+}
+
+char* CNetwork::GetProviderName(int index)
+{
+	if (index >= m_providers.nb) return NULL;
+	return m_providers.pList[index]->name;
+}
+
+BOOL CNetwork::CreateProvider(int index)
+{
+	LPDIRECTPLAY lpDP;
+	BOOL bOK = FALSE;
+
+	if (index >= m_providers.nb) return FALSE;
+
+	if (DirectPlayCreate(&m_providers.pList[index]->guid, &lpDP, 0) == DP_OK)
+	{
+		if (lpDP->QueryInterface(IID_IDirectPlay2A, (LPVOID*)&m_pDP) == DP_OK)
 		{
-			FreeProviderList();
-			return FALSE;
+			return TRUE;
 		}
-		return TRUE;
 	}
 
-	int CNetwork::GetNbProviders()
+	if (lpDP) lpDP->Release();
+	return FALSE;
+}
+
+void CNetwork::FreeProviderList()
+{
+	if (m_providers.pList) free(m_providers.pList); // wrong
+
+	m_providers.nb = 0;
+	m_providers.pList = NULL;
+}
+
+
+static BOOL EnumSessionsCallback(LPDPSESSIONDESC2 lpThisSD,
+	LPDWORD lpdwTimeOut, DWORD dwFlags, NamedGUIDList* lpContext)
+{
+	if (dwFlags & DPESC_TIMEDOUT) return FALSE;
+
+	if (lpContext->nb < MAXSESSION)
 	{
-		return m_providers.nb;
+		lpContext->pList[lpContext->nb]->guid = lpThisSD->guidInstance;
+		strcpy(lpContext->pList[lpContext->nb]->name, lpThisSD->lpszSessionNameA);
+		lpContext->nb++;
 	}
+	return TRUE;
+}
 
-	char* CNetwork::GetProviderName(int index)
+BOOL CNetwork::EnumSessions()
+{
+	DPSESSIONDESC2 desc;
+
+	FreeSessionList();
+	m_sessions.nb = 0;
+	m_sessions.pList = (NamedGUID(*)[MAXSESSION]) malloc(MAXSESSION * sizeof(NamedGUID));
+
+	if (!m_sessions.pList) return FALSE;
+
+	ZeroMemory(&desc, sizeof(desc));
+
+	desc.guidApplication = APP_GUID;
+	desc.dwSize = sizeof(desc);
+
+	if (m_pDP->EnumSessions(&desc, 0, (LPDPENUMSESSIONSCALLBACK2)EnumSessionsCallback, &m_sessions, DPENUMSESSIONS_AVAILABLE) != DP_OK)
 	{
-		if (index >= m_providers.nb) return NULL;
-		return m_providers.pList[index]->name;
-	}
-
-	BOOL CNetwork::CreateProvider(int index)
-	{
-		LPDIRECTPLAY lpDP;
-		BOOL bOK = FALSE;
-
-		if (index >= m_providers.nb) return FALSE;
-
-		if (DirectPlayCreate(&m_providers.pList[index]->guid, &lpDP, 0) == DP_OK)
-		{
-			if (lpDP->QueryInterface(IID_IDirectPlay2A, (LPVOID*)&m_pDP) == DP_OK)
-			{
-				return TRUE;
-			}
-		}
-
-		if (lpDP) lpDP->Release();
+		FreeSessionList();
 		return FALSE;
 	}
 
-	void CNetwork::FreeProviderList()
-	{
-		if (m_providers.pList) free(m_providers.pList); // wrong
+	return TRUE;
+}
 
-		m_providers.nb = 0;
-		m_providers.pList = NULL;
+char* CNetwork::GetSessionName(int index)
+{
+	if (index >= m_sessions.nb) return NULL;
+	return m_sessions.pList[index]->name;
+}
+
+BOOL CNetwork::JoinSession(int index, char* pPlayerName)
+{
+	DPNAME name;
+	DPSESSIONDESC2 desc;
+	HRESULT hr;
+
+	if (index > m_sessions.nb) return FALSE;
+
+	ZeroMemory(&desc, sizeof(desc));
+
+	desc.guidInstance = m_sessions.pList[index]->guid;
+
+	hr = m_pDP->Open(&desc, DPOPEN_OPENSESSION);
+	if (hr != DP_OK)
+	{
+		TraceErrorDP(hr);
+		return FALSE;
 	}
 
-
-	static BOOL EnumSessionsCallback(LPDPSESSIONDESC2 lpThisSD,
-		LPDWORD lpdwTimeOut, DWORD dwFlags, NamedGUIDList* lpContext)
+	name.dwSize = sizeof(name);
+	name.dwFlags = 0;
+	name.lpszShortNameA = pPlayerName;
+	name.lpszLongNameA = NULL;
+	hr = m_pDP->CreatePlayer(&m_dpid, &name, NULL, NULL, 0, 0);
+	if (hr != DP_OK)
 	{
-		if (dwFlags & DPESC_TIMEDOUT) return FALSE;
-
-		if (lpContext->nb < MAXSESSION)
-		{
-			lpContext->pList[lpContext->nb]->guid = lpThisSD->guidInstance;
-			strcpy(lpContext->pList[lpContext->nb]->name, lpThisSD->lpszSessionNameA);
-			lpContext->nb++;
-		}
+		TraceErrorDP(hr);
+		m_pDP->Close();
+		return FALSE;
+	}
+	else
+	{
+		m_bHost = FALSE;
 		return TRUE;
 	}
+}
 
-	BOOL CNetwork::EnumSessions()
+void CNetwork::FreeSessionList()
+{
+	if (m_sessions.pList) free(m_sessions.pList);
+
+	m_sessions.nb = 0;
+	m_sessions.pList = NULL;
+}
+
+BOOL CNetwork::CreateSession(char* pSessionName, char* pPlayerName)
+{
+	DPNAME name;
+	DPSESSIONDESC2 desc;
+	HRESULT hr;
+
+	ZeroMemory(&desc, sizeof(desc));
+
+	desc.guidApplication = APP_GUID;
+	desc.lpszSessionNameA = pSessionName;
+	desc.dwSize = sizeof(desc);
+	desc.dwFlags = DPSESSION_KEEPALIVE | DPSESSION_MIGRATEHOST;
+	desc.dwMaxPlayers = MAXPLAYERS;
+
+	hr = m_pDP->Open(&desc, DPOPEN_CREATE);
+	if (hr != DP_OK)
 	{
-		DPSESSIONDESC2 desc;
-
-		FreeSessionList();
-		m_sessions.nb = 0;
-		m_sessions.pList = (NamedGUID(*)[MAXSESSION]) malloc(MAXSESSION * sizeof(NamedGUID));
-
-		if (!m_sessions.pList) return FALSE;
-
-		ZeroMemory(&desc, sizeof(desc));
-
-		desc.guidApplication = APP_GUID;
-		desc.dwSize = sizeof(desc);
-
-		if (m_pDP->EnumSessions(&desc, 0, (LPDPENUMSESSIONSCALLBACK2)EnumSessionsCallback, &m_sessions, DPENUMSESSIONS_AVAILABLE) != DP_OK)
-		{
-			FreeSessionList();
-			return FALSE;
-		}
-
-		return TRUE;
+		TraceErrorDP(hr);
+		return FALSE;
 	}
-
-	char* CNetwork::GetSessionName(int index)
+	else
 	{
-		if (index >= m_sessions.nb) return NULL;
-		return m_sessions.pList[index]->name;
-	}
-
-	BOOL CNetwork::JoinSession(int index, char* pPlayerName)
-	{
-		DPNAME name;
-		DPSESSIONDESC2 desc;
-		HRESULT hr;
-
-		if (index > m_sessions.nb) return FALSE;
-
-		ZeroMemory(&desc, sizeof(desc));
-
-		desc.guidInstance = m_sessions.pList[index]->guid;
-
-		hr = m_pDP->Open(&desc, DPOPEN_OPENSESSION);
-		if (hr != DP_OK)
-		{
-			TraceErrorDP(hr);
-			return FALSE;
-		}
-
 		name.dwSize = sizeof(name);
 		name.dwFlags = 0;
 		name.lpszShortNameA = pPlayerName;
@@ -178,168 +225,119 @@ extern "C" {
 		}
 		else
 		{
-			m_bHost = FALSE;
+			m_bHost = TRUE;
 			return TRUE;
 		}
 	}
+}
 
-	void CNetwork::FreeSessionList()
+BOOL CNetwork::Send(LPVOID lpData, DWORD dwDataSize, DWORD dwFlags)
+{
+	HRESULT hr;
+
+	if (!m_pDP) return FALSE;
+
+	if (hr = m_pDP->Send(m_dpid, 0, !!dwFlags, lpData, dwDataSize), hr != DP_OK)
 	{
-		if (m_sessions.pList) free(m_sessions.pList);
+		TraceErrorDP(hr);
+		return FALSE;
+	}
+	return TRUE;
+}
 
-		m_sessions.nb = 0;
-		m_sessions.pList = NULL;
+BOOL CNetwork::Receive(LPVOID pDest, DWORD dwDataSize, LPDWORD lpdwPlayer)
+{
+	DPID from = 0, to = 0;
+	DWORD dataSize = 500;
+	char dataBuffer[500];
+	HRESULT hr;
+
+	hr = m_pDP->Receive(&from, &to, DPRECEIVE_ALL, dataBuffer, &dataSize);
+	if (hr != DP_OK)
+	{
+		if (hr != DPERR_NOMESSAGES) TraceErrorDP(hr);
+		return FALSE;
 	}
 
-	BOOL CNetwork::CreateSession(char* pSessionName, char* pPlayerName)
+	ZeroMemory(pDest, dwDataSize);
+
+	*lpdwPlayer = -1;
+	for (int i = 0; i < MAXPLAYERS; i++)
 	{
-		DPNAME name;
-		DPSESSIONDESC2 desc;
-		HRESULT hr;
-
-		ZeroMemory(&desc, sizeof(desc));
-
-		desc.guidApplication = APP_GUID;
-		desc.lpszSessionNameA = pSessionName;
-		desc.dwSize = sizeof(desc);
-		desc.dwFlags = DPSESSION_KEEPALIVE | DPSESSION_MIGRATEHOST;
-		desc.dwMaxPlayers = MAXPLAYERS;
-
-		hr = m_pDP->Open(&desc, DPOPEN_CREATE);
-		if (hr != DP_OK)
+		if (m_players[i].bIsPresent && from == i)
 		{
-			TraceErrorDP(hr);
-			return FALSE;
-		}
-		else
-		{
-			name.dwSize = sizeof(name);
-			name.dwFlags = 0;
-			name.lpszShortNameA = pPlayerName;
-			name.lpszLongNameA = NULL;
-			hr = m_pDP->CreatePlayer(&m_dpid, &name, NULL, NULL, 0, 0);
-			if (hr != DP_OK)
-			{
-				TraceErrorDP(hr);
-				m_pDP->Close();
-				return FALSE;
-			}
-			else
-			{
-				m_bHost = TRUE;
-				return TRUE;
-			}
+			*lpdwPlayer = i;
+			break;
 		}
 	}
 
-	BOOL CNetwork::Send(LPVOID lpData, DWORD dwDataSize, DWORD dwFlags)
+	return TRUE;
+}
+
+BOOL CNetwork::Close()
+{
+	return m_pDP->Close() == DP_OK;
+}
+
+void CNetwork::FreeUnknownList()
+{
+	if (m_unknown.pList) free(m_unknown.pList);
+
+	m_unknown.nb = 0;
+	m_unknown.pList = NULL;
+}
+
+BOOL CNetwork::IsHost()
+{
+	return m_bHost;
+}
+
+void TraceErrorDP(HRESULT hErr)
+{
+	char dperr[256];
+	char err[1024];
+
+	switch (hErr)
 	{
-		HRESULT hr;
+	case DPERR_OUTOFMEMORY: sprintf(dperr, "DPERR_OUTOFMEMORY"); break;
+	case DPERR_UNSUPPORTED: sprintf(dperr, "DPERR_UNSUPPORTED"); break;
+	case DPERR_NOINTERFACE: sprintf(dperr, "DPERR_NOINTERFACE"); break;
+	case DPERR_GENERIC: sprintf(dperr, "DPERR_GENERIC"); break;
+	case DPERR_INVALIDPARAMS: sprintf(dperr, "DPERR_INVALIDPARAMS"); break;
+	case DPERR_ACTIVEPLAYERS: sprintf(dperr, "DPERR_ACTIVEPLAYERS"); break;
+	case DPERR_ACCESSDENIED: sprintf(dperr, "DPERR_ACCESSDENIED"); break;
+	case DPERR_CANTADDPLAYER: sprintf(dperr, "DPERR_CANTADDPLAYER"); break;
+	case DPERR_CANTCREATEPLAYER: sprintf(dperr, "DPERR_CANTCREATEPLAYER"); break;
+	case DPERR_CANTCREATEGROUP: sprintf(dperr, "DPERR_CANTCREATEGROUP"); break;
+	case DPERR_CANTCREATESESSION: sprintf(dperr, "DPERR_CANTCREATESESSION"); break;
+	case DPERR_CAPSNOTAVAILABLEYET: sprintf(dperr, "DPERR_CAPTSNOTAVAILABLEYET"); break;
+	case DPERR_ALREADYINITIALIZED: sprintf(dperr, "DPERR_ALREADYINITIALIZED"); break;
+	case DPERR_INVALIDFLAGS: sprintf(dperr, "DPERR_INVALIDFLAGS"); break;
+	case DPERR_EXCEPTION: sprintf(dperr, "DPERR_EXCEPTION"); break;
+	case DPERR_INVALIDPLAYER: sprintf(dperr, "DPERR_INVALIDPLAYER"); break;
+	case DPERR_INVALIDOBJECT: sprintf(dperr, "DPERR_INVALIDOBJECT"); break;
+	case DPERR_NOCONNECTION: sprintf(dperr, "DPERR_NOCONNECTION"); break;
+	case DPERR_NONAMESERVERFOUND: sprintf(dperr, "DPERR_NONAMESERVERFOUND"); break;
+	case DPERR_NOMESSAGES: sprintf(dperr, "DPERR_NOMESSAGES"); break;
+	case DPERR_NOSESSIONS: sprintf(dperr, "DPERR_NOSESSIONS"); break;
+	case DPERR_NOPLAYERS: sprintf(dperr, "DPERR_NOPLAYERS"); break;
+	case DPERR_TIMEOUT: sprintf(dperr, "DPERR_TIMEOUT"); break;
+	case DPERR_SENDTOOBIG: sprintf(dperr, "DPERR_SENDTOOBIG"); break;
+	case DPERR_BUSY: sprintf(dperr, "DPERR_BUSY"); break;
+	case DPERR_UNAVAILABLE: sprintf(dperr, "DPERR_UNAVAILABLE"); break;
+	case DPERR_PLAYERLOST: sprintf(dperr, "DPERR_PLAYERLOST"); break;
+	case DPERR_USERCANCEL: sprintf(dperr, "DPERR_USERCANCEL"); break;
+	case DPERR_BUFFERTOOLARGE: sprintf(dperr, "DPERR_BUFFERTOOLARGE"); break;
+	case DPERR_SESSIONLOST: sprintf(dperr, "DPERR_SESSIONLOST"); break;
+	case DPERR_APPNOTSTARTED: sprintf(dperr, "DPERR_APPNOTSTARTED"); break;
+	case DPERR_CANTCREATEPROCESS: sprintf(dperr, "DPERR_CANTCREATEPROCESS"); break;
+	case DPERR_UNKNOWNAPPLICATION: sprintf(dperr, "DPERR_UNKNOWNAPPLICATION"); break;
+	case DPERR_INVALIDINTERFACE: sprintf(dperr, "DPERR_INVALIDINTERFACE"); break;
+	case DPERR_NOTLOBBIED: sprintf(dperr, "DPERR_NOTLOBBIED"); break;
+	case DP_OK: sprintf(dperr, "DP_OK"); break;
 
-		if (!m_pDP) return FALSE;
-
-		if (hr = m_pDP->Send(m_dpid, 0, !!dwFlags, lpData, dwDataSize), hr != DP_OK)
-		{
-			TraceErrorDP(hr);
-			return FALSE;
-		}
-		return TRUE;
+	default: sprintf(dperr, "Unknown Error"); break;
 	}
-
-	BOOL CNetwork::Receive(LPVOID pDest, DWORD dwDataSize, LPDWORD lpdwPlayer)
-	{
-		DPID from = 0, to = 0;
-		DWORD dataSize = 500;
-		char dataBuffer[500];
-		HRESULT hr;
-
-		hr = m_pDP->Receive(&from, &to, DPRECEIVE_ALL, dataBuffer, &dataSize);
-		if (hr != DP_OK)
-		{
-			if (hr != DPERR_NOMESSAGES) TraceErrorDP(hr);
-			return FALSE;
-		}
-
-		ZeroMemory(pDest, dwDataSize);
-
-		*lpdwPlayer = -1;
-		for (int i = 0; i < MAXPLAYERS; i++)
-		{
-			if (m_players[i].bIsPresent && from == i)
-			{
-				*lpdwPlayer = i;
-				break;
-			}
-		}
-
-		return TRUE;
-	}
-
-	BOOL CNetwork::Close()
-	{
-		return m_pDP->Close() == DP_OK;
-	}
-
-	void CNetwork::FreeUnknownList()
-	{
-		if (m_unknown.pList) free(m_unknown.pList);
-
-		m_unknown.nb = 0;
-		m_unknown.pList = NULL;
-	}
-
-	BOOL CNetwork::IsHost()
-	{
-		return m_bHost;
-	}
-
-	void TraceErrorDP(HRESULT hErr)
-	{
-		char dperr[256];
-		char err[1024];
-
-		switch (hErr)
-		{
-		case DPERR_OUTOFMEMORY: sprintf(dperr, "DPERR_OUTOFMEMORY"); break;
-		case DPERR_UNSUPPORTED: sprintf(dperr, "DPERR_UNSUPPORTED"); break;
-		case DPERR_NOINTERFACE: sprintf(dperr, "DPERR_NOINTERFACE"); break;
-		case DPERR_GENERIC: sprintf(dperr, "DPERR_GENERIC"); break;
-		case DPERR_INVALIDPARAMS: sprintf(dperr, "DPERR_INVALIDPARAMS"); break;
-		case DPERR_ACTIVEPLAYERS: sprintf(dperr, "DPERR_ACTIVEPLAYERS"); break;
-		case DPERR_ACCESSDENIED: sprintf(dperr, "DPERR_ACCESSDENIED"); break;
-		case DPERR_CANTADDPLAYER: sprintf(dperr, "DPERR_CANTADDPLAYER"); break;
-		case DPERR_CANTCREATEPLAYER: sprintf(dperr, "DPERR_CANTCREATEPLAYER"); break;
-		case DPERR_CANTCREATEGROUP: sprintf(dperr, "DPERR_CANTCREATEGROUP"); break;
-		case DPERR_CANTCREATESESSION: sprintf(dperr, "DPERR_CANTCREATESESSION"); break;
-		case DPERR_CAPSNOTAVAILABLEYET: sprintf(dperr, "DPERR_CAPTSNOTAVAILABLEYET"); break;
-		case DPERR_ALREADYINITIALIZED: sprintf(dperr, "DPERR_ALREADYINITIALIZED"); break;
-		case DPERR_INVALIDFLAGS: sprintf(dperr, "DPERR_INVALIDFLAGS"); break;
-		case DPERR_EXCEPTION: sprintf(dperr, "DPERR_EXCEPTION"); break;
-		case DPERR_INVALIDPLAYER: sprintf(dperr, "DPERR_INVALIDPLAYER"); break;
-		case DPERR_INVALIDOBJECT: sprintf(dperr, "DPERR_INVALIDOBJECT"); break;
-		case DPERR_NOCONNECTION: sprintf(dperr, "DPERR_NOCONNECTION"); break;
-		case DPERR_NONAMESERVERFOUND: sprintf(dperr, "DPERR_NONAMESERVERFOUND"); break;
-		case DPERR_NOMESSAGES: sprintf(dperr, "DPERR_NOMESSAGES"); break;
-		case DPERR_NOSESSIONS: sprintf(dperr, "DPERR_NOSESSIONS"); break;
-		case DPERR_NOPLAYERS: sprintf(dperr, "DPERR_NOPLAYERS"); break;
-		case DPERR_TIMEOUT: sprintf(dperr, "DPERR_TIMEOUT"); break;
-		case DPERR_SENDTOOBIG: sprintf(dperr, "DPERR_SENDTOOBIG"); break;
-		case DPERR_BUSY: sprintf(dperr, "DPERR_BUSY"); break;
-		case DPERR_UNAVAILABLE: sprintf(dperr, "DPERR_UNAVAILABLE"); break;
-		case DPERR_PLAYERLOST: sprintf(dperr, "DPERR_PLAYERLOST"); break;
-		case DPERR_USERCANCEL: sprintf(dperr, "DPERR_USERCANCEL"); break;
-		case DPERR_BUFFERTOOLARGE: sprintf(dperr, "DPERR_BUFFERTOOLARGE"); break;
-		case DPERR_SESSIONLOST: sprintf(dperr, "DPERR_SESSIONLOST"); break;
-		case DPERR_APPNOTSTARTED: sprintf(dperr, "DPERR_APPNOTSTARTED"); break;
-		case DPERR_CANTCREATEPROCESS: sprintf(dperr, "DPERR_CANTCREATEPROCESS"); break;
-		case DPERR_UNKNOWNAPPLICATION: sprintf(dperr, "DPERR_UNKNOWNAPPLICATION"); break;
-		case DPERR_INVALIDINTERFACE: sprintf(dperr, "DPERR_INVALIDINTERFACE"); break;
-		case DPERR_NOTLOBBIED: sprintf(dperr, "DPERR_NOTLOBBIED"); break;
-		case DP_OK: sprintf(dperr, "DP_OK"); break;
-
-		default: sprintf(dperr, "Unknown Error"); break;
-		}
-		sprintf(err, "DirectPlay Error %s\n", dperr);
-		OutputDebug(err);
-	}
+	sprintf(err, "DirectPlay Error %s\n", dperr);
+	OutputDebug(err);
 }

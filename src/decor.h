@@ -421,6 +421,11 @@ public:
 	inline BOOL IsValidCel(POINT cel);
 	inline void MoveObjectCopy(MoveObject src, MoveObject dest);
 	inline void StopVehicleSound();
+	inline BOOL IsDeadAction(int action);
+	inline void StopBlupi(BOOL bFocus = FALSE);
+	inline BOOL IsBlupiVehicle();
+	inline BOOL IsBlupiMotorVehicle();
+	inline BOOL IsBlupiStanding();
 
 protected:
 	HWND		m_hWnd;
@@ -586,4 +591,39 @@ inline void CDecor::StopVehicleSound()
 	StopSound(SOUND_HELICOLOW);
 	StopSound(SOUND_JEEPHIGH);
 	StopSound(SOUND_JEEPLOW);
+}
+
+inline BOOL CDecor::IsDeadAction(int action)
+{
+	return action == ACTION_CLEAR1 || (action >= ACTION_CLEAR2 && action <= ACTION_CLEAR8);
+}
+
+inline void CDecor::StopBlupi(BOOL bSetFocus)
+{
+	m_blupiAction = ACTION_STOP;
+	m_blupiPhase = 0;
+	if (bSetFocus) m_blupiFocus = TRUE;
+}
+
+inline BOOL CDecor::IsBlupiVehicle()
+{
+	return m_blupiHelico || m_blupiOver || m_blupiJeep || m_blupiTank || m_blupiSkate;
+}
+
+inline BOOL CDecor::IsBlupiMotorVehicle()
+{
+	return m_blupiHelico || m_blupiOver || m_blupiJeep || m_blupiTank;
+}
+
+inline BOOL CDecor::IsBlupiStanding()
+{
+	return !(m_blupiAction == ACTION_TURN ||
+		m_blupiAction == ACTION_JUMP ||
+		m_blupiAction == ACTION_AIR ||
+		m_blupiAction == ACTION_VERTIGO ||
+		m_blupiAction == ACTION_ADVANCE ||
+		m_blupiAction == ACTION_RECEDE) &&
+		!IsBlupiVehicle() &&
+		!(m_blupiAir || m_blupiBalloon || m_blupiEcrase ||
+		m_blupiNage || m_blupiSurf || m_blupiSuspend);		
 }
