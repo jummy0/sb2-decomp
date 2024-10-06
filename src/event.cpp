@@ -2530,6 +2530,30 @@ BOOL CEvent::DrawButtons()
 		PutTextInputBox({ 320, 232 });
 	}
 
+	// now that the decomp is looking convincingly like the retail game,
+	// we should clearly differentiate the two when sharing WIP screenshots/videos to reduce confusion.
+	{
+		char str[50];
+		SYSTEMTIME systime;
+		GetSystemTime(&systime);
+		sprintf(str, "%04d-%02d-%02d", systime.wYear, systime.wMonth, systime.wDay);
+
+		POINT debugMousePos = GetMousePos();
+		if (debugMousePos.x > LXIMAGE - GetTextWidth("WORK IN PROGRESS") && debugMousePos.x < LXIMAGE && debugMousePos.y < 36 && debugMousePos.y >= 0)
+		{
+			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("DECOMPILATION"), 40 }, "DECOMPILATION", FONTGOLD);
+			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("WORK IN PROGRESS"), 52 }, "WORK IN PROGRESS", FONTGOLD);
+			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth(str), 64 }, str, FONTGOLD);
+		}
+		else
+		{
+			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("DECOMPILATION"), 0 }, "DECOMPILATION", FONTGOLD);
+			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("WORK IN PROGRESS"), 12 }, "WORK IN PROGRESS", FONTGOLD);
+			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth(str), 24 }, str, FONTGOLD);
+		}
+	}
+	///////
+
 	if (m_phase == WM_PHASE_PLAY && m_phase == WM_PHASE_PLAYTEST && m_phase == WM_PHASE_BUILD)
 		m_pPixmap->DrawPart(-1, 0, pos, rect, 1, 0);
 	if (m_phase == WM_PHASE_CREATE)
