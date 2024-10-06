@@ -20,6 +20,7 @@
 #define _CD				FALSE	// if TRUE, require the game CD
 #define _BYE			!_EGAMES // if TRUE, show exit image (like _INTRO)
 #define _LEGACY			FALSE	// if TRUE, keep broken/quirky legacy code
+#define _DREAM			TRUE	// if TRUE, allow Dream blocks when loading levels
 
 #define MAXGAMER		8
 #define MAXNETPLAYER	4
@@ -28,8 +29,8 @@
 #define MAXNOTIF		5
 #define MAXFIFOPOS		10
 
-#define LXIMAGE			640		// dimensions de la fenêtre de jeu
-#define LYIMAGE			480
+#define LXIMAGE			320		// dimensions de la fenêtre de jeu
+#define LYIMAGE			240
 
 #define POSDRAWX		0
 #define POSDRAWY		0
@@ -60,6 +61,9 @@
 
 #define DIMLITTLEX		16		// dimensions max d'un petit caractère
 #define DIMLITTLEY		12
+
+#define DIMDECORX		640
+#define DIMDECORY		480
 
 enum {
 	CHBACK = 0,

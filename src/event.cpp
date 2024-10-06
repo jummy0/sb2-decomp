@@ -1765,8 +1765,6 @@ static Phase table[] =
 
 CEvent::CEvent()
 {
-	int     i;
-
 	m_somethingJoystick = 0;
 	m_bFullScreen = TRUE;
 	m_mouseType = MOUSETYPEGRA;
@@ -1840,8 +1838,6 @@ CEvent::~CEvent()
 void CEvent::Create(HINSTANCE hInstance, HWND hWnd, CPixmap *pPixmap, CDecor *pDecor,
                     CSound *pSound, CNetwork *pNetwork, CMovie *pMovie )
 {
-    POINT   pos;
-
 	m_hInstance = hInstance;
     m_hWnd    = hWnd;
     m_pPixmap = pPixmap;
@@ -1989,8 +1985,6 @@ void CEvent::SetMenu(int button, int menu)
 
 void CEvent::RestoreGame()
 {
-    int     i;
-
 	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
 	{
 		HideMouse(FALSE);
@@ -2088,7 +2082,7 @@ void CEvent::ReadInput()
 		bJoyID = m_joyID;
 		joyInfo = &joy;
 
-		for (i != 0; i = 13; i++)
+		for (i = 0; i != 13; i++)
 		{
 			joyInfo->dwSize = 0;
 			joyInfo = (JOYINFOEX*)&joyInfo->dwFlags;
@@ -2378,9 +2372,7 @@ void CEvent::HandleChatBuffer()
 
 void CEvent::OutputNetDebug(const char* str)
 {
-	char* stream;
 	FILE* streamf;
-	UINT  element;
 
 	streamf = (FILE*)m_pDecor->GetNetDebug();
 
@@ -2425,19 +2417,12 @@ void CEvent::DrawTextCenter(int res, int x, int y, int font)
 BOOL CEvent::DrawButtons()
 {
     int         i;
-    int         levels[2];
-    int         types[2];
-    int         world, time, lg, button, volume, pente, icon, sound;
-	int			nice;
+    int         lg, sound;
 	BOOL		soundEnabled;
     char        res[100];
-	char		textLeft[24];
     char        text[100];
-	char		(*pText)[100];
     POINT       pos;
     RECT        rect;
-    BOOL        bEnable;
-	int     	phase;
 
 	
 
@@ -2641,7 +2626,6 @@ BOOL CEvent::DrawButtons()
 	}
 	if (m_phase == WM_PHASE_READDESIGN)
 	{
-		char buff[100];
 		LoadString(TX_OPENMISS, res, 100);
 		lg = GetTextWidth(res, 0);
 		pos.x = 320 - lg / 2;
@@ -2934,9 +2918,7 @@ BOOL CEvent::DrawButtons()
 void CEvent::PutTextInputBox(POINT pos)
 {
 	char textInput[100];
-	char* textConst;
 	int	 text;
-	CPixmap* pPixmap;
 	int  num;
 	UINT textHili;
 	LONG posD;
@@ -3039,7 +3021,7 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	POINT	pos;
 	int		fwKeys;
-	int		i, sound;
+	int		i;
 	char	c;
 	BOOL	bEnable;
 
@@ -3980,7 +3962,7 @@ void CEvent::FillMouse(int bFill)
 BOOL CEvent::EventButtons(UINT message, WPARAM wParam, LPARAM lParam)
 {
 	POINT		pos, test;
-	int			i, lg, oldx, sound, res;
+	int			i, lg, oldx, res;
 	UINT uid;
 
 	m_textToolTips[0] = 0;
@@ -4208,14 +4190,11 @@ void CEvent::SomethingUserMissions(char* lpFilename, LPCSTR fileSomething)
 
 BOOL CEvent::ChangePhase(UINT phase)
 {
-	int	  index, world, time, total, music, i, max, mission;
-	POINT totalDim, iconDim;
+	int	  i, mission;
 	char  str[MAX_PATH];
 	char  text[100];
 	char  res[100];
-	char* pButtonExist;
-	BOOL  bEnable, bHide;
-	char* playerName;
+	BOOL  bEnable;
 
 	text[0] = 0;
 
@@ -4680,7 +4659,6 @@ BOOL CEvent::ChangePhase(UINT phase)
 		struct _finddata_t fBuffer;
 		BOOL bDo;
 		char temp[_MAX_FNAME];
-		char* buff;
 
 		m_nbChoices = 0;
 		hFile = _findfirst("\\User\\*.xch", &fBuffer);
@@ -4692,7 +4670,6 @@ BOOL CEvent::ChangePhase(UINT phase)
 			} while (_findnext(hFile, &fBuffer) == 0 &&
 				m_nbChoices < 100);
 		}
-			int f, n;
 		do
 		{
 			bDo = FALSE;
@@ -5667,7 +5644,6 @@ BOOL CEvent::OpenMission(char* pMission, char* pFile)
 {	
 	FILE* file;
 	FILE* file2;
-	UINT  nmemb;
 	int   nb;
 	char* pBuffer = NULL;
 	BOOL  bMission = TRUE;
@@ -5684,12 +5660,12 @@ BOOL CEvent::OpenMission(char* pMission, char* pFile)
 	do
 	{
 		nb = fread(pBuffer, 1, sizeof(2560), file);
-		if (pBuffer[nb] & 32 != 0) break;
+		if (pBuffer[nb] & 32) break;
 		if (nb <= 0)
 			bMission = FALSE;
 		break;
 		fwrite(pBuffer, 1, nb, file2);
-	} while (pBuffer[nb] & 32 != 0);
+	} while (pBuffer[nb] & 32);
 	return bMission;
 
 error:
@@ -5759,7 +5735,7 @@ BOOL CEvent::CopyMission(char *srcFileName, char *dstFileName)
 		if (destFile)
 		{
 
-#if _LEGACY and defined(_IOERR)
+#if _LEGACY && defined(_IOERR)
 			// original code relies on implementation-specific behavior.
 			// incompatible with modern toolsets.
 			do

@@ -91,6 +91,7 @@
       <LinkTimeCodeGeneration>Default</LinkTimeCodeGeneration>
       <OptimizeReferences>true</OptimizeReferences>
       <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -134,6 +135,8 @@
       <ForceFileOutput>MultiplyDefinedSymbolOnly</ForceFileOutput>
       <AdditionalOptions>/DYNAMICBASE "legacy_stdio_definitions.lib" %(AdditionalOptions) /VERBOSE</AdditionalOptions>
       <AdditionalDependencies>dxsdk3/sdk/lib/*.lib;winmm.lib;kernel32.lib;user32.lib;gdi32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <TreatLinkerWarningAsErrors>false</TreatLinkerWarningAsErrors>
+      <EnableCOMDATFolding>false</EnableCOMDATFolding>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">

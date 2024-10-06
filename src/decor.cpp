@@ -428,24 +428,23 @@ void CDecor::Build(RECT rect)
 	m_pPixmap->SetClipping(rect);
 
 	POINT posDecor = DecorNextAction();
-	POINT pos = { posDecor.x * 2 / 3 % LXIMAGE, posDecor.y * 2 / 3 % LYIMAGE };
-	//TODO: more^
+	POINT pos = { posDecor.x * 2 / 3 % DIMDECORX, posDecor.y * 2 / 3 % DIMDECORY };
 
-	for (int i = 0; i < 2; i++)
+	for (int i = 0; i < ((DIMDECORX - DIMDECORX / LXIMAGE * LXIMAGE) ? 2 : 1) + LXIMAGE / DIMDECORX; i++)
 	{
 		tinyPoint.y = 0;
 		rect.top = pos.y;
-		for (int j = 0; j < 2; j++)
+		for (int j = 0; j < ((DIMDECORY - DIMDECORY / LYIMAGE * LYIMAGE) ? 2 : 1) + LYIMAGE / DIMDECORY; j++)
 		{
-			rect.left = pos.x;
-			rect.right = LXIMAGE;
-			rect.bottom = LYIMAGE;
+			rect.left = i ? 0 : pos.x;
+			rect.right = DIMDECORX;
+			rect.bottom = DIMDECORY;
 			m_pPixmap->DrawPart(-1, CHDECOR, tinyPoint, rect, 1, FALSE);
-			tinyPoint.y += LYIMAGE - pos.y;
+			tinyPoint.y = DIMDECORY * (j + 1) - pos.y;
 			rect.top = 0;
 		}
-		tinyPoint.x += LXIMAGE - pos.x;
-		pos.x = 0;
+		tinyPoint.x = DIMDECORX * (i + 1) - pos.x;
+
 	}
 
 	tinyPoint.x = -posDecor.x % DIMOBJX - DIMOBJX;

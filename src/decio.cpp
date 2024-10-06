@@ -113,23 +113,13 @@ BOOL CDecor::Read(int gamer, int mission, BOOL bUser)
 	GetMissionPath(filename, gamer, mission, bUser);
 	
 	file = fopen(filename, "rb");
-	if (file == NULL) {
-		OutputDebug("CDecor::Read error in fopen\n");
-		OutputDebug(filename);
-		goto error;
-	}
+	if (file == NULL) goto error;
 	
 	pBuffer = (DescFile*)malloc(sizeof(DescFile));
-	if (pBuffer == NULL) {
-		OutputDebug("CDecor::Read error in malloc\n");
-		goto error;
-	}
+	if (pBuffer == NULL) goto error;
 
 	nb = fread(pBuffer, sizeof(DescFile), 1, file);
-	if (nb < 1) {
-		OutputDebug("CDecor::Read error in fread\n");
-		goto error;
-	}
+	if (nb < 1) goto error;
 		
 	majRev = pBuffer->majRev;
 	minRev = pBuffer->minRev;
@@ -146,30 +136,28 @@ BOOL CDecor::Read(int gamer, int mission, BOOL bUser)
 	startPos = m_blupiStartPos;
 	blupiPos = pBuffer->blupiPos;
 
-	for (i = 0; i < 4; i++)
+	for (i = 0; i < MAXNETPLAYER; i++)
 	{
 		m_blupiStartPos[i] = pBuffer->blupiPos[i];
-	}
-
-	for (i = 0; i < 4; i++)
-	{
 		m_blupiStartDir[i] = pBuffer->blupiDir[i];
 	}
 
 	nb = fread(m_decor, sizeof(Cellule), MAXCELX * MAXCELY, file);
 	if (nb < MAXCELX * MAXCELY) goto error;
-			
-	for (x = 0; x < MAXCELX / 2; x++)
+	
+#if !_DREAM
+	for (x = 0; x < MAXCELX; x++)
 	{
-		for (y = 0; y < MAXCELY / 2; y++)
+		for (y = 0; y < MAXCELY; y++)
 		{
-			if (m_decor[x][y].icon >= 48 &&
-				m_decor[x][y].icon <= 67)
+			if (m_decor[x][y].icon >= Object::Dream_1 &&
+				m_decor[x][y].icon <= Object::Dream_20)
 			{
-				m_decor[x][y].icon -= 128 - 17;
+				m_decor[x][y].icon = Object::KidsSquare_10;
 			}
 		}
 	}
+#endif
 
 	if (majRev == 1 && minRev >= 1)
 	{
