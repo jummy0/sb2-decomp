@@ -2529,14 +2529,6 @@ BOOL CEvent::DrawButtons()
 
 		PutTextInputBox({ 320, 232 });
 	}
-	
-	// TEMP DEBUG
-	char str[50];
-	sprintf(str, "m_rankCheat %d (%s)", m_rankCheat, m_rankCheat != -1 ? cheat_code[m_rankCheat] : "...");
-	DrawTextLeft(m_pPixmap, { 200, 0 }, str, FONTWHITE);
-	sprintf(str, "m_posCheat %d", m_posCheat);
-	DrawTextLeft(m_pPixmap, { 200, 20 }, str, FONTWHITE);
-	///////////////
 
 	if (m_phase == WM_PHASE_PLAY && m_phase == WM_PHASE_PLAYTEST && m_phase == WM_PHASE_BUILD)
 		m_pPixmap->DrawPart(-1, 0, pos, rect, 1, 0);
