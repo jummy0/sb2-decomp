@@ -9,11 +9,6 @@
 
 /////////////////////////////////////////////////////////////////////////////
 
-#define MAXNETMESSAGE 20
-#define MAXMOVEOBJECT	200
-#define MAXNOTIF 4
-#define MAXNETPLAYER 4
-
 #define MAXQUART		441
 #define SCROLL_SPEED	8
 #define SCROLL_MARGX	80
@@ -147,7 +142,7 @@ typedef struct
 	int blupiTimeOuf;
 	int blupiActionOuf;
 	int blupiFifoNb;
-	POINT blupiFifoPos[10];
+	POINT blupiFifoPos[MAXFIFOPOS];
 	BOOL blupiInvert;
 	BOOL blupiBalloon;
 	BOOL blupiOver;
@@ -407,8 +402,8 @@ public:
 	BOOL	CurrentRead(int gamer, int mission, BOOL *pbMission, BOOL *pbPrivate);
 	BOOL	CurrentWrite(int gamer, int mission, char* param3);
 
-	BOOL	SearchWorld(int world, POINT *blupi, int *dir);
-	BOOL	SearchDoor(int n, POINT *cel, POINT *blupi);
+	BOOL	SearchWorld(int world, POINT *cel, POINT *newBlupiPos);
+	BOOL	SearchDoor(int n, POINT *cel);
 	void	AdaptDoors(BOOL bPrivate, int mission);
 	void	OpenDoorsTresor();
 	void	OpenDoor(POINT cel);
@@ -419,7 +414,7 @@ public:
 	BOOL DeleteMission(int user, int mission, BOOL bUser);
 
 	inline BOOL IsValidCel(POINT cel);
-	inline void MoveObjectCopy(MoveObject src, MoveObject dest);
+	inline void MoveObjectCopy(MoveObject *src, MoveObject *dest);
 	inline void StopVehicleSound();
 	inline BOOL IsDeadAction(int action);
 	inline void StopBlupi(BOOL bFocus = FALSE);
@@ -528,7 +523,7 @@ protected:
 	int			m_netMessageIndex1;
 	int			m_netMessageIndex2;
 	int			m_netMessageIndex3;
-	char		m_notifText[4][100];
+	char		m_notifText[MAXNOTIF][100];
 	int			m_notifTime;
 	CJauge		m_jauges[2];
 	int			m_blupiLevel;
@@ -580,9 +575,9 @@ inline BOOL CDecor::IsValidCel(POINT cel)
 	return cel.x >= 0 && cel.x < MAXCELX && cel.y >= 0 && cel.y < MAXCELY;
 }
 
-inline void CDecor::MoveObjectCopy(MoveObject src, MoveObject dest)
+inline void CDecor::MoveObjectCopy(MoveObject *src, MoveObject *dest)
 {
-	memcpy(&dest, &src, sizeof(dest));
+	memcpy(dest, src, sizeof(dest));
 }
 
 inline void CDecor::StopVehicleSound()
@@ -607,7 +602,7 @@ inline void CDecor::StopBlupi(BOOL bSetFocus)
 
 inline BOOL CDecor::IsBlupiVehicle()
 {
-	return m_blupiHelico || m_blupiOver || m_blupiJeep || m_blupiTank || m_blupiSkate;
+	return IsBlupiMotorVehicle() || m_blupiSkate;
 }
 
 inline BOOL CDecor::IsBlupiMotorVehicle()

@@ -123,36 +123,36 @@ int CDecor::IsWorld(POINT pos)
 {
 	pos.x += 30;
 	pos.y += 30;
-	if (pos.x < 0 || pos.x >= 6400 || pos.y < 0 || pos.y >= 6400)
+	if (pos.x < 0 || pos.x >= DIMOBJX * MAXCELX || pos.y < 0 || pos.y >= DIMOBJY * MAXCELY)
 	{
 		return -1;
 	}
 	int icon = m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon;
-	if (icon >= 158 && icon <= 165)
+	if (icon >= Object::World_1 && icon <= Object::World_8)
 	{
-		return icon - 158 + 1;
+		return icon - Object::World_1 + 1;
 	}
-	if (icon >= 166 && icon <= 173)
+	if (icon >= Object::WorldDone_1 && icon <= Object::WorldDone_8)
 	{
-		return icon - 166 + 1;
+		return icon - Object::WorldDone_1 + 1;
 	}
-	if (icon == 309 || icon == 310)
+	if (icon == Object::World_9 || icon == Object::WorldDone_9)
 	{
 		return 9;
 	}
-	if (icon >= 411 && icon <= 415)
+	if (icon >= Object::World_10 && icon <= Object::World_14)
 	{
-		return icon - 411 + 10;
+		return icon - Object::World_10 + 10;
 	}
-	if (icon >= 416 && icon <= 420)
+	if (icon >= Object::WorldDone_10 && icon <= Object::WorldDone_14)
 	{
-		return icon - 416 + 10;
+		return icon - Object::WorldDone_10 + 10;
 	}
-	if (icon >= 174 && icon <= 181)
+	if (icon >= Object::Level_1 && icon <= Object::Level_8)
 	{
-		return icon - 174 + 1;
+		return icon - Object::Level_1 + 1;
 	}
-	if (icon == 184)
+	if (icon == Object::WorldBack)
 	{
 		return 199;
 	}

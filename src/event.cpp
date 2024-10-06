@@ -1767,7 +1767,6 @@ CEvent::CEvent()
 {
 	int     i;
 
-
 	m_somethingJoystick = 0;
 	m_bFullScreen = TRUE;
 	m_mouseType = MOUSETYPEGRA;
@@ -2530,38 +2529,14 @@ BOOL CEvent::DrawButtons()
 
 		PutTextInputBox({ 320, 232 });
 	}
-	/*
+	
 	// TEMP DEBUG
-	if (m_keyPress & KEY_LEFT)
-	{
-		DrawTextLeft(m_pPixmap, { LXIMAGE - 30, 15 }, "<", 0);
-	}
-	if (m_keyPress & KEY_RIGHT)
-	{
-		DrawTextLeft(m_pPixmap, { LXIMAGE - 10, 15 }, ">", 0);
-	}
-	if (m_keyPress & KEY_UP)
-	{
-		DrawTextLeft(m_pPixmap, { LXIMAGE - 20, 5 }, "^", 0);
-	}
-	if (m_keyPress & KEY_DOWN)
-	{
-		DrawTextLeft(m_pPixmap, { LXIMAGE - 20, 15 }, "v", 0);
-	}
-	if (m_keyPress & KEY_FIRE)
-	{
-		DrawTextLeft(m_pPixmap, { LXIMAGE - 60, 15 }, "F", 0);
-	}
-	if (m_keyPress & KEY_JUMP)
-	{
-		DrawTextLeft(m_pPixmap, { LXIMAGE - 50, 15 }, "J", 0);
-	}
-	sprintf(res, "%d", m_keyPress);
-	DrawTextLeft(m_pPixmap, { LXIMAGE - 60, 30 }, res, 0);
-	sprintf(res, "demoTime %d", m_demoTime);
-	DrawTextLeft(m_pPixmap, { 60, 0 }, res, m_demoTime % 20 < 10 ? FONTGOLD : FONTWHITE);
-	if (m_demoTime % 20 == 0 && m_demoTime > 0) m_pSound->PlayImage(93, { 320, 240 });
-	*/
+	char str[50];
+	sprintf(str, "m_rankCheat %d (%s)", m_rankCheat, m_rankCheat != -1 ? cheat_code[m_rankCheat] : "...");
+	DrawTextLeft(m_pPixmap, { 200, 0 }, str, FONTWHITE);
+	sprintf(str, "m_posCheat %d", m_posCheat);
+	DrawTextLeft(m_pPixmap, { 200, 20 }, str, FONTWHITE);
+	///////////////
 
 	if (m_phase == WM_PHASE_PLAY && m_phase == WM_PHASE_PLAYTEST && m_phase == WM_PHASE_BUILD)
 		m_pPixmap->DrawPart(-1, 0, pos, rect, 1, 0);
@@ -3075,7 +3050,7 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 			if (m_rankCheat != -1)
 			{
 				c = cheat_code[m_rankCheat][m_posCheat];
-				if (m_posCheat != 0 && m_rankCheat == 1) c++;
+				if (m_posCheat != 0 && m_rankCheat == 0) c++;
 				if ((char)wParam == c)
 				{
 					m_posCheat++;
@@ -3375,7 +3350,7 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 
 		}
 
-		if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST)
+		if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST && m_phase != WM_PHASE_BUILD)
 		{
 			return FALSE;
 		}
@@ -3535,7 +3510,7 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PHASE_DOPLAY:
 		m_bPrivate = FALSE;
 		m_mission = 1;
-		if (CheckCDForWorld1())
+		if (CheckWorld1())
 		{
 			return ChangePhase(WM_PHASE_PLAY);
 		}
@@ -4110,12 +4085,9 @@ BOOL CEvent::IsMulti()
 
 int CEvent::GetWorldGroup()
 {
-	int mission;
-	m_mission = mission;
-	
 	if (m_mission % 10 != 0 && m_mission != 99)
 	{
-		m_mission = (mission / 10) * 10;
+		m_mission = (m_mission / 10) * 10;
 		return -(m_mission >> 31);
 	}
 	m_mission = 1;
@@ -4379,7 +4351,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 	
 	m_phase = phase;
 	m_index = SearchPhase(phase);
-	if (table[m_index].bUnk && !CheckCDForWorld1())
+	if (table[m_index].bUnk && !CheckWorld1())
 	{
 		m_tryInsertCount = 40;
 		m_tryPhase = m_phase;
@@ -5721,10 +5693,24 @@ BOOL CEvent::ClearGamer(int gamer)
 	return TRUE;
 }
 
-BOOL CEvent::CheckCDForWorld1()
+BOOL CEvent::CheckWorld1()
 {
-	// TODO
+#if _CD
+	FILE* file;
+	char buf[260];
+
+	strcpy(buf, "data\\world001.blp");
+	AddCDPath(buf);
+	file = fopen(buf, "rb");
+	if (file)
+	{
+		fclose(file);
+		return TRUE;
+	}
+	return FALSE;
+#else
 	return TRUE;
+#endif
 }
 
 int CEvent::GameSave(int save)

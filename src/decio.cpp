@@ -9,11 +9,11 @@ void CDecor::GetMissionPath(char* str, int user, int mission, BOOL bUser)
 {
 	if (bUser != 0)
 	{
-		sprintf(str, "data\%.3d-%.3d.blp", user, mission);
+		sprintf(str, "data\\%.3d-%.3d.blp", user, mission);
 		AddUserPath(str);
 		return;
 	}
-	sprintf(str, "data\world%.3d.blp", mission);
+	sprintf(str, "data\\world%.3d.blp", mission);
 	AddUserPath(str);
 	return;
 }
@@ -113,71 +113,86 @@ BOOL CDecor::Read(int gamer, int mission, BOOL bUser)
 	GetMissionPath(filename, gamer, mission, bUser);
 	
 	file = fopen(filename, "rb");
-	if (file == NULL) goto error;
+	if (file == NULL) {
+		OutputDebug("CDecor::Read error in fopen\n");
+		OutputDebug(filename);
+		goto error;
+	}
 	
 	pBuffer = (DescFile*)malloc(sizeof(DescFile));
-	if (pBuffer == NULL) goto error;
+	if (pBuffer == NULL) {
+		OutputDebug("CDecor::Read error in malloc\n");
+		goto error;
+	}
 
 	nb = fread(pBuffer, sizeof(DescFile), 1, file);
-	if (nb < 1) goto error;
+	if (nb < 1) {
+		OutputDebug("CDecor::Read error in fread\n");
+		goto error;
+	}
 		
-			majRev = pBuffer->majRev;
-			minRev = pBuffer->minRev;
-			m_posDecor = pBuffer->posDecor;
-			m_dimDecor = pBuffer->dimDecor;
-			m_music = pBuffer->music;
-			m_region = pBuffer->region;
-			if (0 < majRev && minRev > 2)
-			{
-				strcpy(m_missionTitle,pBuffer->name);
-			}
-			startDir = m_blupiStartDir;
-			blupiDir = pBuffer->blupiDir;
-			startPos = m_blupiStartPos;
-			blupiPos = pBuffer->blupiPos;
+	majRev = pBuffer->majRev;
+	minRev = pBuffer->minRev;
+	m_posDecor = pBuffer->posDecor;
+	m_dimDecor = pBuffer->dimDecor;
+	m_music = pBuffer->music;
+	m_region = pBuffer->region;
+	if (majRev >= 1 && minRev >= 3)
+	{
+		strcpy(m_missionTitle,pBuffer->name);
+	}
+	startDir = m_blupiStartDir;
+	blupiDir = pBuffer->blupiDir;
+	startPos = m_blupiStartPos;
+	blupiPos = pBuffer->blupiPos;
 
-			for (i = 0; i < 4; i++)
-			{
-				m_blupiStartPos[i] = pBuffer->blupiPos[i];
-			}
+	for (i = 0; i < 4; i++)
+	{
+		m_blupiStartPos[i] = pBuffer->blupiPos[i];
+	}
 
-			for (i = 0; i < 4; i++)
-			{
-				m_blupiStartDir[i] = pBuffer->blupiDir[i];
-			}
+	for (i = 0; i < 4; i++)
+	{
+		m_blupiStartDir[i] = pBuffer->blupiDir[i];
+	}
 
-			nb = fread(m_decor, sizeof(Cellule), MAXCELX * MAXCELY / 4, file);
-			if (nb < MAXCELX * MAXCELY / 4) goto error;
+	nb = fread(m_decor, sizeof(Cellule), MAXCELX * MAXCELY, file);
+	if (nb < MAXCELX * MAXCELY) goto error;
 			
-			for (x = 0; x < MAXCELX / 2; x++)
+	for (x = 0; x < MAXCELX / 2; x++)
+	{
+		for (y = 0; y < MAXCELY / 2; y++)
+		{
+			if (m_decor[x][y].icon >= 48 &&
+				m_decor[x][y].icon <= 67)
 			{
-				for (y = 0; y < MAXCELY / 2; y++)
-				{
-					if (m_decor[x][y].icon >= 48 &&
-						m_decor[x][y].icon <= 67)
-					{
-						m_decor[x][y].icon -= 128 - 17;
-					}
-				}
+				m_decor[x][y].icon -= 128 - 17;
 			}
+		}
+	}
 
-			if (majRev == 1 && minRev <= 1)
-			{
-				memset(m_moveObject, 0, sizeof(MoveObject));
-				nb = fread(m_moveObject, sizeof(MoveObject), MAXMOVEOBJECT / 2, file);
-				if (nb < MAXMOVEOBJECT / 2) goto error;
-			}
-			else
-			{
-				nb = fread(m_moveObject, sizeof(MoveObject), MAXMOVEOBJECT, file);
-				if (nb < MAXMOVEOBJECT) goto error;
-			}
+	if (majRev == 1 && minRev >= 1)
+	{
+		nb = fread(m_bigDecor, sizeof(Cellule), MAXCELX * MAXCELY, file);
+		if (nb < MAXCELX * MAXCELY) goto error;
+	}
 
-			free(pBuffer);
-			fclose(file);
-			return TRUE;
+	memset(m_moveObject, 0, sizeof(MoveObject) * MAXMOVEOBJECT);
+	if (majRev == 1 && minRev >= 2)
+	{
+		nb = fread(m_moveObject, sizeof(MoveObject), MAXMOVEOBJECT, file);
+		if (nb < MAXMOVEOBJECT) goto error;
+	}
+	else
+	{
+		nb = fread(m_moveObject, sizeof(MoveObject), MAXMOVEOBJECT / 2, file);
+		if (nb < MAXMOVEOBJECT / 2) goto error;
+	}
+
+	free(pBuffer);
+	fclose(file);
+	return TRUE;
 error:
-	
 	if (pBuffer != NULL) free(pBuffer);
 	if (file != NULL) fclose(file);
 

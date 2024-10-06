@@ -6,6 +6,7 @@
 #include "dplay.h"
 #include "misc.h"
 #include "network.h"
+#include "def.h"
 
 // a0f94abe-11c3-d111-be62-0040f6944838
 #define APP_GUID { 0xbe4af9a0, 0xc311, 0x11d1, { 0xbe, 0x62, 0x00, 0x40, 0xf6, 0x94, 0x48, 0x38 } };
@@ -202,7 +203,7 @@ BOOL CNetwork::CreateSession(char* pSessionName, char* pPlayerName)
 	desc.lpszSessionNameA = pSessionName;
 	desc.dwSize = sizeof(desc);
 	desc.dwFlags = DPSESSION_KEEPALIVE | DPSESSION_MIGRATEHOST;
-	desc.dwMaxPlayers = MAXPLAYERS;
+	desc.dwMaxPlayers = MAXNETPLAYER;
 
 	hr = m_pDP->Open(&desc, DPOPEN_CREATE);
 	if (hr != DP_OK)
@@ -262,7 +263,7 @@ BOOL CNetwork::Receive(LPVOID pDest, DWORD dwDataSize, LPDWORD lpdwPlayer)
 	ZeroMemory(pDest, dwDataSize);
 
 	*lpdwPlayer = -1;
-	for (int i = 0; i < MAXPLAYERS; i++)
+	for (int i = 0; i < MAXNETPLAYER; i++)
 	{
 		if (m_players[i].bIsPresent && from == i)
 		{

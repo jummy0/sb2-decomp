@@ -8,12 +8,7 @@
 #include "def.h"
 #include "resource.h"
 
-using namespace std;
-
-
 /////////////////////////////////////////////////////////////////////////////
-
-
 
 // The following macro are used for proper error handling for DirectSound.
 #define TRY_DS(exp) { { HRESULT rval = exp; if (rval != DS_OK) { TraceErrorDS(rval, __FILE__, __LINE__); return FALSE; } } }

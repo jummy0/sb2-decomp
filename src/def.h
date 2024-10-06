@@ -22,6 +22,11 @@
 #define _LEGACY			FALSE	// if TRUE, keep broken/quirky legacy code
 
 #define MAXGAMER		8
+#define MAXNETPLAYER	4
+#define MAXNETMESSAGE	20
+#define MAXMOVEOBJECT	200
+#define MAXNOTIF		5
+#define MAXFIFOPOS		10
 
 #define LXIMAGE			640		// dimensions de la fenêtre de jeu
 #define LYIMAGE			480
@@ -71,7 +76,8 @@ enum {
 	CHBLUPI1,
 	CHBLUPI2,
 	CHBLUPI3,
-	CHTEMP
+	CHTEMP,
+	CHMAX = CHTEMP
 };
 
 enum {
@@ -900,22 +906,22 @@ namespace Object {
 		RockTriRight_2,
 		RockSquare_17,
 		GrassSquare_2,
-		Course_1,
-		Course_2,
-		Course_3, // 160
-		Course_4,
-		Course_5,
-		Course_6,
-		Course_7,
-		Course_8,
-		CourseDone_1,
-		CourseDone_2,
-		CourseDone_3,
-		CourseDone_4,
-		CourseDone_5,
-		CourseDone_6,
-		CourseDone_7,
-		CourseDone_8,
+		World_1,
+		World_2,
+		World_3, // 160
+		World_4,
+		World_5,
+		World_6,
+		World_7,
+		World_8,
+		WorldDone_1,
+		WorldDone_2,
+		WorldDone_3,
+		WorldDone_4,
+		WorldDone_5,
+		WorldDone_6,
+		WorldDone_7,
+		WorldDone_8,
 		Level_1,
 		Level_2,
 		Level_3, // 176
@@ -926,7 +932,7 @@ namespace Object {
 		Level_8,
 		DoorLevel,
 		DoorCourse,
-		CourseBack,
+		WorldBack,
 		RockSecret,
 		Facade_1,
 		Facade_2,
@@ -1051,8 +1057,8 @@ namespace Object {
 		Lightning_2,
 		Lightning_3,
 		Lightning_4,
-		Course_9,
-		CourseDone_9,
+		World_9,
+		WorldDone_9,
 		Conveyor_1,
 		Conveyor_2,
 		Conveyor_3,
@@ -1153,16 +1159,16 @@ namespace Object {
 		SlimeTrapCeiling_5,
 		SlimeTrapCeiling_6,
 		SlimeTrapCeiling_7,
-		Course_10,
-		Course_11,
-		Course_12,
-		Course_13,
-		Course_14,
-		CourseDone_10, // 414
-		CourseDone_11,
-		CourseDone_12,
-		CourseDone_13,
-		CourseDone_14,
+		World_10,
+		World_11,
+		World_12,
+		World_13,
+		World_14,
+		WorldDone_10, // 414
+		WorldDone_11,
+		WorldDone_12,
+		WorldDone_13,
+		WorldDone_14,
 		DoorTreasure_1,
 		DoorTreasure_2,
 		DoorTreasure_3,

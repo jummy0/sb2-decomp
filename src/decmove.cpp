@@ -2222,7 +2222,7 @@ void CDecor::MoveObjectSort()
 	{
 		if (m_moveObject[i].type != 0)
 		{
-			MoveObjectCopy(m_moveObject[num++], m_moveObject[i]);
+			MoveObjectCopy(&m_moveObject[num++], &m_moveObject[i]);
 		}
 	}
 	for (int i = num; i < MAXMOVEOBJECT; i++)
@@ -2241,9 +2241,9 @@ void CDecor::MoveObjectSort()
 		{
 			if (SortGetType(m_moveObject[i].type) > SortGetType(m_moveObject[i + 1].type))
 			{
-				MoveObjectCopy(src, m_moveObject[i]);
-				MoveObjectCopy(m_moveObject[i], m_moveObject[i + 1]);
-				MoveObjectCopy(m_moveObject[i + 1], src);
+				MoveObjectCopy(&src, &m_moveObject[i]);
+				MoveObjectCopy(&m_moveObject[i], &m_moveObject[i + 1]);
+				MoveObjectCopy(&m_moveObject[i + 1], &src);
 				flag = TRUE;
 			}
 		}
@@ -2274,9 +2274,9 @@ void CDecor::MoveObjectPriority(int i)
 			{
 				return;
 			}
-			MoveObjectCopy(src, m_moveObject[i]);
-			MoveObjectCopy(m_moveObject[i], m_moveObject[j]);
-			MoveObjectCopy(m_moveObject[j], src);
+			MoveObjectCopy(&src, &m_moveObject[i]);
+			MoveObjectCopy(&m_moveObject[i], &m_moveObject[j]);
+			MoveObjectCopy(&m_moveObject[j], &src);
 			if (m_moveObject[i].type == 12 || m_moveObject[j].type == 12)
 			{
 				UpdateCaisse();

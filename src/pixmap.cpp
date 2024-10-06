@@ -311,6 +311,8 @@ void CPixmap::QuickIcon(int channel, int rank, POINT pos)
 	int num;
 	RECT rect;
 
+	if ((unsigned)channel > CHMAX) return;
+
 	if (channel == CHOBJECT)
 	{
 		if (table_icon_object[0] <= rank) return;
@@ -1275,12 +1277,12 @@ BOOL CPixmap::DrawIcon(int chDst, int channel, int rank, POINT pos,
 		nby = m_totalDim[channel].y / m_iconDim[channel].y;
 
 		if (rank < 0 || rank >= nbx * nby) return FALSE;
-	}
 
-	rect.left   = (rank%nbx)*m_iconDim[channel].x;
-	rect.top    = (rank/nbx)*m_iconDim[channel].y;
-	rect.right  = rect.left + m_iconDim[channel].x;
-	rect.bottom = rect.top  + m_iconDim[channel].y;
+		rect.left = (rank%nbx)*m_iconDim[channel].x;
+		rect.top = (rank / nbx)*m_iconDim[channel].y;
+		rect.right = rect.left + m_iconDim[channel].x;
+		rect.bottom = rect.top + m_iconDim[channel].y;
+	}
 
 	oldColor1 = m_colorSurface[2*channel+0];
 	oldColor2 = m_colorSurface[2*channel+1];

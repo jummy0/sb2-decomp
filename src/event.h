@@ -190,7 +190,7 @@ protected:
 	int		GameSave(int save);
 
 	void	DrawMap();
-	BOOL	CheckCDForWorld1();
+	BOOL	CheckWorld1();
 	void	NetAdjustLobbyButtons();
 	BOOL	CopyMission(char *srcFileName, char *dstFileName);
 

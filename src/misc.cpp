@@ -1,15 +1,11 @@
 // Misc.cpp
 //
 
-
 #include <dsound.h>
 #include <ddraw.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include "def.h"
-
-#pragma warning (disable : 4996)
-
 
 // Global Variables
 
@@ -120,19 +116,6 @@ void GetCurrentDir(char *pName, int lg)
 	}
 }
 
-int Speed(double speed, int max)
-{
-    if (speed > 0.0)
-    {
-        return max((int)(speed * (double)max), 1);
-    }
-    if (speed < 0.0)
-    {
-        return min((int)(speed * (double)max), -1);
-    }
-    return 0;
-}
-
 void AddCDPath(char *pFilename)
 {
 	char	temp[MAX_PATH];
@@ -167,12 +150,12 @@ void AddCDPath(char *pFilename)
 		strcat(temp, pFilename);
 	}
 #endif
-
 	strcpy(pFilename, temp);
 }
 
 void AddUserPath(char *pFilename)
 {
+#if _CD || _LEGACY
 	char					temp[MAX_PATH];
 	char*					pText;
 	int						pos;
@@ -183,12 +166,12 @@ void AddUserPath(char *pFilename)
 
 
 
-	strcpy(temp, "c:\\Speedy_Blupi\\");
+	strcpy(temp, "c:\\Speedy Blupi\\");
 
 	att.nLength = sizeof(SECURITY_ATTRIBUTES);
 	att.lpSecurityDescriptor = NULL;
 	att.bInheritHandle = FALSE;
-	CreateDirectoryA(temp, &att);
+	CreateDirectory(temp, &att);
 
 	pText = strstr(pFilename, "\\");
 	if ( pText != NULL )
@@ -206,6 +189,7 @@ void AddUserPath(char *pFilename)
 	}
 
 	strcpy(pFilename, temp);
+#endif
 }
 
 void TraceErrorDD(HRESULT hErr, const char *sFile, int nLine)
