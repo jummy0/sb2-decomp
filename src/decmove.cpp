@@ -407,7 +407,7 @@ void CDecor::MoveObjectStep()
 					posCurrent.x -= 34;
 					posCurrent.y -= 34;
 					ObjectStart(posCurrent, TYPE_EXPLO1, 0, TRUE);
-					PlaySound(10, m_moveObject[i].posCurrent);
+					PlaySound(SOUND_BOUM, m_moveObject[i].posCurrent);
 					m_decorAction = 1;
 					m_decorPhase = 0;
 					posCurrent = m_moveObject[i].posCurrent;
@@ -512,14 +512,14 @@ void CDecor::MoveObjectStepLine(int i)
 		}
 		else if (m_moveObject[i].step == STEP_ADVANCE)
 		{
-			if (m_moveObject[i].posCurrent.x != m_moveObject[i].posEnd.x || m_moveObject[i].posCurrent.x != m_moveObject[i].posEnd.y)
+			if (m_moveObject[i].posCurrent.x != m_moveObject[i].posEnd.x || m_moveObject[i].posCurrent.y != m_moveObject[i].posEnd.y)
 			{
 				m_moveObject[i].time ++;
 				if (m_moveObject[i].stepAdvance != 0)
 				{
-					m_moveObject[i].posCurrent = (m_moveObject[i].posEnd - m_moveObject[i].posStart) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart;
-					//m_moveObject[i].posCurrent.x = (m_moveObject[i].posEnd.x - m_moveObject[i].posStart.x) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart.x;
-					//m_moveObject[i].posCurrent.y = (m_moveObject[i].posEnd.y - m_moveObject[i].posStart.y) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart.y;
+					//m_moveObject[i].posCurrent = (m_moveObject[i].posEnd - m_moveObject[i].posStart) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart;
+					m_moveObject[i].posCurrent.x = (m_moveObject[i].posEnd.x - m_moveObject[i].posStart.x) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart.x;
+					m_moveObject[i].posCurrent.y = (m_moveObject[i].posEnd.y - m_moveObject[i].posStart.y) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart.y;
 				}
 
 			}
@@ -559,11 +559,11 @@ void CDecor::MoveObjectStepLine(int i)
 				m_moveObject[i].time ++;
 				if (m_moveObject[i].stepRecede != 0)
 				{
-					m_moveObject[i].posCurrent = (m_moveObject[i].posStart - m_moveObject[i].posEnd) * m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd;
-					//m_moveObject[i].posCurrent.x = (m_moveObject[i].posStart.x - m_moveObject[i].posEnd.x) *
-					//	m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd.x;
-					//m_moveObject[i].posCurrent.y = (m_moveObject[i].posStart.y - m_moveObject[i].posEnd.y) *
-					//	m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd.y;
+					//m_moveObject[i].posCurrent = (m_moveObject[i].posStart - m_moveObject[i].posEnd) * m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd;
+					m_moveObject[i].posCurrent.x = (m_moveObject[i].posStart.x - m_moveObject[i].posEnd.x) *
+						m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd.x;
+					m_moveObject[i].posCurrent.y = (m_moveObject[i].posStart.y - m_moveObject[i].posEnd.y) *
+						m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd.y;
 				}
 			}
 			else
@@ -1481,12 +1481,13 @@ void CDecor::DynamiteStart(int i, int dx, int dy)
 	src.top = posStart.y;
 	src.bottom = posStart.y + DIMOBJY * 2;
 	POINT tinyPoint;
+	tinyPoint.y = posStart.y / DIMOBJY;
 	for (int j = 0; j < 2; j++)
 	{
 		tinyPoint.x = posStart.x / DIMOBJX;
 		for (int k = 0; k < 2; j++)
 		{
-			if (tinyPoint.x >= 0 && tinyPoint.x < 100 && tinyPoint.y >= 0 && tinyPoint.y < 100)
+			if (tinyPoint.x >= 0 && tinyPoint.x < MAXCELX && tinyPoint.y >= 0 && tinyPoint.y < MAXCELY)
 			{
 				int icon = m_decor[tinyPoint.x][tinyPoint.y].icon;
 				if (icon == 378 || icon == 379 || icon == 404 || icon == 410)
@@ -1960,10 +1961,8 @@ BOOL CDecor::BlupiElectro(POINT pos)
 
 void CDecor::MoveObjectFollow(POINT pos)
 {
-	if (m_blupiHide)
-	{
-		return;
-	}
+	if (m_blupiHide) return;
+
 	RECT src = BlupiRect(pos);
 	src.left = pos.x + 16;
 	src.right = pos.x + DIMBLUPIX - 16;

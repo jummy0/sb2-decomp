@@ -1779,7 +1779,7 @@ CEvent::CEvent()
 	m_phase = 0;
 	m_bSchool = FALSE;
 	m_bPrivate = FALSE;
-	m_bBuildOfficialMissions = TRUE;
+	m_bBuildOfficialMissions = FALSE;
 	m_bRunMovie = FALSE;
 	m_bBuildModify = FALSE;
 	m_bMousePress = FALSE;
@@ -3160,6 +3160,11 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 					}
 					return TRUE;
 				}
+				else
+				{
+					m_rankCheat = -1;
+					m_posCheat = 0;
+				}
 			}
 		}
 
@@ -3184,7 +3189,7 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 						{
 							return ChangePhase(WM_PHASE_GAMER);
 						}
-						if (m_mission % 10 != 0 && m_mission != 10)
+						if (m_mission % 10 == 0 && m_mission != 10)
 						{
 							SetMission(1);
 							m_phase = WM_PHASE_PLAY;

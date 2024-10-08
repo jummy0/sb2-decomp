@@ -29,8 +29,8 @@
 #define MAXNOTIF		5
 #define MAXFIFOPOS		10
 
-#define LXIMAGE			320		// dimensions de la fenêtre de jeu
-#define LYIMAGE			240
+#define LXIMAGE			640		// dimensions de la fenêtre de jeu
+#define LYIMAGE			480
 
 #define POSDRAWX		0
 #define POSDRAWY		0
@@ -219,6 +219,95 @@ enum {
 	SEC_POWER,
 	SEC_CLOUD,
 	SEC_HIDE
+};
+
+static char debugMobTypeNames[204][20] =
+{
+	"-",
+	"ascenseur",
+	"bombedown",
+	"bombeup",
+	"bulldozer",
+	"tresor",
+	"egg",
+	"goal",
+	"explo1",
+	"explo2",
+	"explo3",
+	"explo4",
+	"caisse",
+	"helico",
+	"plouf",
+	"blup",
+	"bombemove",
+	"poisson",
+	"tomates",
+	"jeep",
+	"oiseau",
+	"cle",
+	"door",
+	"balle",
+	"skate",
+	"shield",
+	"power",
+	"magictrack",
+	"tank",
+	"bullet",
+	"drink",
+	"charge",
+	"blupihelico",
+	"blupitank",
+	"glu",
+	"tiplouf",
+	"pollution",
+	"clear",
+	"electro",
+	"tresortrack",
+	"invert",
+	"invertstart",
+	"invertstop",
+	"?????? (43)",
+	"guepe",
+	"?????? (45)",
+	"over",
+	"ascenseur s",
+	"ascenseur si",
+	"cle1",
+	"cle2",
+	"cle3",
+	"bridge",
+	"tentacule",
+	"creature",
+	"dynamite",
+	"dynamite f",
+	"shieldtrack",
+	"hidetrack",
+	"","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",
+	"explo5",
+	"explo6",
+	"explo7",
+	"explo8",
+	"explo9",
+	"explo10",
+	"bombefollow1",
+	"bombefollow2",
+	"sploutch1",
+	"sploutch2",
+	"sploutch3",
+	"","","","","","","","","","",
+	"","","","","","","","","","",
+	"","","","","","","","","","",
+	"","","","","","","","","","",
+	"","","","","","","","","","",
+	"","","","","","","","","","",
+	"","","","","","","","","","",
+	"","","","","","","","","","",
+	"","","","","","","","","","",
+	"","","","","","","","","",
+	"bombeperso1",
+	"bombeperso2",
+	"bombeperso3",
+	"bombeperso4"
 };
 
 // Types :
@@ -1136,7 +1225,7 @@ namespace Object {
 		Saw_4,
 		Saw_5,
 		Saw_6,
-		SawSwitchOn, // 382
+		SawSwitchOn, // 384
 		SawSwitchOff,
 		Palace_1,
 		Palace_2,
@@ -1152,7 +1241,7 @@ namespace Object {
 		Palace_12,
 		PalaceElement_1,
 		PalaceElement_2,
-		PalaceElement_3, // 398
+		PalaceElement_3, // 400
 		SpiderWeb_1,
 		SpiderWeb_2,
 		SpiderWeb_3,
@@ -1168,7 +1257,7 @@ namespace Object {
 		World_12,
 		World_13,
 		World_14,
-		WorldDone_10, // 414
+		WorldDone_10, // 416
 		WorldDone_11,
 		WorldDone_12,
 		WorldDone_13,
@@ -1184,7 +1273,7 @@ namespace Object {
 		DoorTreasure_9,
 		DoorTreasure_10,
 		DoorTreasure_11,
-		DoorTreasure_12,	// 430
+		DoorTreasure_12,	// 432
 		DoorTreasure_13,
 		DoorTreasure_14,
 		DoorTreasure_15,
@@ -1263,4 +1352,14 @@ POINT operator*=(POINT p, const int& a)
 POINT operator/=(POINT p, const int& a)
 {
 	return { p.x /= a, p.y /= a };
+}
+
+bool operator!=(POINT a, const POINT& b)
+{
+	return a.x != b.x || a.y != b.y;
+}
+
+bool operator==(POINT a, const POINT& b)
+{
+	return a.x == b.x && a.y == b.y;
 }
