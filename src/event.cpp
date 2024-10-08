@@ -2518,24 +2518,20 @@ BOOL CEvent::DrawButtons()
 	// now that the decomp is looking convincingly like the retail game,
 	// we should clearly differentiate the two when sharing WIP screenshots/videos to reduce confusion.
 	{
-		char str[50];
-		SYSTEMTIME systime;
-		GetSystemTime(&systime);
-		sprintf(str, "%04d-%02d-%02d", systime.wYear, systime.wMonth, systime.wDay);
-
 		POINT debugMousePos = GetMousePos();
+		int debugTextY;
 		if (debugMousePos.x > LXIMAGE - GetTextWidth("WORK IN PROGRESS") && debugMousePos.x < LXIMAGE && debugMousePos.y < 36 && debugMousePos.y >= 0)
 		{
-			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("DECOMPILATION"), 40 }, "DECOMPILATION", FONTGOLD);
-			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("WORK IN PROGRESS"), 52 }, "WORK IN PROGRESS", FONTGOLD);
-			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth(str), 64 }, str, FONTGOLD);
+			debugTextY = 40;
 		}
 		else
 		{
-			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("DECOMPILATION"), 0 }, "DECOMPILATION", FONTGOLD);
-			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("WORK IN PROGRESS"), 12 }, "WORK IN PROGRESS", FONTGOLD);
-			DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth(str), 24 }, str, FONTGOLD);
+			debugTextY = 0;
 		}
+
+		DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("DECOMPILATION"), debugTextY }, "DECOMPILATION", FONTGOLD);
+		DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("WORK IN PROGRESS"), debugTextY + 11 }, "WORK IN PROGRESS", FONTGOLD);
+		DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth(__DATE__ " " __TIME__), debugTextY + 22 }, __DATE__ " " __TIME__, FONTGOLD);
 	}
 	///////
 
