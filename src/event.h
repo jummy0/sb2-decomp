@@ -1,8 +1,8 @@
 // Event.h
+#ifndef EVENT_H
+#define EVENT_H
 
 /////////////////////////////////////////////////////////////////////////////
-
-#pragma once
 
 #include "movie.h"
 #include "menu.h"
@@ -79,7 +79,7 @@ public:
 	void	ReadInput();
 	void	TryInsert();
 	//void	SomethingUserMissions(LPCSTR lpFileName, LPCSTR thing);
-	BOOL	OpenMission(char* pMission, char* pFile);
+	BOOL	CopyMission(char* pMission, char* pFile);
 	void	RestoreGame();
 	int		MissionBack();
 	void	TableSomething();
@@ -182,8 +182,9 @@ protected:
 	void	NetSend(int message, USHORT data);
 	void	NetDraw();
 	void	ChatSend();
-	void	HandleChatBuffer();
-	void	ChatMessageSound(char* data);
+	void	ChatPush(char* str);
+	void	ChatPop();
+	void	ChatFlush();
 
 	void	MouseRelease();
 	void	MouseCapture();
@@ -192,7 +193,6 @@ protected:
 	void	DrawMap();
 	BOOL	CheckWorld1();
 	void	NetAdjustLobbyButtons();
-	BOOL	CopyMission(char *srcFileName, char *dstFileName);
 
 
 protected:
@@ -254,6 +254,7 @@ protected:
 	int			m_fileTime[10];
 	POINT		m_posToolTips;
 	char		m_textToolTips[50];
+	char		m_textToolTips2[50];
 	int			m_mouseSprite;
 	BOOL		m_bFillMouse;
 	BOOL		m_bWaitMouse;
@@ -316,3 +317,5 @@ protected:
 
 extern
 int		DirectoryThing(LPCSTR filename);
+
+#endif

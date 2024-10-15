@@ -1,6 +1,6 @@
 // Menu.h
-
-#pragma once
+#ifndef MENU_H
+#define MENU_H
 
 #include "decor.h"
 #include "pixmap.h"
@@ -49,3 +49,5 @@ protected:
     int          m_selRank;
     POINT        m_mousePos;
 };
+
+#endif

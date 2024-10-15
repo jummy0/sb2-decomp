@@ -75,9 +75,9 @@ void CDecor::Create(HWND hWnd, CSound* pSound, CPixmap* pPixmap, CNetwork* pNetw
 	m_bJeepStop = FALSE;
 	InitDecor();
 
-	m_jauges[0].Create(m_hWnd, m_pPixmap, m_pSound, { 169, 450 }, 1, FALSE);
+	m_jauges[0].Create(m_hWnd, m_pPixmap, m_pSound, POINT( 169, 450 ), 1, FALSE);
 	m_jauges[0].SetHide(TRUE);
-	m_jauges[1].Create(m_hWnd, m_pPixmap, m_pSound, { 171, 450 }, 3, FALSE);
+	m_jauges[1].Create(m_hWnd, m_pPixmap, m_pSound, POINT( 171, 450 ), 3, FALSE);
 	m_jauges[1].SetHide(TRUE);
 	NetMessageIndexFlush();
 	NotifFlush();
@@ -85,14 +85,13 @@ void CDecor::Create(HWND hWnd, CSound* pSound, CPixmap* pPixmap, CNetwork* pNetw
 
 BOOL CDecor::LoadImages()
 {
-	POINT totalDim, iconDim;
+	POINT totalDim = { LXIMAGE, LYIMAGE };
+	POINT iconDim = { 0, 0 };
 	char filename[52];
 
 	if (m_lastRegion == m_region) return TRUE;
 	m_lastRegion = m_region;
 
-	totalDim = { LXIMAGE, LYIMAGE };
-	iconDim = { 0, 0 };
 	sprintf(filename, "decor%.3d.blp", m_region);
 
 	return m_pPixmap->BackgroundCache(CHDECOR, filename, totalDim, iconDim, FALSE);
@@ -106,8 +105,9 @@ void CDecor::InitGamer()
 
 void CDecor::InitDecor()
 {
-	m_posDecor = { 0, 0 };
-	m_dimDecor = { 100, 100 };
+	int i;
+	m_posDecor = POINT( 0, 0 );
+	m_dimDecor = POINT( 100, 100 );
 	m_music = 1;
 	m_region = 2;
 	m_missionTitle[0] = '\0';
@@ -134,7 +134,7 @@ void CDecor::InitDecor()
 	m_moveObject[0].stepRecede = 1;
 	m_moveObject[0].timeStopStart = 0;
 	m_moveObject[0].timeStopEnd = 0;
-	m_moveObject[0].posStart = { 258, 196 };
+	m_moveObject[0].posStart = POINT( 258, 196 );
 	m_moveObject[0].posEnd = m_moveObject[0].posStart;
 	m_moveObject[0].posCurrent = m_moveObject[0].posStart;
 	m_moveObject[0].phase = 0;
@@ -147,7 +147,7 @@ void CDecor::InitDecor()
 	m_moveObject[1].stepAdvance = 1;
 	m_moveObject[1].timeStopStart = 0;
 	m_moveObject[1].timeStopEnd = 0;
-	m_moveObject[1].posStart = { 322, 196 };
+	m_moveObject[1].posStart = POINT( 322, 196 );
 	m_moveObject[1].posEnd = m_moveObject[1].posStart;
 	m_moveObject[1].posCurrent = m_moveObject[1].posStart;
 	m_moveObject[1].phase = 0;
@@ -155,13 +155,13 @@ void CDecor::InitDecor()
 	m_moveObject[1].time = 0;
 	m_moveObject[1].channel = CHELEMENT;
 	m_moveObject[1].icon = 29;
-	for (int i = 0; i < MAXFIFOPOS; i++)
+	for (i = 0; i < MAXFIFOPOS; i++)
 	{
-		m_blupiFifoPos[i] = { 0, 0 };
+		m_blupiFifoPos[i] = POINT( 0, 0 );
 	}
-	for (int i = 0; i < MAXNETPLAYER; i++)
+	for (i = 0; i < MAXNETPLAYER; i++)
 	{
-		m_blupiStartPos[i] = { 194, 192 + BLUPIOFFY };
+		m_blupiStartPos[i] = POINT( 194, 192 + BLUPIOFFY );
 		m_blupiStartDir[i] = DIR_RIGHT;
 	}
 	m_blupiAction = ACTION_STOP;
@@ -190,7 +190,7 @@ void CDecor::InitDecor()
 	m_blupiActionOuf = 0;
 	m_blupiTimeNoAsc = 0;
 	m_blupiTimeMockery = 0;
-	m_blupiVitesse = { 0, 0 };
+	m_blupiVitesse = POINT( 0, 0 );
 	m_blupiValidPos = m_blupiStartPos[0];
 	m_blupiEnergyUnused = 100;
 	m_blupiFront = FALSE;
@@ -317,7 +317,7 @@ void CDecor::PlayPrepare(BOOL bTest)
 	MoveObjectSort();
 	UpdateCaisse();
 	m_scrollPoint = m_blupiPos;
-	m_scrollAdd = { 0, 0 };
+	m_scrollAdd = POINT( 0, 0 );
 	m_blupiPosHelico.x = -1;
 	m_nbLinkCaisse = 0;
 	m_bHelicoMarch = FALSE;
@@ -420,6 +420,7 @@ int CDecor::GetIconPerso()
 void CDecor::Build(RECT rect)
 {
 	int num = 1;
+	int i, j;
 	POINT tinyPoint;
 	tinyPoint.x = 0;
 	RECT lastClip;
@@ -430,11 +431,11 @@ void CDecor::Build(RECT rect)
 	POINT posDecor = DecorNextAction();
 	POINT pos = { posDecor.x * 2 / 3 % DIMDECORX, posDecor.y * 2 / 3 % DIMDECORY };
 
-	for (int i = 0; i < ((DIMDECORX - DIMDECORX / LXIMAGE * LXIMAGE) ? 2 : 1) + LXIMAGE / DIMDECORX; i++)
+	for (i = 0; i < ((DIMDECORX - DIMDECORX / LXIMAGE * LXIMAGE) ? 2 : 1) + LXIMAGE / DIMDECORX; i++)
 	{
 		tinyPoint.y = 0;
 		rect.top = pos.y;
-		for (int j = 0; j < ((DIMDECORY - DIMDECORY / LYIMAGE * LYIMAGE) ? 2 : 1) + LYIMAGE / DIMDECORY; j++)
+		for (j = 0; j < ((DIMDECORY - DIMDECORY / LYIMAGE * LYIMAGE) ? 2 : 1) + LYIMAGE / DIMDECORY; j++)
 		{
 			rect.left = i ? 0 : pos.x;
 			rect.right = DIMDECORX;
@@ -448,9 +449,9 @@ void CDecor::Build(RECT rect)
 	}
 
 	tinyPoint.x = -posDecor.x % DIMOBJX - DIMOBJX;
-	for (int i = posDecor.x / DIMOBJX - 1; i < posDecor.x / DIMOBJX + LXIMAGE / DIMOBJX + 3; i++) {
+	for (i = posDecor.x / DIMOBJX - 1; i < posDecor.x / DIMOBJX + LXIMAGE / DIMOBJX + 3; i++) {
 		tinyPoint.y = -posDecor.y % DIMOBJY + 2 - DIMOBJY;
-		for (int j = posDecor.y / DIMOBJY - 1; j < posDecor.y / DIMOBJY + LYIMAGE / DIMOBJY + 2; j++)
+		for (j = posDecor.y / DIMOBJY - 1; j < posDecor.y / DIMOBJY + LYIMAGE / DIMOBJY + 2; j++)
 		{
 			if (i >= 0 && i < MAXCELX && j >= 0 && j < MAXCELY)
 			{
@@ -481,10 +482,10 @@ void CDecor::Build(RECT rect)
 	}
 
 	tinyPoint.x = -posDecor.x % DIMOBJX;
-	for (int i = posDecor.x / DIMOBJX; i < posDecor.x / DIMOBJX + LXIMAGE / DIMOBJX + 2; i++)
+	for (i = posDecor.x / DIMOBJX; i < posDecor.x / DIMOBJX + LXIMAGE / DIMOBJX + 2; i++)
 	{
 		tinyPoint.y = -posDecor.y % DIMOBJY;
-		for (int j = posDecor.y / DIMOBJY; j < posDecor.y / DIMOBJY + LYIMAGE / DIMOBJY + 2; j++)
+		for (j = posDecor.y / DIMOBJY; j < posDecor.y / DIMOBJY + LYIMAGE / DIMOBJY + 2; j++)
 		{
 			if (i >= 0 && i < MAXCELX && j >= 0 && j < MAXCELY && m_decor[i][j].icon != -1)
 			{
@@ -559,18 +560,18 @@ void CDecor::Build(RECT rect)
 			m_blupiSec = SEC_HIDE;
 			if (m_blupiTimeShield > 25 || m_time % 4 < 2)
 			{
-				m_pPixmap->DrawIcon(CHTEMP, CHOBJECT, 0xF5, { 0, 0 }, 0, TRUE);
+				m_pPixmap->DrawIcon(CHTEMP, CHOBJECT, 0xF5, POINT( 0, 0 ), 0, TRUE);
 			}
 			else
 			{
 				m_pPixmap->DrawIcon(CHTEMP, GetBlupiChannelStandard(), m_blupiIcon, pos, 1, FALSE);
-				m_pPixmap->DrawIcon(CHTEMP, CHOBJECT, 0xED, { 0, 0 }, 0, TRUE);
+				m_pPixmap->DrawIcon(CHTEMP, CHOBJECT, 0xED, POINT( 0, 0 ), 0, TRUE);
 			}
 		}
 		m_pPixmap->QuickIcon(GetBlupiChannelStandard(), m_blupiIcon, tinyPoint);
 	}
 
-	for (int i = 0; i < MAXMOVEOBJECT; i++)
+	for (i = 0; i < MAXMOVEOBJECT; i++)
 	{
 		if (m_moveObject[i].type != 0 && m_moveObject[i].posCurrent.x >= posDecor.x - 64 && m_moveObject[i].posCurrent.y >= posDecor.y - 64 && m_moveObject[i].posCurrent.x <= posDecor.x + LXIMAGE && m_moveObject[i].posCurrent.y <= posDecor.y + LYIMAGE && (m_moveObject[i].type < 8 || m_moveObject[i].type > 11) && (m_moveObject[i].type < 90 || m_moveObject[i].type > 95) && (m_moveObject[i].type < 98 || m_moveObject[i].type > 100) && m_moveObject[i].type != 53 && m_moveObject[i].type != 1 && m_moveObject[i].type != 47 && m_moveObject[i].type != 48)
 		{
@@ -589,9 +590,9 @@ void CDecor::Build(RECT rect)
 			m_pPixmap->QuickIcon(m_moveObject[i].channel, m_moveObject[i].icon, tinyPoint);
 			if (m_moveObject[i].type == 30)
 			{
-				for (int l = 0; l < sizeof(table_drinkoffset) / sizeof(int); l++)
+				for (int L = 0; L < sizeof(table_drinkoffset) / sizeof(int); L++)
 				{
-					int num4 = (m_time + table_drinkoffset[l]) % 50;
+					int num4 = (m_time + table_drinkoffset[L]) % 50;
 					int rank = table_drinkeffect[num4 % 5];
 					POINT tinyPoint2 = { tinyPoint.x + 2, tinyPoint.y - num4 * 3 };
 					POINT pos2 = tinyPoint2;
@@ -605,10 +606,10 @@ void CDecor::Build(RECT rect)
 		}
 	}
 	tinyPoint.x = -posDecor.x % 64;
-	for (int i = posDecor.x / 64; i < posDecor.x / 64 + LXIMAGE / 64 + 2; i++)
+	for (i = posDecor.x / 64; i < posDecor.x / 64 + LXIMAGE / 64 + 2; i++)
 	{
 		tinyPoint.y = 0 - posDecor.y % 64;
-		for (int j = posDecor.y / 64; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
+		for (j = posDecor.y / 64; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
 		{
 			if (i >= 0 && i < 100 && j >= 0 && j < 100 && m_decor[i][j].icon != -1)
 			{
@@ -693,10 +694,10 @@ void CDecor::Build(RECT rect)
 		}
 	}
 	tinyPoint.x = 0 - posDecor.x % 64;
-	for (int i = posDecor.x / 64; i < posDecor.x / 64 + LXIMAGE / 64 + 2; i++)
+	for (i = posDecor.x / 64; i < posDecor.x / 64 + LXIMAGE / 64 + 2; i++)
 	{
 		tinyPoint.y = 0 - posDecor.y % 64;
-		for (int j = posDecor.y / 64; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
+		for (j = posDecor.y / 64; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
 		{
 			if (i >= 0 && i < 100 && j >= 0 && j < 100 && m_decor[i][j].icon != -1)
 			{
@@ -752,7 +753,7 @@ void CDecor::Build(RECT rect)
 					num2 = table_decor_eau2[(i * 11 + j * 7 + m_time / num5) % 6];
 					m_pPixmap->QuickIcon(1, num2, pos);
 				}
-				if (num2 == 305 && BlitzActif({ i, j }))
+				if (num2 == 305 && BlitzActif(POINT( i, j )))
 				{
 					num2 = rand() % 4 + 305;
 					m_pPixmap->QuickIcon(1, num2, pos);
@@ -802,7 +803,7 @@ void CDecor::Build(RECT rect)
 		}
 		tinyPoint.x += 64;
 	}
-	for (int i = 0; i < MAXMOVEOBJECT; i++)
+	for (i = 0; i < MAXMOVEOBJECT; i++)
 	{
 		if (m_moveObject[i].type != 0 && m_moveObject[i].posCurrent.x >= posDecor.x - 64 && m_moveObject[i].posCurrent.y >= posDecor.y - 64 && m_moveObject[i].posCurrent.x <= posDecor.x + LXIMAGE && m_moveObject[i].posCurrent.y <= posDecor.y + LYIMAGE && ((m_moveObject[i].type >= 8 && m_moveObject[i].type <= 11) || (m_moveObject[i].type >= 90 && m_moveObject[i].type <= 95) || (m_moveObject[i].type >= 98 && m_moveObject[i].type <= 100) || m_moveObject[i].type == 53))
 		{
@@ -816,7 +817,7 @@ void CDecor::Build(RECT rect)
 			char str[20];
 			sprintf(str, "#%d", i);
 			DrawText(m_pPixmap, posDecor - m_moveObject[i].posCurrent, str, FONTWHITE);
-			DrawText(m_pPixmap, posDecor - m_moveObject[i].posCurrent + POINT{0, 10}, m_moveObject[i].type ? debugMobTypeNames[m_moveObject[i].type] : "-", FONTWHITE);
+			DrawText(m_pPixmap, posDecor - m_moveObject[i].posCurrent + POINT(0, 10), m_moveObject[i].type ? debugMobTypeNames[m_moveObject[i].type] : "-", FONTWHITE);
 		}
 		////
 	}
@@ -835,11 +836,12 @@ void CDecor::DrawInfo()
 {
 	POINT pos;
 	char text[100];
+	int i;
 
 	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
 	{
-		pos = { 10, 10 };
-		for (int i = 0; i < MAXNOTIF; i++) {
+		pos = POINT( 10, 10 );
+		for (i = 0; i < MAXNOTIF; i++) {
 			if (m_notifText[i][0] != '\0') {
 				DrawText(m_pPixmap, pos, m_notifText[i], FONTWHITE);
 			}
@@ -847,7 +849,7 @@ void CDecor::DrawInfo()
 		}
 
 		if (m_nbVies > 0) {
-			pos = { -15, 417 };
+			pos = POINT( -15, 417 );
 			for (int i = 0; i < m_nbVies; i++) {
 				m_pPixmap->QuickIcon(GetBlupiChannelActual(), 48, pos);
 				pos.x += 16;
@@ -855,7 +857,7 @@ void CDecor::DrawInfo()
 		}
 
 		if (m_blupiBullet > 0) {
-			pos = { 398, 442 };
+			pos = POINT( 398, 442 );
 			for (int i = 0; i < m_blupiBullet; i++) {
 				m_pPixmap->QuickIcon(CHELEMENT, 176, pos);
 				pos.x += 4;
@@ -863,34 +865,34 @@ void CDecor::DrawInfo()
 		}
 
 		if (m_blupiPerso > 0) {
-			m_pPixmap->QuickIcon(CHBUTTON, GetIconPerso(), { 465, 438 });
+			m_pPixmap->QuickIcon(CHBUTTON, GetIconPerso(), POINT( 465, 438 ));
 			sprintf(text, "= %d", m_blupiPerso);
-			DrawText(m_pPixmap, { 497, 452 }, text, FONTWHITE);
+			DrawText(m_pPixmap, POINT( 497, 452 ), text, FONTWHITE);
 		}
 
 		if (m_blupiDynamite > 0) {
-			m_pPixmap->QuickIcon(CHELEMENT, 252, { 505, 414 });
+			m_pPixmap->QuickIcon(CHELEMENT, 252, POINT( 505, 414 ));
 		}
 
 		if (m_blupiCle | CLE_RED) {
-			m_pPixmap->QuickIcon(CHELEMENT, 215, { 520, 418 });
+			m_pPixmap->QuickIcon(CHELEMENT, 215, POINT( 520, 418 ));
 		}
 
 		if (m_blupiCle | CLE_GREEN) {
-			m_pPixmap->QuickIcon(CHELEMENT, 222, { 530, 418 });
+			m_pPixmap->QuickIcon(CHELEMENT, 222, POINT( 530, 418 ));
 		}
 
 		if (m_blupiCle | CLE_BLUE) {
-			m_pPixmap->QuickIcon(CHELEMENT, 229, { 540, 418 });
+			m_pPixmap->QuickIcon(CHELEMENT, 229, POINT( 540, 418 ));
 		}
 
 		if ((m_mission != 1 && m_mission % 10 != 0) || m_bPrivate)
 		{
 			sprintf(text, "%d/%d", m_nbTresor, m_totalTresor);
-			DrawText(m_pPixmap, { 590, 452 }, text, FONTWHITE);
+			DrawText(m_pPixmap, POINT( 590, 452 ), text, FONTWHITE);
 		}
 
-		for (int i = 0; i < 2; i++)
+		for (i = 0; i < 2; i++)
 		{
 			if (!(m_jauges[i].GetHide())) m_jauges[i].Draw();
 		}
@@ -1068,7 +1070,7 @@ void CDecor::VehicleSoundsPhase(int phase)
 		if (m_bHelicoStop) channel = SOUND_HELICOLOW;
 		if (m_bJeepMarch) channel = SOUND_JEEPHIGH;
 		if (m_bJeepStop) channel = SOUND_JEEPLOW;
-		if (channel != -1) m_pSound->PlayImage(channel, { LXIMAGE / 2, LYIMAGE / 2 }, -1);
+		if (channel != -1) m_pSound->PlayImage(channel, POINT( LXIMAGE / 2, LYIMAGE / 2 ), -1);
 	}
 	else {
 		if (m_bHelicoMarch) m_pSound->StopSound(SOUND_HELICOHIGH);
@@ -1154,11 +1156,12 @@ void CDecor::SetAllMissions(BOOL bAllMissions)
 void CDecor::CheatAction(int cheat)
 {
 	MoveObject* mob;
+	int i;
 
 	switch (cheat)
 	{
 	case 2: // cleanall
-		for (int i = 0; i < MAXMOVEOBJECT; i++)
+		for (i = 0; i < MAXMOVEOBJECT; i++)
 		{
 			mob = &m_moveObject[i];
 			switch (mob->type)
@@ -1179,7 +1182,8 @@ void CDecor::CheatAction(int cheat)
 				m_decorPhase = 0;
 				mob->type = TYPE_EXPLO1;
 				mob->phase = 0;
-				mob->posCurrent -= { 34, 34 };
+				mob->posCurrent.x -= 34;
+				mob->posCurrent.y -= 34;
 				mob->posStart = mob->posCurrent;
 				mob->posEnd = mob->posCurrent;
 				MoveObjectStepIcon(i);
@@ -1230,7 +1234,7 @@ void CDecor::CheatAction(int cheat)
 		PlaySound(SOUND_JEEPLOW, m_blupiPos, TRUE);
 		break;
 	case 9: // alltreasure
-		for (int i = 0; i < MAXMOVEOBJECT; i++)
+		for (i = 0; i < MAXMOVEOBJECT; i++)
 		{
 			if (m_moveObject[i].type == TYPE_TRESOR)
 			{
@@ -1242,7 +1246,7 @@ void CDecor::CheatAction(int cheat)
 		}
 		break;
 	case 10: // endgoal
-		for (int i = 0; i < MAXMOVEOBJECT; i++)
+		for (i = 0; i < MAXMOVEOBJECT; i++)
 		{
 			mob = &m_moveObject[i];
 			if (mob->type == TYPE_GOAL || mob->type == TYPE_CLE)
@@ -1482,7 +1486,7 @@ void CDecor::SetTeam(int team)
 
 POINT CDecor::VoyageGetPosVie(int nbVies)
 {
-	return { nbVies * 20 - 5, 417 };
+	return POINT( nbVies * 20 - 5, 417 );
 }
 
 void CDecor::VoyageInit(POINT start, POINT end, int icon, int channel)
@@ -1725,26 +1729,26 @@ BOOL CDecor::SearchWorld(int world, POINT *cel, POINT *newBlupiPos)
 				{
 					if (x > 1 && m_decor[x - 1][y].icon == Object::DoorLevel)
 					{
-						*cel = { x - 1, y };
-						*newBlupiPos = { (x - 2) * DIMOBJX + 2, y * DIMOBJY + 6 };
+						*cel = POINT( x - 1, y );
+						*newBlupiPos = POINT( (x - 2) * DIMOBJX + 2, y * DIMOBJY + 6 );
 						return TRUE;
 					}
 					if (x > 2 && m_decor[x - 2][y].icon == Object::DoorLevel)
 					{
-						*cel = { x - 2, y };
-						*newBlupiPos = { (x - 3) * DIMOBJX + 2, y * DIMOBJY + 6 };
+						*cel = POINT( x - 2, y );
+						*newBlupiPos = POINT( (x - 3) * DIMOBJX + 2, y * DIMOBJY + 6 );
 						return TRUE;
 					}
 					if (x < MAXCELX - 1 && m_decor[x + 1][y].icon == Object::DoorLevel)
 					{
-						*cel = { x + 1, y };
-						*newBlupiPos = { (x + 2) * DIMOBJX + 2, y * DIMOBJY + 6 };
+						*cel = POINT( x + 1, y );
+						*newBlupiPos = POINT( (x + 2) * DIMOBJX + 2, y * DIMOBJY + 6 );
 						return TRUE;
 					}
 					if (x < MAXCELX - 2 && m_decor[x + 2][y].icon == Object::DoorLevel)
 					{
-						*cel = { x + 2, y };
-						*newBlupiPos = { (x + 3) * DIMOBJX + 2, y * DIMOBJY + 6 };
+						*cel = POINT( x + 2, y );
+						*newBlupiPos = POINT( (x + 3) * DIMOBJX + 2, y * DIMOBJY + 6 );
 						return TRUE;
 					}
 				}
@@ -1862,7 +1866,7 @@ void CDecor::OpenDoorsTresor()
 			int icon = m_decor[x][y].icon;
 			if (icon >= 0x1a5 && icon <= 0x1a5 + m_nbTresor - 1)
 			{
-				OpenDoor({ x, y });
+				OpenDoor(POINT( x, y ));
 			}
 		}
 	}

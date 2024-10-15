@@ -1,3 +1,5 @@
+#ifndef DDUTIL_H
+#define DDUTIL_H
 /*==========================================================================
  *
  *  Copyright (C) 1995 Microsoft Corporation. All Rights Reserved.
@@ -9,7 +11,6 @@
 
 #define DIRECTDRAW_VERSION 0x0500
 
-#pragma once
 #include <ddraw.h>
 
 #ifdef __cplusplus
@@ -28,3 +29,5 @@ extern HRESULT              DDSetColorKey2(IDirectDrawSurface* pdds, COLORREF rg
 #ifdef __cplusplus
 }
 #endif	/* __cplusplus */
+
+#endif

@@ -576,6 +576,8 @@ BOOL CDecor::IsRightBorder(POINT pos, POINT offset)
 
 		}
 	}
+
+	return FALSE; // temp.
 }
 
 
@@ -600,19 +602,19 @@ void CDecor::AdaptMidBorder(POINT cel)
 	if (!IsValidCel(cel)) return;
 
 	int num = 15;
-	if (!IsRightBorder({ cel.x, cel.y + 1 }, { 0, -1 }))
+	if (!IsRightBorder(POINT( cel.x, cel.y + 1 ), POINT( 0, -1 )))
 	{
 		num &= -2;
 	}
-	if (!IsRightBorder({ cel.x, cel.y + 1 }, { 0, 1 }))
+	if (!IsRightBorder(POINT( cel.x, cel.y + 1 ), POINT( 0, 1 )))
 	{
 		num &= -3;
 	}
-	if (!IsRightBorder({ cel.x + 1, cel.y }, { -1, 0 }))
+	if (!IsRightBorder(POINT( cel.x + 1, cel.y ), POINT( -1, 0 )))
 	{
 		num &= -5;
 	}
-	if (!IsRightBorder({ cel.x - 1, cel.y }, { 1, 0 }))
+	if (!IsRightBorder(POINT( cel.x - 1, cel.y ), POINT( 1, 0 )))
 	{
 		num &= -9;
 	}
@@ -678,19 +680,19 @@ void CDecor::AdaptMidBorder(POINT cel)
 	if (num2 == -1 || (num2 >= 264 && num2 <= 282))
 	{
 		num = 15;
-		if (!IsFromage(cel + POINT{ 0,1 }))
+		if (!IsFromage(POINT(cel.x, cel.y + 1)))
 		{
 			num &= -2;
 		}
-		if (!IsFromage(cel - POINT{ 0,1 }))
+		if (!IsFromage(POINT(cel.x, cel.y - 1)))
 		{
 			num &= -3;
 		}
-		if (!IsFromage(cel + POINT{ 1,0 }))
+		if (!IsFromage(POINT(cel.x + 1, cel.y)))
 		{
 			num &= -5;
 		}
-		if (!IsFromage(cel - POINT{ 1,0 }))
+		if (!IsFromage(POINT(cel.x - 1, cel.y)))
 		{
 			num &= -9;
 		}
@@ -717,19 +719,19 @@ void CDecor::AdaptMidBorder(POINT cel)
 	if (num2 == -1 || (num2 >= 285 && num2 <= 303 && num2 != 301))
 	{
 		num = 15;
-		if (!IsGrotte(cel+POINT{0,1}))
+		if (!IsGrotte(POINT(cel.x, cel.y + 1)))
 		{
 			num &= -2;
 		}
-		if (!IsGrotte(cel-POINT{0,1}))
+		if (!IsGrotte(POINT(cel.x, cel.y - 1)))
 		{
 			num &= -3;
 		}
-		if (!IsGrotte(cel+POINT{1,0}))
+		if (!IsGrotte(POINT(cel.x + 1, cel.y)))
 		{
 			num &= -5;
 		}
-		if (!IsGrotte(cel-POINT{1,0}))
+		if (!IsGrotte(POINT(cel.x - 1, cel.y)))
 		{
 			num &= -9;
 		}
@@ -753,10 +755,10 @@ void CDecor::AdaptMidBorder(POINT cel)
 void CDecor::AdaptBorder(POINT cel)
 {
 	AdaptMidBorder(cel);
-	AdaptMidBorder(cel + POINT{1, 0});
-	AdaptMidBorder(cel - POINT{1, 0});
-	AdaptMidBorder(cel + POINT{ 0,1 });
-	AdaptMidBorder(cel - POINT{ 0,1 });
+	AdaptMidBorder(POINT(cel.x + 1, cel.y));
+	AdaptMidBorder(POINT(cel.x - 1, cel.y));
+	AdaptMidBorder(POINT(cel.x, cel.y + 1));
+	AdaptMidBorder(POINT(cel.x, cel.y - 1));
 	int icon = m_decor[cel.x][cel.y].icon;
 	if (icon != -1 && !IsPassIcon(icon))
 	{

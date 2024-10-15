@@ -1,4 +1,5 @@
-#pragma once
+#ifndef PIXTABLES_H
+#define PIXTABLES_H
 
 // keep these structs for reference
 /*
@@ -15,7 +16,7 @@ typedef struct {
 */
 
 
-extern short table_icon_blupi[]{
+extern short table_icon_blupi[] = {
 	336,
 	202,185, 17,9, 32,49,
 	194,234, 17,8, 28,50,
@@ -355,7 +356,7 @@ extern short table_icon_blupi[]{
 	230,25, 5,32, 49,27,
 };
 
-extern short table_icon_element[]{
+extern short table_icon_element[] = {
 	289,
 	308,153, 9,20, 51,40,
 	51,194, 8,19, 52,41,
@@ -648,7 +649,7 @@ extern short table_icon_element[]{
 	403,153, 7,14, 44,41,
 };
 
-extern short table_icon_explo[]{
+extern short table_icon_explo[] = {
 	100,
 	157,0, 48,51, 32,28,
 	253,132, 36,32, 58,61,
@@ -752,7 +753,7 @@ extern short table_icon_explo[]{
 	54,0, 9,35, 51,25,
 };
 
-extern short table_icon_object[]{
+extern short table_icon_object[] = {
 	441,
 	504,687, 0,0, 64,64,
 	568,687, 0,0, 64,64,
@@ -1196,3 +1197,5 @@ extern short table_icon_object[]{
 	986,495, 18,0, 28,64,
 	0,559, 18,0, 28,64,
 };
+
+#endif

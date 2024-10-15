@@ -1,6 +1,6 @@
 // CPixmap.h
-
-#pragma once
+#ifndef PIXMAP_H
+#define PIXMAP_H
 
 #include <ddraw.h>
 
@@ -125,3 +125,5 @@ protected:
 };
 
 static inline BOOL IsBlupiChannel(int channel);
+
+#endif

@@ -6,7 +6,9 @@
 //#include <stdio.h>
 //#include <ddraw.h>
 
-//#include <windef.h>
+#ifndef POINT
+#include <windef.h>
+#endif
 
 #include "button.h"
 #include "misc.h"

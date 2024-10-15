@@ -1,4 +1,6 @@
-#pragma once
+#ifndef OBSTACLE_H
+#define OBSTACLE_H
+
 #define Q_EMPTY \
 	0,0,0,0, \
 	0,0,0,0, \
@@ -40,7 +42,7 @@
 	0,1,1,0, \
 	0,1,1,0
 
-extern short table_decor_quart[]
+extern short table_decor_quart[] =
 {
 	Q_FULL, // 0
 	Q_FULL,
@@ -587,3 +589,5 @@ extern short table_decor_quart[]
 	Q_PILLAR,
 	Q_PILLAR
 };
+
+#endif

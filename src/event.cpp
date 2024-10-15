@@ -2281,75 +2281,63 @@ void CEvent::NetDraw()
 
 void CEvent::ChatSend()
 {
-	int		netplay;
-	UINT	i;
-	char*	text;
-	char	end[4];
-	POINT*  pos;
-	DPID	dpid;
-	LPVOID	data[25];
-	char	textInput[100];
+	int v3; // edx
+	char v5[4]; // [esp+Ch] [ebp-6Ch] BYREF
+	int dpid; // [esp+10h] [ebp-68h]
+	char str[100]; // [esp+14h] [ebp-64h] BYREF
 
-	text = m_textInput;
-	if (m_textInput[0] != '\0')
+	if (m_textInput[0])
 	{
-		netplay = NetSearchPlayer(m_pNetwork->m_dpid);
-		strcpy(textInput, "<");
-	}
-	if (netplay != -1)
-	{
-		strcat(textInput, (const char*)m_pNetwork->m_players[netplay].name);
-		strcat(textInput, "> ");
-		strcat(textInput, text);
-		//ChatMessageSound((char*)textInput);
-		end[0] = 108;
-		end[1] = 11;
+		v3 = NetSearchPlayer(m_pNetwork->m_dpid);
+		strcpy(str, "<");
+		if (v3 != -1)
+		{
+			strcat(str, m_pNetwork->m_players[v3].name);
+		}
+		strcat(str, "> ");
+		strcat(str, m_textInput);
+		ChatPush(str);
+		v5[0] = 108;
+		v5[1] = 11;
 		dpid = m_pNetwork->m_dpid;
-		m_pNetwork->Send(&end, 108, 1);
-		text = 0;
-		pos[132].x = 0;
-		pos[132].y = strlen(text);
-		pos[133].x = 0;
-		m_textHiliEnd = i - 1;
+		m_pNetwork->Send(v5, 108, 1);
+		m_textInput[0] = '\0';
+		m_textHiliStart = 0;
+		m_textHiliEnd = strlen(m_textInput);
 		m_textCursorIndex = 0;
 		SetEnable(WM_BUTTON20, 0);
 	}
-	return;
 }
 
-/*
-void CEvent::ChatMessageSound(char* data)
+void CEvent::ChatPush(char *str)
 {
-	int num;
-	char (*chatZone);
-	char(*chat)[5];
-	POINT pos;
+	int i; // eax
+	char *pText; // edx
 
-	num = 3;
-	chatZone = m_chatZone[0];
-	do
+	for (i = 0; m_chatZone[0] != '\0'; i++)
 	{
-		if (chatZone = '\0')
+		if (i >= MAXCHAT)
 		{
-			chat = m_chatZone + num * 20;
-			goto error;
+			CEvent::ChatPop();
+			pText = m_text;
+			goto LABEL_5;
 		}
-		num++;
-		chatZone = chatZone + 100;
-	} while (num < 6);
-	HandleChatBuffer();
-	chat = (char(*) [5])m_text;
-	return;
-
-error:
-	strcpy((char*)chat, data);
-	pos.x = 320;
-	pos.y = 240;
-	m_pSound->PlayImage(11, pos, -1);
+	}
+	pText = this->m_chatZone[i];
+LABEL_5:
+	strcpy(pText, str);
+	m_pSound->PlayImage(11, POINT( LXIMAGE / 2, LYIMAGE / 2 ), -1);
 }
-*/
 
-void CEvent::HandleChatBuffer()
+void CEvent::ChatFlush()
+{
+	for (int i = 0; i < MAXCHAT; i++)
+	{
+		m_chatZone[i][0] = '\0';
+	}
+}
+
+void CEvent::ChatPop()
 {
 	char (*chatZone)[5];
 	int num;
@@ -2360,13 +2348,10 @@ void CEvent::HandleChatBuffer()
 	chatZone = m_chatZone;
 	do
 	{
-		result = strlen((const char*)chatZone + 100) + 1;
-		text = (char*)chatZone;
-		chatZone += 100;
-		memcpy(text, chatZone, result);
+		memcpy(m_chatZone[num - 1], m_chatZone[num], strlen(m_chatZone[num]));
 		--num;
 	} while (num);
-	*((BYTE*)m_text) = 0;
+	m_text[0] = 0;
 	return;
 }
 
@@ -2459,26 +2444,26 @@ BOOL CEvent::DrawButtons()
 
 		if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST || m_phase == WM_PHASE_BUILD)
 		{
-			DrawTextLeft(m_pPixmap, { 2, 2 }, text, FONTLITTLE);
+			DrawTextLeft(m_pPixmap, POINT( 2, 2 ), text, FONTLITTLE);
 		}
 		else
 		{
-			m_pPixmap->DrawPart(-1, CHBACK, { 2, 2 }, { 2, 2, 302, 14 }, 1, FALSE);
+			m_pPixmap->DrawPart(-1, CHBACK, POINT( 2, 2 ), RECT( 2, 2, 302, 14 ), 1, FALSE);
 		}
     }
 
 	if (m_phase == WM_PHASE_INIT)
 	{
-		DrawText(m_pPixmap, { 414, 446 }, "Version 2.2", FONTLITTLE);
+		DrawText(m_pPixmap, POINT( 414, 446 ), "Version 2.2", FONTLITTLE);
 	}
 
 	if (m_phase == WM_PHASE_GAMER)
 	{
 		LoadString(TX_CHOOSEGAMER, res, 100);
-		DrawTextLeft(m_pPixmap, { LXIMAGE / 2 - GetTextWidth(res) / 2, 26 }, res, FONTGOLD);
+		DrawTextLeft(m_pPixmap, POINT( LXIMAGE / 2 - GetTextWidth(res) / 2, 26 ), res, FONTGOLD);
 		for (i = 0; i < 8; i++)
 		{
-			DrawText(m_pPixmap, { 110, 69 + i * DIMBUTTONY }, m_gamerNameList[i], FONTWHITE);
+			DrawText(m_pPixmap, POINT( 110, 69 + i * DIMBUTTONY ), m_gamerNameList[i], FONTWHITE);
 		}
 		SetEnable(WM_PHASE_CLEARGAMER, m_gamerExist[m_gamer]);
 	}
@@ -2496,7 +2481,7 @@ BOOL CEvent::DrawButtons()
 		pos.y = 190;
 		DrawTextLeft(m_pPixmap, pos, res, 0);
 
-		PutTextInputBox({ 320, 232 });
+		PutTextInputBox(POINT( 320, 232 ));
 	}
 
 	if (m_phase == WM_PHASE_NAMEDESIGN)
@@ -2512,7 +2497,7 @@ BOOL CEvent::DrawButtons()
 		pos.y = 190;
 		DrawTextLeft(m_pPixmap, pos, res, 0);
 
-		PutTextInputBox({ 320, 232 });
+		PutTextInputBox(POINT( 320, 232 ));
 	}
 
 	// now that the decomp is looking convincingly like the retail game,
@@ -2529,14 +2514,14 @@ BOOL CEvent::DrawButtons()
 			debugTextY = 0;
 		}
 
-		DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("DECOMPILATION"), debugTextY }, "DECOMPILATION", FONTGOLD);
-		DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth("WORK IN PROGRESS"), debugTextY + 11 }, "WORK IN PROGRESS", FONTGOLD);
-		DrawTextLeft(m_pPixmap, { LXIMAGE - GetTextWidth(__DATE__ " " __TIME__), debugTextY + 22 }, __DATE__ " " __TIME__, FONTGOLD);
+		DrawTextLeft(m_pPixmap, POINT( LXIMAGE - GetTextWidth("DECOMPILATION"), debugTextY ), "DECOMPILATION", FONTGOLD);
+		DrawTextLeft(m_pPixmap, POINT( LXIMAGE - GetTextWidth("WORK IN PROGRESS"), debugTextY + 11 ), "WORK IN PROGRESS", FONTGOLD);
+		DrawTextLeft(m_pPixmap, POINT( LXIMAGE - GetTextWidth(__DATE__ " " __TIME__), debugTextY + 22 ), __DATE__ " " __TIME__, FONTGOLD);
 	}
 	///////
 
-	if (m_phase == WM_PHASE_PLAY && m_phase == WM_PHASE_PLAYTEST && m_phase == WM_PHASE_BUILD)
-		m_pPixmap->DrawPart(-1, 0, pos, rect, 1, 0);
+	if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST && m_phase != WM_PHASE_BUILD)
+		m_pPixmap->DrawPart(-1, 0, POINT( 2, 2 ), RECT( 2, 2, 302, 14 ), 1, 0);
 	if (m_phase == WM_PHASE_CREATE)
 	{
 		LoadString(TX_MULTI_CREATE, res, 50);
@@ -2903,7 +2888,7 @@ BOOL CEvent::DrawButtons()
 		DrawTextLeft(m_pPixmap, pos, res, 0);
 	}
 
-	for (int i = 0; table[m_index].buttons[i].message != 0; i++)
+	for (i = 0; table[m_index].buttons[i].message != 0; i++)
 	{
 		m_buttons[i].Draw();
 	}
@@ -3966,11 +3951,13 @@ BOOL CEvent::EventButtons(UINT message, WPARAM wParam, LPARAM lParam)
 	int			i, lg, oldx, res;
 	UINT uid;
 
+	pos = GetMousePos();
 	m_textToolTips[0] = 0;
 	oldx = m_posToolTips.x;
 	m_posToolTips.x = -1;
-	if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST)
+	if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST && table[m_index].buttons[0].message)
 	{
+		/* // ????
 		for (i = 0; i < 2; i++)
 		{
 			if (!m_jauges[i].GetHide())
@@ -3996,6 +3983,7 @@ BOOL CEvent::EventButtons(UINT message, WPARAM wParam, LPARAM lParam)
 				m_jauges[i].Redraw();
 			}
 		}
+		*/
 	}
 	else
 	{
@@ -4363,7 +4351,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 			{
 				AddCDPath(str);
 			}
-			if (!m_pPixmap->BackgroundCache(0, str, { LXIMAGE, LYIMAGE }, { 0,0 }, FALSE))
+			if (!m_pPixmap->BackgroundCache(0, str, POINT( LXIMAGE, LYIMAGE ), POINT( 0,0 ), FALSE))
 			{
 				OutputNetDebug("CEvent::ChangePhase [Cache error]\r\n");
 				WaitMouse(FALSE);
@@ -5404,10 +5392,10 @@ void CEvent::ChangeButtons(int message)
 			SetState(WM_DIMS3, 0);
 			SetState(WM_DIMS4, 0);
 			SetState(message, 1);
-			if (message == WM_DIMS1) m_pDecor->SetDim({ MAXCELX, MAXCELY });
-			if (message == WM_DIMS2) m_pDecor->SetDim({ MAXCELX, 0 });
-			if (message == WM_DIMS3) m_pDecor->SetDim({ 0, MAXCELY });
-			if (message == WM_DIMS4) m_pDecor->SetDim({ 0, 0 });
+			if (message == WM_DIMS1) m_pDecor->SetDim(POINT( MAXCELX, MAXCELY ));
+			if (message == WM_DIMS2) m_pDecor->SetDim(POINT( MAXCELX, 0 ));
+			if (message == WM_DIMS3) m_pDecor->SetDim(POINT( 0, MAXCELY ));
+			if (message == WM_DIMS4) m_pDecor->SetDim(POINT( 0, 0 ));
 		}
 	}
 	if (m_phase == WM_PHASE_SERVICE)
@@ -5533,7 +5521,7 @@ void CEvent::ChangeButtons(int message)
 			SomethingUserMissions(file, m_filenameBuffer[m_choiceIndex]);
 			bBuild = !m_bBuildOfficialMissions;
 			m_pDecor->GetMissionPath(out, m_gamer, GetWorld(), bBuild);
-			OpenMission(file, out);
+			CopyMission(file, out);
 			ChangePhase(WM_PHASE_INFO);
 		}
 		SetHide(WM_BUTTON10, m_choicePageOffset == 0);
@@ -5639,40 +5627,6 @@ void CEvent::ChangeButtons(int message)
 			SetState(WM_BUTTON14, 1);
 		}
 	}
-}
-
-BOOL CEvent::OpenMission(char* pMission, char* pFile)
-{	
-	FILE* file;
-	FILE* file2;
-	int   nb;
-	char* pBuffer = NULL;
-	BOOL  bMission = TRUE;
-
-	pBuffer = (char*)malloc(sizeof(2560));
-	if (pBuffer == NULL) goto error;
-
-	file = fopen(pMission, "rb");
-	if (file == NULL) goto error;
-
-	file2 = fopen(pFile, "wb");
-	if (file2 == NULL) goto error;
-
-	do
-	{
-		nb = fread(pBuffer, 1, sizeof(2560), file);
-		if (pBuffer[nb] & 32) break;
-		if (nb <= 0)
-			bMission = FALSE;
-		break;
-		fwrite(pBuffer, 1, nb, file2);
-	} while (pBuffer[nb] & 32);
-	return bMission;
-
-error:
-	if (file == NULL) free(file);
-	if (file2 == NULL) free(file2);
-	return bMission;
 }
 
 BOOL CEvent::ClearGamer(int gamer)

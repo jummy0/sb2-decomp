@@ -1,5 +1,7 @@
 // misc.h
 //
+#ifndef MISC_H
+#define MISC_H
 
 #include <WTypes.h>
 
@@ -21,3 +23,5 @@ extern void AddUserPath(char *pFilename);
 
 extern void TraceErrorDD(HRESULT hErr, const char *sFile, int nLine);
 extern void TraceErrorDS(HRESULT hErr, const char *sFile, int nLine);
+
+#endif

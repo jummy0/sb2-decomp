@@ -1,6 +1,8 @@
-#pragma once
+#ifndef BUTTON_H
+#define BUTTON_H
 
-//#include <windef.h>
+#include <windef.h>
+
 #include "decor.h"
 #include "pixmap.h"
 #include "sound.h"
@@ -50,19 +52,21 @@ protected:
 	CSound*		m_pSound;
 	int			m_type;			// type de bouton
 	BOOL		m_bEnable;		// TRUE si bouton actif
-	BOOL		m_bHide;		// TRUE si bouton cach�
-	UINT		m_message;		// message envoy� si bouton actionn�
+	BOOL		m_bHide;		// TRUE si bouton caché
+	UINT		m_message;		// message envoyé si bouton actionné
 	POINT		m_pos;			// coin sup/gauche
 	POINT		m_dim;			// dimensions
 	int			m_state;		
 	int			m_mouseState;	
-	int			m_iconMenu[20];	// ic�nes du sous-menu
+	int			m_iconMenu[20];	// icônes du sous-menu
 	int			m_toolTips[20];	// info-bulles
 	int			m_nbMenu;		// nb de case du sous-menu
 	int			m_nbToolTips;	// nb d'info-bulles
 	int			m_selMenu;	
-	int 		m_bSomething;	// sous-menu s�lectionn�
-	BOOL		m_bMouseDown;	// TRUE -> bouton souris press�
+	int 		m_bSomething;	// sous-menu sélectionné
+	BOOL		m_bMouseDown;	// TRUE -> bouton souris pressé
 	BOOL		m_bMinimizeRedraw;
 	BOOL		m_bRedraw;		
 };
+
+#endif

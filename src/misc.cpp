@@ -36,7 +36,7 @@ void LoadString(UINT nID, char *pBuffer, int lgBuffer)
 
 void ChangeSprite(int sprite)
 {
-	HCURSOR		hCursor = nullptr;
+	HCURSOR		hCursor = NULL;
 
 	if ( g_mouseType == MOUSETYPEGRA )  return;
 	if ( g_lastSprite == sprite )  return;

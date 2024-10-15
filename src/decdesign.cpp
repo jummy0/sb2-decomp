@@ -9,12 +9,12 @@
 POINT CDecor::ScreenPosToCelPos(POINT pos)
 {
 	if (pos.x >= 0 && pos.x < LXIMAGE && pos.y >= 0 && pos.y < LYIMAGE) {
-		return {
-			(m_posDecor.x + m_dimCelHili.x * -32 + 32 + pos.x) / 64,
-			(m_posDecor.y + m_dimCelHili.y * -32 + 32 + pos.y) / 64
-		};
+		return POINT(
+			(m_posDecor.x + m_dimCelHili.x * -32 + 32 + pos.x) / DIMOBJX,
+			(m_posDecor.y + m_dimCelHili.y * -32 + 32 + pos.y) / DIMOBJY
+		);
 	}
-	else return { -1, -1 };
+	else return POINT( -1, -1 );
 }
 
 void CDecor::SetCelPosFromScreenPos(POINT pos)
@@ -24,8 +24,8 @@ void CDecor::SetCelPosFromScreenPos(POINT pos)
 
 void CDecor::SetFieldCC38AndStuff(int _foo, int _bar)
 {
-	m_dimCelHili = { 1, 1 };
-	if (_foo == 2 && _bar != 3 && _bar != 9 && _bar != 10) m_dimCelHili = { 2, 2 };
+	m_dimCelHili = POINT( 1, 1 );
+	if (_foo == 2 && _bar != 3 && _bar != 9 && _bar != 10) m_dimCelHili = POINT( 2, 2 );
 	if (_foo == 3) m_iconLift = _bar;
 	if (_foo == 4) m_iconLift = _bar + 20;
 	if (_foo == 5) m_iconLift = _bar + 40;
@@ -250,7 +250,7 @@ void CDecor::PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -269,7 +269,7 @@ void CDecor::PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -288,7 +288,7 @@ void CDecor::PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX, cel.y * DIMOBJY };
+		pMob->posStart = POINT( cel.x * DIMOBJX, cel.y * DIMOBJY );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -325,7 +325,7 @@ void CDecor::PlaceItemFromMenu5(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -396,7 +396,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -415,7 +415,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -434,7 +434,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -453,7 +453,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 8 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -472,7 +472,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 6 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 6 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -491,7 +491,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -510,7 +510,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 4 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -540,7 +540,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 6 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 6 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;
@@ -573,7 +573,7 @@ void CDecor::PlaceItemFromMenu7(POINT cel, int index, BYTE flags, int currentIco
 		pMob->stepRecede = 1;
 		pMob->timeStopStart = 0;
 		pMob->timeStopEnd = 0;
-		pMob->posStart = { cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 6 };
+		pMob->posStart = POINT( cel.x * DIMOBJX + 2, cel.y * DIMOBJY + 6 );
 		pMob->posEnd = pMob->posStart;
 		pMob->posCurrent = pMob->posStart;
 		pMob->step = STEP_STOPSTART;

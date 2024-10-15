@@ -1,5 +1,7 @@
-#pragma once
-extern int table_width[]
+#ifndef TEXTTABLES_H
+#define TEXTTABLES_H
+
+extern int table_width[] =
 {
 	32,
 	32,
@@ -132,7 +134,7 @@ extern int table_width[]
 };
 
 
-extern char table_char[]
+extern char table_char[] =
 	{
 		0,
 			0,
@@ -1671,3 +1673,5 @@ extern char table_char[]
 			0,
 			0
 	};
+
+#endif

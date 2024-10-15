@@ -30,7 +30,7 @@ BOOL CDecor::DeleteMission(int user, int mission, BOOL bUser)
 BOOL CDecor::Write(int gamer, int mission, BOOL bUser)
 {
 	char filename[FILENAME_MAX];
-	DescFile* pBuffer;
+	DescFile* pBuffer = NULL;
 	FILE* file;
 	int* blupiDir;
 	POINT* blupiPos;

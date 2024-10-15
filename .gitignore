@@ -2,6 +2,7 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
+*.exe
 /.vs
 /Debug
 /Release
@@ -12,4 +13,9 @@
 /SOUND
 /MOVIE
 /DATA
+/msvc5/*.ncb
+/msvc5/*.opt
+/msvc5/sb2decomp/*.plg
+/msvc5/sb2decomp/Debug
+/msvc5/sb2decomp/Release
 Speedy Eggbert 2 Source.vcxproj.user

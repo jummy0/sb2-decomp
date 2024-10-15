@@ -283,13 +283,14 @@ RECT CDecor::BlupiRect(POINT pos)
 // prevent blupi from getting stuck in blocks
 void CDecor::BlupiAdjust()
 {
+	int i;
 	RECT tinyRect = BlupiRect(m_blupiPos);
 
 	if (!DecorDetect(tinyRect))
 	{
 		return;
 	}
-	for (int i = 0; i < 50; i++)
+	for (i = 0; i < 50; i++)
 	{
 		RECT rect = tinyRect;
 		rect.bottom = rect.top + 2;
@@ -303,7 +304,7 @@ void CDecor::BlupiAdjust()
 		tinyRect.bottom += 2;
 		m_blupiPos.y = m_blupiPos.y + 2;
 	}
-	for (int i = 0; i < 50; i++)
+	for (i = 0; i < 50; i++)
 	{
 		RECT rect = tinyRect;
 		rect.right = rect.left + 2;
@@ -317,7 +318,7 @@ void CDecor::BlupiAdjust()
 		tinyRect.right += 2;
 		m_blupiPos.x = m_blupiPos.x + 2;
 	}
-	for (int i = 0; i < 50; i++)
+	for (i = 0; i < 50; i++)
 	{
 		RECT rect = tinyRect;
 		rect.left = rect.right - 2;
@@ -331,7 +332,7 @@ void CDecor::BlupiAdjust()
 		tinyRect.right -= 2;
 		m_blupiPos.x = m_blupiPos.x - 2;
 	}
-	for (int i = 0; i < 50; i++)
+	for (i = 0; i < 50; i++)
 	{
 		RECT rect = tinyRect;
 		rect.right = rect.left + 2;
@@ -343,7 +344,7 @@ void CDecor::BlupiAdjust()
 		tinyRect.right += 2;
 		m_blupiPos.x = m_blupiPos.x + 2;
 	}
-	for (int i = 0; i < 50; i++)
+	for (i = 0; i < 50; i++)
 	{
 		RECT rect = tinyRect;
 		rect.left = rect.right - 2;
@@ -1294,7 +1295,7 @@ void CDecor::BlupiStep()
 			{
 				m_blupiVitesse.x -= 2;
 			}
-			if (BlupiBloque({ end.x + m_blupiVitesse.x, end.y }, -1))
+			if (BlupiBloque(POINT( end.x + m_blupiVitesse.x, end.y ), -1))
 			{
 				m_blupiVitesse.x = 0;
 			}
@@ -1305,7 +1306,7 @@ void CDecor::BlupiStep()
 			{
 				m_blupiVitesse.x += 2;
 			}
-			if (BlupiBloque({ end.x + m_blupiVitesse.x, end.y }, -1))
+			if (BlupiBloque(POINT( end.x + m_blupiVitesse.x, end.y ), -1))
 			{
 				m_blupiVitesse.x = 0;
 			}
@@ -3678,7 +3679,7 @@ void CDecor::BlupiStep()
 	}
 	if (m_blupiAction == 74 && m_blupiPhase == 128)
 	{
-		POINT blupiPos2 { 0,0 };
+		POINT blupiPos2 = { 0,0 };
 		if (SearchTeleporte(m_blupiPos, blupiPos2))
 		{
 			m_blupiPos = blupiPos2;

@@ -1,7 +1,12 @@
 // Def.h
 //
 
-#pragma once
+#ifndef DEF_H
+#define DEF_H
+
+#ifndef WINVER
+#define WINVER 0x0400
+#endif
 
 #include <windows.h>
 #include <WinDef.h>
@@ -28,6 +33,7 @@
 #define MAXMOVEOBJECT	200
 #define MAXNOTIF		5
 #define MAXFIFOPOS		10
+#define MAXCHAT			6
 
 #define LXIMAGE			640		// dimensions de la fenêtre de jeu
 #define LYIMAGE			480
@@ -1292,66 +1298,87 @@ namespace Object {
 #define JAUGE_AIR 0
 #define JAUGE_POWER 1
 
+// hack to mimic array literals in old c++
+#if __cplusplus < 199711
+#define RECT(A,B,C,D) MAKE_RECT(A,B,C,D)
+#define POINT(X,Y) MAKE_POINT(X,Y)
+
+inline RECT MAKE_RECT (int left, int top, int right, int bottom)
+{
+	RECT r = {left, top, right, bottom};
+	return r;
+};
+
+inline POINT MAKE_POINT (int x, int y)
+{
+	POINT p = {x, y};
+	return p;
+};
+#else
+#define RECT(A,B,C,D) RECT{A,B,C,D}
+#define POINT(X,Y) POINT{X,Y}
+#endif
+
 // helpers for POINT
 
 POINT operator+(POINT p, const POINT& a)
 {
-	return { a.x + p.x, a.y + p.y };
+	return POINT( a.x + p.x, a.y + p.y );
 }
 
 POINT operator-(POINT p, const POINT& a)
 {
-	return { a.x - p.x, a.y - p.y };
+	return POINT( a.x - p.x, a.y - p.y );
 }
 
 POINT operator*(POINT p, const POINT& a)
 {
-	return { a.x * p.x, a.y * p.y };
+	return POINT( a.x * p.x, a.y * p.y );
 }
 
 POINT operator/(POINT p, const POINT& a)
 {
-	return { p.x / a.x, p.y / a.y };
+	return POINT( p.x / a.x, p.y / a.y );
 }
 
 POINT operator*(POINT p, const int& a)
 {
-	return { p.x * a, p.y * a };
+	return POINT( p.x * a, p.y * a );
 }
 
 POINT operator/(POINT p, const int& a)
 {
-	return { p.x / a, p.y / a };
+	return POINT( p.x / a, p.y / a );
 }
 
 POINT operator+=(POINT p, const POINT& a)
 {
-	return { p.x += a.x, p.y += a.y };
+	return POINT( p.x += a.x, p.y += a.y );
 }
 
 POINT operator-=(POINT p, const POINT& a)
 {
-	return { p.x -= a.x, p.y -= a.y };
+	return POINT( p.x -= a.x, p.y -= a.y );
 }
 
 POINT operator*=(POINT p, const POINT& a)
 {
-	return { p.x *= a.x, p.y *= a.y };
+	return POINT( p.x *= a.x, p.y *= a.y );
 }
 
 POINT operator/=(POINT p, const POINT& a)
 {
-	return { p.x /= a.x, p.y /= a.y };
+	return POINT( p.x /= a.x, p.y /= a.y );
 }
 
 POINT operator*=(POINT p, const int& a)
 {
-	return { p.x *= a, p.y *= a };
+	return POINT( p.x *= a, p.y *= a );
 }
 
 POINT operator/=(POINT p, const int& a)
 {
-	return { p.x /= a, p.y /= a };
+	return POINT( p.x /= a, p.y /= a );
 }
 
 bool operator!=(POINT a, const POINT& b)
@@ -1363,3 +1390,5 @@ bool operator==(POINT a, const POINT& b)
 {
 	return a.x == b.x && a.y == b.y;
 }
+
+#endif

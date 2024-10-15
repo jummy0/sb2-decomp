@@ -72,7 +72,11 @@ void CDecor::NetDataFlush()
 
 void CDecor::NetFUN_155e0(BYTE _foo, short _bar)
 {
-	char data[4]{ 4, _foo, _bar & 0xff, _bar >> 8 };
+	char data[4];
+	data[0] = 4;
+	data[1] = _foo;
+	data[2] = _bar & 0xff;
+	data[3] = _bar >> 8;
 	m_pNetwork->Send(&data, 4, DPSEND_GUARANTEED);
 	return;
 }
@@ -194,7 +198,7 @@ void CDecor::NotifPush(char *str)
 	}
 	strcpy(m_notifText[i], str);
 	m_notifTime = NOTIFDELAY;
-	m_pSound->PlayImage(SOUND_TRESOR, { LXIMAGE / 2, LYIMAGE / 2 }, -1);
+	m_pSound->PlayImage(SOUND_TRESOR, POINT( LXIMAGE / 2, LYIMAGE / 2 ), -1);
 }
 
 void CDecor::NotifStep()

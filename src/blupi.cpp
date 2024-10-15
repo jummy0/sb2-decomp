@@ -21,10 +21,9 @@
 #include "movie.h"
 #include "button.h"
 #include "menu.h"
-#include "jauge.h"
 #include "event.h"
-#include "misc.h"
 #include "network.h"
+#include "misc.h"
 
 // Define Globals
 
@@ -335,7 +334,7 @@ void SetDecor(void)
 
 	phase = g_pEvent->GetPhase();
 
-	rect = { 0, 0, LXIMAGE, LYIMAGE };
+	rect = RECT( 0, 0, LXIMAGE, LYIMAGE );
 
 	if (phase == WM_PHASE_PLAY || phase == WM_PHASE_PLAYTEST || phase == WM_PHASE_BUILD)
 	{
@@ -483,7 +482,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 			}
 			if (!g_bFullScreen && g_bTermInit)
 			{
-				g_pPixmap->BackgroundCache(CHLITTLE, "little.blp", { 256, 96 }, { DIMLITTLEX , DIMLITTLEY }, TRUE);
+				g_pPixmap->BackgroundCache(CHLITTLE, "little.blp", POINT( 256, 96 ), POINT( DIMLITTLEX , DIMLITTLEY ), TRUE);
 				g_pPixmap->SetTransparent(CHLITTLE, RGB(0, 0, 255)); // bleu
 
 				g_pPixmap->SavePalette();

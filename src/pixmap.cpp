@@ -632,11 +632,12 @@ BOOL CPixmap::DrawMap(int channel, RECT src, RECT dest)
 		return FALSE;
 	}
 
-	while (hErr == DDERR_WASSTILLDRAWING)
+	while (1)
 	{
 		hErr = m_lpDDSurface[channel]->Blt(&dest, m_lpDDSBack, &src, DDBLT_WAIT, NULL);
 		if (hErr == DD_OK) break;
 		if (hErr == DDERR_SURFACELOST) hErr = RestoreAll(); if (hErr != DD_OK) break;;
+		if (hErr == DDERR_WASSTILLDRAWING) break;
 	}
 	return (hErr == DD_OK);
 }

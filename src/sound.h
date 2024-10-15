@@ -1,7 +1,7 @@
 // sound.h
 //
-
-#pragma once
+#ifndef SOUND_H
+#define SOUND_H
 
 //#include <windef.h>
 
@@ -72,3 +72,5 @@ protected:
 	int                     m_lastMidiVolume;
 	int                     m_nbSuspendSkip;
 };
+
+#endif
