@@ -47,96 +47,113 @@ void CDecor::BlupiSearchIcon()
 
 	if (m_blupiVent && !m_blupiHelico && !m_blupiOver)
 	{
-		if (action == 0x1) action = 0x8;
-		if (action == 0x2) action = 0xe;
+		if (action == ACTION_STOP) action = ACTION_VERTIGO;
+		if (action == ACTION_MARCH) action = ACTION_PUSH;
 	}
 
 	if (m_blupiHelico)
 	{
-		if (action == 0x1) action = 0xf;
-		if (action == 0x2) action = 0x10;
-		if (action == 0x3) action = 0x11;
-		if (action == 0xa) action = 0xf;
-		if (action == 0x9) action = 0xf;
+		if (action == ACTION_STOP) action = ACTION_STOPHELICO;
+		if (action == ACTION_MARCH) action = ACTION_MARCHHELICO;
+		if (action == ACTION_TURN) action = ACTION_TURNHELICO;
+		if (action == ACTION_ADVANCE) action = ACTION_STOPHELICO;
+		if (action == ACTION_RECEDE) action = ACTION_STOPHELICO;
 	}
 
 	if (m_blupiOver)
 	{
-		if (action == 0x1) action = 0x43;
-		if (action == 0x2) action = 0x44;
-		if (action == 0x3) action = 0x45;	
-		if (action == 0xa) action = 0x43;	
-		if (action == 0x9) action = 0x43;
+		if (action == ACTION_STOP) action = ACTION_STOPOVER;
+		if (action == ACTION_MARCH) action = ACTION_MARCHOVER;
+		if (action == ACTION_TURN) action = ACTION_TURNOVER;	
+		if (action == ACTION_ADVANCE) action = ACTION_STOPOVER;
+		if (action == ACTION_RECEDE) action = ACTION_STOPOVER;
 	}
 
 	if (m_blupiJeep)
 	{
-		if (action == 0x1) action = 0x19;
-		if (action == 0x2) action = 0x1a;
-		if (action == 0xa) action = 0x1a;
-		if (action == 0x3) action = 0x1b;
+		if (action == ACTION_STOP) action = ACTION_STOPJEEP;
+		if (action == ACTION_MARCH) action = ACTION_MARCHJEEP;
+		if (action == ACTION_ADVANCE) action = ACTION_MARCHJEEP;
+		if (action == ACTION_TURN) action = ACTION_TURNJEEP;
 	}
 
 	if (m_blupiTank)
 	{
-		if (action == 0x1) action = 0x32;
-		if (action == 0x2) action = 0x33;
-		if (action == 0xa) action = 0x33;
-		if (action == 0x3) action = 0x34;
+		if (action == ACTION_STOP) action = ACTION_STOPTANK;
+		if (action == ACTION_MARCH) action = ACTION_MARCHTANK;
+		if (action == ACTION_ADVANCE) action = ACTION_MARCHTANK;
+		if (action == ACTION_TURN) action = ACTION_TURNTANK;
 	}
 
 	if (m_blupiSkate)
 	{
-		if (action == 0x1) action = 0x25;
-		if (action == 0x2) action = 0x26;
-		if (action == 0xa) action = 0x26;
-		if (action == 0x3) action = 0x27;
-		if (action == 0x3b) action = 0x27;
-		if (action == 0x4) action = 0x28;
-		if (action == 0x5) action = 0x29;
+		if (action == ACTION_STOP) action = ACTION_STOPSKATE;
+		if (action == ACTION_MARCH) action = ACTION_MARCHSKATE;
+		if (action == ACTION_ADVANCE) action = ACTION_MARCHSKATE;
+		if (action == ACTION_TURN) action = ACTION_TURNSKATE;
+		if (action == ACTION_TURNAIR) action = ACTION_TURNSKATE;
+		if (action == ACTION_JUMP) action = ACTION_JUMPSKATE;
+		if (action == ACTION_AIR) action = ACTION_AIRSKATE;
 	}
 
 	if (m_blupiNage)
 	{
-		if (action == 0x1) action = 0x12;
-		if (action == 0x2) action = 0x13;
-		if (action == 0x3) action = 0x14;
-		if ((m_blupiVitesse).x == 0)
+		if (action == ACTION_STOP) action = ACTION_STOPNAGE;
+		if (action == ACTION_MARCH) action = ACTION_MARCHNAGE;
+		if (action == ACTION_TURN) action = ACTION_TURNNAGE;
+		if (m_blupiVitesse.x == 0)
 		{
-			if (action == 0x12) action = 0x15;
-			if (action == 0x13) action = 0x16;
+			if (action == ACTION_STOPNAGE) action = ACTION_STOPSURF;
+			if (action == ACTION_MARCHNAGE) action = ACTION_MARCHSURF;
 		}
 	}
 
 	if (m_blupiSurf)
 	{
-		if (action == 0x1) action = 0x15;
-		if (action == 0x2) action = 0x16;
-		if (action == 0x3) action = 0x17;
+		if (action == ACTION_STOP) action = ACTION_STOPSURF;
+		if (action == ACTION_MARCH) action = ACTION_MARCHSURF;
+		if (action == ACTION_TURN) action = ACTION_TURNSURF;
 	}
 
 	if (m_blupiSuspend)
 	{
-		if (action == 0x1) action = 0x1f;
-		if (action == 0x2) action = 0x20;
-		if (action == 0x3) action = 0x21;
-		if (action == 0x4) action = 0x22;
+		if (action == ACTION_STOP) action = ACTION_STOPSUSPEND;
+		if (action == ACTION_MARCH) action = ACTION_MARCHSUSPEND;
+		if (action == ACTION_TURN) action = ACTION_TURNSUSPEND;
+		if (action == ACTION_JUMP) action = ACTION_JUMPSUSPEND;
 	}
 
-	if (m_blupiBalloon) action = 0x42;
+	if (m_blupiBalloon) action = ACTION_BALLOON;
 
 	if (m_blupiEcrase)
 	{
-		if (action == 0x1) action = 0x48;
-		if (action == 0x2) action = 0x49;
-		if (action == 0x3) action = 0x49;
+		if (action == ACTION_STOP) action = ACTION_STOPECRASE;
+		if (action == ACTION_MARCH) action = ACTION_MARCHECRASE;
+		if (action == ACTION_TURN) action = ACTION_MARCHECRASE;
 	}
 
-	if ((action == 0x1) &&
-		((((((phase = m_blupiPhase % 330, phase == 0x7d || (phase == 0x81)) || (phase == 0x87)) || (((phase == 0x8b || (phase == 0xd7)) || ((phase == 0xdb || ((phase == 0xe1 || (phase == 0xe5)))))))) ||
-		((phase == 0xeb || (((phase == 0xef || (phase == 0xf5)) || (phase == 0xf9)))))) || (((phase == 0xff || (phase == 0x103)) || ((phase == 0x109 || (phase == 0x10d))))))))
+	if (action == ACTION_STOP)
 	{
-		PlaySound(SOUND_PATIENT, m_blupiPos, FALSE);
+		phase = m_blupiPhase % 330;
+		if (phase == 125 ||
+			phase == 129 ||
+			phase == 135 ||
+			phase == 139 ||
+			phase == 215 ||
+			phase == 219 ||
+			phase == 225 ||
+			phase == 229 ||
+			phase == 235 ||
+			phase == 239 ||
+			phase == 245 ||
+			phase == 249 ||
+			phase == 255 ||
+			phase == 259 ||
+			phase == 265 ||
+			phase == 269)
+		{
+			PlaySound(SOUND_PATIENT, m_blupiPos, FALSE);
+		}
 	}
 	if ((action == 0x1f) && (((phase = m_blupiPhase % 328, phase == 0x76 || (phase == 0xe6)) || (phase == 0x116))))
 	{
@@ -150,14 +167,12 @@ void CDecor::BlupiSearchIcon()
 	{
 		if (action == table_blupi[i])
 		{
-			if ((table_blupi[i + 2] == 0 || m_blupiPhase <= table_blupi[i + 2]) && table_blupi[i + 1] != 0)
+			phase = table_blupi[i + 2];
+			if (phase == 0 || m_blupiPhase <= phase)
 			{
-				icon = table_blupi[i + 3 + m_blupiPhase % table_blupi[i + 1]];
+				phase = m_blupiPhase % table_blupi[i + 1];
 			}
-			else
-			{
-				icon = table_blupi[i + 3 + table_blupi[i + 2]];
-			}
+			icon = table_blupi[i + 3 + phase];
 			break;
 		}
 	}
@@ -495,7 +510,7 @@ void CDecor::BlupiStep()
 			m_blupiAction = ACTION_AIR;
 			m_blupiPhase = 0;
 		}
-		if (m_keyPress & KEY_LEFT && m_blupiFocus)
+		if (m_keyPress & KEY_LEFT && m_blupiFocus) // this is wrong
 		{
 			m_blupiVitesse.y = (m_blupiPower ? -25 : -19);
 		}
@@ -613,8 +628,8 @@ void CDecor::BlupiStep()
 		{
 			m_blupiTransport = icon;
 			bAirStart = FALSE;
-			PlaySound(SOUND_JUMPEND, end);
-			end.y = m_moveObject[num].posCurrent.y - DIMOBJY + BLUPIOFFY;
+			PlaySound(SOUND_JUMPEND, end, FALSE);
+			end.y = m_moveObject[icon].posCurrent.y - DIMOBJY + BLUPIOFFY;
 			if (m_blupiFocus)
 			{
 				if (m_blupiVitesse.y > 20)
@@ -3014,13 +3029,13 @@ void CDecor::BlupiStep()
 			tinyPoint.y = m_blupiPos.y - 5;
 			ObjectStart(tinyPoint, 92, 0);
 		}
-		if (IsBridge(m_blupiPos, tinyPoint2) && m_blupiFocus)
+		if (IsBridge(m_blupiPos, &tinyPoint2) && m_blupiFocus)
 		{
 			tinyPoint2.x *= DIMOBJX;
 			tinyPoint2.y *= DIMOBJY;
 			ObjectStart(tinyPoint2, TYPE_BRIDGE, 0);
 		}
-		int num2 = IsDoor(m_blupiPos, tinyPoint2);
+		int num2 = IsDoor(m_blupiPos, &tinyPoint2);
 		if (num2 != -1 && (m_blupiCle & 1 << num2 - 334) != 0)
 		{
 			OpenDoor(tinyPoint2);
@@ -3797,7 +3812,7 @@ void CDecor::BlupiStep()
 	{
 		StopSound(47);
 	}
-	if (m_blupiFocus && !m_blupiAir && (!m_blupiHelico || BlupiIsGround()) && (!m_blupiOver || BlupiIsGround()) && !m_blupiBalloon && !m_blupiEcrase && !m_blupiShield && !m_blupiHide && !bIsOpen && !bIsOpen2 && m_blupiTransport == -1 && !IsLave(m_blupiPos) && !IsPiege(m_blupiPos) && !IsGoutte(m_blupiPos, TRUE) && !IsScie(m_blupiPos) && !IsBridge(m_blupiPos, tinyPoint) && IsTeleporte(m_blupiPos) == -1 && !IsBlitz(m_blupiPos, TRUE) && !IsTemp(m_blupiPos) && !IsBalleTraj(m_blupiPos) && !IsMoveTraj(m_blupiPos))
+	if (m_blupiFocus && !m_blupiAir && (!m_blupiHelico || BlupiIsGround()) && (!m_blupiOver || BlupiIsGround()) && !m_blupiBalloon && !m_blupiEcrase && !m_blupiShield && !m_blupiHide && !bIsOpen && !bIsOpen2 && m_blupiTransport == -1 && !IsLave(m_blupiPos) && !IsPiege(m_blupiPos) && !IsGoutte(m_blupiPos, TRUE) && !IsScie(m_blupiPos) && !IsBridge(m_blupiPos, &tinyPoint) && IsTeleporte(m_blupiPos) == -1 && !IsBlitz(m_blupiPos, TRUE) && !IsTemp(m_blupiPos) && !IsBalleTraj(m_blupiPos) && !IsMoveTraj(m_blupiPos))
 	{
 		if (m_blupiFifoNb > 0)
 		{
@@ -3864,7 +3879,7 @@ void CDecor::BlupiStep()
 
 	// DEBUG v
 	sprintf(m_notifText[0], "blupiAction %d", m_blupiAction);
-	sprintf(m_notifText[1], "blupiPhase %d", m_blupiPhase);
+	sprintf(m_notifText[1], "blupiIcon %d", m_blupiIcon);
 	sprintf(m_notifText[2], "blupiPos { %d, %d }", m_blupiPos.x, m_blupiPos.y);
 	sprintf(m_notifText[3], "blupiVitesse { %d, %d }", m_blupiVitesse.x, m_blupiVitesse.y);
 	sprintf(m_notifText[4], "time %d", m_time);

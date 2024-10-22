@@ -11,7 +11,6 @@
 #include <mmsystem.h>
 #include <time.h>
 #include <sys/timeb.h>
-#include <WinBase.h>
 #include "def.h"
 #include "resource.h"
 #include "ddutil.h"

@@ -283,15 +283,15 @@ BOOL CDecor::ObjectStart(POINT pos, int type, int speed, BOOL bMulti)
 	{
 		POINT tinyPoint = pos;
 		int num2 = speed;
-		int num3 = 0;
+		int dist = 0;
 		if (num2 > 50)
 		{
 			num2 -= 50;
 			POINT dir;
 			dir.x = 0;
 			dir.y = 1;
-			num3 = SearchDistRight(tinyPoint, dir, type);
-			tinyPoint.y += num3;
+			dist = SearchDistRight(tinyPoint, dir, type);
+			tinyPoint.y += dist;
 		}
 		else if (num < -50)
 		{
@@ -299,26 +299,26 @@ BOOL CDecor::ObjectStart(POINT pos, int type, int speed, BOOL bMulti)
 			POINT dir;
 			dir.x = 0;
 			dir.y = -1;
-			num3 = SearchDistRight(tinyPoint, dir, type);
-			tinyPoint.y -= num3;
+			dist = SearchDistRight(tinyPoint, dir, type);
+			tinyPoint.y -= dist;
 		}
 		else if (num2 > 0)
 		{
 			POINT dir;
 			dir.x = 1;
 			dir.y = 0;
-			num3 = SearchDistRight(tinyPoint, dir, type);
-			tinyPoint.x += num3;
+			dist = SearchDistRight(tinyPoint, dir, type);
+			tinyPoint.x += dist;
 		}
 		else if (num2 < 0)
 		{
 			POINT dir;
 			dir.x = -1;
 			dir.y = 0;
-			num3 = SearchDistRight(tinyPoint, dir, type);
-			tinyPoint.x -= num3;
+			dist = SearchDistRight(tinyPoint, dir, type);
+			tinyPoint.x -= dist;
 		}
-		if (num3 == 0)
+		if (dist == 0)
 		{
 			if (type == TYPE_BALLE)
 			{
@@ -330,7 +330,7 @@ BOOL CDecor::ObjectStart(POINT pos, int type, int speed, BOOL bMulti)
 		{
 			m_moveObject[num].posEnd = tinyPoint;
 			m_moveObject[num].timeStopStart = 0;
-			m_moveObject[num].stepAdvance = abs(num2 * num3 / 64);
+			m_moveObject[num].stepAdvance = abs(dist * num2 / 64);
 			m_moveObject[num].step = STEP_ADVANCE;
 			m_moveObject[num].time = 0;
 		}
@@ -1347,7 +1347,7 @@ void CDecor::MoveObjectStepIcon(int i)
 			if ((m_moveObject[i].posStart.x < m_moveObject[i].posEnd.x && m_moveObject[i].step == STEP_STOPSTART) || (m_moveObject[i].posStart.x > m_moveObject[i].posEnd.x && m_moveObject[i].step == STEP_STOPEND))
 			{
 				pos.x = m_moveObject[i].posCurrent.x - 30;
-				pos.y = m_moveObject[i].posCurrent.x + BLUPIOFFY;
+				pos.y = m_moveObject[i].posCurrent.y + BLUPIOFFY;
 				speed = -5;
 			}
 			else
@@ -1576,30 +1576,24 @@ int CDecor::AscenseurDetect(RECT rect, POINT oldpos, POINT newpos)
 	{
 		return -1;
 	}
-	int num = newpos.y - oldpos.y;
-	int num2;
-	if (num < 0)
-	{
-		num2 = -30;
-	}
-	else
-	{
-		num2 = 30;
-	}
-	num = abs(num);
+	int dy = abs(newpos.y - oldpos.y);
+	int dirY = newpos.y < oldpos.y ? -1 : 1;
+
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
 	{
-		if (m_moveObject[i].type == 1 || m_moveObject[i].type == 47 || m_moveObject[i].type == 48)
+		if (m_moveObject[i].type == TYPE_ASCENSEUR ||
+			m_moveObject[i].type == TYPE_ASCENSEURs ||
+			m_moveObject[i].type == TYPE_ASCENSEURsi)
 		{
 			RECT src;
 			src.left = m_moveObject[i].posCurrent.x;
-			src.right = m_moveObject[i].posCurrent.x + 64;
+			src.right = m_moveObject[i].posCurrent.x + DIMOBJX;
 			src.top = m_moveObject[i].posCurrent.y;
 			src.bottom = m_moveObject[i].posCurrent.y + 16;
-			if (num < 30)
+			if (dy < LIFT_RANGE_Y)
 			{
-				RECT tinyRect = { 0, 0, 0, 0 };
-				if (IntersectRect(&tinyRect, &src, &rect))
+				RECT dest = { 0, 0, 0, 0 };
+				if (IntersectRect(&dest, &src, &rect))
 				{
 					return i;
 				}
@@ -1607,17 +1601,17 @@ int CDecor::AscenseurDetect(RECT rect, POINT oldpos, POINT newpos)
 			else
 			{
 				RECT src2 = rect;
-				src2.top -= num / 30 * num2;
-				src2.bottom -= num / 30 * num2;
-				for (int j = 0; j <= num / 30; j++)
+				src2.top -= dy / LIFT_RANGE_Y * LIFT_RANGE_Y * dirY;
+				src2.bottom -= dy / LIFT_RANGE_Y * LIFT_RANGE_Y * dirY;
+				for (int j = 0; j <= dy / LIFT_RANGE_Y; j++)
 				{
-					RECT tinyRect = { 0, 0, 0, 0 };
-					if (IntersectRect(&tinyRect, &src, &src2))
+					RECT dest = { 0, 0, 0, 0 };
+					if (IntersectRect(&dest, &src, &src2))
 					{
 						return i;
 					}
-					src2.top += num2;
-					src2.bottom += num;
+					src2.top += dirY * LIFT_RANGE_Y;
+					src2.bottom += dy;
 				}
 			}
 
@@ -2276,40 +2270,29 @@ void CDecor::MoveObjectSort()
 	m_nbLinkCaisse = 0;
 }
 
-void CDecor::MoveObjectPriority(int i)
+void CDecor::MoveObjectPriority(int rank)
 {
-	MoveObject src;
-	int j;
+	MoveObject tempMob;
 
-	if (i == 0)
+	if (rank != 0)
 	{
-		return;
-	}
-	if (m_moveObject[i].type != TYPE_BALLE)
-	{
-		return;
-	}
-	j = 0;
-	while (j < MAXMOVEOBJECT)
-	{
-		if (m_moveObject[j].type != TYPE_BALLE)
+		if (m_moveObject[rank].type == TYPE_BALLE)
 		{
-			if (j > i)
+			int i = 0;
+			for (int i = 0; i < MAXMOVEOBJECT; i++)
 			{
-				return;
+				if (m_moveObject[i].type != TYPE_BALLE) break;
 			}
-			MoveObjectCopy(&src, &m_moveObject[i]);
-			MoveObjectCopy(&m_moveObject[i], &m_moveObject[j]);
-			MoveObjectCopy(&m_moveObject[j], &src);
-			if (m_moveObject[i].type == TYPE_CAISSE || m_moveObject[j].type == TYPE_CAISSE)
+			if (i <= rank)
 			{
-				UpdateCaisse();
+				MoveObjectCopy(&tempMob, &m_moveObject[rank]);
+				MoveObjectCopy(&m_moveObject[rank], &m_moveObject[i]);
+				MoveObjectCopy(&m_moveObject[i], &tempMob);
+				if (m_moveObject[rank].type == TYPE_CAISSE || tempMob.type == TYPE_CAISSE)
+				{
+					UpdateCaisse();
+				}
 			}
-			return;
-		}
-		else
-		{
-			j++;
 		}
 	}
 }

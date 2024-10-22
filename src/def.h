@@ -4,12 +4,7 @@
 #ifndef DEF_H
 #define DEF_H
 
-#ifndef WINVER
-#define WINVER 0x0400
-#endif
-
 #include <windows.h>
-#include <WinDef.h>
 
 // prevent WinAPI from overriding our functions
 #undef PlaySound
@@ -29,11 +24,13 @@
 
 #define MAXGAMER		8
 #define MAXNETPLAYER	4
+#define MAXTEAM			4
 #define MAXNETMESSAGE	20
 #define MAXMOVEOBJECT	200
 #define MAXNOTIF		5
 #define MAXFIFOPOS		10
 #define MAXCHAT			6
+#define LIFT_RANGE_Y	30
 
 #define LXIMAGE			640		// dimensions de la fenêtre de jeu
 #define LYIMAGE			480

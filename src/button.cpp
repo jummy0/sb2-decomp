@@ -7,7 +7,7 @@
 //#include <ddraw.h>
 
 #ifndef POINT
-#include <windef.h>
+#include <windows.h>
 #endif
 
 #include "button.h"

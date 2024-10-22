@@ -3,8 +3,6 @@
 #ifndef SOUND_H
 #define SOUND_H
 
-//#include <windef.h>
-
 #include "dsound.h"
 #include <stdio.h>
 

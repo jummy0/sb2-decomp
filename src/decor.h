@@ -278,8 +278,8 @@ public:
 	BOOL	IsBlitz(POINT pos, BOOL bAlways);
 	BOOL	IsRessort(POINT pos);
 	BOOL	IsTemp(POINT pos);
-	BOOL	IsBridge(POINT pos, POINT celBridge);
-	int		IsDoor(POINT pos, POINT celPorte);
+	BOOL	IsBridge(POINT pos, POINT *outCelBridge);
+	int		IsDoor(POINT pos, POINT *outCelPorte);
 	int		IsTeleporte(POINT pos);
 	BOOL	SearchTeleporte(POINT pos, POINT newpos);
 	BOOL	IsSurfWater(POINT pos);

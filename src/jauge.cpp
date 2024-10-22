@@ -5,8 +5,6 @@
 //#include <stdlib.h>
 //#include <stdio.h>
 #include <ddraw.h>
-// #include <minwindef.h>
-//#include <windef.h>
 #include "def.h"
 #include "pixmap.h"
 #include "sound.h"

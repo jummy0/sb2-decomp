@@ -307,28 +307,28 @@ BOOL CDecor::IsTemp(POINT pos)
 	return pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon == 324;
 }
 
-BOOL CDecor::IsBridge(POINT pos, POINT celBridge)
+BOOL CDecor::IsBridge(POINT pos, POINT *outCelBridge)
 {
 	pos.x += 30;
 	pos.y += 60;
 	if (pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon == 364)
 	{
-		celBridge.x = pos.x / DIMOBJX;
-		celBridge.y = pos.y / DIMOBJY;
+		outCelBridge->x = pos.x / DIMOBJX;
+		outCelBridge->y = pos.y / DIMOBJY;
 		return TRUE;
 	}
 	pos.y -= 60;
 	if (pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon == 364)
 	{
-		celBridge.x = pos.x / DIMOBJX;
-		celBridge.y = pos.y / DIMOBJY;
+		outCelBridge->x = pos.x / DIMOBJX;
+		outCelBridge->y = pos.y / DIMOBJY;
 		return TRUE;
 	}
 	return FALSE;
 
 }
 
-int CDecor::IsDoor(POINT pos, POINT celPorte)
+int CDecor::IsDoor(POINT pos, POINT *outCelPorte)
 {
 	int num;
 	if (m_blupiDir == 1)
@@ -344,8 +344,8 @@ int CDecor::IsDoor(POINT pos, POINT celPorte)
 	{
 		if (pos.x >= 0 && pos.x < DIMOBJX * MAXCELX && pos.y >= 0 && pos.y < DIMOBJY * MAXCELY && m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon >= 334 && m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon <= 336)
 		{
-			celPorte.x = pos.x / DIMOBJX;
-			celPorte.y = pos.y / DIMOBJY;
+			outCelPorte->x = pos.x / DIMOBJX;
+			outCelPorte->y = pos.y / DIMOBJY;
 			return m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon;
 		}
 		pos.x += num;

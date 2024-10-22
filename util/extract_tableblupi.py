@@ -4,7 +4,7 @@
 import sys
 import io
 
-offset = 0x34560
+offset = 0x34e60
 out = []
 
 with io.open('BLUPI.exe', 'rb') as f:
