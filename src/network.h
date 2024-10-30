@@ -4,10 +4,9 @@
 #define NETWORK_H
 
 #include "dplay.h"
+#include "def.h"
 
 /////////////////////////////////////////////////////////////////////////////
-
-#define MAXSESSION 100
 
 typedef struct
 {
@@ -57,7 +56,7 @@ public:
 	void FreeUnknownList();
 	BOOL IsHost();
 
-	NetPlayer		m_players[4];
+	NetPlayer		m_players[MAXNETPLAYER];
 	DPID			m_dpid;
 
 protected:
@@ -66,8 +65,6 @@ protected:
 	NamedGUIDList	m_sessions;
 	NamedGUIDList	m_unknown;
 	BOOL			m_bHost;
-	
-//  NetPlayer		m_players[4];
 };
 
 static BOOL EnumProvidersCallback(LPGUID lpguidSP, LPSTR lpSTName,

@@ -26,6 +26,7 @@
 #define MAXNETPLAYER	4
 #define MAXTEAM			4
 #define MAXNETMESSAGE	20
+#define MAXSESSION		100
 #define MAXMOVEOBJECT	200
 #define MAXNOTIF		5
 #define MAXFIFOPOS		10

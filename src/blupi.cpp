@@ -779,6 +779,11 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	g_pSound->SetState(TRUE);
 	g_pSound->SetCDAudio(g_bCDAudio);
 
+	g_pNetwork = new CNetwork;
+	if (g_pNetwork == NULL) return InitFail("New network", TRUE);
+
+	g_pNetwork->CreateProvider(0);
+
 	g_pMovie = new CMovie;
 	if (g_pMovie == NULL) return InitFail("New movie", FALSE);
 
@@ -795,10 +800,6 @@ static BOOL DoInit(HINSTANCE hInstance, LPSTR lpCmdLine, int nCmdShow)
 	g_pEvent->Create(hInstance, g_hWnd, g_pPixmap, g_pDecor, g_pSound, g_pNetwork, g_pMovie);
 	g_pEvent->SetFullScreen(g_bFullScreen);
 	g_pEvent->SetMouseType(g_mouseType);
-
-	g_pNetwork = new CNetwork;
-	if (g_pNetwork == NULL) return InitFail("New network", TRUE);
-	g_pNetwork->CreateProvider(0);
 
 #if _INTRO
 	g_pEvent->ChangePhase(WM_PHASE_INTRO1);

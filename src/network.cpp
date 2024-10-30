@@ -35,10 +35,12 @@ CNetwork::~CNetwork()
 static BOOL EnumProvidersCallback(LPGUID lpguidSP, LPSTR lpSPName,
 	DWORD dwMajorVersion, DWORD dwMinorVersion, NamedGUIDList* lpContext)
 {
+	NamedGUID* lpGuid;
 	if (lpContext->nb < MAXSESSION)
 	{
-		lpContext->pList[lpContext->nb]->guid = *lpguidSP;
-		strcpy(lpContext->pList[lpContext->nb]->name, lpSPName);
+		lpGuid = lpContext->pList[lpContext->nb];
+		lpGuid->guid = *lpguidSP;
+		strcpy(lpGuid->name, lpSPName);
 		lpContext->nb++;
 	}
 	return TRUE;
@@ -95,7 +97,7 @@ BOOL CNetwork::CreateProvider(int index)
 
 void CNetwork::FreeProviderList()
 {
-	if (m_providers.pList) free(m_providers.pList); // wrong
+	if (m_providers.pList) free(m_providers.pList);
 
 	m_providers.nb = 0;
 	m_providers.pList = NULL;
@@ -105,12 +107,14 @@ void CNetwork::FreeProviderList()
 static BOOL EnumSessionsCallback(LPDPSESSIONDESC2 lpThisSD,
 	LPDWORD lpdwTimeOut, DWORD dwFlags, NamedGUIDList* lpContext)
 {
+	NamedGUID* lpGuid;
 	if (dwFlags & DPESC_TIMEDOUT) return FALSE;
 
 	if (lpContext->nb < MAXSESSION)
 	{
-		lpContext->pList[lpContext->nb]->guid = lpThisSD->guidInstance;
-		strcpy(lpContext->pList[lpContext->nb]->name, lpThisSD->lpszSessionNameA);
+		lpGuid = lpContext->pList[lpContext->nb];
+		lpGuid->guid = lpThisSD->guidInstance;
+		strcpy(lpGuid->name, lpThisSD->lpszSessionNameA);
 		lpContext->nb++;
 	}
 	return TRUE;
