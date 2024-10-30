@@ -1,4 +1,5 @@
 # sb2-decomp
+ ![Decompilation gameplay screenshot from October 29, 2024](screenshot.png)
 
  Currently, no source code has been publicly released for Speedy Blupi.  We are using the disassemblers Ghidra and IDA to inspect the game binaries, and comparing with the official Planet Blupi source code.
  
