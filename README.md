@@ -1,22 +1,29 @@
-# Speedy Eggbert 2 Source Code Decomp
- WIP Source Tree for Speedy Eggbert (Blupi) 2
+# sb2-decomp
 
- As of now (5/17/24), there hasn't been any source code found for SE2. So we are using the released (original) source code from Planet Blupi to compare code and help us with the proccess.
-
- | CPP File | Progress |
- | -------- | -------- |
- | blupi.cpp | 99% complete  |
- | button.cpp | 100% complete |
- | decor.cpp     | 80% complete |
- | event.cpp	 | 70% complete |
- | menu.cpp		 | 100% complete |
- | misc.cpp		 | 100% complete |
- | movie.cpp	 | 100% complete |
- | network.cpp	 | 100% complete  |
- | pixmap.cpp	 | 99% complete |
- | sound.cpp	 | 100% complete |
- | text.cpp		 | 100% complete |
- | wave.cpp   | 100% complete |
-
+ Currently, no source code has been publicly released for Speedy Blupi.  We are using the disassemblers Ghidra and IDA to inspect the game binaries, and comparing with the official Planet Blupi source code.
  
- Credit to jummy over at the Blupi Games Fan Server for doing the decompilation work on the game.
+ Some demangled symbol names are taken from the 2013 Windows Phone version of Speedy Blupi, which we inspected using ILSpy.  Big thanks to Ч.У.Ш on the 4PDA forum for archiving this obscure version of the game!!!
+ 
+ Gameplay is functional, but defective and missing many features.
+ 
+ These files currently need the **most attention**, in order of priority:
+ - event.cpp
+ - decblupi.cpp
+ - decio.cpp
+ - decdesign.cpp
+ - decblock.cpp
+ - decmove.cpp
+ - decnet.cpp
+ - decor.cpp
+ - misc.cpp
+
+ These files are tentatively **complete**, but require further testing:
+ - blupi.cpp
+ - button.cpp
+ - jauge.cpp
+ - menu.cpp
+ - movie.cpp
+ - network.cpp
+ - pixmap.cpp
+ - sound.cpp
+ - wave.cpp
