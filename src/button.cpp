@@ -25,7 +25,7 @@ CButton::CButton()
 	m_type = 0;
 	m_bEnable = TRUE;
 	m_bHide = FALSE;
-	m_bSomething = FALSE;
+	m_bLocked = FALSE;
 	m_state = 0;
 	m_mouseState = 0;
 	m_nbMenu = 0;
@@ -69,7 +69,7 @@ BOOL CButton::Create(HWND hWnd, CPixmap *pPixmap, CSound *pSound,
 	m_bMinimizeRedraw = bMinimizeRedraw;
 	m_bEnable = TRUE;
 	m_bHide = FALSE;
-	m_bSomething = FALSE;
+	m_bLocked = FALSE;
 	m_message = message;
 	m_pos.x = pos.x;
 	m_pos.y = pos.y;
@@ -126,7 +126,7 @@ void CButton::Draw()
 	}
 	else
 	{
-		m_pPixmap->DrawIcon(-1, CHBUTTON + m_type, m_bSomething ? 5 : 4, m_pos);
+		m_pPixmap->DrawIcon(-1, CHBUTTON + m_type, m_bLocked ? 5 : 4, m_pos);
 	}
 
 	if (m_nbMenu == 0) return;
@@ -200,16 +200,6 @@ void CButton::SetEnable(BOOL bEnable)
 	}
 
 	m_bEnable = bEnable;
-}
-
-void CButton::SetSomething(BOOL bSomething)
-{
-	if (m_bSomething != bSomething)
-	{
-		m_bRedraw = TRUE;
-	}
-
-	m_bSomething = bSomething;
 }
 
 

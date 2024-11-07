@@ -61,16 +61,6 @@ static short table_button_icon[] =
 	106,	// fabarmure
 };
 
-void GetText(int rank, char *pBuffer, int lgBuffer)
-{
-	LoadString(TX_ACTION_GO+rank, pBuffer, lgBuffer);
-}
-
-void GetErr(int rank, char *pBuffer, int lgBuffer)
-{
-	LoadString(TX_ERROR_MISC+rank, pBuffer, lgBuffer);
-}
-
 /////////////////////////////////////////////////////////////////////////////
 
 CMenu::CMenu()

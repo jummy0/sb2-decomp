@@ -38,7 +38,7 @@ static BOOL EnumProvidersCallback(LPGUID lpguidSP, LPSTR lpSPName,
 	NamedGUID* lpGuid;
 	if (lpContext->nb < MAXSESSION)
 	{
-		lpGuid = lpContext->pList[lpContext->nb];
+		lpGuid = &(*lpContext->pList)[lpContext->nb];
 		lpGuid->guid = *lpguidSP;
 		strcpy(lpGuid->name, lpSPName);
 		lpContext->nb++;
@@ -73,7 +73,7 @@ int CNetwork::GetNbProviders()
 char* CNetwork::GetProviderName(int index)
 {
 	if (index >= m_providers.nb) return NULL;
-	return m_providers.pList[index]->name;
+	return (*m_providers.pList)[index].name;
 }
 
 BOOL CNetwork::CreateProvider(int index)
@@ -112,7 +112,7 @@ static BOOL EnumSessionsCallback(LPDPSESSIONDESC2 lpThisSD,
 
 	if (lpContext->nb < MAXSESSION)
 	{
-		lpGuid = lpContext->pList[lpContext->nb];
+		lpGuid = &(*lpContext->pList)[lpContext->nb];
 		lpGuid->guid = lpThisSD->guidInstance;
 		strcpy(lpGuid->name, lpThisSD->lpszSessionNameA);
 		lpContext->nb++;
@@ -144,10 +144,16 @@ BOOL CNetwork::EnumSessions()
 	return TRUE;
 }
 
+
+int CNetwork::GetNbSessions()
+{
+	return m_sessions.nb;
+}
+
 char* CNetwork::GetSessionName(int index)
 {
 	if (index >= m_sessions.nb) return NULL;
-	return m_sessions.pList[index]->name;
+	return (*m_sessions.pList)[index].name;
 }
 
 BOOL CNetwork::JoinSession(int index, char* pPlayerName)

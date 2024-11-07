@@ -41,11 +41,12 @@ public:
 	~CNetwork();
 
 	BOOL EnumProviders();
-	BOOL GetNbProviders();
+	int GetNbProviders();
 	char* GetProviderName(int index);
 	BOOL CreateProvider(int index);
 	void FreeProviderList();
 	BOOL EnumSessions();
+	int GetNbSessions();
 	char* GetSessionName(int index);
 	BOOL JoinSession(int index, char* pPlayerName);
 	void FreeSessionList();

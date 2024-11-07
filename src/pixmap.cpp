@@ -953,7 +953,7 @@ BOOL CPixmap::CacheAll(BOOL cache, HWND hWnd, BOOL bFullScreen, BOOL bTrueColor,
 		return FALSE;
 	}
 
-	OutputDebug("Image:_init\n");
+	OutputDebug("Image: init\n");
 	if (BackgroundCache(0, "init.blp", totalDim, iconDim, TRUE) == FALSE)
 	{
 		return FALSE;

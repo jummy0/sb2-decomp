@@ -24,7 +24,7 @@ typedef struct
 	UINT	phase;
 	char	backName[36];
 	BOOL	bCDrom;
-	BOOL	bUnk;
+	BOOL	bLocked;
 	Button	buttons[MAXBUTTON];
 }
 Phase;
@@ -310,7 +310,6 @@ protected:
 	int			m_nbChoices;
 	int			m_0008;
 	int			m_6D30;
-	//BOOL		m_b6D34;
 	int			m_96B4;
 	int			m_nbVies;
 };

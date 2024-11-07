@@ -31,6 +31,7 @@
 #define MAXNOTIF		5
 #define MAXFIFOPOS		10
 #define MAXCHAT			6
+#define MAXSAVE			6
 #define LIFT_RANGE_Y	30
 
 #define LXIMAGE			640		// dimensions de la fenêtre de jeu

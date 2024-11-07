@@ -74,7 +74,7 @@ int GetCharWidth(char c, int font)
 }
 
 // Affiche un texte.
-
+/*
 void DrawText(CPixmap *pPixmap, POINT pos, char *pText, int font)
 {
 	int		rank;
@@ -100,36 +100,53 @@ void DrawText(CPixmap *pPixmap, POINT pos, char *pText, int font)
 			pos.x += GetCharWidth(*pText++, font);
 		}
 	}
-}
+}*/
 
-void DrawTextLeft(CPixmap* pPixmap, POINT pos, char *text, int font)
+void DrawText(CPixmap* pPixmap, POINT pos, char *pText, int font)
 {
-	DrawText(pPixmap, pos, text, font);
-	return;
+	char c;
+
+	c = *pText;
+	while (c != '\0') {
+		pText ++;
+		DrawChar(pPixmap, &pos, c, font);
+		c = *pText;
+	}
 }
 
+void DrawTextLeft(CPixmap* pPixmap, POINT pos, char *pText, int font)
+{
+	DrawText(pPixmap, pos, pText, font);
+}
 
-//Implement later
 
 void DrawChar(CPixmap* pPixmap, POINT* pos, char c, int font)
 {
+	POINT pos0;
 	POINT pos1;
-	int width;
-	UINT index;
+	unsigned index;
 
-	index = (UINT)(BYTE)c;
-	
+	index = c;
+	pos0.y = table_char[index * 6 + 2] + pos->y;
+	pos0.x = table_char[index * 6 + 1] + pos->x;
+	DrawCharSingle(pPixmap, pos0, table_char[index * 6], font);
+	if (table_char[index * 6 + 3] != -1)
+	{
+		pos1.y = table_char[index * 6 + 4] + pos->y;
+		pos1.x = table_char[index * 6 + 5] + pos->x;
+		DrawCharSingle(pPixmap, pos1, table_char[index * 6 + 3], font);
+	}
+	pos->x += GetCharWidth(c, font);
 }
 
-void DrawCharSingle(CPixmap pPixmap, POINT pos, char* pText, int font)
+void DrawCharSingle(CPixmap* pPixmap, POINT pos, int rank, int font)
 {
 	if (font == FONTLITTLE)
 	{
-		pPixmap.DrawIcon(-1, CHLITTLE, (int)pText, pos, 0, FALSE);
+		pPixmap->DrawIcon(-1, CHLITTLE, rank, pos, 0, FALSE);
 		return;
 	}
-	pPixmap.DrawIcon(-1, CHTEXT, (int)(pText + font * 128), pos, 0, FALSE);
-	return;
+	pPixmap->DrawIcon(-1, CHTEXT, (int)(rank + font * 128), pos, 0, FALSE);
 }
 
 // Affiche un texte pench�.

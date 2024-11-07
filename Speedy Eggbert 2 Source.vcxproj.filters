@@ -63,6 +63,9 @@
     <None Include="resource\IDC_EMPTY.cur">
       <Filter>Resource Files</Filter>
     </None>
+    <None Include="resource\cursor1.cur">
+      <Filter>Resource Files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\resource.h">
@@ -107,9 +110,6 @@
     <ClInclude Include="src\pixtables.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\resource1.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\sound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -123,6 +123,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="src\button.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="resource\resource.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

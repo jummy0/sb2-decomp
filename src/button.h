@@ -29,8 +29,6 @@ public:
 	BOOL	GetEnable();
 	void	SetEnable(BOOL bEnable);
 
-	void	SetSomething(BOOL bSomething);
-
 	BOOL	GetHide();
 	void	SetHide(BOOL bHide);
 
@@ -52,6 +50,7 @@ protected:
 	CSound*		m_pSound;
 	int			m_type;			// type de bouton
 	BOOL		m_bEnable;		// TRUE si bouton actif
+	int 		m_bLocked;
 	BOOL		m_bHide;		// TRUE si bouton caché
 	UINT		m_message;		// message envoyé si bouton actionné
 	POINT		m_pos;			// coin sup/gauche
@@ -63,7 +62,6 @@ protected:
 	int			m_nbMenu;		// nb de case du sous-menu
 	int			m_nbToolTips;	// nb d'info-bulles
 	int			m_selMenu;	
-	int 		m_bSomething;	// sous-menu sélectionné
 	BOOL		m_bMouseDown;	// TRUE -> bouton souris pressé
 	BOOL		m_bMinimizeRedraw;
 	BOOL		m_bRedraw;		

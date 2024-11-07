@@ -1824,8 +1824,6 @@ CEvent::CEvent()
 	m_keyPress = 0;
 	m_menuIndex = 0;
 	ZeroMemory(m_menuDecor, sizeof(m_menuDecor));
-
-	return;
 }
 
 // Destructor
@@ -2405,51 +2403,46 @@ BOOL CEvent::DrawButtons()
     int         lg, sound;
 	BOOL		soundEnabled;
     char        res[100];
-    char        text[100];
+    char        res2[100];
     POINT       pos;
     RECT        rect;
 
-	
-
-	if (m_phase != WM_PHASE_INSERT && m_phase != WM_PHASE_BYE)
+	if (m_phase != WM_PHASE_INSERT && m_phase != WM_PHASE_BYE && m_phase != WM_PHASE_INTRO1 && m_phase != WM_PHASE_INTRO2)
 	{
 		m_bChangeCheat = FALSE;
 
-		text[0] = 0;
+		res2[0] = 0;
 		if (m_bBuildOfficialMissions)
 		{
-			AddCheatCode(text, cheat_code[0]);
+			AddCheatCode(res2, cheat_code[0]);
 		}
 		if (m_bAllMissions)
 		{
-			AddCheatCode(text, cheat_code[1]);
+			AddCheatCode(res2, cheat_code[1]);
 		}
 		if (m_pDecor->GetSuperBlupi())
 		{
-			AddCheatCode(text, cheat_code[3]);
+			AddCheatCode(res2, cheat_code[3]);
 		}
 		if (m_pDecor->GetDrawSecret())
 		{
-			AddCheatCode(text, cheat_code[11]);
+			AddCheatCode(res2, cheat_code[11]);
 		}
 		if (m_pDecor->GetNetPacked())
 		{
-			AddCheatCode(text, cheat_code[19]);
+			AddCheatCode(res2, cheat_code[19]);
 		}
 		if (!m_pDecor->GetNetMovePredict())
 		{
-			AddCheatCode(text, cheat_code[21]);
+			AddCheatCode(res2, cheat_code[21]);
 		}
-		m_pDecor->OutputNetDebug(text);
+		m_pDecor->OutputNetDebug(res2);
 
-		if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST || m_phase == WM_PHASE_BUILD)
+		if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST && m_phase != WM_PHASE_BUILD)
 		{
-			DrawTextLeft(m_pPixmap, POINT( 2, 2 ), text, FONTLITTLE);
+			m_pPixmap->DrawPart(-1, CHBACK, POINT(2, 2), RECT(2, 2, 302, 14), 1, FALSE);
 		}
-		else
-		{
-			m_pPixmap->DrawPart(-1, CHBACK, POINT( 2, 2 ), RECT( 2, 2, 302, 14 ), 1, FALSE);
-		}
+		DrawTextLeft(m_pPixmap, POINT(2, 2), res2, FONTLITTLE);
     }
 
 	if (m_phase == WM_PHASE_INIT)
@@ -2461,23 +2454,36 @@ BOOL CEvent::DrawButtons()
 	{
 		LoadString(TX_CHOOSEGAMER, res, 100);
 		DrawTextLeft(m_pPixmap, POINT( LXIMAGE / 2 - GetTextWidth(res) / 2, 26 ), res, FONTGOLD);
-		for (i = 0; i < 8; i++)
+		for (i = 0; i < MAXGAMER; i++)
 		{
 			DrawText(m_pPixmap, POINT( 110, 69 + i * DIMBUTTONY ), m_gamerNameList[i], FONTWHITE);
 		}
 		SetEnable(WM_PHASE_CLEARGAMER, m_gamerExist[m_gamer]);
 	}
 
+	if (m_phase == WM_PHASE_CREATE)
+	{
+		LoadString(TX_MULTI_CREATE, res, 50);
+		lg = GetTextWidth(res);
+		pos.x = (320 - lg) / 2;
+		pos.y = 103;
+		DrawTextLeft(m_pPixmap, pos, res, FONTSELECTED);
+		LoadString(TX_MULTI_GNAME, res, 100);
+		pos.x = (320 - lg) / 2;
+		pos.y = 190;
+		DrawTextLeft(m_pPixmap, pos, res, FONTSELECTED);
+	}
+
 	if (m_phase == WM_PHASE_NAMEGAMER)
 	{
 		LoadString(TX_CHOOSEGAMER, res, 100);
 		lg = GetTextWidth(res, 0);
-		pos.x = 320 - lg / 2;
+		pos.x = LXIMAGE / 2 - lg / 2;
 		pos.y = 102;
 		DrawTextLeft(m_pPixmap, pos, res, 1);
 		LoadString(TX_WRITENAME, res, 100);
 		lg = GetTextWidth(res, 100);
-		pos.x = 320 - lg / 2;
+		pos.x = LXIMAGE / 2 - lg / 2;
 		pos.y = 190;
 		DrawTextLeft(m_pPixmap, pos, res, 0);
 
@@ -2500,40 +2506,52 @@ BOOL CEvent::DrawButtons()
 		PutTextInputBox(POINT( 320, 232 ));
 	}
 
-	// now that the decomp is looking convincingly like the retail game,
-	// we should clearly differentiate the two when sharing WIP screenshots/videos to reduce confusion.
+	if (m_phase == WM_PHASE_CLEARGAMER)
 	{
-		POINT debugMousePos = GetMousePos();
-		int debugTextY;
-		if (debugMousePos.x > LXIMAGE - GetTextWidth("WORK IN PROGRESS") && debugMousePos.x < LXIMAGE && debugMousePos.y < 36 && debugMousePos.y >= 0)
-		{
-			debugTextY = 40;
-		}
-		else
-		{
-			debugTextY = 0;
-		}
-
-		DrawTextLeft(m_pPixmap, POINT( LXIMAGE - GetTextWidth("DECOMPILATION"), debugTextY ), "DECOMPILATION", FONTGOLD);
-		DrawTextLeft(m_pPixmap, POINT( LXIMAGE - GetTextWidth("WORK IN PROGRESS"), debugTextY + 11 ), "WORK IN PROGRESS", FONTGOLD);
-		DrawTextLeft(m_pPixmap, POINT( LXIMAGE - GetTextWidth(__DATE__ " " __TIME__), debugTextY + 22 ), __DATE__ " " __TIME__, FONTGOLD);
+		LoadString(TX_CHOOSEGAMER, res, 100);
+		lg = GetTextWidth((char*)res, 0);
+		pos.y = 102;
+		pos.x = 320 - lg / 2;
+		DrawTextLeft(m_pPixmap, pos, (char*)res, 1);
+		LoadString(TX_DISCARDGAME, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.x = 320 - lg / 2;
+		pos.y = 210;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+		strcpy(res2, m_gamerName);
+		strcat(res2, "?");
+		lg = GetTextWidth(res2, 0);
+		pos.x = 320 - lg / 2;
+		pos.y = 230;
+		DrawTextLeft(m_pPixmap, pos, res2, 0);
 	}
-	///////
 
-	if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST && m_phase != WM_PHASE_BUILD)
-		m_pPixmap->DrawPart(-1, 0, POINT( 2, 2 ), RECT( 2, 2, 302, 14 ), 1, 0);
-	if (m_phase == WM_PHASE_CREATE)
+	if (m_phase == WM_PHASE_CLEARDESIGN)
 	{
-		LoadString(TX_MULTI_CREATE, res, 50);
-		lg=GetTextWidth(res);
-		pos.x = (320 - lg) / 2;
-		pos.y = 103;
-		DrawTextLeft(m_pPixmap, pos, res, FONTSLIM);
-		LoadString(TX_MULTI_GNAME, res, 100);
-		pos.x = (320 - lg) / 2;
-		pos.y = 190;
-		DrawTextLeft(m_pPixmap, pos, res, FONTSLIM);
+		LoadString(TX_DESIGNMISSION, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.y = 104;
+		pos.x = 320 - lg / 2;
+		DrawTextLeft(m_pPixmap, pos, res, 1);
+		LoadString(TX_DELETEMISSION, res, 100);
+		sprintf(res2, res, GetWorld());
+		lg = GetTextWidth(res2, 0);
+		pos.y = 210;
+		pos.x = 320 - lg / 2;
+		DrawTextLeft(m_pPixmap, pos, res2, 0);
+		strcpy(res2, m_pDecor->GetMissionTitle());
+
+		if (res2[0] == '\0')
+		{
+			LoadString(TX_NONAME, res, 100);
+		}
+		strcat(res2, "?");
+		lg = GetTextWidth(res2, 0);
+		pos.y = 230;
+		pos.x = 320 - lg / 2;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
 	}
+
 	if (m_phase == WM_PHASE_SETUP || m_phase == WM_PHASE_SETUPp)
 	{
 		sound = m_pSound->GetAudioVolume();
@@ -2543,6 +2561,12 @@ BOOL CEvent::DrawButtons()
 			soundEnabled = FALSE;
 		}
 	}
+
+	for (i = 0; table[m_index].buttons[i].message != 0; i++)
+	{
+		m_buttons[i].Draw();
+	}
+	
 	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
 	{
 		if (m_pDecor->GetPause() == 0)
@@ -2579,6 +2603,36 @@ BOOL CEvent::DrawButtons()
 		pos.y = 103;
 		DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
 	}
+	if (m_phase == WM_PHASE_HELP)
+	{
+		LoadString(TX_HELP, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.x = LXIMAGE / 2 - lg / 2;
+		pos.y = 65;
+		DrawTextLeft(m_pPixmap, pos, res, 1);
+		lg = 140;
+		UINT j;
+		for (j = 601; j < 625; j += 3)
+		{
+			if (m_somethingJoystick == NULL)
+			{
+				pos.y = j - 1;
+			}
+			else
+			{
+				pos.y = j;
+			}
+			LoadString(pos.y, res, 100);
+			pos.x = 110;
+			pos.y = lg;
+			DrawTextLeft(m_pPixmap, pos, res, 1);
+			LoadString(j + 1, res, 100);
+			pos.x = 230;
+			pos.y = lg;
+			DrawTextLeft(m_pPixmap, pos, res, 0);
+			lg += 20;
+		}
+	}
 	if (m_phase == WM_PHASE_MUSIC)
 	{
 		LoadString(TX_MUSIC, res, 100);
@@ -2595,6 +2649,39 @@ BOOL CEvent::DrawButtons()
 		pos.y = 26;
 		DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
 	}
+	if (m_phase == WM_PHASE_INFO)
+	{
+		LoadString(TX_DESIGNMISSION, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.y = 37;
+		pos.x = 320 - lg / 2;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+		if (m_bDrawMap != FALSE)
+		{
+			pos.x = 148;
+			pos.y = 96;
+			m_pPixmap->DrawIcon(-1, 8, 0, pos, 0, FALSE);
+		}
+		LoadString(TX_MISSNUM, res, 100);
+		if (m_bPrivate)
+			m_private = m_private;
+		else
+			m_private = m_mission;
+		sprintf(res2, res, m_private);
+		lg = GetTextWidth(res2, 0);
+		pos.y = 106;
+		pos.x = 250 - lg / 2;
+		DrawTextLeft(m_pPixmap, pos, res2, 1);
+		strcpy(res2, m_pDecor->GetMissionTitle());
+		if (res2[0] == '\0')
+		{
+			LoadString(TX_NONAME, res, 100);
+		}
+		lg = GetTextWidth(res, 0);
+		pos.y = 269;
+		pos.x = 250 - lg / 2;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+	}
 	if (m_phase == WM_PHASE_LOST || m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_WINMULTI)
 	{
 		LoadString(TX_LOST1 + GetWorld() % 5, res, 50);
@@ -2605,118 +2692,20 @@ BOOL CEvent::DrawButtons()
 		LoadString(TX_WIN1 + GetWorld() % 5, res, 50);
 		DrawTextLeft(m_pPixmap, pos, res, FONTWHITE);
 	}
-	if (m_phase == WM_PHASE_READDESIGN)
+	if (m_phase == WM_PHASE_LASTWIN)
 	{
-		LoadString(TX_OPENMISS, res, 100);
-		lg = GetTextWidth(res, 0);
-		pos.x = 320 - lg / 2;
-		pos.y = 31;
-		DrawTextLeft(m_pPixmap, pos, res, 1);
-		LoadString(TX_CONTENT, res, 100);
-		pos.x = 190;
-		pos.y = 79;
-		DrawTextLeft(m_pPixmap, pos, res, 0);
-	
-		pos.x = 240;
-		pos.y = 122;
-		for (i=0; i < m_nbChoices; i++)
-		{
-			if (i >= 6) break;
-			if (m_choicePageOffset + i >= m_nbChoices) break;
-			strncpy(text, m_filenameBuffer[m_choicePageOffset + i], 100);
-			strcpy(text + 26, "...");
-			DrawText(m_pPixmap, pos, text, m_choiceIndex == m_choicePageOffset + i ? 0 : 2);
-			pos.y += 40;
-		}
-	}
-	if (m_phase == WM_PHASE_GREAD || m_phase == WM_PHASE_GREADp || m_phase == WM_PHASE_GWRITE)
-	{
-		if (m_phase == WM_PHASE_GREAD)
-		{
-			LoadString(TX_SAVE_CGAME, res, 50);
-		}
-		else
-		{
-			LoadString(TX_LOAD_CGAME, res, 50);
-		}
-	}
-	if (m_phase == WM_PHASE_BYE)
-	{
-		LoadString(TX_FULL_END1, res, 100);
-		lg = GetTextWidth(res);
-		pos.x = (320 - lg) / 2;
-		pos.y = 20;
-		DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
-		LoadString(TX_FULL_END2, res, 100);
-		lg = GetTextWidth(res);
-		pos.x = (320 - lg) / 2;
-		pos.y = 40;
-		DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
-		LoadString(TX_FULL_END3, res, 100);
-		lg = GetTextWidth(res);
-		pos.x = (320 - lg) / 2;
-		pos.y = 430;
-		DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
-		LoadString(TX_FULL_END4, res, 100);
-		lg = GetTextWidth(res);
-		pos.x = (320 - lg) / 2;
-		pos.y = 450;
-		DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
-	}
-	if (m_phase == WM_PHASE_INSERT)
-	{
-		DrawTextCenter(TX_INSERT, LXIMAGE / 2, 20);
-	}
-	if (m_textToolTips[0] != '\0')
-	{
-		DrawTextLeft(m_pPixmap, m_posToolTips, m_textToolTips, FONTWHITE);
-	}
-	if (m_phase == WM_PHASE_CLEARGAMER)
-	{
-		LoadString(TX_CHOOSEGAMER, res, 100);
-		lg = GetTextWidth((char*)res, 0);
-		pos.y = 102;
-		pos.x = 320 - lg / 2;
-		DrawTextLeft(m_pPixmap, pos, (char*)res, 1);
-		LoadString(TX_DISCARDGAME, res, 100);
-		lg = GetTextWidth(res, 0);
-		pos.x = 320 - lg / 2;
-		pos.y = 210;
-		DrawTextLeft(m_pPixmap, pos, res, 0);
-		strcpy(text, m_gamerName);
-		strcat(text, "?");
-		lg = GetTextWidth(text, 0);
-		pos.x = 320 - lg / 2;
-		pos.y = 230;
-		DrawTextLeft(m_pPixmap, pos, text, 0);
-	}
-	if (m_phase == WM_PHASE_CLEARDESIGN)
-	{
-		LoadString(TX_DESIGNMISSION, res, 100);
-		lg = GetTextWidth(res, 0);
-		pos.y = 104;
-		pos.x = 320 - lg / 2;
-		DrawTextLeft(m_pPixmap, pos, res, 1);
-		LoadString(TX_DELETEMISSION, res, 100);
-		sprintf(text, res, GetWorld());
-		lg = GetTextWidth(text, 0);
-		pos.y = 210;
-		pos.x = 320 - lg / 2;
-		DrawTextLeft(m_pPixmap, pos, text, 0);
-		strcpy(text, m_pDecor->GetMissionTitle());
-		
-		if (text[0] == '\0')
-		{
-			LoadString(TX_NONAME, res, 100);
-		}
-		strcat(text, "?");
-		lg = GetTextWidth(text, 0);
-		pos.y = 230;
-		pos.x = 320 - lg / 2;
-		DrawTextLeft(m_pPixmap, pos, res, 0);
-	}
+		int string;
 
-	if ((m_phase == WM_PHASE_SETUP) || (m_phase == WM_PHASE_SETUPp))
+		if (m_bPrivate)
+			string = TX_LASTWIN3;
+		else
+			string = TX_LASTWIN2;
+		LoadString(string, res, 100);
+		pos.x = 60;
+		pos.y = 443;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+	}
+	if (m_phase == WM_PHASE_SETUP || m_phase == WM_PHASE_SETUPp)
 	{
 		lg = m_pSound->GetAudioVolume();
 		i = 1;
@@ -2745,153 +2734,220 @@ BOOL CEvent::DrawButtons()
 			SetState(j + WM_BUTTON7, ((int)m_somethingJoystick == j));
 		}
 	}
-
-	if (m_phase == WM_PHASE_INFO)
+	if (m_phase == WM_PHASE_SERVICE)
 	{
-		LoadString(TX_DESIGNMISSION, res, 100);
-		lg = GetTextWidth(res, 0);
-		pos.y = 37;
-		pos.x = 320 - lg / 2;
-		DrawTextLeft(m_pPixmap, pos, res, 0);
-		if (m_bDrawMap != FALSE)
+		LoadString(0xEF, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(LXIMAGE / 2 - GetTextWidth(res) / 2, 31), res, FONTGOLD);
+		LoadString(0xF0, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(140, 79), res, FONTWHITE);
+		m_nbChoices = m_pNetwork->GetNbProviders();
+		pos = POINT(190, 122);
+		for (i = 0; i < m_nbChoices && i < 6; i++)
 		{
-			pos.x = 148;
-			pos.y = 96;
-			m_pPixmap->DrawIcon(-1, 8, 0, pos, 0, FALSE);
+			if (m_choicePageOffset + i > m_nbChoices) break;
+			strncpy(res, m_pNetwork->GetProviderName(m_choicePageOffset + i), 100);
+			strcpy(res + 45, "...");
+			DrawTextLeft(m_pPixmap, pos, res, m_choicePageOffset + i == m_choiceIndex ? FONTSELECTED : FONTWHITE);
+			pos.y += 40;
 		}
-		LoadString(TX_MISSNUM, res, 100);
-		if (m_bPrivate)
-			m_private = m_private;
-		else
-			m_private = m_mission;
-		sprintf(text, res, m_private);
-		lg = GetTextWidth(text, 0);
-		pos.y = 106;
-		pos.x = 250 - lg / 2;
-		DrawTextLeft(m_pPixmap, pos, text, 1);
-		strcpy(text, m_pDecor->GetMissionTitle());
-		if (text[0] == '\0')
-		{
-			LoadString(TX_NONAME, res, 100);
-		}
-		lg = GetTextWidth(res, 0);
-		pos.y = 269;
-		pos.x = 250 - lg / 2;
-		DrawTextLeft(m_pPixmap, pos, res, 0);
 	}
-
-	if (m_phase == WM_PHASE_HELP)
+	if (m_phase == WM_PHASE_SESSION)
 	{
-		LoadString(TX_HELP, res, 100);
-		lg = GetTextWidth(res, 0);
-		pos.x = LXIMAGE / 2 - lg / 2;
-		pos.y = 65;
-		DrawTextLeft(m_pPixmap, pos, res, 1);
-		lg = 140;
-		UINT j;
-		for (j = 601; j < 625; j+= 3)
+		LoadString(0xF3, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(LXIMAGE / 2 - GetTextWidth(res) / 2, 31), res, FONTGOLD);
+		LoadString(0xF4, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(120, 79), res, FONTWHITE);
+		m_nbChoices = m_pNetwork->GetNbSessions();
+		pos = POINT(170, 122);
+		for (i = 0; i < m_nbChoices && i < 6; i++)
 		{
-			if (m_somethingJoystick == NULL)
+			if (m_choicePageOffset + i > m_nbChoices) break;
+			strncpy(res, m_pNetwork->GetSessionName(m_choicePageOffset + i), 100);
+			strcpy(res + 45, "...");
+			DrawTextLeft(m_pPixmap, pos, res, m_choicePageOffset + i == m_choiceIndex ? FONTSELECTED : FONTWHITE);
+			pos.y += 40;
+		}
+	}
+	if (m_phase == WM_PHASE_MULTI)
+	{
+		LoadString(0xFD, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(LXIMAGE / 2 - GetTextWidth(res) / 2, 32), res, FONTGOLD);
+		LoadString(0xFE, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(130, 82), res, FONTWHITE);
+		LoadString(0x11E, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(288, 82), res, FONTWHITE);
+		LoadString(0x100, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(80, 301), res, FONTWHITE);
+		if (m_bDrawMap)
+		{
+			m_pPixmap->DrawIcon(-1, CHMAP, 0, POINT(377, 75));
+		}
+		LoadString(0xFF, res, 100);
+		sprintf(res2, res, m_multi);
+		DrawTextLeft(m_pPixmap, POINT(479 - GetTextWidth(res2), 217), res, FONTWHITE);
+		pos = POINT(130, 110);
+		for (i = 0; i < MAXNETPLAYER; i++)
+		{
+			if (m_pNetwork->m_players[i].bIsPresent)
 			{
-				pos.y = j - 1;
+				DrawTextLeft(m_pPixmap, pos, m_pNetwork->m_players[i].name, FONTLITTLE);
+			}
+			pos.y += 42;
+		}
+		pos = POINT(323, 80);
+		for (i = 0; i < MAXCHAT; i++)
+		{
+			if (m_chatZone[i][0] != '\0')
+			{
+				DrawText(m_pPixmap, pos, m_chatZone[i], FONTLITTLE);
+			}
+			pos.y += DIMLITTLEY;
+		}
+		PutTextInputBox(POINT(221, 418));
+		SetEnable(WM_BUTTON20, m_textInput[0] != '\0');
+	}
+	if (m_phase == WM_PHASE_READDESIGN)
+	{
+		LoadString(TX_OPENMISS, res, 100);
+		lg = GetTextWidth(res, 0);
+		pos.x = 320 - lg / 2;
+		pos.y = 31;
+		DrawTextLeft(m_pPixmap, pos, res, 1);
+		LoadString(TX_CONTENT, res, 100);
+		pos.x = 190;
+		pos.y = 79;
+		DrawTextLeft(m_pPixmap, pos, res, 0);
+	
+		pos.x = 240;
+		pos.y = 122;
+		for (i = 0; i < m_nbChoices && i < 6; i++)
+		{
+			if (m_choicePageOffset + i >= m_nbChoices) break;
+			strncpy(res, m_filenameBuffer[m_choicePageOffset + i], 100);
+			strcpy(res + 45, "...");
+			DrawText(m_pPixmap, pos, res, m_choiceIndex == m_choicePageOffset + i ? FONTSELECTED : FONTWHITE);
+			pos.y += 40;
+		}
+	}
+	if (m_phase == WM_PHASE_WRITEDESIGN)
+	{
+		LoadString(0xA1, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(LXIMAGE / 2 - GetTextWidth(res) / 2, 32), res, FONTGOLD);
+		LoadString(0xC2, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(190, 79), res, FONTGOLD);
+
+		pos.x = 190;
+		pos.y = 107;
+		for (i = 0; i < m_nbChoices && i < 12; i++)
+		{
+			if (m_choicePageOffset + i >= m_nbChoices) break;
+			strncpy(res, m_filenameBuffer[m_choicePageOffset + i], 100);
+			strcpy(res + 45, "...");
+			DrawText(m_pPixmap, pos, res, FONTWHITE);
+			pos.y += DIMTEXTY;
+		}
+	}
+	if (m_phase == WM_PHASE_GREAD || m_phase == WM_PHASE_GREADp || m_phase == WM_PHASE_GWRITE)
+	{
+		if (m_phase == WM_PHASE_GWRITE)
+		{
+			LoadString(TX_SAVE_CGAME, res, 100);
+		}
+		else
+		{
+			LoadString(TX_LOAD_CGAME, res, 100);
+		}
+		DrawTextLeft(m_pPixmap, POINT(415 - GetTextWidth(res) / 2, 31), res, FONTGOLD);
+		LoadString(0x10F, res, 100);
+		DrawTextLeft(m_pPixmap, POINT(280, 78), res, FONTWHITE);
+		pos.y = 122;
+		for (i = 0; i < m_nbChoices && i < MAXSAVE; i++)
+		{
+			pos.x = 296;
+			sprintf(res, "%d", i + 1);
+			DrawTextLeft(m_pPixmap, pos, res, m_choiceIndex == i ? FONTGOLD : FONTWHITE);
+
+			// manually split the string into two draw calls if it contains a newline
+			char* line2 = strchr(m_filenameBuffer[i], '\n');
+			if (line2)
+			{
+				strcpy(res, m_filenameBuffer[i]);
+				res[line2 - res] = '\0'; // janky. pls verify
+				pos.x = 330;
+				pos.y -= DIMTEXTY / 2;
+				DrawTextLeft(m_pPixmap, pos, res, m_choiceIndex == i ? FONTSELECTED : FONTWHITE);
+				pos.y += DIMTEXTY;
+				DrawTextLeft(m_pPixmap, pos, line2 + 1, m_choiceIndex == i ? FONTSELECTED : FONTWHITE);
+				pos.y += DIMBUTTONY - DIMTEXTY / 2;
 			}
 			else
 			{
-				pos.y = j;
+				pos.x = 330;
+				DrawTextLeft(m_pPixmap, pos, res, m_choiceIndex == i ? FONTSELECTED : FONTWHITE);
+				pos.y += DIMBUTTONY;
 			}
-			LoadString(pos.y, res, 100);
-			pos.x = 110;
-			pos.y = lg;
-			DrawTextLeft(m_pPixmap, pos, res, 1);
-			LoadString(j + 1, res, 100);
-			pos.x = 230;
-			pos.y = lg;
-			DrawTextLeft(m_pPixmap, pos, res, 0);
-			lg += 20;
+		}
+
+		if (m_choiceIndex >= 0)
+		{
+			if (m_bNamesExist[m_choiceIndex])
+			{
+				m_pPixmap->DrawIcon(-1, CHMAP, 0, POINT(19, 149));
+			}
 		}
 	}
-	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
+	if (m_phase == WM_PHASE_BYE)
 	{
-		if (m_pDecor->GetPause())
-		{
-			if (m_pDecor->GetTime() % 20 < 15)
-				DrawTextCenter(TX_PAUSE, 320, 240, 0);
-		}
-		else
-		{
-			if (m_bDemoRec)
-			{
-				LoadString(TX_DEMOREC, res, 100);
-				pos.x = 10;
-				pos.y = 10;
-				DrawTextLeft(m_pPixmap, pos, res, 1);
-			}
-			if (m_bDemoPlay)
-			{
-				LoadString(TX_DEMOPLAY, res, 100);
-				pos.x = 10;
-				pos.y = 10;
-				DrawTextLeft(m_pPixmap, pos, res, 1);
-			}
-		}
-		if (m_speed > 1)
-		{
-			sprintf(res, "x%d", m_speed);
-			pos.x = 64;
-			pos.y = 465;
-			DrawTextLeft(m_pPixmap, pos, res, 0);
-		}
-	}
-	if (m_phase == WM_PHASE_REGION)
-	{
-		LoadString(TX_REGION, res, 100);
-		lg = GetTextWidth(res, 0);
+		LoadString(TX_FULL_END1, res, 100);
+		lg = GetTextWidth(res);
 		pos.x = 320 - lg / 2;
-		pos.y = 26;
-		DrawTextLeft(m_pPixmap, pos, res, 1);
+		pos.y = 20;
+		DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
+		LoadString(TX_FULL_END2, res, 100);
+		lg = GetTextWidth(res);
+		pos.x = 320 - lg / 2;
+		pos.y = 40;
+		DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
+		LoadString(TX_FULL_END3, res, 100);
+		lg = GetTextWidth(res);
+		pos.x = 320 - lg / 2;
+		pos.y = 430;
+		DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
+		LoadString(TX_FULL_END4, res, 100);
+		lg = GetTextWidth(res);
+		pos.x = 320 - lg / 2;
+		pos.y = 450;
+		DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
+	}
+	if (m_phase == WM_PHASE_INSERT)
+	{
+		DrawTextCenter(TX_INSERT, LXIMAGE / 2, 20);
 	}
 
-	if (m_phase == WM_PHASE_STOP)
+	if (m_textToolTips[0] != '\0')
 	{
-		LoadString(TX_GAMEPAUSE, res, 100);
-		lg = GetTextWidth(res, 0);
-		pos.x = 319 - lg / 2;
-		pos.y = 103;
-		DrawTextLeft(m_pPixmap, pos, res, 1);
+		DrawTextLeft(m_pPixmap, m_posToolTips, m_textToolTips, FONTWHITE);
 	}
-	
-	if (m_phase == WM_PHASE_LOST || m_phase == WM_PHASE_LOSTDESIGN || m_phase == WM_PHASE_LOSTMULTI)
-	{
-		LoadString(GetWorld() % 5 + 3100, res, 100);
-		pos.x = 50;
-		pos.y = 424;
-		DrawTextLeft(m_pPixmap, pos, res, 0);
-	}
-	if (m_phase == WM_PHASE_WIN || m_phase == WM_PHASE_WINDESIGN || m_phase == WM_PHASE_WINMULTI)
-	{
-		LoadString(GetWorld() % 5 + 3000, res, 100);
-		pos.x = 50;
-		pos.y = 424;
-		DrawTextLeft(m_pPixmap, pos, res, 0);
-	}
-	if (m_phase == WM_PHASE_LASTWIN)
-	{
-		int string;
 
-		if (m_bPrivate)
-			string = 3202;
+	// now that the decomp is looking convincingly like the retail game,
+	// we should clearly differentiate the two when sharing WIP screenshots/videos to reduce confusion.
+	{
+		POINT debugMousePos = GetMousePos();
+		int debugTextY;
+		if (debugMousePos.x > LXIMAGE - GetTextWidth("WORK IN PROGRESS") && debugMousePos.x < LXIMAGE && debugMousePos.y < 36 && debugMousePos.y >= 0)
+		{
+			debugTextY = 40;
+		}
 		else
-			string = 3201;
-		LoadString(string, res, 100);
-		pos.x = 60;
-		pos.y = 443;
-		DrawTextLeft(m_pPixmap, pos, res, 0);
-	}
+		{
+			debugTextY = 0;
+		}
 
-	for (i = 0; table[m_index].buttons[i].message != 0; i++)
-	{
-		m_buttons[i].Draw();
+		DrawTextLeft(m_pPixmap, POINT(LXIMAGE - GetTextWidth("DECOMPILATION"), debugTextY), "DECOMPILATION", FONTGOLD);
+		DrawTextLeft(m_pPixmap, POINT(LXIMAGE - GetTextWidth("WORK IN PROGRESS"), debugTextY + 11), "WORK IN PROGRESS", FONTGOLD);
+		DrawTextLeft(m_pPixmap, POINT(LXIMAGE - GetTextWidth(__DATE__ " " __TIME__), debugTextY + 22), __DATE__ " " __TIME__, FONTGOLD);
 	}
+	///////
 
 	return TRUE;
 }
@@ -3957,36 +4013,6 @@ BOOL CEvent::EventButtons(UINT message, WPARAM wParam, LPARAM lParam)
 	m_posToolTips.x = -1;
 	if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST && table[m_index].buttons[0].message)
 	{
-		/* // ????
-		for (i = 0; i < 2; i++)
-		{
-			if (!m_jauges[i].GetHide())
-			{
-
-				uid = 0xFFFFFFF;
-
-				if (uid < 0)
-				{
-					LoadString(TX_NOTINDEMO + i, m_textToolTips, 50);
-					lg = GetTextWidth(m_textToolTips);
-					test.x += (DIMJAUGEX - lg) / 2;
-					test.y += 4;
-					m_posToolTips = test;
-					break;
-				}
-			}
-		}
-		if (oldx != m_posToolTips.x)
-		{
-			for (i = 0; i < 2; i++)
-			{
-				m_jauges[i].Redraw();
-			}
-		}
-		*/
-	}
-	else
-	{
 		i = 0;
 		while (table[m_index].buttons[i].message != 0)
 		{
@@ -4335,7 +4361,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 	
 	m_phase = phase;
 	m_index = SearchPhase(phase);
-	if (table[m_index].bUnk && !CheckWorld1())
+	if (table[m_index].bLocked && !CheckWorld1())
 	{
 		m_tryInsertCount = 40;
 		m_tryPhase = m_phase;
@@ -4620,15 +4646,77 @@ BOOL CEvent::ChangePhase(UINT phase)
 		m_choicePageOffset = 0;
 		m_choiceIndex = 0;
 		SetHide(WM_BUTTON10, TRUE);
-		// ...
+		SetHide(WM_BUTTON11, m_choicePageOffset + 6 >= (m_nbChoices + 5) / 6 * 6);
+		for (i = 0; i < 6; ++i)
+		{
+			if (m_choicePageOffset + i >= m_nbChoices)
+			{
+				SetHide(WM_BUTTON1 + i, TRUE);
+			}
+			else
+			{
+				SetHide(WM_BUTTON1 + i, FALSE);
+				SetState(WM_BUTTON1 + i, m_choicePageOffset + i == m_choiceIndex);
+			}
+		}
+		SetEnable(WM_PHASE_DP_DOSERVICE, m_nbChoices != 0);
 	}
 	if (m_phase == WM_PHASE_SESSION)
 	{
-		// ...
+		m_nbChoices = m_pNetwork->GetNbSessions();
+		m_choicePageOffset = 0;
+		m_choiceIndex = 0;
+		SetHide(WM_BUTTON10, 1);
+		SetHide(WM_BUTTON11, m_choicePageOffset + 6 >= (m_nbChoices + 5) / 6 * 6);
+		for (i = 0; i < 6; ++i)
+		{
+			if (m_choicePageOffset + i >= m_nbChoices)
+			{
+				SetHide(WM_BUTTON1 + i, TRUE);
+			}
+			else
+			{
+				SetHide(WM_BUTTON1, FALSE);
+				SetState(WM_BUTTON1 + i, m_choicePageOffset + i == m_choiceIndex);
+			}
+		}
+		SetEnable(WM_PHASE_DP_JOIN, m_nbChoices != 0);
 	}
 	if (m_phase == WM_PHASE_MULTI)
 	{
-		// ...
+		m_bDrawMap = m_pDecor->Read(m_gamer, m_multi + 200, 0);
+		for (i = 0; i < MAXNETPLAYER; i++)
+		{
+			m_pNetwork->m_players[i].bIsPresent = FALSE;
+		}
+		if (m_pNetwork->IsHost())
+		{
+			m_pNetwork->m_players[0].bIsPresent = TRUE;
+			m_pNetwork->m_players[0].ready = FALSE;
+			m_pNetwork->m_players[0].dpid = m_pNetwork->m_dpid;
+			m_pNetwork->m_players[0].team = 0;
+			strncpy(m_pNetwork->m_players[0].name, m_gamerName, 20);
+			m_pNetwork->m_players[0].name[19] = '\0';
+		}
+		else
+		{
+			char data[28];
+			data[0] = 28;
+			data[1] = MESS_2;
+			*&data[4] = m_pNetwork->m_dpid;
+			strncpy(data + 8, m_gamerName, 20);
+			m_pNetwork->Send(data, 28, 1);
+		}
+		if (m_bDrawMap)
+		{
+			DrawMap();
+		}
+		NetAdjustLobbyButtons();
+		ChatFlush();
+		m_textHiliStart = 0;
+		m_textInput[0] = 0;
+		m_textCursorIndex = 0;
+		m_textHiliEnd = strlen(m_textInput);
 	}
 	if (m_phase == WM_PHASE_CREATE)
 	{

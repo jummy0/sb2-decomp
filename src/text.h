@@ -4,7 +4,7 @@
 
 #define FONTWHITE  0
 #define FONTGOLD    1
-#define FONTSLIM   2
+#define FONTSELECTED   2
 #define FONTLITTLE 10
 
 typedef struct
@@ -28,10 +28,10 @@ extern
 void DrawTextNew(CPixmap *pPixmap, POINT pos, char* pText, int font);
 
 extern
-void DrawChar(CPixmap* pPixmap, POINT pos, char* pText, double size);
+void DrawChar(CPixmap* pPixmap, POINT* pos, char c, int font);
 
 extern
-void DrawCharSingle(CPixmap* pPixmap, POINT pos, int rank, double size);
+void DrawCharSingle(CPixmap* pPixmap, POINT pos, int rank, int font);
 
 extern
 void DrawTextNew(CPixmap* pPixmap, POINT pos, char* pText, int font);
