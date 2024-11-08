@@ -576,7 +576,7 @@ inline BOOL CDecor::IsValidCel(POINT cel)
 	return cel.x >= 0 && cel.x < MAXCELX && cel.y >= 0 && cel.y < MAXCELY;
 }
 
-inline void CDecor::MoveObjectCopy(MoveObject *src, MoveObject *dest)
+inline void CDecor::MoveObjectCopy(MoveObject *dest, MoveObject *src)
 {
 	memcpy(dest, src, sizeof(dest));
 }

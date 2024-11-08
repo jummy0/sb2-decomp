@@ -276,7 +276,7 @@ CSound::CSound()
 
 	m_bEnable = FALSE;
 	m_bState = FALSE;
-	m_MidiDeviceID = 0;
+	m_hBassStream = NULL;
 	m_music = 0;
 	m_audioVolume = 20;
 	m_midiVolume = 15;
@@ -642,6 +642,7 @@ void CSound::SetCDAudio(BOOL bCDAudio)
 
 BOOL CSound::PlayCDAudio(HWND hWnd, int track)
 {
+	/*
 	MCIERROR dwReturn;
 	MCI_PLAY_PARMS mciPlayParms;
 	MCI_SET_PARMS mciSetParms;
@@ -710,6 +711,8 @@ BOOL CSound::PlayCDAudio(HWND hWnd, int track)
 	m_music = track;
 
 	return TRUE;
+	*/
+	return FALSE;
 }
 
 #endif

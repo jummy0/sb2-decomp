@@ -694,12 +694,12 @@ void CDecor::Build(RECT rect)
 		}
 	}
 	tinyPoint.x = 0 - posDecor.x % 64;
-	for (i = posDecor.x / 64; i < posDecor.x / 64 + LXIMAGE / 64 + 2; i++)
+	for (i = posDecor.x / DIMOBJX; i < posDecor.x / DIMOBJX + LXIMAGE / DIMOBJX + 2; i++)
 	{
 		tinyPoint.y = 0 - posDecor.y % 64;
-		for (j = posDecor.y / 64; j < posDecor.y / 64 + LYIMAGE / 64 + 2; j++)
+		for (j = posDecor.y / DIMOBJY; j < posDecor.y / DIMOBJY + LYIMAGE / DIMOBJY + 2; j++)
 		{
-			if (i >= 0 && i < 100 && j >= 0 && j < 100 && m_decor[i][j].icon != -1)
+			if (i >= 0 && i < MAXCELX && j >= 0 && j < MAXCELY && m_decor[i][j].icon != -1)
 			{
 				int num2 = m_decor[i][j].icon;
 				pos = tinyPoint;
@@ -799,32 +799,29 @@ void CDecor::Build(RECT rect)
 					m_pPixmap->QuickIcon(1, num2, pos);
 				}
 			}
-			tinyPoint.y += 64;
+			tinyPoint.y += DIMOBJY;
 		}
-		tinyPoint.x += 64;
+		tinyPoint.x += DIMOBJX;
 	}
 	for (i = 0; i < MAXMOVEOBJECT; i++)
 	{
 		if (m_moveObject[i].type != 0 && m_moveObject[i].posCurrent.x >= posDecor.x - 64 && m_moveObject[i].posCurrent.y >= posDecor.y - 64 && m_moveObject[i].posCurrent.x <= posDecor.x + LXIMAGE && m_moveObject[i].posCurrent.y <= posDecor.y + LYIMAGE && ((m_moveObject[i].type >= 8 && m_moveObject[i].type <= 11) || (m_moveObject[i].type >= 90 && m_moveObject[i].type <= 95) || (m_moveObject[i].type >= 98 && m_moveObject[i].type <= 100) || m_moveObject[i].type == 53))
 		{
-			tinyPoint.x = 0 + m_moveObject[i].posCurrent.x - posDecor.x;
-			tinyPoint.y = 0 + m_moveObject[i].posCurrent.y - posDecor.y;
+			tinyPoint = m_moveObject[i].posCurrent - posDecor;
 			m_pPixmap->QuickIcon(m_moveObject[i].channel, m_moveObject[i].icon, tinyPoint);
 		}
 		////debug
 		if (m_moveObject[i].posCurrent.x >= posDecor.x - 64 && m_moveObject[i].posCurrent.y >= posDecor.y - 64 && m_moveObject[i].posCurrent.x <= posDecor.x + LXIMAGE && m_moveObject[i].posCurrent.y <= posDecor.y + LYIMAGE)
 		{
-			char str[20];
-			sprintf(str, "#%d", i);
-			DrawText(m_pPixmap, posDecor - m_moveObject[i].posCurrent, str, FONTWHITE);
-			DrawText(m_pPixmap, posDecor - m_moveObject[i].posCurrent + POINT(0, 10), m_moveObject[i].type ? debugMobTypeNames[m_moveObject[i].type] : "-", FONTWHITE);
+			char str[50];
+			sprintf(str, "[%d]: %d", i, m_moveObject[i].type);
+			DrawText(m_pPixmap, m_moveObject[i].posCurrent - posDecor, str, FONTLITTLE);
 		}
 		////
 	}
 	if (m_blupiFront)
 	{
-		tinyPoint.x = 0 + m_blupiPos.x - posDecor.x;
-		tinyPoint.y = 0 + m_blupiPos.y - posDecor.y;
+		tinyPoint = m_blupiPos - posDecor;
 		m_pPixmap->QuickIcon(m_blupiChannel, m_blupiIcon, tinyPoint);
 	}
 	DrawInfo();
@@ -1066,7 +1063,7 @@ void CDecor::PlaySound(int sound, POINT pos, BOOL bLocal)
 {
 	if (!bLocal) NetPlaySound(sound, pos);
 
-	m_pSound->PlayImage(sound, pos - m_posDecor, -1);
+	m_pSound->PlayImage(sound, POINT(pos.x - m_posDecor.x, pos.y - m_posDecor.y), -1);
 
 	switch (sound) {
 	case SOUND_HELICOHIGH:
@@ -1111,7 +1108,7 @@ void CDecor::StopSound(int sound)
 
 void CDecor::AdaptMotorVehicleSound(POINT pos)
 {
-	POINT blupiPos = pos - m_posDecor;
+	POINT blupiPos = POINT(pos.x - m_posDecor.x, pos.y - m_posDecor.y);
 
 	if (m_bHelicoMarch) m_pSound->PlayImage(SOUND_HELICOHIGH, blupiPos);
 	if (m_bHelicoStop) m_pSound->PlayImage(SOUND_HELICOLOW, blupiPos);

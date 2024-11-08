@@ -1329,7 +1329,7 @@ POINT operator+(POINT p, const POINT& a)
 
 POINT operator-(POINT p, const POINT& a)
 {
-	return POINT( a.x - p.x, a.y - p.y );
+	return POINT( p.x - a.x, p.y - a.y );
 }
 
 POINT operator*(POINT p, const POINT& a)

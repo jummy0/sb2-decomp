@@ -33,7 +33,7 @@
 #define TITLE		"Blupi"
 #endif
 
-#define MMTIMER     FALSE
+#define MMTIMER     TRUE
 #define THREAD		FALSE
 
 // Variables Globals
@@ -456,7 +456,7 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 			}
 			g_pPixmap->Display();
 		}
-		if (g_something > 0) g_something--;
+		if (g_timer > 0) g_timer--;
 		break;
 	case WM_SYSCOLORCHANGE:
 		OutputDebug("Event WM_SYSCOLORCHANGE\n");
@@ -595,9 +595,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 void CALLBACK TimerStep(UINT wTimerID, UINT msg,
 	DWORD dwUser, DWORD dw1, DWORD dw2)
 {
-	char buf[20];
-	sprintf(buf, "%d", wTimerID);
-	OutputDebug(buf);
 	if (g_bActive && g_timer == 0)
 	{
 		g_timer = 1;

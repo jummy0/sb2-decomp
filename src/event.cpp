@@ -2909,20 +2909,7 @@ BOOL CEvent::DrawButtons()
 	// now that the decomp is looking convincingly like the retail game,
 	// we should clearly differentiate the two when sharing WIP screenshots/videos to reduce confusion.
 	{
-		POINT debugMousePos = GetMousePos();
-		int debugTextY;
-		if (debugMousePos.x > LXIMAGE - GetTextWidth("WORK IN PROGRESS") && debugMousePos.x < LXIMAGE && debugMousePos.y < 36 && debugMousePos.y >= 0)
-		{
-			debugTextY = 40;
-		}
-		else
-		{
-			debugTextY = 0;
-		}
-
-		DrawTextLeft(m_pPixmap, POINT(LXIMAGE - GetTextWidth("DECOMPILATION"), debugTextY), "DECOMPILATION", FONTGOLD);
-		DrawTextLeft(m_pPixmap, POINT(LXIMAGE - GetTextWidth("WORK IN PROGRESS"), debugTextY + 11), "WORK IN PROGRESS", FONTGOLD);
-		DrawTextLeft(m_pPixmap, POINT(LXIMAGE - GetTextWidth(__DATE__ " " __TIME__), debugTextY + 22), __DATE__ " " __TIME__, FONTGOLD);
+		DrawTextLeft(m_pPixmap, POINT(LXIMAGE - GetTextWidth("DECOMP -- " __DATE__), 0), "DECOMP -- " __DATE__, FONTGOLD);
 	}
 	///////
 
@@ -3339,7 +3326,7 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 			m_keyPress |= KEY_JUMP;
 			break;
 		case VK_PAUSE:
-			NetSetPause((m_pDecor->GetPause()), TRUE);
+			NetSetPause(!m_pDecor->GetPause(), TRUE);
 			break;
 		case VK_LEFT:
 			m_keyPress |= KEY_LEFT;

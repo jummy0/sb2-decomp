@@ -3878,11 +3878,7 @@ void CDecor::BlupiStep()
 	m_lastKeyPress = m_keyPress;
 
 	// DEBUG v
-	sprintf(m_notifText[0], "blupiAction %d", m_blupiAction);
-	sprintf(m_notifText[1], "blupiIcon %d", m_blupiIcon);
-	sprintf(m_notifText[2], "blupiPos { %d, %d }", m_blupiPos.x, m_blupiPos.y);
-	sprintf(m_notifText[3], "blupiVitesse { %d, %d }", m_blupiVitesse.x, m_blupiVitesse.y);
-	sprintf(m_notifText[4], "time %d", m_time);
+	sprintf(m_notifText[0], "time %d", m_time);
 	m_notifTime = 200;
 	// DEBUG ^
 }
