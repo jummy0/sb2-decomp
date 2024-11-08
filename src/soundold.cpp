@@ -1,45 +1,18 @@
 // sound.cpp
 //
-#include "def.h"
 
-#if _BASS && !_LEGACY
+#include "def.h"
+#if !_BASS || _LEGACY
 #include <dsound.h>
 #include <stdio.h>
 #include "sound.h"
 #include "misc.h"
 #include "resource.h"
-#include "bass.h"
-#include "bassmidi.h"
 
 /////////////////////////////////////////////////////////////////////////////
 
 // The following macro are used for proper error handling for DirectSound.
 #define TRY_DS(exp) { { HRESULT rval = exp; if (rval != DS_OK) { TraceErrorDS(rval, __FILE__, __LINE__); return FALSE; } } }
-
-static const float table[21] =
-{
-	(float)0x00000000 / 0xFFFFFFFF,
-	(float)0x11111111 / 0xFFFFFFFF,
-	(float)0x22222222 / 0xFFFFFFFF,
-	(float)0x33333333 / 0xFFFFFFFF,
-	(float)0x44444444 / 0xFFFFFFFF,
-	(float)0x55555555 / 0xFFFFFFFF,
-	(float)0x66666666 / 0xFFFFFFFF,
-	(float)0x77777777 / 0xFFFFFFFF,
-	(float)0x88888888 / 0xFFFFFFFF,
-	(float)0x99999999 / 0xFFFFFFFF,
-	(float)0xAAAAAAAA / 0xFFFFFFFF,
-	(float)0xBBBBBBBB / 0xFFFFFFFF,
-	(float)0xCCCCCCCC / 0xFFFFFFFF,
-	(float)0xDDDDDDDD / 0xFFFFFFFF,
-	(float)0xEEEEEEEE / 0xFFFFFFFF,
-	(float)0xF222F222 / 0xFFFFFFFF,
-	(float)0xF555F555 / 0xFFFFFFFF,
-	(float)0xF777F777 / 0xFFFFFFFF,
-	(float)0xFAAAFAAA / 0xFFFFFFFF,
-	(float)0xFDDDFDDD / 0xFFFFFFFF,
-	(float)0xFFFFFFFF / 0xFFFFFFFF,
-};
 
 
 struct WaveHeader
@@ -261,7 +234,55 @@ BOOL CSound::PlaySoundDS(DWORD dwSound, DWORD dwFlags)
 
 void InitMidiVolume(int volume)
 {
-	// :)
+	int				nb, i, n;
+	MMRESULT		result;
+	HMIDIOUT		hmo = 0;
+
+	static int table[21] =
+	{
+		0x00000000,
+		0x11111111,
+		0x22222222,
+		0x33333333,
+		0x44444444,
+		0x55555555,
+		0x66666666,
+		0x77777777,
+		0x88888888,
+		0x99999999,
+		0xAAAAAAAA,
+		0xBBBBBBBB,
+		0xCCCCCCCC,
+		0xDDDDDDDD,
+		0xEEEEEEEE,
+		0xF222F222,
+		0xF555F555,
+		0xF777F777,
+		0xFAAAFAAA,
+		0xFDDDFDDD,
+		0xFFFFFFFF,
+	};
+
+	if (volume < 0)  volume = 0;
+	if (volume > MAXVOLUME)  volume = MAXVOLUME;
+
+	nb = midiOutGetNumDevs();
+	for (i = 0; i<nb; i++)
+	{
+		result = midiOutOpen((LPHMIDIOUT)&hmo, i, 0L, 0L, 0L);
+		if (result != MMSYSERR_NOERROR)
+		{
+			continue;
+		}
+
+		result = midiOutSetVolume(hmo, table[volume]);
+		if (result != MMSYSERR_NOERROR)
+		{
+			n = 1;
+		}
+		midiOutClose(hmo);
+		hmo = 0;
+	}
 }
 
 
@@ -277,13 +298,11 @@ CSound::CSound()
 	m_bEnable = FALSE;
 	m_bState = FALSE;
 	m_MidiDeviceID = 0;
-	m_music = 0;
+	m_MIDIFilename[0] = 0;
 	m_audioVolume = 20;
 	m_midiVolume = 15;
 	m_lastMidiVolume = 0;
 	m_nbSuspendSkip = 0;
-	BASS_Init(-1, 22050, BASS_DEVICE_FREQ, m_hWnd, NULL);
-	BASS_SetConfigPtr(BASS_CONFIG_MIDI_DEFFONT, "data\\GM.DLS.sf2");
 
 	m_lpDS = NULL;
 
@@ -545,25 +564,50 @@ BOOL CSound::PlayMusic(HWND hWnd, int music)
 
 	if (!m_bEnable)  return TRUE;
 	if (m_midiVolume == 0)  return TRUE;
+	InitMidiVolume(m_midiVolume);
+	m_lastMidiVolume = m_midiVolume;
 
-	if (music != m_music || !m_hBassStream)
+	GetCurrentDir(string, MAX_PATH - 30);
+	sprintf(buf, "sound\\music%.3d.blp", music - 1);
+	strcat(string, buf);
+
+	// Open the device by specifying the device and filename.
+	// MCI will attempt to choose the MIDI mapper as the output port.
+	mciOpenParms.dwCallback = 0;
+	mciOpenParms.wDeviceID = 0;
+	mciOpenParms.lpstrDeviceType = "sequencer";
+	mciOpenParms.lpstrElementName = string;
+	dwReturn = mciSendCommand(NULL,
+		MCI_OPEN,
+		MCI_OPEN_TYPE | MCI_OPEN_ELEMENT,
+		(DWORD)(LPVOID)&mciOpenParms);
+	if (dwReturn != 0)
 	{
-		if (m_hBassStream) BASS_ChannelFree(m_hBassStream);
-		InitMidiVolume(m_midiVolume);
-		m_lastMidiVolume = m_midiVolume;
-
-		GetCurrentDir(string, MAX_PATH - 30);
-		sprintf(buf, "sound\\music%.3d.blp", music - 1);
-		strcat(string, buf);
-
-		m_hBassStream = BASS_MIDI_StreamCreateFile(FALSE, string, 0, 0, BASS_SAMPLE_LOOP, 0);
-		BASS_ChannelSetAttribute(m_hBassStream, BASS_ATTRIB_VOL, table[m_midiVolume]);
-		BASS_ChannelSetAttribute(m_hBassStream, BASS_ATTRIB_MIDI_REVERB, 0);
-		BASS_ChannelStart(m_hBassStream);
+		OutputDebug("PlayMusic-1\n");
+		mciGetErrorStringA(dwReturn, string, 128);
+		OutputDebug(string);
+		// Failed to open device. Don't close it; just return error.
+		return FALSE;
 	}
-	else
+
+	// The device opened successfully; get the device ID.
+	m_MidiDeviceID = mciOpenParms.wDeviceID;
+
+	// Begin playback. 
+	mciPlayParms.dwFrom = 0;
+	mciPlayParms.dwTo = 0;
+	mciPlayParms.dwCallback = (DWORD)hWnd;
+	dwReturn = mciSendCommand(m_MidiDeviceID,
+		MCI_PLAY,
+		MCI_NOTIFY,
+		(DWORD)(LPVOID)&mciPlayParms);
+	if (dwReturn != 0)
 	{
-		BASS_ChannelStart(m_hBassStream);
+		OutputDebug("PlayMusic-2\n");
+		mciGetErrorString(dwReturn, string, 128);
+		OutputDebug(string);
+		StopMusic();
+		return FALSE;
 	}
 
 	m_music = music;
@@ -578,7 +622,7 @@ BOOL CSound::RestartMusic()
 	OutputDebug("RestartMusic\n");
 	if (!m_bEnable)  return TRUE;
 	if (m_midiVolume == 0)  return TRUE;
-	if (m_music == 0)  return FALSE;
+	if (m_MIDIFilename[0] == 0)  return FALSE;
 
 	return PlayMusic(m_hWnd, m_music);
 }
@@ -595,10 +639,11 @@ void CSound::SuspendMusic()
 		return;
 	}
 
-	if (m_hBassStream && m_midiVolume != 0)
+	if (m_MidiDeviceID && m_midiVolume != 0)
 	{
-		BASS_ChannelPause(m_hBassStream);
+		mciSendCommand(m_MidiDeviceID, MCI_CLOSE, 0, NULL);
 	}
+	m_MidiDeviceID = 0;
 }
 
 // Shuts down the MIDI player.
@@ -606,14 +651,14 @@ void CSound::SuspendMusic()
 void CSound::StopMusic()
 {
 	SuspendMusic();
-	m_music = 0;
+	m_MIDIFilename[0] = 0;
 }
 
 // Retourne TRUE si une musique est en cours.
 
 BOOL CSound::IsPlayingMusic()
 {
-	return (m_music != 0);
+	return (m_MIDIFilename[0] != 0);
 }
 
 // Adapte le volume de la musique en cours, si n�cessaire.

@@ -43,7 +43,6 @@ void ChangeSprite(int sprite)
 
 	if ( sprite == SPRITE_ARROW   )  hCursor = LoadCursorA(g_hInstance, "IDC_ARROW");
 	if ( sprite == SPRITE_POINTER )  hCursor = LoadCursorA(g_hInstance, "IDC_POINTER");
-	if ( sprite == SPRITE_MAP     )  hCursor = LoadCursorA(g_hInstance, "IDC_MAP");
 	if ( sprite == SPRITE_ARROWU  )  hCursor = LoadCursorA(g_hInstance, "IDC_ARROWU");
 	if ( sprite == SPRITE_ARROWD  )  hCursor = LoadCursorA(g_hInstance, "IDC_ARROWD");
 	if ( sprite == SPRITE_ARROWL  )  hCursor = LoadCursorA(g_hInstance, "IDC_ARROWL");
@@ -54,7 +53,6 @@ void ChangeSprite(int sprite)
 	if ( sprite == SPRITE_ARROWDR )  hCursor = LoadCursorA(g_hInstance, "IDC_ARROWDR");
 	if ( sprite == SPRITE_WAIT    )  hCursor = LoadCursorA(g_hInstance, "IDC_WAIT");
 	if ( sprite == SPRITE_EMPTY   )  hCursor = LoadCursorA(g_hInstance, "IDC_EMPTY");
-	if ( sprite == SPRITE_FILL    )  hCursor = LoadCursorA(g_hInstance, "IDC_FILL");
 	SetCursor(hCursor);
 
 	g_lastSprite = sprite;

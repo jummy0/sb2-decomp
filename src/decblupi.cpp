@@ -824,7 +824,7 @@ void CDecor::BlupiStep()
 	}
 
 	if (m_keyPress & KEY_DOWN && 
-		!(m_keyPress & KEY_JUMP) &&
+		!(m_keyPress & (KEY_JUMP | KEY_LEFT | KEY_RIGHT)) &&
 		IsBlupiStanding() &&
 		m_blupiAction != ACTION_DOWN &&
 		m_blupiAction != ACTION_STOPPOP &&

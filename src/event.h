@@ -98,7 +98,7 @@ public:
 	void	SomethingDecor();
 	BOOL	IsMouseRelease();
 
-	void	NetSetPause(BOOL bPause, int players);
+	void	NetSetPause(BOOL bPause, BOOL bMulti);
 	void	NetSendLobby();
 
 	BOOL	DrawButtons();
@@ -107,7 +107,7 @@ public:
 	void	MouseSprite(POINT pos);
 	void	WaitMouse(BOOL bWait);
 	void	HideMouse(BOOL bHide);
-	void	FillMouse(int bFill);
+	void	DisableMouse(int bFill);
 	POINT	GetLastMousePos();
 	BOOL	TreatEvent(UINT message, WPARAM wParam, LPARAM lParam);
 	BOOL	TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam);
@@ -172,7 +172,7 @@ protected:
 	void	DemoRecStop();
 	BOOL	DemoPlayStart();
 	void	DemoPlayStop();
-	void	DemoRecEvent(UINT message, UINT input, WPARAM wParam, LPARAM lParam);
+	void	DemoRecEvent();
 
 	//		Network Functions
 	BOOL	NetCreate(int session);
@@ -193,6 +193,9 @@ protected:
 	void	DrawMap();
 	BOOL	CheckWorld1();
 	void	NetAdjustLobbyButtons();
+
+	BOOL	CurrentRead(BOOL bPrivate);
+	BOOL	CurrentWrite(int rank);
 
 
 protected:
@@ -256,7 +259,7 @@ protected:
 	char		m_textToolTips[50];
 	char		m_textToolTips2[50];
 	int			m_mouseSprite;
-	BOOL		m_bFillMouse;
+	BOOL		m_bDisableMouse;
 	BOOL		m_bWaitMouse;
 	BOOL		m_bHideMouse;
 	BOOL		m_bShowMouse;

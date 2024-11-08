@@ -6,6 +6,11 @@
 #include "dsound.h"
 #include <stdio.h>
 
+#if _BASS && !_LEGACY
+#include "bass.h"
+#include "bassmidi.h"
+#endif
+
 ///////////////////////////////////////////////////////////////////////////
 
 #define MAXSOUND    100
@@ -62,13 +67,17 @@ protected:
 	LPDIRECTSOUND           m_lpDS;
 	LPDIRECTSOUNDBUFFER     m_lpDSB[MAXSOUND];
 	short                   m_channelBlupi[MAXBLUPI];
+#if _BASS && !_LEGACY
+	HSTREAM					m_hBassStream;
+#else
 	UINT                    m_MidiDeviceID;
+#endif
 	int						m_music;
-	char                    m_MIDIFilename[50];
 	int                     m_audioVolume;
 	int                     m_midiVolume;
 	int                     m_lastMidiVolume;
 	int                     m_nbSuspendSkip;
+	
 };
 
 #endif

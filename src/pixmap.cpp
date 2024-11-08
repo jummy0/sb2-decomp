@@ -1538,6 +1538,7 @@ void CPixmap::SetMousePosSprite(POINT pos, int sprite, BOOL bDemoPlay)
 	}
 }
 
+/*
 // Positionne la souris.
 
 void CPixmap::SetMousePos(POINT pos, BOOL bDemoPlay)
@@ -1552,6 +1553,7 @@ void CPixmap::SetMousePos(POINT pos, BOOL bDemoPlay)
 		MouseUpdate();
 	}
 }
+*/
 
 // Change le lutin de la souris.
 
@@ -1584,6 +1586,7 @@ void CPixmap::MouseUpdate()
 	if ( m_lpDDSurface[CHELEMENT] == NULL )  return;
 	if ( m_mouseType != MOUSETYPEGRA )  return;
 	if ( m_mouseSprite == SPRITE_EMPTY )  return;
+	if (m_mouseSprite == SPRITE_DISABLE)  return;
 	if ( !m_bMouseShow )  return;
 
 	oldRect.left   = m_mouseBackPos.x;
@@ -1661,7 +1664,7 @@ void CPixmap::MouseInvalidate()
 
 void CPixmap::MouseBackClear()
 {
-	if ( m_mouseType != MOUSETYPEGRA )  return;
+	if ( m_mouseType != MOUSETYPEGRA || m_mouseSprite == SPRITE_DISABLE)  return;
 	MouseBackRestore();  // enl�ve la souris dans m_lpDDSBack
 }
 
@@ -1674,7 +1677,7 @@ void CPixmap::MouseBackDraw()
 
 	if ( m_lpDDSurface[CHELEMENT] == NULL )  return;
 	if ( m_mouseType != MOUSETYPEGRA )  return;
-	if ( m_mouseSprite == SPRITE_EMPTY )  return;
+	if ( m_mouseSprite == SPRITE_EMPTY || m_mouseSprite == SPRITE_DISABLE)  return;
 	if ( !m_bMouseShow )  return;
 
 	MouseBackSave();  // sauve ce qui sera sous la souris
@@ -1717,7 +1720,7 @@ void CPixmap::MouseBackSave()
 
 	if ( m_lpDDSurface[CHELEMENT] == NULL )  return;
 	if ( m_mouseType != MOUSETYPEGRA )  return;
-	if ( m_mouseSprite == SPRITE_EMPTY )  return;
+	if ( m_mouseSprite == SPRITE_EMPTY || m_mouseSprite == SPRITE_DISABLE)  return;
 	if ( !m_bMouseShow )  return;
 
 	m_mouseBackPos.x = m_mousePos.x - m_mouseHotSpot.x;
@@ -1870,7 +1873,7 @@ void CPixmap::MouseRectSprite(RECT *rect, POINT *offset)
 
 	rank = 37;
 	if ( m_mouseSprite == SPRITE_POINTER )  rank = 38;
-	if ( m_mouseSprite == 11 )  rank = 39;
+	if ( m_mouseSprite == SPRITE_WAIT )  rank = 39;
 
 	rect->left = table_icon_element[rank * 6 + 0 + 1];
 	rect->right = rect->left + table_icon_element[rank * 6 + 4 + 1];
@@ -1888,29 +1891,18 @@ void CPixmap::MouseHotSpot()
 {
 	int		rank;
 
-	static int table_mouse_hotspot[14*2] =
+	static int table_mouse_hotspot[4*2] =
 	{
+		25, 0,
 		30, 30,		// SPRITE_ARROW
 		20, 15,		// SPRITE_POINTER
-		31, 26,		// SPRITE_MAP
-		25, 14,		// SPRITE_ARROWU
-		24, 35,		// SPRITE_ARROWD
-		15, 24,		// SPRITE_ARROWL
-		35, 24,		// SPRITE_ARROWR
-		18, 16,		// SPRITE_ARROWUL
-		32, 18,		// SPRITE_ARROWUR
-		17, 30,		// SPRITE_ARROWDL
-		32, 32,		// SPRITE_ARROWDR
-		30, 30,		// SPRITE_WAIT
 		30, 30,		// SPRITE_EMPTY
-		21, 51,		// SPRITE_FILL
 	};
 
+	rank = m_mouseSprite;
 	if ( m_mouseSprite >= SPRITE_ARROW &&
-		 m_mouseSprite <= SPRITE_FILL  )
+		 m_mouseSprite <= SPRITE_WAIT  )
 	{
-		rank = m_mouseSprite - SPRITE_ARROW;  // rank <- 0..n
-
 		m_mouseHotSpot.x = table_mouse_hotspot[rank*2+0];
 		m_mouseHotSpot.y = table_mouse_hotspot[rank*2+1];
 	}

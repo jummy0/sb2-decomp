@@ -874,15 +874,15 @@ void CDecor::DrawInfo()
 			m_pPixmap->QuickIcon(CHELEMENT, 252, POINT( 505, 414 ));
 		}
 
-		if (m_blupiCle | CLE_RED) {
+		if (m_blupiCle & CLE_RED) {
 			m_pPixmap->QuickIcon(CHELEMENT, 215, POINT( 520, 418 ));
 		}
 
-		if (m_blupiCle | CLE_GREEN) {
+		if (m_blupiCle & CLE_GREEN) {
 			m_pPixmap->QuickIcon(CHELEMENT, 222, POINT( 530, 418 ));
 		}
 
-		if (m_blupiCle | CLE_BLUE) {
+		if (m_blupiCle & CLE_BLUE) {
 			m_pPixmap->QuickIcon(CHELEMENT, 229, POINT( 540, 418 ));
 		}
 
@@ -908,9 +908,68 @@ void CDecor::DrawInfo()
 				if (m_blupiPos.x > 788) m_blupiPos.x = 788;
 				break;
 			}
-			// tutorial text...
+			
+			POINT cel = { (m_blupiPos.x + DIMBLUPIX / 2) / DIMOBJX, (m_blupiPos.y + DIMBLUPIY / 2) / DIMOBJY };
+			for (i = 0; table_tutorial[i * 6 + 0] != -1; i++)
+			{
+				if (cel.x >= table_tutorial[i * 6 + 0] &&
+					cel.x <= table_tutorial[i * 6 + 1] &&
+					cel.y >= table_tutorial[i * 6 + 2] &&
+					cel.y <= table_tutorial[i * 6 + 3])
+				{
+					if (table_tutorial[i * 6 + 4] == -1 || table_tutorial[i * 6 + 4] == m_nbTresor)
+					{
+						if (m_bJoystick)
+						{
+							LoadString(table_tutorial[i * 6 + 5] + 100, text, 100);
+						}
+						else
+						{
+							LoadString(table_tutorial[i * 6 + 5], text, 100);
+						}
+						DrawTextCenter(m_pPixmap, POINT(360, 460), text);
+						break;
+					}
+				}
+			}
 		}
-		// more...
+	}
+	if (m_phase == WM_PHASE_BUILD)
+	{
+		if (m_posCelHili.x != -1)
+		{
+			int icon = 0;
+			if (m_2ndPositionCalculationSlot != -1)
+			{
+				icon = 31;
+			}
+			if (m_dimCelHili.x > 0)
+			{
+				pos.x = m_posCelHili.x * DIMOBJX - m_posDecor.x;
+				
+				int j = 0;
+				for (i = 0; i < m_dimCelHili.x; i++)
+				{
+					pos.y = m_posCelHili.y * DIMOBJY - m_posDecor.y;
+					for (j = 0; j < m_dimCelHili.y; j++)
+					{
+						m_pPixmap->QuickIcon(CHOBJECT, icon, pos);
+						pos.y += DIMOBJY;
+					}
+					pos.x += DIMOBJX;
+				}
+			}
+		}
+		if (m_phase == WM_PHASE_BUILD) // again???
+		{
+			LoadString(0x66, text, 100);
+			DrawText(m_pPixmap, POINT(200, 460), text, FONTGOLD);
+		}
+	}
+	if (m_phase == WM_PHASE_PLAYTEST)
+	{
+		LoadString(0x67, text, 100);
+		DrawText(m_pPixmap, POINT(200, 460), text, FONTGOLD);
 	}
 }
 
@@ -1760,9 +1819,9 @@ BOOL CDecor::SearchWorld(int world, POINT *cel, POINT *newBlupiPos)
 
 BOOL CDecor::SearchDoor(int n, POINT *cel)
 {
-	for (int x = 0; x < MAXCELX; x++)
+	for (int y = MAXCELY - 1; y > 0; y--)
 	{
-		for (int y = 0; y < MAXCELY; y++)
+		for (int x = MAXCELX - 1; x > 0; x--)
 		{
 			if (m_decor[x][y].icon == 183)
 			{
@@ -1816,9 +1875,9 @@ void CDecor::AdaptDoors(BOOL bPrivate, int mission)
 					}
 				}
 			}
-			for (int x = 0; x < MAXCELX; x++)
+			for (int x = MAXCELX - 1; x > 0; x--)
 			{
-				for (int y = 0; y < MAXCELY; y++)
+				for (int y = MAXCELY - 1; y > 0; y--)
 				{
 					int icon = m_decor[x][y].icon;
 					if (icon >= Object::World_1 && icon <= Object::World_8 && (!m_doors[icon - Object::World_1 + 1] || m_bCheatDoors))
@@ -1897,12 +1956,12 @@ void CDecor::OpenDoor(POINT cel)
 
 void CDecor::OpenDoorsWin()
 {
-	m_doors[m_mission + 1] = 1;
+	m_doors[m_mission + 1] = 0;
 }
 
 void CDecor::OpenGoldsWin()
 {
-	m_doors[180 + m_mission / 10] = 1;
+	m_doors[180 + m_mission / 10] = 0;
 }
 
 void CDecor::DoorsLost()

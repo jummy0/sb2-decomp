@@ -399,9 +399,9 @@ public:
 	BOOL	Write(int gamer, int mission, BOOL bUser);
 	BOOL	Read(int gamer, int mission, BOOL bUser);
 	BOOL	SomethingMissionPath(int gamer, int mission, BOOL bUser);
-	BOOL	MissionStart(int gamer, int mission, BOOL bUser);
+	BOOL	CurrentWrite(int gamer, int mission, BOOL bUser=FALSE);
 	BOOL	CurrentRead(int gamer, int mission, BOOL *pbMission, BOOL *pbPrivate);
-	BOOL	CurrentWrite(int gamer, int mission, char* param3);
+	BOOL	MissionStart(int gamer, int mission, char* param3);
 
 	BOOL	SearchWorld(int world, POINT *cel, POINT *newBlupiPos);
 	BOOL	SearchDoor(int n, POINT *cel);

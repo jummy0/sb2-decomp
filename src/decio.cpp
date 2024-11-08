@@ -193,7 +193,7 @@ BOOL CDecor::SomethingMissionPath(int gamer, int mission, BOOL bUser)
 	return FALSE; 
 }
 
-BOOL CDecor::MissionStart(int gamer, int mission, BOOL bUser)
+BOOL CDecor::CurrentWrite(int gamer, int mission, BOOL bUser)
 {
 	char filename[MAX_PATH];
 	FILE* file = NULL;
@@ -363,7 +363,7 @@ error:
 	return FALSE;
 }
 
-BOOL CDecor::CurrentWrite(int gamer, int mission, char* param3)
+BOOL CDecor::MissionStart(int gamer, int mission, char* param3)
 {
 	char filename[MAX_PATH];
 	FILE* file = NULL;

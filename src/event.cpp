@@ -21,10 +21,7 @@
 #include "misc.h"
 #include "network.h"
 
-#define DEF_TIME_HELP  10000
 #define DEF_TIME_DEMO  1000
-#define MAXDEMO        2000
-#define MAXINDEX	   20
 
 typedef struct
 {
@@ -1769,61 +1766,40 @@ CEvent::CEvent()
 	m_bFullScreen = TRUE;
 	m_mouseType = MOUSETYPEGRA;
 	m_index = -1;
-	m_exercice = 0;
-	m_mission = 0;
-	m_private = 0;
-	m_maxMission = 0;
-	m_fileIndex = 0;
-	m_fileTime[10] = 0;
-	m_fileWorld[10] = 0;
+	m_rankCheat = -1;
+	m_nbVies = 3;
+	m_mission = 1;
+	m_private = 1;
+	m_multi = 1;
 	m_phase = 0;
-	m_bSchool = FALSE;
 	m_bPrivate = FALSE;
+	m_bMulti = FALSE;
 	m_bBuildOfficialMissions = FALSE;
 	m_bRunMovie = FALSE;
-	m_bBuildModify = FALSE;
-	m_bMousePress = FALSE;
 	m_bMouseDown = FALSE;
+	m_bHili = FALSE;
 	m_oldMousePos.x = 0;
 	m_oldMousePos.y = 0;
 	m_mouseSprite = 0;
-	m_bFillMouse = FALSE;
 	m_bWaitMouse = FALSE;
 	m_bHideMouse = FALSE;
 	m_bShowMouse = FALSE;
+	m_bDisableMouse = FALSE;
 	m_bMouseRelease = FALSE;
-	m_tryPhase = 0;
-	m_rankCheat = -1;
 	m_posCheat = 0;
 	m_speed = 1;
 	m_bMovie = TRUE;
 	m_bAllMissions = FALSE;
 	m_bHiliInfoButton = TRUE;
-	m_bSpeed = FALSE;
-	m_bHelp = FALSE;
-	m_bChangeCheat = FALSE;
-	m_scrollSpeed = 1;
-	m_bPause = FALSE;
-	m_bShift = FALSE;
-	m_shiftPhase = 0;
-	m_movieToStart[0] = 0;
-	m_bInfoHelp = FALSE;
+	m_movieToStart[0] = '\0';
 	m_bDemoRec = FALSE;
 	m_bDemoPlay = FALSE;
 	m_pDemoBuffer = NULL;
-	m_bDrawMap = NULL;
-	m_choiceIndex = NULL;
-	m_saveIndex = NULL;
-	m_bMulti = NULL;
-	m_phaseAfterMovie = NULL;
-	m_choicePageOffset = NULL;
-	m_nbChoices = NULL;
-	//m_bNamesExist = NULL;
 	m_demoTime = 0;
-	m_bCtrlDown = FALSE;
 	m_keyPress = 0;
-	m_menuIndex = 0;
+
 	ZeroMemory(m_menuDecor, sizeof(m_menuDecor));
+	m_menuDecor[10] = 1;
 }
 
 // Destructor
@@ -1985,14 +1961,14 @@ void CEvent::RestoreGame()
 {
 	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
 	{
-		HideMouse(FALSE);
-		WaitMouse(TRUE);
-		WaitMouse(FALSE);
-		return;
+		HideMouse(TRUE);
 	}
-	FillMouse(TRUE);
-	return;
-    
+	else
+	{
+		WaitMouse(FALSE);
+		DisableMouse(TRUE);
+		DisableMouse(FALSE);  // force le changement de sprite !
+	}
 }
 
 void CEvent::FlushInput()
@@ -2157,7 +2133,7 @@ void CEvent::ReadInput()
 
 // CNetwork function needs to be implemented 
 
-void CEvent::NetSetPause(BOOL bPause, int players)
+void CEvent::NetSetPause(BOOL bPause, BOOL bMulti)
 {
 	BOOL bPause_;
 	
@@ -2174,7 +2150,7 @@ void CEvent::NetSetPause(BOOL bPause, int players)
 			m_pSound->SuspendMusic();
 		}
 	}
-	if ((m_bMulti != FALSE) && (players != 0))
+	if ((m_bMulti != FALSE) && (bMulti != 0))
 	{
 		m_pNetwork->Send(&bPause, 3, DPSEND_GUARANTEED);
 	}
@@ -2569,30 +2545,31 @@ BOOL CEvent::DrawButtons()
 	
 	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
 	{
-		if (m_pDecor->GetPause() == 0)
+		if (m_pDecor->GetPause())
 		{
-			if (m_bDemoRec != 0)
+			if (m_pDecor->GetTime() % 20 < 15)
 			{
-				LoadString(TX_DEMOREC, res, 100);
-				DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
-			}
-			if (m_bDemoPlay != 0)
-			{
-				LoadString(TX_DEMOPLAY, res, 100);
-				DrawTextLeft(m_pPixmap, pos, res, FONTGOLD);
+				DrawTextCenter(TX_PAUSE, LXIMAGE / 2, LYIMAGE / 2, 0);
 			}
 		}
 		else
 		{
-			if (m_pDecor->GetTime() % 20 < 15)
+			if (m_bDemoRec)
 			{
-				DrawTextCenter(TX_PAUSE, 320, 240, 0);
+				LoadString(TX_DEMOREC, res, 100);
+				DrawTextLeft(m_pPixmap, POINT(10, 10), res, FONTGOLD);
+			}
+			if (m_bDemoPlay)
+			{
+				LoadString(TX_DEMOPLAY, res, 100);
+				DrawTextLeft(m_pPixmap, POINT(10, 10), res, FONTGOLD);
 			}
 		}
+		
 		if (m_speed > 1)
 		{
 			sprintf(res, "x%d", m_speed);
-			DrawTextLeft(m_pPixmap, pos, res, FONTWHITE);
+			DrawTextLeft(m_pPixmap, POINT(64, LYIMAGE - DIMTEXTY + 1), res, FONTWHITE);
 		}
 	}
 	if (m_phase == WM_PHASE_STOP)
@@ -3167,20 +3144,25 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 						}
 						if (m_rankCheat == 11)
 						{
-							m_pDecor->SetDrawSecret(!m_pDecor->GetDrawSecret());
-							bEnable = m_pDecor->GetDrawSecret();
+							bEnable = !m_pDecor->GetDrawSecret();
+							m_pDecor->SetDrawSecret(bEnable);
+							
 						}
 						if (m_rankCheat == 19)
 						{
-							// Add NetPacked
+							bEnable = !m_pDecor->GetNetPacked();
+							m_pDecor->SetNetPacked(bEnable);
+							
 						}
 						if (m_rankCheat == 20)
 						{
-							// Add Net Debug
+							bEnable = !m_pDecor->GetNetDebug();
+							m_pDecor->SetNetDebug(bEnable);
 						}
 						if (m_rankCheat == 21)
 						{
-							// Add NetMovePredict
+							bEnable = !m_pDecor->GetNetMovePredict();
+							m_pDecor->SetNetMovePredict(bEnable);
 						}
 						if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST)
 						{
@@ -3334,28 +3316,30 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 				return TRUE;
 			case WM_PHASE_GREAD:
 			case WM_PHASE_GREADp:
-				/*
-				if (m_choiceIndex >= 0 && FUN_21890(m_choiceIndex))
+				if (m_choiceIndex >= 0 && CurrentRead(m_choiceIndex))
 				{
 					ChangePhase(WM_PHASE_PLAY);
 					
 				}
 				return TRUE;
-				*/
 			case WM_PHASE_GWRITE:
-				/*
-				if (m_choiceIndex >= 0 && FUN_218f0(m_choiceIndex))
+				if (m_choiceIndex >= 0 && CurrentWrite(m_choiceIndex))
 				{
 					ChangePhase(WM_PHASE_PLAY);
 					
 				}
 				return TRUE;
-				*/
 			default:
 				return TRUE;
 			}
 		case VK_SHIFT:
 			m_keyPress |= KEY_FIRE;
+			break;
+		case VK_CONTROL:
+			m_keyPress |= KEY_JUMP;
+			break;
+		case VK_PAUSE:
+			NetSetPause((m_pDecor->GetPause()), TRUE);
 			break;
 		case VK_LEFT:
 			m_keyPress |= KEY_LEFT;
@@ -3370,7 +3354,7 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 			m_keyPress |= KEY_DOWN;
 			break;
 		case VK_HOME:
-			return TRUE;
+			break;
 		case VK_SPACE:
 			if (m_bRunMovie)
 			{
@@ -3380,14 +3364,30 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 			}
 			m_keyPress |= KEY_FIRE;
 			break;
-		case VK_PAUSE:
-			m_bPause = !m_bPause;
-			NetSetPause((m_pDecor->GetPause()), m_bPause);
-			return TRUE;
-		case VK_CONTROL:
-			m_keyPress |= KEY_JUMP;
+		case VK_F1:
+			if (this->m_phase == WM_PHASE_PLAY)
+			{
+				ChangePhase(WM_PHASE_HELP);
+			}
 			break;
-
+		case VK_F2:
+			if (this->m_phase == WM_PHASE_PLAY)
+			{
+				ChangePhase(WM_PHASE_SETUPp);
+			}
+			break;
+		case VK_F3:
+			if (this->m_phase == WM_PHASE_PLAY)
+			{
+				ChangePhase(WM_PHASE_GWRITE);
+			}
+			break;
+		case VK_F4:
+			if (this->m_phase != WM_PHASE_PLAY)
+			{
+				ChangePhase(WM_PHASE_GREADp);
+			}
+			break;
 		}
 
 		if (m_phase != WM_PHASE_PLAY && m_phase != WM_PHASE_PLAYTEST && m_phase != WM_PHASE_BUILD)
@@ -3396,6 +3396,7 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		}
 
 		m_pDecor->SetInput(m_keyPress);
+		DemoRecEvent();
 		return TRUE;
 
 		// Unknown Function
@@ -3477,7 +3478,6 @@ BOOL CEvent::TreatEventBase(UINT message, WPARAM wParam, LPARAM lParam)
 		{
 			if (!m_bShowMouse)
 			{
-				ShowCursor(TRUE);  // montre la souris
 				m_pPixmap->MouseShow(FALSE);  // cache sprite
 				m_bShowMouse = TRUE;
 			}
@@ -3921,13 +3921,13 @@ int CEvent::MousePosToSprite(POINT pos)
 
 	sprite = SPRITE_POINTER;
 
-	if (m_phase == WM_PHASE_PLAY ||
-		m_phase == WM_PHASE_PLAYTEST ||
-		m_phase == WM_PHASE_BUILD ||
-		m_phase == WM_PHASE_BYE ||
+	if (m_phase != WM_PHASE_PLAY &&
+		m_phase != WM_PHASE_PLAYTEST &&
+		m_phase != WM_PHASE_BUILD &&
+		m_phase != WM_PHASE_BYE &&
 		!MouseOnButton(pos))
 	{
-		sprite = SPRITE_POINTER;
+		sprite = SPRITE_ARROW;
 	}
 	if (m_bWaitMouse)
 	{
@@ -3937,9 +3937,9 @@ int CEvent::MousePosToSprite(POINT pos)
 	{
 		sprite = SPRITE_EMPTY;
 	}
-	if (m_bFillMouse)
+	if (m_bDisableMouse)
 	{
-		sprite = SPRITE_FILL;
+		sprite = SPRITE_DISABLE;
 	}
 
 	return sprite;
@@ -3971,7 +3971,8 @@ void CEvent::WaitMouse(BOOL bWait)
 
 void CEvent::HideMouse(BOOL bHide)
 {
-	m_bWaitMouse = bHide;
+	m_bHideMouse = bHide;
+	m_bDisableMouse = FALSE;
 
 	if ( bHide )
 	{
@@ -3985,13 +3986,13 @@ void CEvent::HideMouse(BOOL bHide)
 	ChangeSprite(m_mouseSprite);
 }
 
-void CEvent::FillMouse(int bFill)
+void CEvent::DisableMouse(int bDisable)
 {
-	m_bFillMouse = bFill;
+	m_bDisableMouse = bDisable;
 
-	if (bFill)
+	if (bDisable)
 	{
-		m_mouseSprite = SPRITE_FILL;
+		m_mouseSprite = SPRITE_DISABLE;
 	}
 	else
 	{
@@ -4152,7 +4153,7 @@ void CEvent::ReadAll()
 
 	if ((-1 < m_choiceIndex) && (*(int*)((int)(m_filenameBuffer + -1) + m_choiceIndex * 4 + 216) != 0))
 	{
-		mission = m_pDecor->MissionStart(m_gamer, 999, bUser);
+		mission = m_pDecor->CurrentWrite(m_gamer, 999, bUser);
 		
 		if (mission != FALSE)
 		{
@@ -4174,7 +4175,7 @@ BOOL CEvent::SaveState(int rank)
 	BOOL bUser = FALSE;
 	char str[100];
 
-	bMission = m_pDecor->MissionStart(m_gamer, rank, bUser);
+	bMission = m_pDecor->CurrentWrite(m_gamer, rank, bUser);
 
 	if (bMission == FALSE)
 	{
@@ -4349,7 +4350,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 
 	if (phase == WM_PHASE_GAMER || phase == WM_PHASE_PLAY)
 	{
-		OutputNetDebug("CEvent::ChangePhase_[WriteInfo]\r\n");
+		OutputNetDebug("CEvent::ChangePhase [WriteInfo]\r\n");
 		WriteInfo(m_gamer);
 	}
 
@@ -4895,7 +4896,7 @@ BOOL CEvent::ChangePhase(UINT phase)
 	WaitMouse(FALSE);
 	if (m_phase == WM_PHASE_PLAY || m_phase == WM_PHASE_PLAYTEST)
 	{
-		FillMouse(TRUE);
+		DisableMouse(TRUE);
 	}
 	m_pDecor->VehicleSoundsPhase(phase);
 	OutputNetDebug("CEvent::ChangePhase [End]");
@@ -5312,16 +5313,17 @@ void CEvent::DemoStep()
 	m_demoTime++;
 }
 
-void CEvent::DemoRecEvent(UINT message, UINT input, WPARAM wParam, LPARAM lParam)
+void CEvent::DemoRecEvent()
 {
-	if (m_demoIndex > 0 &&
-		m_pDemoBuffer[m_demoIndex - 1].time == m_demoTime &&
-		m_pDemoBuffer[m_demoIndex - 1].input == m_keyPress)
-
-		m_demoIndex++;
-	if (m_demoIndex >= MAXDEMO)
+	if (m_bDemoRec)
 	{
-		DemoRecStop();
+		m_pDemoBuffer[m_demoIndex].time = m_demoTime;
+		m_pDemoBuffer[m_demoIndex].input == m_keyPress;
+		m_demoIndex++;
+		if (m_demoIndex > MAXDEMO)
+		{
+			DemoRecStop();
+		}
 	}
 }
 
@@ -5752,14 +5754,14 @@ int CEvent::GameSave(int save)
 {
 	char buffer[100];
 
-	if (m_pDecor->MissionStart(m_gamer, save, TRUE))
+	if (m_pDecor->CurrentWrite(m_gamer, save, TRUE))
 	{
 		//LoadString()
 		m_pDecor->NotifPush(buffer);
 		m_quicksaveIndex = save;
 		return 1;
 	}
-	return m_pDecor->MissionStart(m_gamer, save, TRUE);
+	return m_pDecor->CurrentWrite(m_gamer, save, TRUE);
 }
 
 BOOL CEvent::CopyMission(char *srcFileName, char *dstFileName)
@@ -5824,4 +5826,33 @@ void CEvent::DrawMap()
 void CEvent::NetAdjustLobbyButtons()
 {
 	// TODO
+}
+
+BOOL CEvent::CurrentRead(int rank)
+{
+	char buf[100];
+	int mission;
+	BOOL bPrivate;
+	
+	if (m_pDecor->CurrentRead(m_gamer, rank, &mission, &bPrivate))
+	{
+		m_bPrivate = bPrivate;
+		SetMission(mission);
+		m_quicksaveIndex = rank;
+		return TRUE;
+	}
+	return FALSE;
+}
+
+BOOL CEvent::CurrentWrite(int rank)
+{
+	char buf[100];
+	if (m_pDecor->CurrentWrite(m_gamer, rank))
+	{
+		LoadString(0x120u, buf, 100);
+		m_pDecor->NotifPush(buf);
+		m_quicksaveIndex = rank;
+		return TRUE;
+	}
+	return FALSE;
 }

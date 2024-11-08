@@ -21,6 +21,7 @@
 #define _BYE			!_EGAMES // if TRUE, show exit image (like _INTRO)
 #define _LEGACY			FALSE	// if TRUE, keep broken/quirky legacy code
 #define _DREAM			TRUE	// if TRUE, allow Dream blocks when loading levels
+#define _BASS			TRUE	// if TRUE, use BASS audio library instead of DirectMusic (wip)
 
 #define MAXGAMER		8
 #define MAXNETPLAYER	4
@@ -33,6 +34,8 @@
 #define MAXCHAT			6
 #define MAXSAVE			6
 #define LIFT_RANGE_Y	30
+#define MAXDEMO        9999
+#define MAXINDEX	   20
 
 #define LXIMAGE			640		// dimensions de la fenêtre de jeu
 #define LYIMAGE			480
@@ -515,18 +518,17 @@ enum {
 
 #define SPRITE_ARROW		1
 #define SPRITE_POINTER		2
-#define SPRITE_MAP			3
-#define SPRITE_ARROWU		4
-#define SPRITE_ARROWD		5
-#define SPRITE_ARROWL		6
-#define SPRITE_ARROWR		7
-#define SPRITE_ARROWUL		8
-#define SPRITE_ARROWUR		9
-#define SPRITE_ARROWDL		10
-#define SPRITE_ARROWDR		11
-#define SPRITE_WAIT			12
-#define SPRITE_EMPTY		13
-#define SPRITE_FILL			14
+#define SPRITE_ARROWU		3
+#define SPRITE_ARROWD		4
+#define SPRITE_ARROWL		5
+#define SPRITE_ARROWR		6
+#define SPRITE_ARROWUL		7
+#define SPRITE_ARROWUR		8
+#define SPRITE_ARROWDL		9
+#define SPRITE_ARROWDR		10
+#define SPRITE_WAIT			11
+#define SPRITE_EMPTY		12
+#define SPRITE_DISABLE			13
 
 
 // User define message
