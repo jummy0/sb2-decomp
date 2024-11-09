@@ -52,11 +52,10 @@ MoveObject;
 
 typedef struct
 {
-	char type;
-	char data1;
+	short type;
 	short x;
 	short y;
-	short channel;
+	short z;
 }
 NetMessage;
 
@@ -344,7 +343,7 @@ public:
 	void	StartSploutchGlu(POINT pos);
 	BOOL	ObjectStart(POINT pos, int type, int speed);
 	BOOL	ObjectStart(POINT pos, int type, int speed, BOOL bMulti);
-	BOOL	ObjectDelete(POINT pos, int type);
+	BOOL	ObjectDelete(POINT pos, int type, BOOL bMulti = FALSE);
 	void	MoveObjectStep();
 	void	MoveObjectStepLine(int i);
 	void	MoveObjectStepIcon(int i);

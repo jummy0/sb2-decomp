@@ -232,17 +232,27 @@ BOOL ReadConfig(LPSTR lpCmdLine)
 	return TRUE;
 }
 
+// Mise à jour principale.
+
 void UpdateFrame(void)
 {
-	int phase, term;
+	int phase, term, speed;
 
 	g_pEvent->ReadInput();
 	phase = g_pEvent->GetPhase();
+
+	if (phase == WM_PHASE_INTRO1 ||
+		phase == WM_PHASE_INTRO2)
+	{
+		g_pEvent->IntroStep();
+	}
+
 	if (phase == WM_PHASE_PLAY || phase == WM_PHASE_PLAYTEST || phase == WM_PHASE_BUILD)
 	{
 		if (!g_pDecor->GetPause())
 		{
-			for (int i = 0; i < g_pEvent->GetSpeed() * g_speedRate; i++)
+			speed = g_pEvent->GetSpeed() * g_speedRate;
+			for (int i = 0; i < speed; i++)
 			{
 				g_pDecor->MoveStep();
 				g_pEvent->DemoStep();
@@ -255,7 +265,10 @@ void UpdateFrame(void)
 		g_pEvent->DemoStep();  // d?marre ?v. d?mo automatique
 	}
 
-	if (phase == WM_PHASE_PLAYMOVIE || phase == WM_PHASE_WINMOVIE || WM_PHASE_WINMOVIEDESIGN || WM_PHASE_WINMOVIEMULTI)
+	if (phase == WM_PHASE_PLAYMOVIE ||
+		phase == WM_PHASE_WINMOVIE ||
+		phase == WM_PHASE_WINMOVIEDESIGN ||
+		phase == WM_PHASE_WINMOVIEMULTI)
 	{
 		g_pEvent->MovieToStart();
 	}
@@ -267,61 +280,62 @@ void UpdateFrame(void)
 
 	if (phase == WM_PHASE_PLAY)
 	{
-		if (g_pEvent->IsPrivate() == FALSE)
+		term = g_pDecor->IsTerminated();
+		
+		if (g_pEvent->IsPrivate())
 		{
-			if (g_pEvent->IsMulti() == FALSE)
-			{
-				if (g_pDecor->IsTerminated() == -1)
-				{
-					g_pEvent->GetWorldGroup();
-					g_pEvent->SetLives(g_pDecor->GetNbVies());
-					g_pEvent->ChangePhase(WM_PHASE_LOST);
-				}
-				if (g_pDecor->IsTerminated() == -2)
-				{
-					g_pEvent->SetLives(g_pDecor->GetNbVies());
-					g_pEvent->ChangePhase(WM_PHASE_WINMOVIE);
-				}
-				if (0 < g_pDecor->IsTerminated())
-				{
-					g_pEvent->SetLives(g_pDecor->GetNbVies());
-					g_pEvent->SetMission(g_pDecor->IsTerminated());
-					g_pEvent->ChangePhase(WM_PHASE_PLAY);
-				}
-			}
-			else
-			{
-				if (g_pDecor->IsTerminated() == -1)
-				{
-					g_pEvent->ChangePhase(WM_PHASE_WINMULTI);
-					return;
-				}
-				if (g_pDecor->IsTerminated() != 0)
-				{
-					g_pEvent->ChangePhase(WM_PHASE_WINMOVIEMULTI);
-					return;
-				}
-			}
-		}
-		else
-		{
-			if (g_pDecor->IsTerminated() == -1)
+			if (term == -1)
 			{
 				g_pEvent->ChangePhase(WM_PHASE_LOSTDESIGN);
 				return;
 			}
-			if (g_pDecor->IsTerminated() != 0)
+			if (term != 0)
 			{
 				g_pEvent->ChangePhase(WM_PHASE_WINMOVIEDESIGN);
 				return;
 			}
 		}
+		else
+		{
+			if (g_pEvent->IsMulti())
+			{
+				if (term == -1)
+				{
+					g_pEvent->ChangePhase(WM_PHASE_WINMULTI);
+					return;
+				}
+				if (term != 0)
+				{
+					g_pEvent->ChangePhase(WM_PHASE_WINMOVIEMULTI);
+					return;
+				}
+			}
+			else
+			{
+				if (term == -1)
+				{
+					g_pEvent->GetWorldGroup();
+					g_pEvent->SetNbVies(g_pDecor->GetNbVies());
+					g_pEvent->ChangePhase(WM_PHASE_LOST);
+				}
+				if (term == -2)
+				{
+					g_pEvent->SetNbVies(g_pDecor->GetNbVies());
+					g_pEvent->ChangePhase(WM_PHASE_WINMOVIE);
+				}
+				if (term > 0)
+				{
+					g_pEvent->SetNbVies(g_pDecor->GetNbVies());
+					g_pEvent->SetMission(term);
+					g_pEvent->ChangePhase(WM_PHASE_PLAY);
+				}
+			}
+		}
 	}
 }
 
-// Incomplete
 
-void SetDecor(void)
+void SetDecor()
 {
 	RECT rect;
 	UINT phase;
@@ -429,7 +443,6 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 
 	// La touche F10 envoie un autre message pour activer
 	// le menu dans les applications Windows standard !
-	//[The F10 key sends another message to activate the menu in standard Windows apps!]
 	if (message == WM_SYSKEYDOWN && wParam == VK_F10)
 	{
 		message = WM_KEYDOWN;
@@ -458,14 +471,10 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 		}
 		if (g_timer > 0) g_timer--;
 		break;
-	case WM_SYSCOLORCHANGE:
-		OutputDebug("Event WM_SYSCOLORCHANGE\n");
-		break;
 	case WM_CREATE:
 		hInstance = ((LPCREATESTRUCT)lParam)->hInstance;
 		return 0;
 		break;
-
 	case WM_ACTIVATEAPP:
 		g_bActive = (wParam != 0);
 		if (g_pEvent != NULL)
@@ -501,8 +510,8 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 		}
 		return 0;
 
-	case WM_DISPLAYCHANGE:
-		OutputDebug("Event WM_DISPLAYCHANGE\n");
+	case WM_SYSCOLORCHANGE:
+		OutputDebug("Event WM_SYSCOLORCHANGE\n");
 		break;
 
 	case WM_QUERYNEWPALETTE:
@@ -511,6 +520,10 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message,
 
 	case WM_PALETTECHANGED:
 		OutputDebug("Event WM_PALLETECHANGED\n");
+		break;
+
+	case WM_DISPLAYCHANGE:
+		OutputDebug("Event WM_DISPLAYCHANGE\n");
 		break;
 
 	case MM_MCINOTIFY:

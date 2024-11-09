@@ -556,7 +556,7 @@ BOOL CSound::PlayMusic(HWND hWnd, int music)
 		sprintf(buf, "sound\\music%.3d.blp", music - 1);
 		strcat(string, buf);
 
-		m_hBassStream = BASS_MIDI_StreamCreateFile(FALSE, string, 0, 0, BASS_SAMPLE_LOOP, 0);
+		m_hBassStream = BASS_MIDI_StreamCreateFile(FALSE, string, 0, 0, BASS_SAMPLE_LOOP | BASS_MIDI_DECAYEND | BASS_MIDI_NOCROP, 0);
 		BASS_ChannelSetAttribute(m_hBassStream, BASS_ATTRIB_VOL, table[m_midiVolume]);
 		BASS_ChannelSetAttribute(m_hBassStream, BASS_ATTRIB_MIDI_REVERB, 0);
 		BASS_ChannelStart(m_hBassStream);

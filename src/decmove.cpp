@@ -339,49 +339,36 @@ BOOL CDecor::ObjectStart(POINT pos, int type, int speed, BOOL bMulti)
 	if (bMulti)
 	{
 		NetMessage msg;
-		msg.data1 = speed;
 		msg.type = MESS_OBJECTSTART;
-		msg.x = pos.x;
-		msg.y = pos.y;
-		msg.channel = type;
+		msg.data1 = speed;
+		msg.data2 = pos.x;
+		msg.data3 = pos.y;
+		msg.data4 = type;
 		NetMessagePush(&msg);
 	}
 	return TRUE;
 }
 
-BOOL CDecor::ObjectDelete(POINT pos, int type)
+BOOL CDecor::ObjectDelete(POINT pos, int type, BOOL bMulti)
 {
+	NetMessage msg;
+
 	int num = MoveObjectSearch(pos, type);
 	if (num == -1)
 	{
 		return FALSE;
 	}
-	if (m_moveObject[num].type == 4 ||
-		m_moveObject[num].type == 12 ||
-		m_moveObject[num].type == 16 ||
-		m_moveObject[num].type == 17 ||
-		m_moveObject[num].type == 20 ||
-		m_moveObject[num].type == 40 ||
-		m_moveObject[num].type == 96 ||
-		m_moveObject[num].type == 97)
-	{
-		int num2 = 17;
-		double animationSpeed = 1.0;
-		if (m_moveObject[num].type == 4)
-		{
-			num2 = 7;
-		}
-		if (m_moveObject[num].type == 17 || m_moveObject[num].type == 20)
-		{
-			num2 = 33;
-		}
-		if (m_moveObject[num].type == 40)
-		{
-			animationSpeed = 0.5;
-		}
-		
-	}
 	m_moveObject[num].type = 0;
+	if (bMulti)
+	{
+		msg.type = MESS_OBJECTDELETE;
+		msg.data1 = 0;
+		msg.data2 = pos.x;
+		msg.data3 = pos.y;
+		msg.data4 = type;
+
+		NetMessagePush(&msg);
+	}
 	return TRUE;
 }
 
@@ -1590,7 +1577,7 @@ int CDecor::AscenseurDetect(RECT rect, POINT oldpos, POINT newpos)
 			src.right = m_moveObject[i].posCurrent.x + DIMOBJX;
 			src.top = m_moveObject[i].posCurrent.y;
 			src.bottom = m_moveObject[i].posCurrent.y + 16;
-			if (dy < LIFT_RANGE_Y)
+			if (dy < (DIMBLUPIY / 2))
 			{
 				RECT dest = { 0, 0, 0, 0 };
 				if (IntersectRect(&dest, &src, &rect))
@@ -1601,16 +1588,16 @@ int CDecor::AscenseurDetect(RECT rect, POINT oldpos, POINT newpos)
 			else
 			{
 				RECT src2 = rect;
-				src2.top -= dy / LIFT_RANGE_Y * LIFT_RANGE_Y * dirY;
-				src2.bottom -= dy / LIFT_RANGE_Y * LIFT_RANGE_Y * dirY;
-				for (int j = 0; j <= dy / LIFT_RANGE_Y; j++)
+				src2.top -= dy / (DIMBLUPIY / 2) * (DIMBLUPIY / 2) * dirY;
+				src2.bottom -= dy / (DIMBLUPIY / 2) * (DIMBLUPIY / 2) * dirY;
+				for (int j = 0; j <= dy / (DIMBLUPIY / 2); j++)
 				{
 					RECT dest = { 0, 0, 0, 0 };
 					if (IntersectRect(&dest, &src, &src2))
 					{
 						return i;
 					}
-					src2.top += dirY * LIFT_RANGE_Y;
+					src2.top += dirY * (DIMBLUPIY / 2);
 					src2.bottom += dy;
 				}
 			}

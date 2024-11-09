@@ -5091,7 +5091,7 @@ error:
 	return FALSE;
 }
 
-void CEvent::SetLives(int lives)
+void CEvent::SetNbVies(int lives)
 {
 	m_lives = lives;
 }
@@ -5842,4 +5842,26 @@ BOOL CEvent::CurrentWrite(int rank)
 		return TRUE;
 	}
 	return FALSE;
+}
+
+// Passe les images d'introduction.
+
+void CEvent::IntroStep()
+{
+	m_introTime++;
+
+	if (m_introTime > 20 * 3)
+	{
+		if (m_phase == WM_PHASE_INTRO1)
+		{
+			ChangePhase(WM_PHASE_INTRO2);
+			return;
+		}
+
+		if (m_phase == WM_PHASE_INTRO2)
+		{
+			ChangePhase(WM_PHASE_INIT);
+			return;
+		}
+	}
 }

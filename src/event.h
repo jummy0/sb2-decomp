@@ -132,7 +132,7 @@ public:
 	void	DebugDisplay(char m);
 
 	void	IntroStep();
-	void	SetLives(int lives);
+	void	SetNbVies(int lives);
 
 	void	ReadAll();
 	BOOL	SaveState(int rank);
@@ -204,8 +204,8 @@ protected:
 	int			m_quicksaveIndex;
     int         m_mission;
 	char		m_gamerName[100];
-	char		m_gamerNameList[8][100];
-	BOOL		m_gamerExist[8];
+	char		m_gamerNameList[MAXGAMER][100];
+	BOOL		m_gamerExist[MAXGAMER];
 	void*		m_somethingJoystick;
 	int			m_menuIndex;
 	int			m_choiceIndex;
@@ -213,7 +213,7 @@ protected:
 	int			m_menuDecor[11];
 	BOOL		m_bMouseRelease;
     int         m_private;
-	int 		m_bNamesExist[8];
+	int 		m_bNamesExist[MAXGAMER];
 	int			m_fileIndex;
     int         m_maxMission;
     int         m_phase;

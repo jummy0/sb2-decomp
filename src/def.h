@@ -33,7 +33,6 @@
 #define MAXFIFOPOS		10
 #define MAXCHAT			6
 #define MAXSAVE			6
-#define LIFT_RANGE_Y	30
 #define MAXDEMO        9999
 #define MAXINDEX	   20
 

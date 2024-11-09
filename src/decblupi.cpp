@@ -3714,7 +3714,17 @@ void CDecor::BlupiStep()
 		m_blupiPhase = 0;
 		PlaySound(27, m_blupiPos);
 	}
-	if ((m_blupiAction == 11 && m_blupiPhase == 70) || (m_blupiAction == 75 && m_blupiPhase == 100) || (m_blupiAction == 76 && m_blupiPhase == 70) || (m_blupiAction == 77 && m_blupiPhase == 110) || (m_blupiAction == 78 && m_blupiPhase == 90) || (m_blupiAction == 79 && m_blupiPhase == 90) || (m_blupiAction == 80 && m_blupiPhase == 90) || (m_blupiAction == 81 && m_blupiPhase == 90) || (m_blupiAction == 24 && m_blupiPhase == 90) || (m_blupiAction == 54 && m_blupiPhase == 100) || (m_blupiAction == 57 && m_blupiPhase == 90))
+	if ((m_blupiAction == 11 && m_blupiPhase == 70) ||
+		(m_blupiAction == 75 && m_blupiPhase == 100) ||
+		(m_blupiAction == 76 && m_blupiPhase == 70) ||
+		(m_blupiAction == 77 && m_blupiPhase == 110) ||
+		(m_blupiAction == 78 && m_blupiPhase == 90) ||
+		(m_blupiAction == 79 && m_blupiPhase == 90) ||
+		(m_blupiAction == 80 && m_blupiPhase == 90) ||
+		(m_blupiAction == 81 && m_blupiPhase == 90) ||
+		(m_blupiAction == 24 && m_blupiPhase == 90) ||
+		(m_blupiAction == 54 && m_blupiPhase == 100) ||
+		(m_blupiAction == 57 && m_blupiPhase == 90))
 	{
 		if (m_nbVies > 0)
 		{
@@ -3729,33 +3739,35 @@ void CDecor::BlupiStep()
 			tinyPoint.x = m_blupiPos.x - posDecor.x - 30;
 			tinyPoint.y = m_blupiPos.y - posDecor.y;
 			VoyageInit(VoyageGetPosVie(m_nbVies), tinyPoint, 48, 2);
+			NetSendBarePacket(PK_DIE, m_nbVies);
 		}
 		else
 		{
 			m_nbVies = -1;
 			m_term = -1;
 			DoorsLost();
+			NetSendBarePacket(PK_LOST, 0);
 		}
 		m_blupiFront = FALSE;
 	}
 	if (m_dimDecor.y == 0)
 	{
-		num3 = 480;
+		num3 = LYIMAGE;
 	}
 	else
 	{
-		num3 = 6400;
+		num3 = DIMOBJY * MAXCELY;
 	}
 	if (m_blupiPos.y >= num3 + 1 && m_blupiPos.y <= num3 + 40)
 	{
-		PlaySound(8, m_blupiPos);
+		PlaySound(SOUND_FALL, m_blupiPos);
 	}
 	if (m_blupiPos.y > num3 + 1000)
 	{
 		m_term = -1;
 		DoorsLost();
 	}
-	if (m_blupiAction == 13 && m_blupiPhase == 40)
+	if (m_blupiAction == ACTION_WIN && m_blupiPhase == 70)
 	{
 		if (m_bPrivate)
 		{
@@ -3780,7 +3792,7 @@ void CDecor::BlupiStep()
 			m_term = m_mission / 10 * 10;
 		}
 	}
-	if (m_blupiAction == ACTION_BYE && m_blupiPhase == 30)
+	if (m_blupiAction == ACTION_BYE && m_blupiPhase == 50)
 	{
 		;
 		num = IsWorld(m_blupiPos);
