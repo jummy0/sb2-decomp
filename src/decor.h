@@ -52,12 +52,31 @@ MoveObject;
 
 typedef struct
 {
-	short type;
-	short x;
-	short y;
-	short z;
+	char type;
+	char data1;
+	short data2;
+	short data3;
+	short data4;
 }
 NetMessage;
+
+typedef struct
+{
+	char size;
+	char type;
+	short keyPress;
+	int time;
+	short blupiPosX;
+	short blupiPosY;
+	short blupiIcon;
+	short blupiSec;
+	char blupiChannel;
+	char blupiTransport;
+	char unk12;
+	char nbMessages;
+	NetMessage messages[MAXMESSAGEPERPACKET];
+}
+NetPacket;
 
 typedef struct
 {
@@ -343,7 +362,7 @@ public:
 	void	StartSploutchGlu(POINT pos);
 	BOOL	ObjectStart(POINT pos, int type, int speed);
 	BOOL	ObjectStart(POINT pos, int type, int speed, BOOL bMulti);
-	BOOL	ObjectDelete(POINT pos, int type, BOOL bMulti = FALSE);
+	BOOL	ObjectDelete(POINT pos, int type, BOOL bMulti = TRUE);
 	void	MoveObjectStep();
 	void	MoveObjectStepLine(int i);
 	void	MoveObjectStepIcon(int i);
@@ -379,11 +398,11 @@ public:
 	void	NetPlaySound(short channel, POINT pos);
 	void	NetStopSound(short channel);
 	void	NetDataFlush();
-	void	NetFUN_155e0(BYTE _foo, short _bar);
+	void	NetSendBarePacket(BYTE _foo, short _bar);
 	void	TreatNetData();
 	void	DoNetSmooth(int player);
 	void	NetAdjustToLift();
-	void	FUN_15da0(int rank, short step);
+	void	NetAscenseurSynchro(int rank, short step);
 	void	NetPlayerCollide(POINT pos, int *out);
 	void	NetMessageIndexFlush();
 	BOOL	NetMessagePush(NetMessage *message);
@@ -507,16 +526,16 @@ protected:
 	int			m_netPacketsSent2;
 	int			m_netPacketsReceived;
 	int			m_netPacketsReceived2;
-	POINT		m_netPos[MAXNETPLAYER];
-	int			m_netIcons[MAXNETPLAYER];
-	int			m_netUnk1[MAXNETPLAYER];
-	int			m_netUnk2[MAXNETPLAYER];
+	POINT		m_netBlupiPos[MAXNETPLAYER];
+	int			m_netBlupiIcon[MAXNETPLAYER];
+	int			m_netBlupiSec[MAXNETPLAYER];
+	int			m_netBlupiTransport[MAXNETPLAYER];
 	int			m_netTransports[MAXNETPLAYER]; // index of lift ridden by each player, or -1
-	int			m_netPlayerPacketsReceived[MAXNETPLAYER];
-	int			m_netPlayerPacketsReceived2[MAXNETPLAYER];
+	int			m_netTimes[MAXNETPLAYER];
+	int			m_netPrevTimes[MAXNETPLAYER];
 	int			m_netTimeSincePacket[MAXNETPLAYER];
 	POINT		m_netVitesses[MAXNETPLAYER];
-	POINT		m_netUnk4[MAXNETPLAYER];
+	POINT		m_netBlupiPrevPos[MAXNETPLAYER];
 	POINT		m_netPacketPos;
 	int			m_netPacketIcon;
 	NetMessage	m_netMessages[MAXNETMESSAGE];

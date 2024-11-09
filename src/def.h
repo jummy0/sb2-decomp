@@ -35,6 +35,7 @@
 #define MAXSAVE			6
 #define MAXDEMO        9999
 #define MAXINDEX	   20
+#define MAXMESSAGEPERPACKET 5
 
 #define LXIMAGE			640		// dimensions de la fenêtre de jeu
 #define LYIMAGE			480
@@ -92,6 +93,14 @@ enum {
 };
 
 enum {
+	PK_LEAVE = 8,
+	PK_LOST,
+	PK_DIE,
+
+	PK_PAUSE = 12,
+};
+
+enum {
 	MESS_RESUME = 0,
 	MESS_PAUSE,
 	MESS_2,
@@ -100,11 +109,8 @@ enum {
 	MESS_5,
 	MESS_6,
 	MESS_7,
-	MESS_LEAVE,
-	MESS_LOST,
-	MESS_START,
+	MESS_START = 10,
 	MESS_11,
-	MESS_PAUSE2,
 
 	MESS_OBJECTSTART = 20,
 	MESS_OBJECTDELETE,
