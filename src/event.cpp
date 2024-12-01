@@ -2300,7 +2300,7 @@ void CEvent::ChatPush(char *str)
 	pText = this->m_chatZone[i];
 LABEL_5:
 	strcpy(pText, str);
-	m_pSound->PlayImage(11, POINT( LXIMAGE / 2, LYIMAGE / 2 ), -1);
+	m_pSound->PlayImage(SOUND_TRESOR, POINT( LXIMAGE / 2, LYIMAGE / 2 ), -1);
 }
 
 void CEvent::ChatFlush()
@@ -5305,7 +5305,7 @@ void CEvent::DemoRecEvent()
 	if (m_bDemoRec)
 	{
 		m_pDemoBuffer[m_demoIndex].time = m_demoTime;
-		m_pDemoBuffer[m_demoIndex].input == m_keyPress;
+		m_pDemoBuffer[m_demoIndex].input = m_keyPress;
 		m_demoIndex++;
 		if (m_demoIndex > MAXDEMO)
 		{

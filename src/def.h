@@ -5,6 +5,7 @@
 #define DEF_H
 
 #include <windows.h>
+#include <cmath> // ceil
 
 // prevent WinAPI from overriding our functions
 #undef PlaySound
@@ -72,6 +73,8 @@
 
 #define DIMDECORX		640
 #define DIMDECORY		480
+
+#define TRAJBYTEX		ceil(MAXCELX / 8.0) // bytes to store one row of traj data
 
 enum {
 	CHBACK = 0,
@@ -367,6 +370,7 @@ static char debugMobTypeNames[204][20] =
 #define TYPE_INVERT 40
 #define TYPE_INVERTSTART 41
 #define TYPE_INVERTSTOP 42
+#define TYPE_INVERTSPIN 43
 #define TYPE_GUEPE 44 // wasp
 #define TYPE_OVER 46 // hovercraft
 #define TYPE_ASCENSEURs 47 // conveyor belt right
@@ -1357,32 +1361,32 @@ POINT operator/(POINT p, const int& a)
 	return POINT( p.x / a, p.y / a );
 }
 
-POINT operator+=(POINT p, const POINT& a)
+POINT& operator+=(POINT& p, const POINT& a)
 {
 	return POINT( p.x += a.x, p.y += a.y );
 }
 
-POINT operator-=(POINT p, const POINT& a)
+POINT& operator-=(POINT& p, const POINT& a)
 {
 	return POINT( p.x -= a.x, p.y -= a.y );
 }
 
-POINT operator*=(POINT p, const POINT& a)
+POINT& operator*=(POINT& p, const POINT& a)
 {
 	return POINT( p.x *= a.x, p.y *= a.y );
 }
 
-POINT operator/=(POINT p, const POINT& a)
+POINT& operator/=(POINT& p, const POINT& a)
 {
 	return POINT( p.x /= a.x, p.y /= a.y );
 }
 
-POINT operator*=(POINT p, const int& a)
+POINT& operator*=(POINT& p, const int& a)
 {
 	return POINT( p.x *= a, p.y *= a );
 }
 
-POINT operator/=(POINT p, const int& a)
+POINT& operator/=(POINT& p, const int& a)
 {
 	return POINT( p.x /= a, p.y /= a );
 }

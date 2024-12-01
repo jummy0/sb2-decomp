@@ -291,7 +291,7 @@ public:
 	BOOL	IsPiege(POINT pos);
 	BOOL	IsGoutte(POINT pos, BOOL bAlways);
 	BOOL	IsScie(POINT pos);
-	BOOL	IsSwitch(POINT pos, POINT celSwitch);
+	BOOL	IsSwitch(POINT pos, POINT *outCelSwitch);
 	BOOL	IsEcraseur(POINT pos);
 	BOOL	IsBlitz(POINT pos, BOOL bAlways);
 	BOOL	IsRessort(POINT pos);
@@ -299,7 +299,7 @@ public:
 	BOOL	IsBridge(POINT pos, POINT *outCelBridge);
 	int		IsDoor(POINT pos, POINT *outCelPorte);
 	int		IsTeleporte(POINT pos);
-	BOOL	SearchTeleporte(POINT pos, POINT newpos);
+	BOOL	SearchTeleporte(POINT pos, POINT *newpos);
 	BOOL	IsSurfWater(POINT pos);
 	BOOL	IsDeepWater(POINT pos);
 	BOOL	IsOutWater(POINT pos);
@@ -561,7 +561,7 @@ protected:
 	BOOL        m_bNetMovePredict;  // ynosmooth
 	BOOL        m_bNetDebug;		// znetdebug
 	BOOL		m_bJoystick;
-	int			m_bD814;
+	int			m_bDemoPlay;
 	int         m_mission;
 	BYTE        m_doors[200];
 	int         m_nbVies;

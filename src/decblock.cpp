@@ -218,20 +218,20 @@ int CDecor::GetTypeBarre(POINT pos)
 
 BOOL CDecor::IsLave(POINT pos)
 {
-	pos.x += 30;
+	pos.x += DIMBLUPIX / 2;
 	return pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon == 68;
 }
 
 BOOL CDecor::IsPiege(POINT pos)
 {
-	pos.x += 30;
-	pos.y += 60;
+	pos.x += DIMBLUPIX / 2;
+	pos.y += DIMBLUPIY;
 	return pos.x % 64 >= 15 && pos.x % 64 <= 49 && pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon == 373;
 }
 
 BOOL CDecor::IsGoutte(POINT pos, BOOL bAlways)
 {
-	pos.x += 30;
+	pos.x += DIMBLUPIX / 2;
 	if (pos.x % 64 < 15 || pos.x % 64 > 49)
 	{
 		return FALSE;
@@ -250,23 +250,23 @@ BOOL CDecor::IsGoutte(POINT pos, BOOL bAlways)
 
 BOOL CDecor::IsScie(POINT pos)
 {
-	pos.x += 30;
+	pos.x += DIMBLUPIX / 2;
 	return pos.x % 64 >= 4 && pos.x % 64 <= 60 && pos.x >= 0 && pos.x < 6400 && pos.y >= 0 && pos.y < 6400 && m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon == 378;
 }
 
-BOOL CDecor::IsSwitch(POINT pos, POINT celSwitch)
+BOOL CDecor::IsSwitch(POINT pos, POINT *outCelSwitch)
 {
-	pos.x += 30;
-	if (pos.x % 64 < 4 || pos.x % 64 > 60)
+	pos.x += DIMBLUPIX / 2;
+	if (pos.x % DIMOBJX < 4 || pos.x % DIMOBJX > DIMOBJX - 4)
 	{
 		return FALSE;
 	}
-	if (pos.x < 0 || pos.x >= 6400 || pos.y < 0 || pos.y >= 6400)
+	if (pos.x < 0 || pos.x >= DIMOBJX * MAXCELX || pos.y < 0 || pos.y >= DIMOBJY * MAXCELY)
 	{
 		return FALSE;
 	}
-	celSwitch.x = pos.x / DIMOBJX;
-	celSwitch.y = pos.y / DIMOBJY;
+	outCelSwitch->x = pos.x / DIMOBJX;
+	outCelSwitch->y = pos.y / DIMOBJY;
 	return m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon == 384 || m_decor[pos.x / DIMOBJX][pos.y / DIMOBJY].icon == 385;
 }
 
@@ -372,7 +372,7 @@ int CDecor::IsTeleporte(POINT pos)
 	return -1;
 }
 
-BOOL CDecor::SearchTeleporte(POINT pos, POINT newpos)
+BOOL CDecor::SearchTeleporte(POINT pos, POINT *newpos)
 {
 	int num = IsTeleporte(pos);
 	if (num == -1)
@@ -385,9 +385,9 @@ BOOL CDecor::SearchTeleporte(POINT pos, POINT newpos)
 		{
 			if (num == m_decor[i][j].icon)
 			{
-				newpos.x = i * 64;
-				newpos.y = j * 64 + 60;
-				if (newpos.x < pos.x - 40 || newpos.x > pos.x + 40 || newpos.y < pos.y - 40 || newpos.y > pos.y + 40)
+				newpos->x = i * 64;
+				newpos->y = j * 64 + 60;
+				if (newpos->x < pos.x - 40 || newpos->x > pos.x + 40 || newpos->y < pos.y - 40 || newpos->y > pos.y + 40)
 				{
 					return TRUE;
 				}
@@ -462,7 +462,7 @@ BOOL CDecor::IsBlocIcon(int icon)
 			return FALSE;
 		}
 	}
-	return FALSE;
+	return TRUE;
 }
 
 BOOL CDecor::IsVentillo(POINT pos)

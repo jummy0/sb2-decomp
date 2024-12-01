@@ -13,13 +13,13 @@ void CDecor::MoveObjectPollution()
 	BOOL bPollution;
 	int num = 20;
 	bPollution = FALSE;
-	if (m_blupiAction == 3)
+	if (m_blupiAction == ACTION_TURN)
 	{
 		return;
 	}
 	if (m_blupiHelico)
 	{
-		if (m_blupiVitesse.y < -5.0)
+		if (m_blupiVitesse.y < -5)
 		{
 			if (m_time % 20 != 0 &&
 				m_time % 20 != 2 &&
@@ -33,7 +33,7 @@ void CDecor::MoveObjectPollution()
 				return;
 			}
 		}
-		else if (m_blupiVitesse.x == 0.0)
+		else if (m_blupiVitesse.x == 0)
 		{
 			if (m_time % 50 != 0 &&
 				m_time % 50 != 12 &&
@@ -63,26 +63,26 @@ void CDecor::MoveObjectPlouf(POINT pos)
 {
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
 	{
-		if (m_moveObject[i].type == 14)
+		if (m_moveObject[i].type == TYPE_PLOUF)
 		{
 			return;
 		}
 	}
 	pos.y -= 45;
-	PlaySound(23, pos);
-	ObjectStart(pos, 14, 0);
+	PlaySound(SOUND_PLOUF, pos);
+	ObjectStart(pos, TYPE_PLOUF, 0);
 }
 
 void CDecor::MoveObjectTiplouf(POINT pos)
 {
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
 	{
-		if (m_moveObject[i].type == 35)
+		if (m_moveObject[i].type == TYPE_TIPLOUF)
 		{
 			return;
 		}
 	}
-	if (m_blupiDir == 2)
+	if (m_blupiDir == DIR_RIGHT)
 	{
 		pos.x += 5;
 	}
@@ -91,13 +91,13 @@ void CDecor::MoveObjectTiplouf(POINT pos)
 		pos.x -= 5;
 	}
 	pos.y -= 45;
-	PlaySound(64, pos);
-	ObjectStart(pos, 35, 0);
+	PlaySound(SOUND_TIPLOUF, pos);
+	ObjectStart(pos, TYPE_TIPLOUF, 0);
 }
 
 void CDecor::MoveObjectBlup(POINT pos)
 {
-	PlaySound(24, pos);
+	PlaySound(SOUND_BLUP, pos);
 	pos.y -= 20;
 	int num = 0;
 	POINT tinyPoint = pos;
@@ -121,7 +121,7 @@ void CDecor::MoveObjectBlup(POINT pos)
 	{
 		return;
 	}
-	m_moveObject[num2].type = 15;
+	m_moveObject[num2].type = TYPE_BLUP;
 	m_moveObject[num2].phase = 0;
 	m_moveObject[num2].posCurrent.x = pos.x;
 	m_moveObject[num2].posCurrent.y = pos.y;
@@ -130,7 +130,7 @@ void CDecor::MoveObjectBlup(POINT pos)
 	m_moveObject[num2].posEnd.y = pos.y - num * DIMOBJY;
 	m_moveObject[num2].timeStopStart = 0;
 	m_moveObject[num2].stepAdvance = num * 10;
-	m_moveObject[num2].step = 2;
+	m_moveObject[num2].step = STEP_ADVANCE;
 	m_moveObject[num2].time = 0;
 	MoveObjectStepIcon(num2);
 }
@@ -138,32 +138,29 @@ void CDecor::MoveObjectBlup(POINT pos)
 
 void CDecor::FlushBalleTraj()
 {
-	for (int i = 0; i < 1300; i++)
-	{
-		m_balleTraj[i] = 0;
-	}
+	ZeroMemory(m_balleTraj, sizeof(m_balleTraj));
 }
 
-void CDecor::SetBalleTraj(POINT pos)
+void CDecor::SetBalleTraj(POINT cel)
 {
-	if (pos.x < 0 || pos.x >= 100 || pos.y < 0 || pos.y >= 100)
-	{
-		return;
-	}
-	int num = pos.y * 13;
-	num += pos.x / 8;
-	int num2 = pos.x & 7;
+	if (!IsValidCel(cel)) return;
+	int num = cel.y * TRAJBYTEX;
+	num += cel.x / 8;
+	int num2 = cel.x & 7;
 	m_balleTraj[num] |= 1 << num2;
 }
 
 BOOL CDecor::IsBalleTraj(POINT pos)
 {
+	POINT cel;
 	pos.x = (pos.x + DIMOBJX / 2) / DIMOBJX;
 	pos.y = (pos.y + DIMOBJY / 2) / DIMOBJY;
-	if (!IsValidCel(pos)) return FALSE;
-	int num = pos.y * 13;
-	num += pos.x / 8;
-	int num2 = pos.x & 7;
+	cel.x = pos.x / DIMOBJX;
+	cel.y = pos.y / DIMOBJY;
+	if (!IsValidCel(cel)) return FALSE;
+	int num = cel.y * TRAJBYTEX;
+	num += cel.x / 8;
+	int num2 = cel.x & 7;
 	return (m_balleTraj[num] & 1 << num2) != 0;
 }
 
@@ -172,57 +169,59 @@ void CDecor::FlushMoveTraj()
 	memset(m_moveTraj, 0, sizeof(m_moveTraj));
 }
 
-void CDecor::SetMoveTraj(POINT pos)
+void CDecor::SetMoveTraj(POINT cel)
 {
 
-	if (pos.x < 0 || pos.x >= 100 || pos.y < 0 || pos.y >= 100)
-	{
-		return;
-	}
-	int num = pos.y * 13;
-	num += pos.x / 8;
-	int num2 = pos.x & 7;
+	if (!IsValidCel(cel)) return;
+	int num = cel.y * TRAJBYTEX;
+	num += cel.x / 8;
+	int num2 = cel.x & 7;
 	m_moveTraj[num] |= 1 << num2;
 }
 
 BOOL CDecor::IsMoveTraj(POINT pos)
 {
-	pos.x = (pos.x + 32) / 64;
-	pos.y = (pos.y + 32) / 64;
-	if (pos.x < 0 || pos.x >= 100 || pos.y < 0 || pos.y >= 100)
-	{
-		return FALSE;
-	}
-	int num = pos.y * 13;
-	num += pos.x / 8;
-	int num2 = pos.x & 7;
+	POINT cel;
+	pos.x = (pos.x + DIMOBJX / 2) / DIMOBJX;
+	pos.y = (pos.y + DIMOBJY / 2) / DIMOBJY;
+	cel.x = pos.x / DIMOBJX;
+	cel.y = pos.y / DIMOBJY;
+	if (!IsValidCel(cel)) return FALSE;
+	int num = cel.y * TRAJBYTEX;
+	num += cel.x / 8;
+	int num2 = cel.x & 7;
 	return (m_moveTraj[num] & 1 << num2) != 0;
 }
 
 int CDecor::SearchDistRight(POINT pos, POINT dir, int type)
 {
+	POINT cel;
 	int num = 0;
-	if (type == 36 || type == 39 || type == 41 || type == 42 || type == 93)
+	if (type == TYPE_POLLUTION ||
+		type == TYPE_TRESORTRACK ||
+		type == TYPE_INVERTSTART ||
+		type == TYPE_INVERTSTOP ||
+		type == TYPE_INVERTSPIN ||
+		type == TYPE_EXPLO8)
 	{
 		return 500;
 	}
-	pos.x = (pos.x + 32) / 64;
-	pos.y = (pos.y + 32) / 64;
-	while (pos.x >= 0 && pos.x < 100 && pos.y >= 0 && pos.y < 100 && !IsBlocIcon(m_decor[pos.x][pos.y].icon))
+	cel.x = (pos.x + DIMOBJX / 2) / DIMOBJX;
+	cel.y = (pos.y + DIMOBJY / 2) / DIMOBJY;
+	while (IsValidCel(cel) && !IsBlocIcon(m_decor[cel.x][cel.y].icon))
 	{
-		if (type == 23)
+		if (type == TYPE_BALLE)
 		{
-			SetBalleTraj(pos);
+			SetBalleTraj(cel);
 		}
-		num += 64;
-		pos.x += dir.x;
-		pos.y += dir.y;
+		num += DIMOBJX;
+		cel += dir;
 	}
-	if ((type == 34 || type == 38) && num >= 64)
+	if ((type == TYPE_GLU || type == TYPE_ELECTRO) && num >= DIMOBJX)
 	{
-		num -= 64;
+		num -= DIMOBJX;
 	}
-	if (type == 23 && num >= 10)
+	if (type == TYPE_BALLE && num >= 10)
 	{
 		num -= 10;
 	}
@@ -235,30 +234,27 @@ void CDecor::StartSploutchGlu(POINT pos)
 	POINT pos2;
 	pos2.x = pos.x;
 	pos2.y = pos.y;
-	ObjectStart(pos2, 98, 0);
+	ObjectStart(pos2, TYPE_SPLOUTCH1, 0);
 	pos2.x = pos.x + 15;
 	pos2.y = pos.y + 20;
-	ObjectStart(pos2, 99, 0);
+	ObjectStart(pos2, TYPE_SPLOUTCH2, 0);
 	pos2.x = pos.x - 20;
 	pos2.y = pos.y + 18;
-	ObjectStart(pos2, 99, 0);
+	ObjectStart(pos2, TYPE_SPLOUTCH2, 0);
 	pos2.x = pos.x + 23;
 	pos2.y = pos.y - 18;
-	ObjectStart(pos2, 99, 0);
+	ObjectStart(pos2, TYPE_SPLOUTCH2, 0);
 	pos2.x = pos.x - 15;
 	pos2.y = pos.y - 18;
-	ObjectStart(pos2, 99, 0);
+	ObjectStart(pos2, TYPE_SPLOUTCH2, 0);
 	pos2.x = pos.x + 32;
 	pos2.y = pos.y + 10;
-	ObjectStart(pos2, 100, 0);
+	ObjectStart(pos2, TYPE_SPLOUTCH3, 0);
 	pos2.x = pos.x - 28;
 	pos2.y = pos.y + 15;
-	ObjectStart(pos2, 100, 0);
-	StopSound(16);
-	StopSound(18);
-	StopSound(29);
-	StopSound(31);
-	PlaySound(51, pos);
+	ObjectStart(pos2, TYPE_SPLOUTCH3, 0);
+	StopVehicleSound();
+	PlaySound(SOUND_GLU, pos);
 }
 
 BOOL CDecor::ObjectStart(POINT pos, int type, int speed)
@@ -330,7 +326,7 @@ BOOL CDecor::ObjectStart(POINT pos, int type, int speed, BOOL bMulti)
 		{
 			m_moveObject[num].posEnd = tinyPoint;
 			m_moveObject[num].timeStopStart = 0;
-			m_moveObject[num].stepAdvance = abs(dist * num2 / 64);
+			m_moveObject[num].stepAdvance = abs(dist * num2 / DIMOBJX);
 			m_moveObject[num].step = STEP_ADVANCE;
 			m_moveObject[num].time = 0;
 		}
@@ -400,7 +396,7 @@ void CDecor::MoveObjectStep()
 					posCurrent.x += 2;
 					posCurrent.y += BLUPIOFFY;
 					ObjectDelete(m_moveObject[i].posCurrent, m_moveObject[i].type);
-					ObjectStart(posCurrent, 37, 0);
+					ObjectStart(posCurrent, TYPE_CLEAR, 0);
 					ObjectDelete(m_moveObject[num].posCurrent, m_moveObject[num].type);
 				}
 				if (BlupiElectro(m_moveObject[i].posCurrent))
@@ -409,8 +405,8 @@ void CDecor::MoveObjectStep()
 					posCurrent.x += 2;
 					posCurrent.y += BLUPIOFFY;
 					ObjectDelete(m_moveObject[i].posCurrent, m_moveObject[i].type);
-					ObjectStart(posCurrent, 38, 55);
-					PlaySound(59, posCurrent);
+					ObjectStart(posCurrent, TYPE_ELECTRO, 55);
+					PlaySound(SOUND_ELECTRO, posCurrent);
 				}
 			}
 		}
@@ -503,9 +499,7 @@ void CDecor::MoveObjectStepLine(int i)
 				m_moveObject[i].time ++;
 				if (m_moveObject[i].stepAdvance != 0)
 				{
-					//m_moveObject[i].posCurrent = (m_moveObject[i].posEnd - m_moveObject[i].posStart) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart;
-					m_moveObject[i].posCurrent.x = (m_moveObject[i].posEnd.x - m_moveObject[i].posStart.x) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart.x;
-					m_moveObject[i].posCurrent.y = (m_moveObject[i].posEnd.y - m_moveObject[i].posStart.y) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart.y;
+					m_moveObject[i].posCurrent = (m_moveObject[i].posEnd - m_moveObject[i].posStart) * m_moveObject[i].time / m_moveObject[i].stepAdvance + m_moveObject[i].posStart;
 				}
 
 			}
@@ -545,11 +539,7 @@ void CDecor::MoveObjectStepLine(int i)
 				m_moveObject[i].time ++;
 				if (m_moveObject[i].stepRecede != 0)
 				{
-					//m_moveObject[i].posCurrent = (m_moveObject[i].posStart - m_moveObject[i].posEnd) * m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd;
-					m_moveObject[i].posCurrent.x = (m_moveObject[i].posStart.x - m_moveObject[i].posEnd.x) *
-						m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd.x;
-					m_moveObject[i].posCurrent.y = (m_moveObject[i].posStart.y - m_moveObject[i].posEnd.y) *
-						m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd.y;
+					m_moveObject[i].posCurrent = (m_moveObject[i].posStart - m_moveObject[i].posEnd) * m_moveObject[i].time / m_moveObject[i].stepRecede + m_moveObject[i].posEnd;
 				}
 			}
 			else
@@ -798,7 +788,7 @@ void CDecor::MoveObjectStepIcon(int i)
 	}
 	if (m_moveObject[i].type == TYPE_EXPLO1)
 	{
-		if (m_moveObject[i].phase >= table_explo1[0])
+		if (m_moveObject[i].phase >= 36)
 		{
 			m_moveObject[i].type = 0;
 		}
@@ -1112,7 +1102,7 @@ void CDecor::MoveObjectStepIcon(int i)
 		}
 		m_moveObject[i].channel = CHELEMENT;
 	}
-	if (m_moveObject[i].type == 20)
+	if (m_moveObject[i].type == TYPE_OISEAU)
 	{
 		if (m_moveObject[i].posStart.x > m_moveObject[i].posEnd.x)
 		{
@@ -1202,11 +1192,11 @@ void CDecor::MoveObjectStepIcon(int i)
 		{
 			if (m_moveObject[i].step == STEP_STOPSTART)
 			{
-				m_moveObject[i].icon = table_creature_turn2[m_moveObject[i].time % 152];
+				m_moveObject[i].icon = table_creature_turn2[m_moveObject[i].time % 200];
 			}
 			if (m_moveObject[i].step == STEP_STOPEND)
 			{
-				m_moveObject[i].icon = table_creature_turn2[m_moveObject[i].time % 152];
+				m_moveObject[i].icon = table_creature_turn2[m_moveObject[i].time % 200];
 			}
 			if (m_moveObject[i].step == STEP_ADVANCE)
 			{
@@ -1221,11 +1211,11 @@ void CDecor::MoveObjectStepIcon(int i)
 		{
 			if (m_moveObject[i].step == STEP_STOPSTART)
 			{
-				m_moveObject[i].icon = table_creature_turn2[m_moveObject[i].time % 152];
+				m_moveObject[i].icon = table_creature_turn2[m_moveObject[i].time % 200];
 			}
 			if (m_moveObject[i].step == STEP_STOPEND)
 			{
-				m_moveObject[i].icon = table_creature_turn2[m_moveObject[i].time % 152];
+				m_moveObject[i].icon = table_creature_turn2[m_moveObject[i].time % 200];
 			}
 			if (m_moveObject[i].step == STEP_ADVANCE)
 			{
@@ -1457,7 +1447,7 @@ void CDecor::DynamiteStart(int i, int dx, int dy)
 	ObjectStart(posStart, TYPE_EXPLO1, 0);
 	if (dx == 0 && dy == 0)
 	{
-		PlaySound(10, posStart);
+		PlaySound(SOUND_BOUM, posStart);
 		m_decorAction = 1;
 		m_decorPhase = 0;
 	}
@@ -1495,7 +1485,7 @@ void CDecor::DynamiteStart(int i, int dx, int dy)
 			m_moveObject[i].type == TYPE_BOMBEFOLLOW1 ||
 			m_moveObject[i].type == TYPE_BOMBEFOLLOW2 ||
 			m_moveObject[i].type == TYPE_BULLDOZER ||
-			m_moveObject[i].type == TYPE_EGG |
+			m_moveObject[i].type == TYPE_EGG ||
 			m_moveObject[i].type == TYPE_CAISSE ||
 			m_moveObject[i].type == TYPE_HELICO ||
 			m_moveObject[i].type == TYPE_BOMBEMOVE ||
@@ -1852,7 +1842,7 @@ int CDecor::MockeryDetect(POINT pos)
 			int icon = m_decor[tinyPoint.x / DIMOBJX][tinyPoint.y / DIMOBJY].icon;
 			if (icon == 68 || icon == 317)
 			{
-				return 64;
+				return ACTION_MOCKERYi;
 			}
 		}
 	}
@@ -1889,31 +1879,31 @@ int CDecor::MockeryDetect(POINT pos)
 			{
 				if (m_moveObject[i].type == TYPE_CREATURE)
 				{
-					return 83;
+					return ACTION_MOCKERYp;
 				}
 				if (m_blupiDir == DIR_RIGHT)
 				{
 					if (pos.x >= src2.left)
 					{
-						return 64;
+						return ACTION_MOCKERYi;
 					}
 					if (m_moveObject[i].type == TYPE_BOMBEDOWN)
 					{
 						return 0;
 					}
-					return 63;
+					return ACTION_MOCKERY;
 				}
 				else
 				{
 					if (pos.x < src2.left)
 					{
-						return 64;
+						return ACTION_MOCKERYi;
 					}
 					if (m_moveObject[i].type == TYPE_BOMBEDOWN)
 					{
 						return 0;
 					}
-					return 63;
+					return ACTION_MOCKERY;
 				}
 			}
 		}
@@ -1949,7 +1939,7 @@ void CDecor::MoveObjectFollow(POINT pos)
 	src.right = pos.x + DIMBLUPIX - 16;
 	for (int i = 0; i < MAXMOVEOBJECT; i++)
 	{
-		if (m_moveObject[i].type == 96)
+		if (m_moveObject[i].type == TYPE_BOMBEFOLLOW1)
 		{
 			RECT src2;
 			src2.left = m_moveObject[i].posCurrent.x - 100;
@@ -1999,18 +1989,18 @@ int CDecor::MoveObjectDetect(POINT pos, BOOL* pbNear)
 			{
 				if (m_blupiAction == ACTION_DOWN)
 				{
-					//goto IL_427;
+					continue;
 				}
 				src3.top = m_moveObject[i].posCurrent.y;
 				src3.bottom = m_moveObject[i].posCurrent.y + 69 - 36;
 			}
-			if (m_moveObject[i].type == TYPE_HELICO)
+			if (m_moveObject[i].type == TYPE_CAISSE)
 			{
 				src3.left = m_moveObject[i].posCurrent.x - 16;
 				src3.right = m_moveObject[i].posCurrent.x + DIMOBJX + 16;
 				src3.top = m_moveObject[i].posCurrent.y;
 				src3.bottom = m_moveObject[i].posCurrent.y + DIMOBJY;
-				if (m_blupiDir == 1)
+				if (m_blupiDir == DIR_LEFT)
 				{
 					src3.left += 20;
 				}
@@ -2030,7 +2020,7 @@ int CDecor::MoveObjectDetect(POINT pos, BOOL* pbNear)
 			if (m_moveObject[i].type == TYPE_BALLE)
 			{
 				src3.left = m_moveObject[i].posCurrent.x + 24;
-				src3.right = m_moveObject[i].posCurrent.x + DIMOBJX - 24;
+				src3.right = m_moveObject[i].posCurrent.x + DIMBLUPIX - 24;
 				src3.top = m_moveObject[i].posCurrent.y + 10;
 				src3.bottom = m_moveObject[i].posCurrent.y + DIMBLUPIY - 32;
 			}
@@ -2141,7 +2131,7 @@ int CDecor::MoveBalleDetect(POINT pos)
 	int i;
 	if (m_phase == WM_PHASE_BUILD)
 		return -1;
-	rcSrc2.right = pos.x + 44;
+	rcSrc2.right = pos.x + DIMBLUPIX - 16;
 	rcSrc2.left = pos.x + 20;
 	rcSrc2.top = pos.y + 10;
 	rcSrc2.bottom = pos.y + 28;
@@ -2154,9 +2144,9 @@ int CDecor::MoveBalleDetect(POINT pos)
 			m_moveObject->type == TYPE_BLUPIHELICO ||
 			m_moveObject->type == TYPE_BLUPITANK)
 		{
-			rcSrc1.right = m_moveObject->posCurrent.x + 44;
+			rcSrc1.right = m_moveObject->posCurrent.x + DIMBLUPIX - 16;
 			rcSrc1.left = m_moveObject->posCurrent.x + 16;
-			rcSrc1.bottom = m_moveObject->posCurrent.y + 50;
+			rcSrc1.bottom = m_moveObject->posCurrent.y + DIMBLUPIY - 10;
 			rcSrc1.top = m_moveObject->posCurrent.y + 16;
 			rcDst = RECT( 0, 0, 0, 0 );
 			if (IntersectRect(&rcDst, &rcSrc1, &rcSrc2))
@@ -2219,7 +2209,7 @@ int CDecor::SortGetType(int type)
 
 void CDecor::MoveObjectSort()
 {
-	MoveObject src;
+	MoveObject dst;
 	int i;
 	int num = 0;
 
@@ -2246,9 +2236,9 @@ void CDecor::MoveObjectSort()
 		{
 			if (SortGetType(m_moveObject[i].type) > SortGetType(m_moveObject[i + 1].type))
 			{
-				MoveObjectCopy(&src, &m_moveObject[i]);
+				MoveObjectCopy(&dst, &m_moveObject[i]);
 				MoveObjectCopy(&m_moveObject[i], &m_moveObject[i + 1]);
-				MoveObjectCopy(&m_moveObject[i + 1], &src);
+				MoveObjectCopy(&m_moveObject[i + 1], &dst);
 				flag = TRUE;
 			}
 		}
@@ -2260,25 +2250,21 @@ void CDecor::MoveObjectSort()
 void CDecor::MoveObjectPriority(int rank)
 {
 	MoveObject tempMob;
-
-	if (rank != 0)
+	int i;
+	if (rank)
 	{
-		if (m_moveObject[rank].type == TYPE_BALLE)
+		for (i = 0; i < MAXMOVEOBJECT; i++)
 		{
-			int i = 0;
-			for (int i = 0; i < MAXMOVEOBJECT; i++)
+			if (m_moveObject[i].type == TYPE_BALLE) return;
+		}
+		if (i <= rank)
+		{
+			MoveObjectCopy(&tempMob, &m_moveObject[rank]);
+			MoveObjectCopy(&m_moveObject[rank], &m_moveObject[i]);
+			MoveObjectCopy(&m_moveObject[i], &tempMob);
+			if (m_moveObject[rank].type == TYPE_CAISSE || m_moveObject[i].type == TYPE_CAISSE)
 			{
-				if (m_moveObject[i].type != TYPE_BALLE) break;
-			}
-			if (i <= rank)
-			{
-				MoveObjectCopy(&tempMob, &m_moveObject[rank]);
-				MoveObjectCopy(&m_moveObject[rank], &m_moveObject[i]);
-				MoveObjectCopy(&m_moveObject[i], &tempMob);
-				if (m_moveObject[rank].type == TYPE_CAISSE || tempMob.type == TYPE_CAISSE)
-				{
-					UpdateCaisse();
-				}
+				UpdateCaisse();
 			}
 		}
 	}
